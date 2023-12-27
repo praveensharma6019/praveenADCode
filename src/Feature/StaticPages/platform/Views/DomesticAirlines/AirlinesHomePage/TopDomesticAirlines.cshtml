@@ -1,0 +1,48 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@model RenderingModel
+@{
+    IHelper _helper = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    var domainUrl = !string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString()) ? Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString() : string.Empty;
+
+}
+@if (currentItem != null)
+{
+    <div class="section-wrap rightairport-info">
+        <div class="routes-info d-none d-md-block">
+            <h5 class="section-heading">@Html.Sitecore().Field("__Short Description", currentItem)</h5>
+            <ul class="left-side-link">
+                @foreach (Sitecore.Data.Items.Item airlines in currentItem.Children)
+                {
+                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)airlines.Fields["Link"]);
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)airlines.Fields["Image"]);
+                     string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(airlines, "Image") : "";
+                    var redirectUrl = linkField.GetFriendlyUrl();
+                    if (!String.IsNullOrEmpty(redirectUrl))
+                    {
+                        <li>
+                            <a href="@domainUrl@redirectUrl">
+                                <div class="img"><img src="@imageUrl" loading="lazy"></div>
+                                <p>@linkField.Text</p>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <a href="javascript:void(0)">
+                                <div class="img"><img src="@imageUrl" loading="lazy"></div>
+                                <p>@linkField.Text</p>
+                            </a>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+}

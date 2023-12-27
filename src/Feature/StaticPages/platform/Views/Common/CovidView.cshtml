@@ -1,0 +1,81 @@
+﻿@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@{
+    string datasourceValue = string.Empty;
+    var ds = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    string cardImageAltText = string.Empty;
+    Sitecore.Data.Fields.MultilistField carousalField = ((Sitecore.Data.Fields.MultilistField)ds.Rendering.Item.Fields["CovidCarousal"]);
+
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)ds.Rendering.Item.Fields["Image"]);
+    string ImageUrl = ImageField != null && ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : "";
+
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)ds.Rendering.Item.Fields["KnowMoreLink"]);
+    var redirectUrl = linkField.GetFriendlyUrl();
+    IHelper _helper = new Helper();
+
+
+}
+
+<div class="card border-0 p-0 airport-card covidWrap">
+    @*<h5 class="section-heading">@ds.Rendering.Item.Fields["SliderHeading"].Value</h5>
+        <iframe src="@ds.Rendering.Item.Fields["VideoURL"]" title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen></iframe>*@
+    <div class="card-body covidIfo mdl-heading p-0">
+        <div class="d-flex align-item-center">
+            <h4 class="section-heading">@ds.Rendering.Item.Fields["Summary"].Value</h4>
+            @if (!string.IsNullOrEmpty(redirectUrl))
+            {
+                <a href="@redirectUrl" class="black_link mt-1 mt-md-0" target="_blank">@linkField.Text</a>
+            }
+            else
+            {
+                <a href="javascript:void(0)" class="black_link mt-1 mt-md-0" target="_blank">@linkField.Text</a>
+            }
+
+        </div>
+
+        <p class="card-text">
+            @Html.Raw(@ds.Rendering.Item.Fields["Details"].Value)
+        </p>
+
+        <div class="airport-card genralInfo">
+            <h5 class="section-heading genralInfoslidr">
+                @ds.Rendering.Item.Fields["GeneralInfoHeading"].Value
+            </h5>
+            <div class="arrow_pos">
+                <div class="card-slider slider-citytocity">
+                    @foreach (Sitecore.Data.Items.Item carousalItem in carousalField.GetItems())
+                    {
+                        Sitecore.Data.Fields.ImageField cardImageField = ((Sitecore.Data.Fields.ImageField)carousalItem.Fields["Image"]);
+                        string cardImageUrl = cardImageField != null && cardImageField.MediaItem != null ? _helper.GetImageURL(carousalItem, Constant.Image) : "";
+                        if (cardImageField != null && cardImageField.MediaItem != null)
+                        {
+                            Sitecore.Data.Items.MediaItem cardImage = new Sitecore.Data.Items.MediaItem(cardImageField.MediaItem);
+                            cardImageAltText = cardImage != null && cardImage.Alt != null ? cardImage.Alt : "";
+                        }
+                        else
+                        {
+                            cardImageAltText = string.Empty;
+                        }
+
+                        <div class="card">
+                            <div class="zoomEffect">
+                                <img class="card-img-top"
+                                     src="@cardImageUrl"
+                                     alt="@cardImageAltText" loading="lazy"/>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">@carousalItem["Summary"]</h5>
+                                <p class="card-text">
+                                    @carousalItem["Details"]
+                                </p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["MobileImage"]);
+    string mobileImageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    Sitecore.Data.Fields.ImageField bgimgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["DesktopImage"]);
+    string desktopImageUrl = bgimgField != null && bgimgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(bgimgField.MediaItem) : "";
+}
+
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["RedirectLink"]);
+    <div class="offer-img pb-0">
+        @if (linkField != null)
+        {
+            var redirectUrl = linkField.GetFriendlyUrl();
+            <a href="@redirectUrl">
+                <img class="d-none d-md-block" src="@desktopImageUrl" loading="lazy">
+                <img class="mobile-img d-md-none d-block" src="@mobileImageUrl">
+            </a>
+        }
+    </div>
+}
+
+

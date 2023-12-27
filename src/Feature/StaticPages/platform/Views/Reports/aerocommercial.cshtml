@@ -1,0 +1,52 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@model RenderingModel
+@{
+    IHelper _helper = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+}
+
+@if (currentItem != null)
+{
+    <section class="serviceOption section-wrap scrollableOffset" id="aero-commercial">
+        <h3>@Html.Sitecore().Field("__Short Description", currentItem)</h3>
+        <ul>
+            @if (currentItem.Children != null && currentItem.Children.Count() > 0)
+            {
+                foreach (Sitecore.Data.Items.Item item in currentItem.Children)
+                {
+                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)item.Fields["Link"]);
+                    if (linkField != null)
+                    {
+                        var redirectUrl = linkField.GetFriendlyUrl();
+                        <li>
+                            <div class="service_slide">
+                                <div class="icon">
+                                    <i class="@Html.Sitecore().Field("cssClass", item)"></i>
+                                </div>
+                                <div class="content">
+                                    <span>@Html.Sitecore().Field("Title", item)</span>
+                                    <p>
+                                        @Html.Sitecore().Field("Description", item)
+                                    </p>
+                                    @if (!string.IsNullOrEmpty(redirectUrl))
+                                    {
+                                        <a class="black_link" href="@redirectUrl" target="_blank"> @linkField.Text</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="black_link" href="javascript:void(0)"> @linkField.Text</a>
+                                    }
+                                </div>
+                            </div>
+                        </li>
+                    }
+                }
+            }
+        </ul>
+    </section>
+}

@@ -1,0 +1,56 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField multiselectField = currentItem.Fields["ListItems"];
+    Sitecore.Data.Items.Item[] dListItems = multiselectField.GetItems();
+    string divID = string.Empty;
+    string cssClass = string.Empty;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        divID = parms["id"];
+        cssClass = parms["class"];
+    }
+}
+@if (currentItem != null)
+{
+    <div class="container">
+        <div class="section-wrap scrollableOffset @cssClass" id="@divID">
+            @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListTitle", currentItem))))
+            {
+                <h3 class="sr-heading">@Html.Sitecore().Field("ListTitle", currentItem)</h3>
+            }
+            @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListSubTitle", currentItem))))
+            {
+                <p>@Html.Sitecore().Field("ListSubTitle", currentItem)</p>
+            }
+            <div class="arrow_pos">
+                <div class="clm-slider grid-4">
+                    @foreach (var dItem in dListItems)
+                    {
+                        <div class="item">
+                            <figure>@Html.Sitecore().Field("ItemImage", dItem)</figure>
+                            <div class="content">
+                                <small>@Html.Sitecore().Field("StepText", dItem)</small>
+                                @Html.Sitecore().Field("ItemDescription", dItem)
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("NoteText", currentItem))))
+    {
+        <div class="subSection scrollableOffset">
+            <div class="link-note">
+                @Html.Sitecore().Field("NoteText", currentItem)
+            </div>
+        </div>
+    }
+}

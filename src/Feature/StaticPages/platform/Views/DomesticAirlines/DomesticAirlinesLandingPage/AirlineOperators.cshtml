@@ -1,0 +1,58 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["AirlineOperatorsList"]);
+}
+
+@if (currentItem != null)
+{
+    <div class="sectionWrapper">
+        <div class="flight-routes dom-airline-status">
+            <div class="mt-top">
+                <div class="heading-content">
+                    <h3 class="sub-heading">@Html.Sitecore().Field("Title", currentItem)</h3>
+                    <div class="text-container">
+                        <div class="text-wrapper ">
+                            <p>@Html.Sitecore().Field("Description", currentItem)</p>
+                        </div>
+                        <div class="black_link sectionReadMore" onclick="sectionReadMoreToggle(this)">@Html.Sitecore().Field("ButtonText", currentItem)</div>
+                    </div>
+                </div>
+                    <ul class="flights-city mt-5">
+                        @if (otherServices.GetItems().Count() > 0)
+                        {
+                            foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+                            {
+                                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["CardImage"]);
+                                string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                                Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["RedirectLink"]);
+                                Sitecore.Data.Fields.LinkField cardLinkField = ((Sitecore.Data.Fields.LinkField)services.Fields["CardLink"]);
+                                if (linkField != null)
+                                {
+                                    var redirectUrl = linkField.GetFriendlyUrl();
+                                    <li class="slide">
+                                        <a href="@redirectUrl">
+                                            <div class="city-Box zoomEffect">
+                                                <figure><img src="@imageUrl" loading="lazy"></figure>
+                                                <h3>@Html.Sitecore().Field("CardTitle", services)</h3>
+                                                <span class="black_link">@cardLinkField.Text</span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        }
+
+                    </ul>
+                    <button id="loadMore" type="button" class="btn btn-outline-dark viewall-btn">
+                        @Html.Sitecore().Field("__Short description", currentItem)
+                    </button>
+                </div>
+        </div>
+    </div>
+
+}
+

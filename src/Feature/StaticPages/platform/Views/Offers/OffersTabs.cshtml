@@ -1,0 +1,72 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{ Item currentItem = RenderingContext.Current.Rendering.Item;
+    var i = 0;
+    var j = 0;
+    var activeClass = string.Empty;
+    var contentActiveClass = string.Empty;
+}
+
+@if (currentItem != null)
+{
+<div class="bodySection">
+    <div class="container">
+        <ul class="horizontal-tab horizontal-tab_custom adl-htabs nav-tabs nav nav-pills scrollbar-x mt-5" id="pills-tab" role="tablist">
+            @foreach (Item Tabs in currentItem.Children)
+            {
+                if (i == 0)
+                {
+                    activeClass = "active";
+                }
+                else
+                {
+                    activeClass = string.Empty;
+                }
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link_custom @activeClass" id="@Tabs.Name-tab" data-bs-toggle="tab" data-bs-target="#@Tabs.Name" type="button" role="tab" aria-controls="@Tabs.Name" aria-selected="true">@Html.Sitecore().Field("Title", Tabs)</button>
+                    </li>
+                       i++;
+                 }
+        </ul>
+        <div class="tab-content">
+            @foreach (Item TabsContent in currentItem.Children)
+            {
+                if (j == 0)
+                {
+                    contentActiveClass = "active";
+                }
+                else
+                {
+                    contentActiveClass = string.Empty;
+                }
+             <div class="tab-pane fade show @contentActiveClass" id="@TabsContent.Name" role="tabpanel" aria-labelledby="@TabsContent.Name-tab">
+                <div class="row">
+                @foreach (Item TabsChildren in TabsContent.Children)
+                { 
+                    <div class="col-lg-3 col-md-4 col-xs-6 mb-5 flights" data-category="flights">
+                        @Html.Sitecore().BeginField("Link", TabsChildren, new { haschildren = true, @class = "zoomEffect" })
+                            <div class="card">
+                                <figure>
+                                    @Html.Sitecore().Field("Image", TabsChildren, new { @class = "card-img-top", @alt = "..." })
+                                </figure>
+                                <div class="card-body">
+                                    <h5 class="card-title">@Html.Sitecore().Field("Title", TabsChildren)</h5>
+                                    <p class="card-text">
+                                        @Html.Sitecore().Field("Description", TabsChildren)
+                                    </p>
+                                    <span class="expireLink">@Html.Sitecore().Field("SubTitle", TabsChildren)</span>
+                                </div>
+                            </div>
+                        @Html.Sitecore().EndField()
+                    </div>
+                }
+                </div>
+              </div>
+                j++;
+            }
+        </div>
+    </div>
+</div>
+}

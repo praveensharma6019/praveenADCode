@@ -1,0 +1,81 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+}
+
+@if (currentItem != null)
+{
+    <div class="mainsection wrapper-video scrollableOffset arrow_pos" id="gr8-facts">
+        <h3 class="sr-heading">@Html.Sitecore().Field("__Short Description", currentItem)</h3>
+        <div class="video-slider v-slider">
+            @if (currentItem.Children != null && currentItem.Children.Count() > 0)
+            {
+                foreach (Sitecore.Data.Items.Item facts in currentItem.Children)
+                {
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)facts.Fields["Image"]);
+                    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(facts, "Image") : "";
+                    Sitecore.Data.Fields.ImageField mobileImgField = ((Sitecore.Data.Fields.ImageField)facts.Fields["MobileImage"]);
+                    string mobileImageUrl = mobileImgField != null && mobileImgField.MediaItem != null ? _helper.GetImageURL(facts, "MobileImage") : "";
+                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)facts.Fields["Link"]);
+                    if (linkField != null)
+                    {
+                        var videoUrl = linkField.GetFriendlyUrl();
+                    <a href="#" data-bs-toggle="offcanvas" class="video-modal" data-video="@videoUrl"
+                       data-bs-target="#@facts.Name.Replace(" ", "")">                      
+                            <div class="slider">
+                                <div class="v-link">
+                                    <div class="video_center">
+                                        <img src="@imageUrl" loading="lazy">
+                                        <img class="v-icon" src="@mobileImageUrl" loading="lazy">
+                                    </div>
+                                </div>
+                                <p class="v-title"> @Html.Sitecore().Field("Description", facts)</p>
+                            </div>
+                        </a>
+
+                    }
+                }
+            }
+                </div>
+    </div>
+    if (currentItem.Children != null && currentItem.Children.Count() > 0)
+    {
+        foreach (Sitecore.Data.Items.Item item in currentItem.Children)
+        {
+            Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)item.Fields["Link"]);
+            if (linkField != null)
+            {
+                var redirectUrl = linkField.GetFriendlyUrl();
+                <div class="offcanvas offcanvas-end video_canvas" tabindex="-1" id="@item.Name.Replace(" ", "")"
+                     aria-labelledby="video_canvasLabel">
+                    <div class="offcanvas-header p-0">
+                        <div class="close_btn">
+                            <button type="button" class="btn-close text-reset px-0 lightRipple dismiss-video"
+                                    data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="offcanvas-body">
+                        <div class="bannerContent popup">
+                            <div class="popup-header">
+                                @if (!string.IsNullOrEmpty(redirectUrl))
+                                {
+                                    <iframe class="video-iframe" src="@redirectUrl" title="YouTube video player" frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen></iframe>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+}

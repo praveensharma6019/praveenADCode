@@ -1,0 +1,85 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using System.Web.Optimization
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@{
+    Layout = null;
+    var assetDomainURL = string.Empty;
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var environmentAPIVersion = Sitecore.Configuration.Settings.GetSetting("environmentAPIVersionVariable").ToString();
+    var domainUrl = !string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString()) ? Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString() : string.Empty;
+    var pageUrl = contextItem != null ? Sitecore.Links.LinkManager.GetItemUrl(contextItem) : String.Empty;
+    Sitecore.Data.Fields.MultilistField servicesField = ((Sitecore.Data.Fields.MultilistField)contextItem.Fields["ListofServices"]);
+    string queryString = !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isapp"]) ? Sitecore.Context.Request.QueryString["isapp"].ToLower() : "";
+    IHelper _helper = new Helper();
+    var canonicalUrl = string.Empty;
+    var canonicalField = "Canonical";
+    if (contextItem != null && contextItem.Fields[canonicalField] != null && !string.IsNullOrEmpty(contextItem.Fields[canonicalField].Value))
+    {
+        canonicalUrl = _helper.GetLinkURL(contextItem, canonicalField);
+    }
+    if (!string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl")))
+    {
+        assetDomainURL = Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl").ToString();
+
+    }
+
+    var Cssversion = _helper.GetLatestVersionFiles("/assets/css/about.min.css");
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    @if (contextItem != null)
+    {
+        <title>@contextItem["MetaTitle"]</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="@contextItem["Viewport"]" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="description" content="@contextItem["MetaDescription"]" />
+        <meta name="robots" content="@contextItem["Robots"]" />
+        <meta name="keywords" content="@contextItem["Keywords"]" />
+        <meta property="og:title" content="@contextItem["OG-Title"]" />
+        <meta property="og:image" content="@contextItem["OG-Image"]" />
+        <meta property="og:description" content="@contextItem["OG-Description"]" />
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+    <link rel="icon" type="image/png" href="@domainUrl/favicon.ico" />
+
+
+    <link rel="stylesheet" href="@assetDomainURL/assets/css/about.min.css?v=@Cssversion" />
+
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmScript.cshtml")
+</head>
+
+<body data-bs-spy="scroll">
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmNonScript.cshtml")
+    @if (queryString == "true")
+    {
+        <div class="@contextItem["cssClass"] noHeader_footer">
+            @Html.Sitecore().Placeholder("main")
+        </div>
+    }
+    else
+    {
+        @Html.Sitecore().Placeholder("header")
+        <div class="@contextItem["cssClass"]">
+            @Html.Sitecore().Placeholder("main")
+        </div>
+        <div id="footer">@Html.Sitecore().Placeholder("footer")</div>
+    }
+</body>
+
+</html>
+<script>
+    var environmentAPIVersion= "@environmentAPIVersion"
+</script>
+<script defer src="@assetDomainURL/assets/airport/js/jquery.min.js?v=@_helper.GetLatestVersionFiles("/assets/airport/js/jquery.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/bootstrap.bundle.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/bootstrap.bundle.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/slick.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/slick.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/moment.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/moment.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/header.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/header.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/common.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/common.js")"></script>
+<script defer src="@assetDomainURL/assets/statics/js/about-us-page.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/about-us-page.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/airportlist.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/airportlist.js")"></script>

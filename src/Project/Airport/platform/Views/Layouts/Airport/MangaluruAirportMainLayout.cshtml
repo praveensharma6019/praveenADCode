@@ -1,0 +1,141 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using System.Web.Optimization
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@{
+    Layout = null;
+    var assetDomainURL = string.Empty;
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var environmentVariable = Sitecore.Configuration.Settings.GetSetting("widzetEnvironmentVariable").ToString();
+    var environmentAPIVersion = Sitecore.Configuration.Settings.GetSetting("environmentAPIVersionVariable").ToString();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.CheckboxField searchEnable = null;
+    IHelper _helper = new Helper();
+    if (currentItem != null && currentItem.Fields["EnableSearch"] != null)
+    {
+        searchEnable = currentItem.Fields["EnableSearch"];
+    }
+    var canonicalUrl = string.Empty;
+    var canonicalField = "Canonical";
+    if (contextItem != null && contextItem.Fields[canonicalField] != null && !string.IsNullOrEmpty(contextItem.Fields[canonicalField].Value))
+    {
+        canonicalUrl = _helper.GetLinkURL(contextItem, canonicalField);
+    }
+
+    if (!string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl")))
+    {
+        assetDomainURL = Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl").ToString();
+
+    }
+
+    var Cssversion = _helper.GetLatestVersionFiles("/assets/css/AirportHome.min.css");
+    var jsVersion = _helper.GetLatestVersionFiles("/assets/js/AirportHome.min.js");
+}
+<html>
+<head>
+    @if (contextItem != null)
+    {
+        <title>@contextItem["MetaTitle"]</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="@contextItem["Viewport"]" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="description" content="@contextItem["MetaDescription"]" />
+        <meta name="robots" content="@contextItem["Robots"]" />
+        <meta name="keywords" content="@contextItem["Keywords"]" />
+        <meta property="og:title" content="@contextItem["OG-Title"]" />
+        <meta property="og:image" content="@contextItem["OG-Image"]" />
+        <meta property="og:description" content="@contextItem["OG-Description"]" />
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+    <link rel="icon" type="image/png" href="@assetDomainURL/assets/images/favicon/favicon.ico" />
+    @Styles.Render(assetDomainURL + "/assets/css/AirportHome?v=" + Cssversion)
+    <link rel="stylesheet" href="/flight/statics/css/cdn/bundles/libs/default/widgets-master.css" />
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmScript.cshtml")
+</head>
+
+<body>
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmNonScript.cshtml")
+    @Html.Sitecore().Placeholder("notification")
+    @Html.Sitecore().Placeholder("header")
+    <div id="GlobalSearchContainer">
+        @if (searchEnable != null && searchEnable.Checked)
+        {
+            @Html.Partial("~/Views/SubLayouts/PartialViews/MobileGlobalSearch.cshtml")
+        }
+        <div class="airport_main_wrap widthControl">@Html.Sitecore().Placeholder("main")</div>
+    </div>
+    <div id="footer">@Html.Sitecore().Placeholder("footer")</div>
+    @Scripts.Render(assetDomainURL + "/assets/js/AirportHome?v=" + jsVersion)
+    <script>
+    var environmentAPIVersion= "@environmentAPIVersion"
+    </script>
+    <script src="/flight/statics/js/cdn/bundles/libs/core.js"></script>
+    <script>
+            setTimeout(() => {
+                ADL.widgets.load({
+                    "aiportHomePageWidget": {
+                        "data": {
+                            tt: "O", //Default trip type selected
+                            ac: "IXE", //Airport code which is selected on home page. - so that we can display same selected on booking flow header
+                            popup: "x", // No need as of now
+                            tenant: "D", // No need of this node as of now, but is future we need just to know about search is for domestic flight or international flight.
+                            class: "ECO", // By default selected travel class - Possible values are like [ECO, PRE, BUS]
+                            pax: "1_0_0", // Number of pax adult_child_infant
+                        },
+                        "env": "@environmentVariable", //test|qa|prod environment name where search flight flow will be redirected on search click
+                        "version": "base", // widgets version just to handle multiple version of same widget
+                        "language": "en", // for now is value en only, Just giving an options to make it multilingual compatible in future
+                        "container": "flight-be", // container element id where widget will be render.
+                        "client": { // Client node can be blank, this is just for reference to know where widget is being used. in future will be useful for GA tracking etc.
+                            "page": "airport-home-page", // Page where widget is being used
+                            "section": "hero-banner" // Section of page where widget is being rendered
+                        },
+                        "rVersion": {
+                            "js": "jsxyz", //JS file version just to flush widget cache
+                            "css": "xyz" //css file version just to flush widget cache
+                        },
+                        "extra": {} //For now no need of this node, but in future we may use to get some extra data from widget consumer.
+                    },
+                    "saveFlightHomePage": {
+                        "data": {
+                            ac: "IXE",
+                            form: {
+                                airport: 'IXE',
+                                type: 'Arrival',
+                                _date: '11082022',
+                                search: ""
+                            },
+                            sliderConfig: {
+                                mobile: {
+                                    slidesToShow: 1.08,
+                                    slidesToScroll: 1.08
+                                },
+                                desktop: {
+                                    slidesToShow: 2,
+                                    slidesToScroll: 2
+                                }
+                            }
+                        },
+                        "env": "@environmentVariable",
+                        "version": "base",
+                        "language": "hi",
+                        "container": "HomePageSavedFlight",
+                        "client": {
+                            "name": "airport-home-page"
+                        },
+                        "rVersion": {
+                            "js": "demo",
+                            "css": "css-demo"
+                        },
+                        "extra": {}
+                    }
+                }, {
+                    widgetsLoader: {
+                        env: '@environmentVariable' //test|qa|prod
+                    }
+                });
+            }, 50);
+    </script>
+</body>
+</html>
+

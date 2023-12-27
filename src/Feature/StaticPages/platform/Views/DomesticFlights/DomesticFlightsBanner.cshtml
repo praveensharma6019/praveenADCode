@@ -1,0 +1,38 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(currentItem, "Image") : "";
+    string divClass = RenderingContext.Current.Rendering.Parameters["classname"];
+    string cssClass = RenderingContext.Current.Rendering.Parameters["textWrapperClass"];
+}
+
+@if (currentItem != null)
+{
+    <section class="section-wrap">
+        <div class="container">
+            <h1 class="section-title">@Html.Sitecore().Field("Title", currentItem)</h1>
+            <div class="text-container">
+                <div class="text-wrapper @cssClass">
+                    <p>
+                        @Html.Sitecore().Field("Description", currentItem)
+                    </p>
+                </div>
+                <div class="black_link sectionReadMore" onclick="sectionReadMoreToggle(this)">@Html.Sitecore().Field("ButtonText", currentItem)</div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="banner-img @divClass">
+                <img src="@imageUrl" loading="lazy">
+                @Html.Sitecore().DynamicPlaceholder("widget-section")
+            </div>
+        </div>
+    </section>
+}
+
+

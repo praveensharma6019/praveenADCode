@@ -1,0 +1,102 @@
+﻿@model Adani.SuperApp.Airport.Feature.Carousel.Platform.Models.Root
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+
+}
+@if (currentItem != null)
+{
+    
+
+                            <div class="slider-airports blank-holder">
+                                @if (Model != null && Model.data != null && Model.data.result != null && Model.data.result.Count > 0)
+                                {
+                                    foreach (var product in Model.data.result)
+                                    {
+                                        if (product != null)
+                                        {
+                                            string itemID = "item_" + @product.skuCode + "_arrival";
+                                            var currentUrl = Sitecore.Links.LinkManager.GetItemUrl(Sitecore.Context.Item);
+                                            string productUrl = currentUrl + "/duty-free/p/" + @product.skuName.Replace(" ", "-") + "/" + @product.skuCode;
+
+                                            <div class="card-Wrap zoomEffect">
+                                                <a href="@productUrl" class="card blank" auto_id="data_best_seller_dutyfree_@product.skuName.Replace(" ", "-")">
+                                                    @if (product.promotions != null && product.promotions.Count > 0 && product.promotions[0].type == 1)
+                                                    {
+                                                        <div class="offerTag">OFFER</div>
+                                                    }
+                                                <figure>
+                                                    @if (product.productImages!= null && product.productImages.Count > 0)
+                                                    {
+                                                    <img src=@product.productImages[0] alt="sellar_card" loading="lazy">
+                                                    }
+                                                    else
+                                                    {
+                                                    <img src="#" alt="sellar_card">
+                                                    }
+                                                </figure>
+                                                    <div class="card-body">
+                                                        <div class="info">
+                                                            <h5 class="card-title">
+                                                                <span class="vertical_ellipsis">
+
+                                                                    @product.skuName
+
+                                                            </h5>
+                                                            @if (product.promotions != null && product.promotions.Count > 0 && product.promotions[0].type == 1)
+                                                            {
+                                                                <aside class=""><span>₹@String.Format("{0:n0}", product.discountPrice)</span><p class="line-through">₹@String.Format("{0:n0}", product.price)</p><p class="priceOff">@product.promotions[0].offer % Off</p></aside>
+                                                            }
+                                                            else
+                                                            {
+                                                                <aside class=""><span>₹@String.Format("{0:n0}", product.price)</span></aside>
+                                                            }
+
+
+
+                                                        </div>
+                                                        @if (product.availability)
+                                                        {
+                                                            string strUrl = "#";
+                                                            if (product.productImages != null && product.productImages.Count > 0)
+                                                            {
+                                                                strUrl = product.productImages[0];
+                                                            }
+                                                            <button id=@itemID
+                                                                data-skucode="@product.skuCode"
+                                                                data-storetype="arrival"
+                                                                data-airportcode=@Html.Sitecore().Field("AirportCode", currentItem)
+                                                                data-productimage="@strUrl"
+                                                                data-event="add_to_cart"
+                                                                data-name="@product.skuName"
+                                                                data-category="@product.category"
+                                                                data-price="@product.price"
+                                                                type="button" loading="" class="btn-sm add-btn  btn btn-outline-primary gtmAddToCartEvent" onclick="addToCart(event,this)">
+                                                            <div class="btn-icon minus" onclick="addToCart_change(event, this, false)">
+                                                            </div>
+                                                            <div class="count-num">Add</div>
+                                                            <div class="btn-icon add" onclick="addToCart_change(event, this, true)">
+                                                                <p class="">
+                                                                    <i class="i-plus"></i>
+                                                                </p>
+                                                            </div>
+                                                        </button>
+                                                        }
+                                                        else
+                            {
+                                <span class=" outofStockbtn"> Out of Stock</span>
+                            }
+                                                    </div>
+                                                </a>
+                                            </div>
+
+                                        }
+                                    }
+                                }
+                            </div>
+
+                       
+}
+

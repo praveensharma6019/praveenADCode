@@ -1,0 +1,99 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["Link"]);
+    string imageAltText = string.Empty;
+    string popupImageAltText = string.Empty;
+    int tabcnt = 1;
+    int tabContentcnt = 1;
+    string tabActiveClass = string.Empty;
+    string tabContentActiveClass = string.Empty;
+    Sitecore.Data.Fields.MultilistField popupTabContentList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["PopupTabContentList"]);
+    Sitecore.Data.Fields.MultilistField PopupTabsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["PopupTabsList"]);
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        imageAltText = image != null && image.Alt != null ? image.Alt : "";
+    }
+    Sitecore.Data.Fields.ImageField popupImgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["PopupImage"]);
+    string popupImageUrl = popupImgField != null && popupImgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(popupImgField.MediaItem) : "";
+    if (popupImgField != null && popupImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem popupImage = new Sitecore.Data.Items.MediaItem(popupImgField.MediaItem);
+        popupImageAltText = popupImage != null && popupImage.Alt != null ? popupImage.Alt : "";
+    }
+
+}
+
+@if (currentItem != null)
+{
+    if (linkField != null)
+    {
+        var redirectUrl = linkField.GetFriendlyUrl();
+        <div class="hist-item cm-small">
+            <a href="@redirectUrl" data-bs-toggle="offcanvas" data-bs-target="#cultureRight"
+               aria-controls="cultureRight" tabindex="0" class="zoomEffect">
+                <div class="content">
+                    <h3>@Html.Sitecore().Field("Title", currentItem)</h3>
+                    <p>
+                        @Html.Sitecore().Field("Description", currentItem)
+                    </p>
+                    <span class="black_link">
+                        @linkField.Text
+                    </span>
+                </div>
+                <figure>
+                    <img src="@imageUrl" alt="@imageAltText" loading="lazy">
+                </figure>
+            </a>
+        </div>
+    }
+
+    <div class="offcanvas offcanvas-end trvLeftOfcanvas with-tabber" tabindex="-1" id="cultureRight"
+         aria-labelledby="cultureRightLabel">
+        <div class="offcanvas-header p-0">
+            <div class="close_btn">
+                <button type="button" class="btn-close text-reset px-0 lightRipple"
+                        data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="offcanvas-body">
+            <h5 id="citycanvasRightLabel"></h5>
+            <div class="bannerContent">
+                <h3 class="popup-title">
+                    @Html.Sitecore().Field("PopupTitle", currentItem)
+                </h3>
+                <ul class="nav nav-tabs cm-tab-nav" role="tablist">
+                    @foreach (Sitecore.Data.Items.Item tabItem in PopupTabsList.GetItems())
+                    {
+                        if (tabcnt == 1) { tabActiveClass = "active"; } else { tabActiveClass = string.Empty; }
+                        <li class="nav-item">
+                            <a class="nav-link @tabActiveClass" id="tab@(tabcnt)">@tabItem["Title"]</a>
+                        </li>
+                        tabcnt++;
+                    }
+                </ul>
+                <img src="@popupImageUrl" alt="@popupImageAltText"
+                     class="popup-img" loading="lazy">
+                <div class="tab-content clearfix">
+                    @foreach (Sitecore.Data.Items.Item tabContentItem in popupTabContentList.GetItems())
+                    {
+                        if (tabContentcnt == 1) { tabContentActiveClass = "tab-pane active"; } else { tabContentActiveClass = "tab-pane"; }
+                        <div class="@tabContentActiveClass" id="btab@(tabContentcnt)">
+                            <h4>@tabContentItem["Title"]</h4>
+                            <p>
+                                @tabContentItem["Description"]
+                            </p>
+                        </div>
+                        tabContentcnt++;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

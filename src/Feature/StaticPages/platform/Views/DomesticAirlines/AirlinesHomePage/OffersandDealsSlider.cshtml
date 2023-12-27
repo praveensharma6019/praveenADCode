@@ -1,0 +1,48 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+}
+
+@if (currentItem != null)
+{
+    <div class="airport-card offer-slider mt-top">
+        <section class="other-service dom-slider">     
+                <div class="arrow_pos">
+                    <div class="other-services airlines-slider">
+                        @foreach (Sitecore.Data.Items.Item services in currentItem.Children)
+                        {
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["CardImage"]);
+                            string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                            Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["RedirectLink"]);
+                            Sitecore.Data.Fields.LinkField cardLinkField = ((Sitecore.Data.Fields.LinkField)services.Fields["CardLink"]);
+                            if (linkField != null)
+                            {
+                                var redirectUrl = linkField.GetFriendlyUrl();
+                                <div class=" slider-box">
+                                    <div class="zoomEffect">
+                                        <a href="@redirectUrl">
+                                            <figure>
+                                                <img src="@imageUrl" width="100%" loading="lazy"/>
+                                            </figure>
+                                            <div class="content">
+                                                <h3>@Html.Sitecore().Field("CardTitle", services)</h3>
+                                                <p>
+                                                    @Html.Sitecore().Field("CardDescription", services)
+                                                </p>
+                                                <span class="black_link">
+                                                   @cardLinkField.Text
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>           
+        </section>
+    </div>
+}

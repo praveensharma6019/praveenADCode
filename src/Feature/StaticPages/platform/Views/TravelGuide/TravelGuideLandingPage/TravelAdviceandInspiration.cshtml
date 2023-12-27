@@ -1,0 +1,55 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string imageAltText = string.Empty;
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OtherServices"]);
+
+}
+
+@if (currentItem != null)
+{
+<div class="featured-section pt-wrap scrollableOffset" id="@currentItem.DisplayName">
+    <div class="container">
+        <h3 class="cm-heading">
+            @Html.Sitecore().Field("Title", currentItem)
+        </h3>
+        <div class="row">
+            @foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["CardImage"]);
+                string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                if (imgField != null && imgField.MediaItem != null)
+                {
+                    Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+                    imageAltText = image != null && image.Alt != null ? image.Alt : "";
+                }
+                else
+                {
+                    imageAltText = string.Empty;
+                }
+                Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["RedirectLink"]);
+                if (linkField != null)
+                {
+                    var redirectUrl = linkField.GetFriendlyUrl();
+                    <div class="col-md-6 @Html.Sitecore().Field("cssClass", services)">
+                        <div class="item">
+                            <a href="@redirectUrl">
+                                <div class="content">
+                                    <h3 class="cm-heading">@Html.Sitecore().Field("CardTitle", services)</h3>
+                                    @Html.Sitecore().Field("CardDescription", services)
+                                </div>
+                                <figure>
+                                    <img src="@imageUrl" alt="@imageAltText" loading="lazy">
+                                </figure>
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+}

@@ -1,0 +1,56 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{ Item currentItem = RenderingContext.Current.Rendering.Item;
+
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OtherServices"]);
+    IHelper _helper = new Helper();
+    }
+
+@if (currentItem != null)
+{
+    <div class="subSection scrollableOffset" id="@currentItem.DisplayName">
+
+        <h2 auto_id="data_OtherServiceHeader">@Html.Sitecore().Field("Title", currentItem)</h2>
+        <div class="city-airport-slider">
+            <div class="customslider arrow_pos">
+                <div class="slick-slider">
+
+                    <div class="services-card scrollbar-x me-md-0">
+                        @foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+                        {
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["Image"]);
+                            string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(services, "Image") : "";
+                            Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["Link"]);
+                            if (linkField != null)
+                            {
+                                var redirectUrl = linkField.GetFriendlyUrl();
+                                <div class="services-card__col">
+                                    <a href="@redirectUrl" class="zoomEffect" data-airportcode="@Html.Sitecore().Field("AirportCode", services)" data-airportname="@Html.Sitecore().Field("AirportName", services)" data-title="@Html.Sitecore().Field("CardTitle", services)">
+                                        <div class="card">
+                                            <div class="overflow-hidden rounded">
+                                                <img src="@imageUrl"  loading="lazy"/>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="card_heading" auto_id="@Html.Sitecore().Field("AutoId", services)">@linkField.Text</div>
+                                                <p class="vertical_ellipsis">
+                                                    @Html.Sitecore().Field("CardDescription", services)
+                                                </p>
+                                                <span class="black_link"> @Html.Sitecore().Field("KnowMoreText", services)</span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <i class="i-arrow-l slick-prev slick-arrow servicesPrev slick-disabled" onclick="scrollToPrevItem(this)" auto_id="data_OtherServiceBackward"></i>
+                    <i class="i-arrow-r slick-next slick-arrow servicesNext" onclick="scrollToNextItem(this)" auto_id="data_OtherServiceForward"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,63 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    var name = string.Empty;
+    Sitecore.Data.Fields.MultilistField servicesField = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["ListofServices"]);
+}
+    <div class="container">
+        <div class="d-flex align-items-start">
+            <div class="services-menu" id="services-main-menu">
+                <h6 class="cursorEnable" onclick="onChange(isClicked)">
+                    <div class="icon-button">
+                        <i class="i-services"></i>
+                    </div>
+                    <span>@currentItem["Title"]</span>
+                </h6>
+                <div class="offcanvas offcanvas-bottom serviceOffcanvas offcanvas-desktop" tabindex="-1"
+                     id="offcanvasBottomTest" aria-labelledby="offcanvasBottomLabel">
+
+                    <div class="offcanvas-header d-md-none">
+                        <div class="position-relative searchSection">
+                            <input type="text" class="form-control searchFilter" placeholder="Search" id="serviceInput"
+                                   onkeyup="myFunction('serviceInput', 'serviceList')" />
+                            <i class="i-search position-absolute"></i>
+                        </div>
+                        <h5 class="offcanvas-title" id="offcanvasBottomLabel">@currentItem["Title"]</h5>
+
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+
+                    <div class="offcanvas-body">
+                        <ul id="serviceList">
+                            @foreach (Sitecore.Data.Items.Item listItem in servicesField.GetItems())
+                            {
+
+                                if (listItem.Name.Replace(" ", "").ToLower() == currentItem.Name.Replace("-", "").ToLower())
+                                {
+                                    name = "nav-link active";
+                                }
+                                else
+                                {
+                                    name = "nav-link";
+                                }
+                                Sitecore.Data.Fields.LinkField linkfield = listItem.Fields["ServiceUrl"];
+                                var url = linkfield.GetFriendlyUrl();
+
+                                <li>
+                                    <a href="@url" class="@name" onclick="closeOffcanvas();">@Html.Sitecore().Field("Title", listItem)</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="services-container" id="v-pills-tabContent">
+                <div class="serviceDetail">
+                    @Html.Sitecore().Placeholder("right-panel")
+                </div>
+            </div>
+        </div>
+    </div>

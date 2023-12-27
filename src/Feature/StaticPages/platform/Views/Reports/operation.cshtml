@@ -1,0 +1,73 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@model RenderingModel
+@{
+    IHelper _helper = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+}
+
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.LinkField helpLinkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["__Help link"]);
+<section class="serviceOption section-wrap scrollableOffset" id="operation">
+    <h3>@Html.Sitecore().Field("__Short Description", currentItem)</h3>
+    @if (currentItem.Children != null && currentItem.Children.Count() > 0)
+    {
+        foreach (Sitecore.Data.Items.Item items in currentItem.Children)
+        {            
+<div class="cell">
+    <h5>@Html.Sitecore().Field("__Short Description", items)</h5>
+    <ul class="@Html.Sitecore().Field("__Long Description", items)">
+        @if (items.Children != null && items.Children.Count() > 0)
+        {
+            foreach (Sitecore.Data.Items.Item childItem in items.Children)
+            {
+                Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)childItem.Fields["Link"]);
+                if (linkField != null)
+                {
+                    var redirectUrl = linkField.GetFriendlyUrl();
+                    <li class="@Html.Sitecore().Field("SubTitle", childItem)">
+                        <div class="service_slide">
+                            <div class="icon">
+                                <i class="@Html.Sitecore().Field("cssClass", childItem)"></i>
+                            </div>
+                            <div class="content">
+                                <span>@Html.Sitecore().Field("Title", childItem)</span>
+                                <p>
+                                    @Html.Sitecore().Field("Description", childItem)
+                                </p>
+                                @if (!string.IsNullOrEmpty(redirectUrl))
+                                {
+                                    <a class="black_link" href="@redirectUrl" target="_blank"> @linkField.Text</a>
+                                }
+                                else
+                                {
+                                    <a class="black_link" href="javascript:void(0)"> @linkField.Text</a>
+                                }
+                            </div>
+                        </div>
+                    </li>
+                }
+            }
+        }
+    </ul>
+</div>            
+        }
+    }
+    @if (helpLinkField != null && helpLinkField.Text != null)
+    {
+        <div class="buttonWrap">
+            <button type="button" class="btn btn-outline-dark showmore-btn loadMore">
+                @helpLinkField.Text
+            </button>
+        </div>
+    }
+
+</section>
+}
+
+            

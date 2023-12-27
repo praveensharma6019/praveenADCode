@@ -1,0 +1,2 @@
+/*! For license information please see flight-views-desktop-route-json.js.LICENSE.txt */
+(self.webpackChunkadl_flight_booking=self.webpackChunkadl_flight_booking||[]).push([["flight-views-desktop-route-json"],{"./src/categories/flight/views/desktop/route.json":module=>{"use strict";eval('module.exports = {"view":"desktop"};\n\n//# sourceURL=webpack://adl-flight-booking/./src/categories/flight/views/desktop/route.json?')}}]);

@@ -1,0 +1,67 @@
+﻿@{ Sitecore.Data.Items.Item BannerFolder = Sitecore.Context.Database.GetItem("{F7B0079A-5115-4C26-8234-C605C08AEE76}");
+    int counter = 0;
+    int timer = 10000;
+    string isActive = "active";}
+
+@if (BannerFolder != null)
+{
+    <section class="container-fluid pd-n">
+        <!-- HERO SECTION START FROM HERE -->
+        <div class="full hero-holder">
+            <div class="carousel carousel-dark slide" data-bs-ride="carousel" id="carouselExampleDark">
+                <div class="carousel-inner">
+                    @foreach (Sitecore.Data.Items.Item bannerItem in BannerFolder.GetChildren())
+                    {
+
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)bannerItem.Fields["Image"]);
+
+                        string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+
+                        <div class="carousel-item pr @isActive" data-bs-interval="@timer">
+                            <img src="@imageUrl" class="full" alt="" />
+                            <div class="full hero-slide-content">
+                                <div class="container pr hero-slide-inner">
+                                    <h1 class="h1 fm-rb">@Html.Raw(bannerItem["Title"])</h1>
+                                    <p class="full heor-desc">@Html.Raw(bannerItem["Description"])</p>
+                                    @if (!string.IsNullOrEmpty(bannerItem["ButtonText"]))
+                                    {
+                                        Sitecore.Data.Fields.LinkField linkField = bannerItem.Fields["Button"];
+                                        string url = linkField.GetFriendlyUrl();
+                                        <a class="btn btn-primary fm-rm round" href="@url" role="button">@bannerItem["ButtonText"]</a>}
+
+                                </div>
+                            </div>
+                        </div>isActive = string.Empty;
+                        timer = 2000;
+
+
+                    }
+
+                </div>
+                <div class="hero-prev-next">
+                    <div class="container pr">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+                <div class="carousel-indicators">
+                    @foreach (Sitecore.Data.Items.Item bannerItem in BannerFolder.GetChildren())
+                    {
+                        if (counter == 0)
+                        {
+                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="@counter" class="active round" aria-current="true" aria-label="Slide @counter"></button>
+                        }
+                        else
+                        {
+                            <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="@counter" class="round" aria-label="Slide @counter"></button>
+                        }
+                        counter += 1;
+                    }
+                </div>
+            </div>
+        </div>
+    </section> <!-- HERO SECTION ENDS HERE -->}

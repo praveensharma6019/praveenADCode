@@ -1,0 +1,94 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform.Models
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    IHelper _helper = new Helper();
+
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["MobileImage"]);
+    string mobileImageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(currentItem, "MobileImage") : "";
+    Sitecore.Data.Fields.ImageField bgimgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["DesktopImage"]);
+    string desktopImageUrl = bgimgField != null && bgimgField.MediaItem != null ? _helper.GetImageURL(currentItem, "DesktopImage") : "";
+    string queryString = !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isapp"]) ? Sitecore.Context.Request.QueryString["isapp"].ToLower() : "";
+    HttpBrowserCapabilitiesBaseExtensions objBrowserCapabilities = new HttpBrowserCapabilitiesBaseExtensions();
+    Sitecore.Data.Fields.LinkField linkfield = currentItem.Fields["RedirectLink"];
+    var redirectLink = linkfield.GetFriendlyUrl();
+}
+
+@if (currentItem != null)
+{
+<section>
+    <div>
+        <h1 class="pageTitle">
+
+            @if (queryString != "true")
+            {
+
+                if (Request != null && Request.Browser != null && objBrowserCapabilities.IsMobileNotTablet(Request.Browser))
+                {
+                    <span class="d-flex d-md-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottomTest"
+                          aria-controls="offcanvasBottomTest">
+                        @Html.Sitecore().Field("Title", currentItem)
+                        <span class="i-arrow-d"></span>
+
+                    </span>
+                }
+                else
+                {
+                    <span class="d-none d-md-block" onclick="onChange(isClicked)">
+                        <span class="i-arrow-l"></span>
+                        @Html.Sitecore().Field("Title", currentItem)
+                    </span>
+                }
+            }
+            else
+            {
+                <span>
+                    @Html.Sitecore().Field("Title", currentItem)
+                </span>
+            }
+        </h1>
+        <div class="mobile_filter">
+            <div class="filter-click">
+                <span class="flex-label">  @Html.Sitecore().Field("MobileFlexLabel", currentItem) </span>
+                <div class="form-check checkbox-warning-filled d-flex align-items-center d-none">
+                    <input type="checkbox" class="form-check-input filled-in" id="orangeExample" checked="">
+                    <label class="form-check-label" for="orangeExample">  @Html.Sitecore().Field("MobileFormLabel", currentItem)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p>
+        @Html.Sitecore().Field("Description", currentItem)
+    </p>
+
+    @if (redirectLink != null && redirectLink != "")
+    {
+        <div class="flexBanner d-none d-md-block" style="background-image:url('@desktopImageUrl');">
+        </div>
+        <div class="cate-banner d-block d-md-none">
+            <a href="@redirectLink">
+                <img src="@mobileImageUrl" loading="lazy" />
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="flexBanner d-none d-md-block" style="background-image:url('@desktopImageUrl');">
+        </div>
+        <div class="cate-banner d-block d-md-none">
+            <a href="javascript:void(0)">
+                <img src="@mobileImageUrl" loading="lazy" />
+            </a>
+        </div>
+    }
+
+</section>
+}

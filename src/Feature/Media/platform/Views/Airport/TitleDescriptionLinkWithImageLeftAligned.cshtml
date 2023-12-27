@@ -1,0 +1,36 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["Link"]);
+}
+@if (currentItem != null)
+{
+    var redirectUrl = linkField.GetFriendlyUrl();
+    <section class="internal-service faq-sectionWrap">
+        <a href="@redirectUrl" class="wrapper-box align-items-center">
+            <div class="img-wrap">
+                <img src="@imageUrl"
+                     class="img-fluid"
+                     alt="..." loading="lazy"/>
+            </div>
+            <div class="content-Box">
+                <div class="card-body">
+                    <h3 class="card-title">
+                        @Html.Sitecore().Field("Title", currentItem)
+                        <!-- <span class="tag-coming-soon ms-2">Coming Soon</span> -->
+                    </h3>
+                    <p class="card-text">
+                        @Html.Sitecore().Field("Description", currentItem)
+                    </p>                   
+                   <span class="black_link">  @linkField.Text </span>                    
+                </div>
+            </div>
+        </a>
+    </section>
+}
+

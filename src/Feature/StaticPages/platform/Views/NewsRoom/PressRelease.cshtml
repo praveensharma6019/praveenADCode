@@ -1,0 +1,57 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{ 
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField pressReleaseList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["SelectItems"]);
+}
+
+@if (RenderingContext.Current.Rendering.Item != null)
+{
+    <section class="serviceOption section-wrap scrollableOffset" id="press-release">
+        <h3>@Html.Sitecore().Field("Title", currentItem)</h3>
+        <div class="cell">
+            @if (pressReleaseList != null && pressReleaseList.GetItems() != null && pressReleaseList.GetItems().Count() > 0)
+            {
+                <ul class="slideUL">
+                    @foreach (Sitecore.Data.Items.Item pressrelease in pressReleaseList.GetItems())
+                    {
+                        Sitecore.Data.Fields.LinkField linkfield = pressrelease.Fields["__Help link"];
+                        var url = linkfield.Url;
+                        <li class="slide">
+                            <div class="service_slide">
+                                <div class="icon">
+                                    <i class="@Html.Sitecore().Field("cssClass", pressrelease)"></i>
+                                </div>
+                                <div class="content">
+                                    <span>@Html.Sitecore().Field("Title", pressrelease)</span>
+                                    <p>
+                                        @Html.Sitecore().Field("Description", pressrelease)
+                                    </p>
+                                    @if (!string.IsNullOrEmpty(url))
+                                    {
+                                        <a href="@url" class="black_link" target="_blank">
+                                            @linkfield.Text
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0)" class="black_link">
+                                            @linkfield.Text
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+        <div class="buttonWrap">
+            <button type="button" class="btn btn-outline-dark showmore-btn loadMore">
+                @Html.Sitecore().Field("ShowmoreCTA", currentItem)
+            </button>
+        </div>
+    </section>
+}

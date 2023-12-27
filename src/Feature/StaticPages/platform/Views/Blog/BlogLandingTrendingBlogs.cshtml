@@ -1,0 +1,44 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField trendingBlogsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["BlogList"]);
+    Helper linkHelper = new Helper();
+}
+@if (currentItem != null && trendingBlogsList != null)
+{
+    <div class="shop-section stay-section pt-wrap">
+        <div class="container">
+            <div class="heading-content">
+                <h2 class="cm-heading">@Html.Sitecore().Field("Title", currentItem)</h2>
+                <p>@Html.Sitecore().Field("SubTitle", currentItem)</p>
+            </div>
+            <div class="arrow_pos">
+                <div class="card-slider wonder-slider stay-slider">
+                    @foreach (Item blog in trendingBlogsList.GetItems())
+                    {
+                        <div class="card">
+                            <a href="@linkHelper.BlogLinkUrl(blog.Fields["CTA"])" class="zoomEffect">
+                                <figure>
+                                    <img src=@linkHelper.GetImageURL(blog,"Image") alt="@linkHelper.GetImageAlt(blog,"Image")" class="card-img-top" loading="lazy">
+                                </figure>
+                                <div class="card-body">
+                                    <h5 class="card-title vertical_ellipsis">@Html.Sitecore().Field("Title", blog)</h5>
+                                    <p class="card-text">
+                                        @Html.Sitecore().Field("Description", blog, new { @class = "vertical_ellipsis" })
+                                    </p>
+                                    <span class="black_link">@linkHelper.GetLinkText(blog, "CTA")</span>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+

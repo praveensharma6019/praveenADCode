@@ -1,0 +1,44 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@model RenderingModel
+@{
+    IHelper _helper = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+
+}
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(currentItem, "Image") : "";
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["Link"]);
+
+    <div class="mainsection scrollableOffset zigzage-section" id="@currentItem.DisplayName">
+        <h3 class="sr-heading d-md-none d-block scrollableOffset">@Html.Sitecore().Field("Title", currentItem)</h3>
+        <div class="d-block d-md-flex slide-bar">
+            <div class="img-item">
+                <img src="@imageUrl" loading="lazy">
+            </div>
+            <div class="content-sec">
+                <h3 class="d-md-block d-none">@Html.Sitecore().Field("Title", currentItem)</h3>
+                <p>@Html.Sitecore().Field("Description", currentItem)</p>
+                @if (linkField != null)
+                {
+                    var redirectUrl = linkField.GetFriendlyUrl();
+                    if (!string.IsNullOrEmpty(redirectUrl))
+                    {
+                        <a href="@redirectUrl" class="black_link" target="_blank">@linkField.Text</a>
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)" class="black_link">@linkField.Text</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}
+

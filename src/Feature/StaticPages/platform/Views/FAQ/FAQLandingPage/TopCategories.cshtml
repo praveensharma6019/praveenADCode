@@ -1,0 +1,49 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+}
+
+@if (currentItem != null)
+{
+    <section class="borderRemove_card faq-sectionWrap">
+        <h3>@Html.Sitecore().Field("__Short description", currentItem)</h3>
+        <div class="arrow_pos top-categories">
+            <div class="slider-airports">
+                @foreach (Sitecore.Data.Items.Item categoriesItem in currentItem.Children)
+                {
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)categoriesItem.Fields["Image"]);
+                    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(categoriesItem, "Image") : "";
+
+                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)categoriesItem.Fields["Link"]);
+                    var redirectUrl = linkField.GetFriendlyUrl();
+                    if (redirectUrl != null)
+                    {
+                        <div class="card-Wrap slider-box">
+                            <a href="@redirectUrl" class="card zoomEffect">
+                                <figure class="">
+                                    <img src="@imageUrl"
+                                         width="100%"  loading="lazy" />
+                                </figure>
+                                <div class="card-body">
+                                    <h3>@Html.Sitecore().Field("Title", categoriesItem)</h3>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}
+
+
+
+
+
+

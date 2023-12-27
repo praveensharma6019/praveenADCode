@@ -1,0 +1,71 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string desktopImageAltText = string.Empty;
+    string mobileImageAltText = string.Empty;
+    string popupImageAltText = string.Empty;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["DesktopImage"]);
+    string desktopimageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    Sitecore.Data.Fields.ImageField mobileImgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["MobileImage"]);
+    string mobileImageUrl = mobileImgField != null && mobileImgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(mobileImgField.MediaItem) : "";
+    Sitecore.Data.Fields.ImageField popupImgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["PopupImage"]);
+    string popupImageUrl = popupImgField != null && popupImgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(popupImgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem desktopimage = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        desktopImageAltText = desktopimage != null && desktopimage.Alt != null ? desktopimage.Alt : "";
+    }
+    if (mobileImgField != null && mobileImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem mobileImage = new Sitecore.Data.Items.MediaItem(mobileImgField.MediaItem);
+        mobileImageAltText = mobileImage != null && mobileImage.Alt != null ? mobileImage.Alt : "";
+    }
+    if (popupImgField != null && popupImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem popupImage = new Sitecore.Data.Items.MediaItem(popupImgField.MediaItem);
+        popupImageAltText = popupImage != null && popupImage.Alt != null ? popupImage.Alt : "";
+    }
+}
+
+@if (currentItem != null)
+{
+    <div class="hist-item cm-large">
+        <a class="zoomEffect" href="#" data-bs-toggle="offcanvas" data-bs-target="#historyRight"
+           aria-controls="historyRight" tabindex="0">
+            <figure>
+                <img src="@desktopimageUrl" class="desk-img" loading="lazy">
+                <img src="@mobileImageUrl" class="mob-img" loading="lazy">
+            </figure>
+            <div class="content">
+                <h3>@Html.Sitecore().Field("Title", currentItem)</h3>
+                <p>
+                    @Html.Sitecore().Field("Description", currentItem)
+                </p>
+                <span class="black_link">
+                    @Html.Sitecore().Field("ButtonText", currentItem)
+                </span>
+            </div>
+        </a>
+    </div>
+    <div class="offcanvas offcanvas-end trvLeftOfcanvas" tabindex="-1" id="historyRight"
+         aria-labelledby="historyRightLabel">
+        <div class="offcanvas-header p-0">
+            <button type="button" class="btn-close text-reset px-0 lightRipple"
+                    data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <h5 id="citycanvasRightLabel"></h5>
+            <div class="bannerContent">
+                <h3 class="popup-title">@Html.Sitecore().Field("Title", currentItem)</h3>
+                <img src="@popupImageUrl" alt="@popupImageAltText"
+                     class="popup-img">
+                <div class="discripContent scrollbar-y">
+                    <p>@Html.Sitecore().Field("PopupDescription", currentItem)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}

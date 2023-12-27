@@ -1,0 +1,34 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;    
+}
+
+@if (currentItem != null)
+{
+    <div class="bodySection scrollableOffset DutyFreeWrap" id="v-pills-tabContent">
+        <h2 class="page-tittle" id="@currentItem.DisplayName">@Html.Sitecore().Field("__Short description", currentItem)</h2>
+        <ul class="service_list scrollbar-x">
+            @foreach (Item item in currentItem.Children)
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)item.Fields["Link"]);
+                var redirectUrl = linkField.GetFriendlyUrl();
+                if (redirectUrl != null)
+                {
+                    <li>
+                        <a href="@redirectUrl">
+                            <figure>
+                                <img src="@imageUrl" loading="lazy">
+                            </figure>
+                            <label>@Html.Sitecore().Field("Title", item)</label>
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>    
+}

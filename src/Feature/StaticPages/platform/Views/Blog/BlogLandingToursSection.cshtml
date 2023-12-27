@@ -1,0 +1,53 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelper = new Helper();
+    Sitecore.Data.Fields.MultilistField eventsBlogsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["EventsList"]);
+}
+@if (currentItem != null && eventsBlogsList != null)
+{
+    <div class="tour-section" style="background-image: url(@linkHelper.GetImageURL(currentItem,"BgImage"));">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 left-area">
+                    <img src=@linkHelper.GetImageURL(currentItem,"Image") alt="@linkHelper.GetImageAlt(currentItem,"Image")" loading="lazy">
+                    <h3 class="cm-heading">@Html.Sitecore().Field("Title", currentItem)</h3>
+                    <p>
+                        @Html.Sitecore().Field("Description", currentItem)
+                    </p>
+                </div>
+                <div class="col-md-9 right-area">
+                    <div class="arrow_pos">
+                        <div class="card-slider slider-citytocity">
+                            @foreach (Item tourSection in eventsBlogsList.GetItems())
+                            {
+                                <div class="card">
+                                    <a href="@linkHelper.BlogLinkUrl(tourSection.Fields["CTA"])" class="zoomEffect">
+                                        <figure>
+                                            <img src=@linkHelper.GetImageURL(tourSection,"Image") alt="@linkHelper.GetImageAlt(tourSection,"Image")" class="card-img-top" loading="lazy">
+                                        </figure>
+                                        <div class="card-body">
+                                            <h5 class="card-title vertical_ellipsis">@Html.Sitecore().Field("Title", tourSection)</h5>
+                                            <p class="card-text">
+                                                @Html.Sitecore().Field("Description", tourSection, new { @class = "vertical_ellipsis" })
+                                            </p>
+                                            <span class="black_link">
+                                                @linkHelper.GetLinkText(tourSection, "CTA")
+                                            </span>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+

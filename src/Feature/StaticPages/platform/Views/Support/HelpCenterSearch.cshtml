@@ -1,0 +1,77 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField multiselectField = currentItem.Fields["SearchListItems"];
+    Sitecore.Data.Items.Item[] dListItems = multiselectField.GetItems();
+    Sitecore.Data.Fields.MultilistField pmultiselectField = currentItem.Fields["PopularSearchListItems"];
+    Sitecore.Data.Items.Item[] pListItems = pmultiselectField.GetItems();
+    string divID = string.Empty;
+    string cssClass = string.Empty;
+    Helper _helper = new Helper();
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        divID = parms["id"];
+        cssClass = parms["class"];
+    }
+}
+@if (currentItem != null)
+{
+    <div class="hero-banner" style="background: url(@_helper.GetImageURL(currentItem,"BGImage"))">
+        <div class="container">
+            <div class="banner-title faq-heading">
+                <div class="serviceFaqList">
+                    <h2>@Html.Sitecore().Field("SearchBoxTitle", currentItem)</h2>
+                    <div class="inside-search">
+                        <i class="i-search searchIcon"></i>
+                        <input type="text" id="serviceInput1" onkeyup="filterList('#serviceInput1', '.search-wrapper .faqList li',false,false,true,true)" placeholder="@Html.Sitecore().Field("InSearchBoxText", currentItem)">
+                        <div class="clearIcon d-none" onclick="clearSearch('#serviceInput1', '.search-wrapper .faqList li',false,false,true,true)">
+                            <i class="i-cross"></i>
+                        </div>
+                    </div>
+                    <div id="searchBar">
+                        <div class="search-wrapper">
+                            <ul class="faqList scrollbar-y">
+                                @foreach (var dItem in dListItems)
+                                {
+                                    var redirectUrl = _helper.GetProductItemUrl(dItem);
+                                    <li>
+                                        <a href="@redirectUrl">
+                                            <span class="search-icon"><i class="i-search searchIcon"></i></span><span class="desc">@dItem.DisplayName</span>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                            <div class="faqCategory d-none">
+                                <span>AirSuvidha</span>
+                                <span>DutyFree</span>
+                                <span>flights</span>
+                            </div>
+                            <ul class="viewAll_faqList d-none">
+                                <li>
+                                    <a href="/csmia-mumbai-airport/faqs"
+                                       data-href="/csmia-mumbai-airport/faqs">
+                                        <span class="search-icon"><i class="i-search searchIcon"></i></span><span class="desc">
+                                            View All FAQs containing
+                                            <strong class="searchText"></strong>
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="noFoundsection my-5 text-center d-none">
+                                <div class="emptyWrapper">
+                                    <h6>Oops! We can’t find what you are looking for.</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

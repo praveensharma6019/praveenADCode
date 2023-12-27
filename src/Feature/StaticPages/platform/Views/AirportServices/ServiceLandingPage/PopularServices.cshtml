@@ -1,0 +1,119 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string location = string.Empty;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    string airportCode = string.Empty;
+    string serviceClass = string.Empty;
+    string absoluteurl = string.Empty;
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        location = parms["Location"];
+        airportCode = parms["AirportCode"];
+
+    }
+}
+@if (currentItem != null)
+{
+    <section class="services-wrapper mb-0">
+        <header class="section-title mt-0  mb-2">
+            <h1 class="mainHeading">Services </h1>
+            <div class="inside-search d-lg-flex">
+                <i class="i-search searchIcon"></i>
+                <input type="text" id="serviceInput" onkeyup="filterList('#serviceInput', '.services-list li',true,false,false,false,true)" placeholder="Search" />
+                <div class="clearIcon d-none" onclick="clearSearch('#serviceInput', '.services-list li',true)">
+                    <i class="i-cross"></i>
+
+                </div>
+            </div>
+        </header>
+    </section>
+    <section class="services-wrapper filtersection sub-section-title">
+        <header class="section-title mt-md-4  mb-3">
+            <h1 class="mainHeading mb-md-5 mb-3"><span class="filtersubsectionTitle mt-2">@Html.Sitecore().Field("__Short description", currentItem)</span> </h1>
+        </header>
+        <ul class="services-list">
+            @foreach (Item service in currentItem.Children)
+            {
+                if (@Html.Sitecore().Field("ServiceTitle", service).ToString() == "Book Flights" && Request.Browser.IsMobileDevice)
+                {
+                    absoluteurl = System.Web.HttpContext.Current.Request.Url.AbsoluteUri;
+                    String[] serviceArray = absoluteurl.Split('/');
+                    if (serviceArray[3].ToLower().Contains("services"))
+                    {
+                        <li class="nonCursueTag">
+                            <a href="/flight/booking/home/@airportCode/D/O/ECO/1_0_0/x/DEL-BOM-@DateTime.Now.AddDays(1).ToString("dd/MM/yyyy").Replace("/","")" auto_id=@Html.Sitecore().Field("AutoId", service)>
+                                <span class="tag-coming-soon">@Html.Sitecore().Field("name", service)</span>
+                                <figure>@Html.Sitecore().Field("ServiceImage", service, new { @alt = "Services", @class = "img-fluid" })</figure>
+                                <label>@Html.Sitecore().Field("ServiceTitle", service)</label>
+                            </a>
+                        </li>
+                     }
+                    else
+                    {
+                        <li class="nonCursueTag">
+                            <a href="/flight/booking/home/@airportCode/D/O/ECO/1_0_0/x/DEL-@airportCode-@DateTime.Now.AddDays(1).ToString("dd/MM/yyyy").Replace("/","")" auto_id=@Html.Sitecore().Field("AutoId", service)>
+                                <span class="tag-coming-soon">@Html.Sitecore().Field("name", service)</span>
+                                <figure>@Html.Sitecore().Field("ServiceImage", service, new { @alt = "Services", @class = "img-fluid" })</figure>
+                                <label>@Html.Sitecore().Field("ServiceTitle", service)</label>
+                            </a>
+                        </li>
+                    }
+                }
+                else if (@Html.Sitecore().Field("ServiceTitle", service).ToString() == "Flight Status" && Request.Browser.IsMobileDevice)
+                {
+                    <li class="zoomEffect">
+                        <a href="/flight/service/home/@airportCode?location=@location&flightType=Arrival&flightDate=@DateTime.Now.ToString("dd/MM/yyyy").Replace("/","")" auto_id=@Html.Sitecore().Field("AutoId", service)>
+                            <figure>@Html.Sitecore().Field("ServiceImage", service, new { @alt = "Services", @class = "img-fluid" })</figure>
+                            <label>@Html.Sitecore().Field("ServiceTitle", service)</label>
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    if (@Html.Sitecore().Field("Description", service).ToString() == "deactivate")
+                    {
+                        serviceClass = "deactivate";
+                    }
+                    else if (@Html.Sitecore().Field("Description", service).ToString() == "nonCursueTag")
+                    {
+                        serviceClass = "nonCursueTag";
+                    }
+                    else
+                    {
+                        serviceClass = "zoomEffect";
+                    }
+                    <li class="@serviceClass">
+                        @Html.Sitecore().BeginField("ServiceUrl", service, new { haschildren = true, @auto_id = @Html.Sitecore().Field("AutoId", service) })
+
+                        @if (@Html.Sitecore().Field("Description", service).ToString() == "deactivate")
+                        {
+                        <span class="tag-coming-soon">@Html.Sitecore().Field("name", service)</span>
+                            <figure>
+                                @Html.Sitecore().Field("ServiceImage", service, new { @alt = "Services", @class = "img-fluid" })
+                            </figure>
+                        }
+                        else if (@Html.Sitecore().Field("Description", service).ToString() == "nonCursueTag")
+                        {
+                            <span class="tag-coming-soon">@Html.Sitecore().Field("name", service)</span>
+                            <figure>
+                                @Html.Sitecore().Field("ServiceImage", service, new { @alt = "Services", @class = "img-fluid" })
+                            </figure>
+                        }
+                        else
+                        {
+                            <figure>@Html.Sitecore().Field("ServiceImage", service, new { @alt = "Services", @class = "img-fluid" })</figure>
+                        }
+                        <label>@Html.Sitecore().Field("ServiceTitle", service)</label>
+                        @Html.Sitecore().EndField()
+                    </li>
+                }
+
+            }
+        </ul>
+    </section>
+}

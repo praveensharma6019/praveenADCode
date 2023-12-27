@@ -1,0 +1,43 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{ 
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    Sitecore.Data.Fields.MultilistField locationList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["SelectLocation"]);
+    string divClass = RenderingContext.Current.Rendering.Parameters["classname"];
+}
+
+@if (currentItem != null)
+{
+    <div class="subSection scrollableOffset location-section emptyMap @divClass " id="@currentItem.DisplayName" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+        <h2>@Html.Sitecore().Field("Title", currentItem)</h2>
+        <div class="cate-section__content">
+            <div class="location-section__left">
+                <div class="addressCntr">
+                    @foreach (Sitecore.Data.Items.Item location in locationList.GetItems())
+                    {
+                        <div class="address-box" auto_id="@Html.Sitecore().Field("AutoId", location)">
+                            <div class="terminalName" auto_id="@Html.Sitecore().Field("AutoIdQ", location)">@Html.Sitecore().Field("TerminalName", location)</div>
+                            <p>@Html.Sitecore().Field("AddressLine1", location)</p>
+                            <p>@Html.Sitecore().Field("AddressLine2", location)</p>
+                            <span class="address-box__icon">
+                                <div class="navigationIcon">
+                                    <i class="i-navigation-light"></i>
+                                </div>
+                            </span>
+                        </div>       
+                    }
+                </div>
+            </div>
+            <div class="location-section__right map-img">
+                <div class="fixedBackground" style="background-image: url('@imageUrl');">
+                    <!-- <img src="../../assets/images/services/map.png" /> -->
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

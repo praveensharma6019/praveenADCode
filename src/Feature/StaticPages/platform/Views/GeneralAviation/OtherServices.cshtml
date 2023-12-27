@@ -1,0 +1,51 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+}
+
+@if (RenderingContext.Current.Rendering.Item != null)
+{
+    <div class="internal-service scrollableOffset pt-top" id="ramp-services">
+        @foreach (Sitecore.Data.Items.Item services in currentItem.Children)
+        {
+            Sitecore.Data.Fields.MultilistField servicesList = ((Sitecore.Data.Fields.MultilistField)services.Fields["Services"]);
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["Image"]);
+            string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(services, "Image") : "";
+            <div class="card-box scrollableOffset " id="@services.DisplayName">
+                <div class="card">
+                    <div class="row g-0 grid-Box">
+                        <div class="col-md-5 order1">
+                            <h3 class="main_heading">@Html.Sitecore().Field("Title", services)</h3>
+                            <img src="@imageUrl"
+                                 class="img-fluid"
+                                 alt="..."
+                                  loading="lazy"/>
+                        </div>
+                        <div class="col-md-7 order2">
+                            <div class="card-body">
+                                <h5 class="card-title">@Html.Sitecore().Field("Title", services)</h5>
+                                <ul class="ramp-service-points">
+                                    @foreach (Sitecore.Data.Items.Item serviceItem in servicesList.GetItems())
+                                    {
+                                        <li>@serviceItem["Title"]</li>
+                                    }
+                                </ul>
+                                <p class="font-s">@Html.Sitecore().Field("__Long Description", services)</p>
+                                <button type="button" class="btn btn-link know-btn">
+                                    @Html.Sitecore().Field("ButtonText", services)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

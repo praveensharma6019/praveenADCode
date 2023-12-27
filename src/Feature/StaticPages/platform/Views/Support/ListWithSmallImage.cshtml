@@ -1,0 +1,54 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField multiselectField = currentItem.Fields["ListItems"];
+    Sitecore.Data.Items.Item[] dListItems = multiselectField.GetItems();
+    string divID = string.Empty;
+    string cssClass = string.Empty;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        divID = parms["id"];
+        cssClass = parms["class"];
+    }
+}
+@if (currentItem != null)
+{
+    <div class="sectionWrapper sm-servive-wrapper cancellation-feature">
+        <div class="sm-collum-option scrollableOffset @cssClass" id="@divID">
+            @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListTitle", currentItem))))
+            {
+                <h3 class="sr-heading">@Html.Sitecore().Field("ListTitle", currentItem)</h3>
+            }
+            @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListSubTitle", currentItem))))
+            {
+                <p>@Html.Sitecore().Field("ListSubTitle", currentItem)</p>
+            }
+            @foreach (var dItem in dListItems)
+            {
+                <div class="d-flex hr-slide">
+                    <div class="img-Box">
+                        @Html.Sitecore().Field("ItemImage", dItem)
+                    </div>
+                    <aside>
+                        <h4 class="title">@Html.Sitecore().Field("StepText", dItem)</h4>
+                        @Html.Sitecore().Field("ItemDescription", dItem)
+                    </aside>
+                </div>
+            }
+        </div>
+    </div>
+
+    if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("NoteText", currentItem))))
+    {
+        <div class="subSection scrollableOffset">
+            <div class="link-note">
+                @Html.Sitecore().Field("NoteText", currentItem)
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,65 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Sitecore.Data.Fields
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    var offerExpiredDate = @Html.Sitecore().Field("OfferExpiryDate", currentItem);
+    DateTime offerExpiryDate = DateTime.Parse(offerExpiredDate.ToString());
+    TimeZoneInfo timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+    DateTime expiryDate = TimeZoneInfo.ConvertTimeFromUtc(offerExpiryDate, timeZoneInfo);
+    DateTime currentDate = System.DateTime.Now;
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OfferDetails"]);
+}
+
+
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["OfferExpiryRedirectionLink"]);
+    <div class="section-wrap">
+        <h2 class="section-heading">@Html.Sitecore().Field("Title", currentItem)</h2>
+        <div class="offers-detail">
+            <ul class="ofrs-option">
+                @if (otherServices != null && otherServices.GetItems() != null && otherServices.GetItems().Count() > 0)
+                {
+                    foreach (Sitecore.Data.Items.Item offers in otherServices.GetItems())
+                    {
+                        <li class="d-flex">
+                            <i class="@Html.Sitecore().Field("cssClass", offers)"></i>
+                            <div class="service-poits">
+                                <h4 class="title">@Html.Sitecore().Field("Title", offers)</h4>
+                                @Html.Sitecore().Field("CouponCode", offers)
+                            </div>
+                        </li>
+                    }
+                }
+            </ul>
+            <div class="use-offrs">
+                @if (currentDate > offerExpiryDate)
+                {
+                    var redirectUrl = linkField.GetFriendlyUrl();
+                    if (linkField.Text != null && !string.IsNullOrEmpty(redirectUrl))
+                    {
+                        <div class="bottomText">
+                            <span>@Html.Sitecore().Field("OfferExpiryText", currentItem)</span>
+                            <a href="@redirectUrl" class="btn-primary btn"> @linkField.Text</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="bottomText">
+                            <span>@Html.Sitecore().Field("OfferExpiryText", currentItem)</span>
+                            <a href="javascript:void(0)" class="btn-primary btn"> @linkField.Text</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @Html.Sitecore().Field("OfferDescription", currentItem)
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,53 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    int cnt = 1;
+    string areaSelected = "";
+    string actClass = string.Empty;
+    int seedVal = !string.IsNullOrEmpty(RenderingContext.Current.Rendering.Parameters["seedVal"]) ? Convert.ToInt32(RenderingContext.Current.Rendering.Parameters["seedVal"]) : 0;
+}
+
+@if (currentItem != null)
+{
+    <div class="container">
+            <nav id="navbar-tabs" class="horizontal-tab horizontal-tab_custom adl-htabs nav-tabs nav nav-pills scrollbar-x">
+                <div class="nav nav-pills" id="pills-tab" role="tablist">
+                    @foreach (Sitecore.Data.Items.Item tabItem in currentItem.Children)
+                    {
+                        if (cnt == 1) { areaSelected = "true"; actClass = "active"; } else { areaSelected = "false"; actClass = string.Empty; }
+
+                        <div class="nav-item" role="presentation">
+                            <button class="nav-link_custom @actClass"
+                                    id="@tabItem["TabButtonId"]"
+                                    data-bs-toggle="pill"
+                                    data-bs-target="#@tabItem["TabPanelId"]"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="@tabItem["TabPanelId"]"
+                                    aria-selected="@areaSelected">
+                                @tabItem["Title"]
+                            </button>
+                        </div>
+                        cnt++;
+                    }
+                </div>
+            </nav>
+        </div>
+
+    <div class="tab-content" id="nav-tabContent">
+        @foreach (Sitecore.Data.Items.Item tabItem in currentItem.Children)
+        {
+            <div class="tab-pane fade"
+                 id="@tabItem["TabPanelId"]"
+                 role="tabpanel"
+                 aria-labelledby="nav-@tabItem["TabPanelId"]-tab">
+                @Html.Sitecore().DynamicPlaceholder("tab-content", seed: @seedVal++)
+            </div>
+        }
+    </div>
+}
+
+

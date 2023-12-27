@@ -1,0 +1,54 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+    int counter = 0;
+}
+
+<section class="cate-section covidSec">
+    <h2 class="page-title" auto_id=@Html.Sitecore().Field("AutoId", currentItem)>@Html.Sitecore().Field("__Short description", currentItem)</h2>
+    <div class="cardWrapper">
+        @while (counter < currentItem.Children.Count)
+        {
+            <div class="row d-flex dividerWrap">
+                @for (int innerCnt = 0; innerCnt < 2; innerCnt++)
+                {
+                    Item card = (Item)currentItem.Children[counter];
+                    <div class="col-lg-6 col-sm-12">
+                        @{
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)card.Fields["Image"]);
+                            string imageUrl = imgField != null && imgField.MediaItem != null ? linkHelepr.GetImageURL(card, "Image") : "";
+
+                            Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)card.Fields["Link"]);
+                            var redirectUrl = linkField.GetFriendlyUrl();
+                        }
+                        @if (redirectUrl != null)
+                        {
+                            <a href="@redirectUrl" target="@linkField.Target" auto_id=@Html.Sitecore().Field("AutoId", card)>
+                                <div class="d-flex position-relative cardBox align-items-center">
+                                    <img src="@imageUrl" class="flex-shrink-0" alt="" loading="lazy" />
+                                    <div class="content">
+                                        <h5 class="mt-0">@Html.Sitecore().Field("Title", card)</h5>
+                                        <p>
+                                            @Html.Sitecore().Field("RichText", card)
+                                        </p>
+                                        <div class="black_link">
+                                            <span>@linkHelepr.GetLinkText(card, "Link")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+
+                    counter++;
+                }
+            </div>
+        }
+    </div>
+</section>

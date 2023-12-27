@@ -1,0 +1,88 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string imageAltText = string.Empty;
+    string bgimageAltText = string.Empty;
+    string cardImageAltText = string.Empty;
+    Sitecore.Data.Fields.MultilistField placestoVisit = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["PlacesToVisit"]);
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        imageAltText = image != null && image.Alt != null ? image.Alt : "";
+    }
+    Sitecore.Data.Fields.ImageField bgimgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["BackgroundImage"]);
+    string bgimageUrl = bgimgField != null && bgimgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(bgimgField.MediaItem) : "";
+    if (bgimgField != null && bgimgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem bgimage = new Sitecore.Data.Items.MediaItem(bgimgField.MediaItem);
+        bgimageAltText = bgimage != null && bgimage.Alt != null ? bgimage.Alt : "";
+    }
+
+}
+
+@if (currentItem != null)
+{
+    <div class="scrollableOffset" id="@currentItem.DisplayName">
+        <div class="tour-section "
+             style="background-image: url(@bgimageUrl);">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3 left-area">
+                        <img src="@imageUrl" alt="@imageAltText" loading="lazy">
+                        <h3 class="cm-heading">@Html.Sitecore().Field("Title", currentItem)</h3>
+                        <p>
+                            @Html.Sitecore().Field("Description", currentItem)
+                        </p>
+                    </div>
+                    <div class="col-md-9 right-area">
+                        <div class="arrow_pos">
+                            <div class="card-slider slider-citytocity">
+                                @foreach (Sitecore.Data.Items.Item places in placestoVisit.GetItems())
+                                {
+                                    Sitecore.Data.Fields.ImageField cardImgField = ((Sitecore.Data.Fields.ImageField)places.Fields["CardImage"]);
+                                    string cardImageUrl = cardImgField != null && cardImgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(cardImgField.MediaItem) : "";
+                                    if (cardImgField != null && cardImgField.MediaItem != null)
+                                    {
+                                        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(cardImgField.MediaItem);
+                                        cardImageAltText = image != null && image.Alt != null ? image.Alt : "";
+                                    }
+                                    else
+                                    {
+                                        cardImageAltText = string.Empty;
+                                    }
+                                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)places.Fields["RedirectLink"]);
+                                    if (linkField != null)
+                                    {
+                                        var redirectUrl = linkField.GetFriendlyUrl();
+                                        <div class="card">
+                                            <a href="@redirectUrl" class="zoomEffect">
+                                                <figure>
+                                                    <img class="card-img-top" src="@cardImageUrl"
+                                                         alt="@cardImageAltText" loading="lazy" />
+                                                </figure>
+                                                <div class="card-body">
+                                                    <h5 class="card-title"> @Html.Sitecore().Field("CardTitle", places)</h5>
+                                                    <p class="card-text">
+                                                        @Html.Sitecore().Field("CardDescription", places)
+                                                    </p>
+                                                    <span class="black_link">
+                                                        @linkField.Text
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,118 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using System.Web.Optimization
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@{
+    Layout = null;
+    var assetDomainURL = string.Empty;
+    var imageAltText = string.Empty;
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var domainUrl = !string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString()) ? Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString() : string.Empty;
+    var pageUrl = contextItem != null ? Sitecore.Links.LinkManager.GetItemUrl(contextItem) : String.Empty;
+    string airportCode = contextItem["AirportCode"];
+    Sitecore.Data.Fields.MultilistField servicesField = ((Sitecore.Data.Fields.MultilistField)contextItem.Fields["ListofServices"]);
+    var environmentVariable = Sitecore.Configuration.Settings.GetSetting("widzetEnvironmentVariable").ToString();
+    var environmentAPIVersion = Sitecore.Configuration.Settings.GetSetting("environmentAPIVersionVariable").ToString();
+    string queryString = !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isapp"]) ? Sitecore.Context.Request.QueryString["isapp"].ToLower() : !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isApp"]) ? Sitecore.Context.Request.QueryString["isApp"].ToLower() : "";
+    string nextDayDate = DateTime.Now.AddDays(1).ToString("ddMMyyyy");
+    string currentDate = DateTime.Now.ToString("ddMMyyyy");
+    IHelper _helper = new Helper();
+    var canonicalUrl = string.Empty;
+    var canonicalField = "Canonical";
+    if (contextItem != null && contextItem.Fields[canonicalField] != null && !string.IsNullOrEmpty(contextItem.Fields[canonicalField].Value))
+    {
+        canonicalUrl = _helper.GetLinkURL(contextItem, canonicalField);
+    }
+
+
+    if (!string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl")))
+    {
+        assetDomainURL = Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl").ToString();
+
+    }
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)contextItem.Fields["LandscapeAlertImage"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        imageAltText = image != null && image.Alt != null ? image.Alt : "";
+    }
+
+
+    var Cssversion = _helper.GetLatestVersionFiles("/assets/css/staticservices.min.css");
+    var widgetVersion = _helper.CacheVersion();
+
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    @if (contextItem != null)
+    {
+        <title>@contextItem["MetaTitle"]</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="@contextItem["Viewport"]" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="description" content="@contextItem["MetaDescription"]" />
+        <meta name="robots" content="@contextItem["Robots"]" />
+        <meta name="keywords" content="@contextItem["Keywords"]" />
+        <meta property="og:title" content="@contextItem["OG-Title"]" />
+        <meta property="og:image" content="@contextItem["OG-Image"]" />
+        <meta property="og:description" content="@contextItem["OG-Description"]" />
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+    <link rel="icon" type="image/png" href="@domainUrl/favicon.ico" />
+    @*<link rel="stylesheet" href="~/assets/airportservices/statics/main__d8bf09a9fddb9e922952.css" />*@
+    @*<link rel="stylesheet" href="~/assets/airportservices/css/index.css" />*@
+    @*<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+              rel="stylesheet"
+              integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+              crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css" />*@
+    <link rel="stylesheet" href="@assetDomainURL/assets/css/staticservices.min.css?v=@Cssversion" />
+    <link rel="stylesheet" href="@assetDomainURL/flight/statics/css/cdn/bundles/libs/default/widgets-master.css?v=@widgetVersion" />
+    @*<link rel="stylesheet" href="/forex-assets/widget/adl-currency.css" />*@
+    <link rel="stylesheet" href="@assetDomainURL/car-parking-assets/widget/adl-parking.css?v=@currentDate" />
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmScript.cshtml")
+</head>
+
+<body data-bs-spy="scroll">
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmNonScript.cshtml")
+
+    @if (queryString == "true")
+    {
+        <div class="noHeader_footer">
+            <div class="@contextItem["cssClass"]">@Html.Sitecore().Placeholder("main")</div>
+        </div>
+    }
+    else
+    {
+        @Html.Sitecore().Placeholder("header")
+        <div class="@contextItem["cssClass"]">@Html.Sitecore().Placeholder("main")</div>
+        <div id="footer">@Html.Sitecore().Placeholder("footer")</div>
+
+    }
+
+</body>
+
+</html>
+<script defer src="@assetDomainURL/assets/airport/js/jquery.min.js?v=@_helper.GetLatestVersionFiles("/assets/airport/js/jquery.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/bootstrap.bundle.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/bootstrap.bundle.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/slick.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/slick.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/moment.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/moment.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/header.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/header.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/common.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/common.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/services_latest.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/services_latest.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/airportlist.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/airportlist.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/retaildetails.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/retaildetails.js")"></script>
+<script src="@assetDomainURL/flight/statics/js/cdn/bundles/libs/core.js?v=@widgetVersion"></script>
+@*<script src="/forex-assets/widget/adl-currency.js"></script>*@
+<script src="@assetDomainURL/car-parking-assets/widget/adl-parking.js?v=@currentDate"></script>
+
+<script>
+    var environmentAPIVersion= "@environmentAPIVersion"
+</script>
+
+
+

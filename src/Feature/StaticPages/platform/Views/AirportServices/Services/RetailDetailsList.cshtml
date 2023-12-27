@@ -1,0 +1,88 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Sitecore.Globalization
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    int terminalCnt = 0;
+    int menuCnt = 0;
+    IHelper _helper = new Helper();
+    string retailImageAltText = string.Empty;
+
+}
+
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.MultilistField terminalList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["TerminalList"]);
+
+    Sitecore.Data.Fields.MultilistField retailDetailsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["RetailDetailsList"]);
+
+    Sitecore.Data.Items.Item firstTerminal = terminalList.GetItems().FirstOrDefault();
+
+
+<section class="fnb_section">
+    <div class="d-flex flex-wrap top-nav-wrapper">
+        <div class="selectBox">
+            <div class="selectBox__value">
+                <span>@Html.Sitecore().Field("TerminalName", firstTerminal)</span>
+                <i class="i-arrow-d"></i>
+            </div>
+            <div class="custom-dd-menu" id="terminals">
+                @foreach (Sitecore.Data.Items.Item terminal in terminalList.GetItems())
+                {
+                <a value="@Html.Sitecore().Field("TerminalID", terminal)">@Html.Sitecore().Field("TerminalName", terminal)</a>
+                }
+
+            </div>
+        </div>
+        <div class="selectBox-item">
+            <div class="selectBox-item__value">
+                <span>All</span>
+                <i class="i-arrow-d"></i>
+            </div>
+            <div class="custom-dd-menu mobRight" id="categories">
+                @foreach (Sitecore.Data.Items.Item terminal in terminalList.GetItems())
+                {
+                    Sitecore.Data.Fields.MultilistField menuList = ((Sitecore.Data.Fields.MultilistField)terminal.Fields["MenuList"]);
+                    foreach (Sitecore.Data.Items.Item menu in menuList.GetItems())
+                    {
+                        <a value="@Html.Sitecore().Field("TerminalID", terminal)" data-value="@Html.Sitecore().Field("MenuCode", menu)-@Html.Sitecore().Field("MenuName", menu).ToString().ToLower().Replace(" ","")">@Html.Sitecore().Field("MenuName", menu)</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="sddir-wrap fnb_list_wrap">
+        <p class="sddir-count" hidden=""></p>
+        <div class="sddir-list data-inView">
+            <div class="data-notfound">
+                <h3>Coming Soon...</h3>
+            </div>
+            @foreach (Sitecore.Data.Items.Item retailDetails in retailDetailsList.GetItems())
+            {
+                Sitecore.Data.Fields.ImageField retailImgField = ((Sitecore.Data.Fields.ImageField)retailDetails.Fields["Image"]);
+                string retailImageUrl = retailImgField != null && retailImgField.MediaItem != null ? _helper.GetImageURL(retailDetails, Constant.Image) : "";
+                if (retailImgField != null && retailImgField.MediaItem != null)
+                {
+                    Sitecore.Data.Items.MediaItem retailImage = new Sitecore.Data.Items.MediaItem(retailImgField.MediaItem);
+                    retailImageAltText = retailImage != null && retailImage.Alt != null ? retailImage.Alt : "";
+                }
+            <div class="fnb_list_item sddir-row @Html.Sitecore().Field("RetailClass", retailDetails)">
+                <figure>
+                    <img src="@retailImageUrl" alt="@retailImageAltText" loading="lazy"/>
+                </figure>
+                <aside>
+                    @Html.Sitecore().Field("Description", retailDetails)
+                    <span class="location"><i class="i-map"></i> @Translate.Text("location"): <strong>@Html.Sitecore().Field("Location", retailDetails)</strong></span>
+                </aside>
+            </div>
+            }
+        </div>
+    </div>
+</section>
+
+
+}

@@ -1,0 +1,27 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+
+    Sitecore.Data.Fields.MultilistField serviceList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["ServiceList"]);
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["BannerImage"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+
+    string divClass = RenderingContext.Current.Rendering.Parameters["classname"];
+    string divId = RenderingContext.Current.Rendering.Parameters["id"];
+}
+<section>
+    <ul class="services-list">
+        @foreach (Sitecore.Data.Items.Item listItem in serviceList.GetItems())
+        {
+            <li>
+                <a href="#">
+                    <figure class="align-items-center">@Html.Sitecore().Field("Image", listItem, new { @class = "img-fluid" })</figure>
+                    <label>@Html.Sitecore().Field("Title", listItem)</label>
+                </a>
+            </li>
+        }
+    </ul>
+</section>

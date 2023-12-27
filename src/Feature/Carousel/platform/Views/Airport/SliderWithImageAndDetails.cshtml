@@ -1,0 +1,47 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+
+    string slickParentclass = !string.IsNullOrEmpty(RenderingContext.Current.Rendering.Parameters["slickParentclass"]) ? RenderingContext.Current.Rendering.Parameters["slickParentclass"] : string.Empty;
+    string customClass = !string.IsNullOrEmpty(RenderingContext.Current.Rendering.Parameters["customClass"]) ? RenderingContext.Current.Rendering.Parameters["customClass"] : string.Empty;
+    string effectClass = !string.IsNullOrEmpty(RenderingContext.Current.Rendering.Parameters["zoomeffect"]) ? RenderingContext.Current.Rendering.Parameters["zoomeffect"] : string.Empty;
+}
+@if (currentItem != null)
+{
+    <section class="airport_experience @customClass pt-wrap">
+        <div class="container">
+            <h3>@Html.Sitecore().Field("__Short description", currentItem)</h3>
+            <div class="row @slickParentclass">
+                @foreach (Item service in currentItem.Children)
+                {
+                    <div class="col">
+                        @Html.Sitecore().BeginField("Link", service, new { haschildren = true, @class = "card zoomEffect gtmKnowMoreClick", @data_event = "view_know_more", @data_subcategory = "", @data_bannercategory = @Html.Sitecore().Field("__Short description", currentItem), @data_label = @Html.Sitecore().Field("Title", service) })
+                        @if (!string.IsNullOrEmpty(effectClass))
+                        {
+                            <div class="@effectClass">
+                                @Html.Sitecore().Field("Image", service, new { @class = "card-img-top", @alt = "Airport-Services" })
+                            </div>
+                        }
+                        else
+                        {
+                            <figure>
+                                @Html.Sitecore().Field("Image", service, new { @class = "card-img-top", @alt = "Airport-Services" })
+                            </figure>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.Sitecore().Field("Title", service)</h5>
+                            <p class="card-text">
+                                @Html.Sitecore().Field("Description", service)
+                            </p>
+                            <span href="#" class="know-btn">@Html.Sitecore().Field("SubTitle", service)</span>
+                        </div>
+                        @Html.Sitecore().EndField()
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

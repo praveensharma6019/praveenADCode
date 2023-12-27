@@ -1,0 +1,113 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using System.Web.Optimization
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@{
+    Layout = null;
+    var assetDomainURL = string.Empty;
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var environmentVariable = Sitecore.Configuration.Settings.GetSetting("widzetEnvironmentVariable").ToString();
+    var environmentAPIVersion = Sitecore.Configuration.Settings.GetSetting("environmentAPIVersionVariable").ToString();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.CheckboxField searchEnable = null;
+    IHelper _helper = new Helper();
+    var domainUrl = !string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString()) ? Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString() : string.Empty;
+    if (currentItem != null && currentItem.Fields["EnableSearch"] != null)
+    {
+        searchEnable = currentItem.Fields["EnableSearch"];
+    }
+    var canonicalUrl = string.Empty;
+    var canonicalField = "Canonical";
+    if (contextItem != null && contextItem.Fields[canonicalField] != null && !string.IsNullOrEmpty(contextItem.Fields[canonicalField].Value))
+    {
+        canonicalUrl = _helper.GetLinkURL(contextItem, canonicalField);
+    }
+
+    if (!string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl")))
+    {
+        assetDomainURL = Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl").ToString();
+
+    }
+
+    var Cssversion = _helper.GetLatestVersionFiles("/assets/css/AirportMain.min.css");
+    var jsVersion = _helper.GetLatestVersionFiles("/assets/js/AirportMain.min.js");
+    var widgetVersion = _helper.CacheVersion();
+}
+
+<html>
+<head>
+    @if (contextItem != null)
+    {
+        <title>@contextItem["MetaTitle"]</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="@contextItem["Viewport"]" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="description" content="@contextItem["MetaDescription"]" />
+        <meta name="robots" content="@contextItem["Robots"]" />
+        <meta name="keywords" content="@contextItem["Keywords"]" />
+        <meta property="og:title" content="@contextItem["OG-Title"]" />
+        <meta property="og:image" content="@contextItem["OG-Image"]" />
+        <meta property="og:description" content="@contextItem["OG-Description"]" />
+        <link rel="canonical" href="@canonicalUrl" />
+    }
+    <link rel="icon" type="image/png" href="@domainUrl/favicon.ico" />
+    @Styles.Render(assetDomainURL + "/assets/css/AirportMain?v=" + Cssversion)
+    <link rel="stylesheet" href="@assetDomainURL/assets/airport/css/common.css?v=@_helper.GetLatestVersionFiles("/assets/airport/css/common.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/airport/css/header.css?v=@_helper.GetLatestVersionFiles("/assets/airport/css/header.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/airport/css/footer.css?v=@_helper.GetLatestVersionFiles("/assets/airport/css/footer.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/css/domestic-flight.css?v=@_helper.GetLatestVersionFiles("/assets/css/domestic-flight.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/css/blog-landing.css?v=@_helper.GetLatestVersionFiles("/assets/css/blog-landing.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/flight/statics/css/cdn/bundles/libs/default/widgets-master.css?v=@widgetVersion" />
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmScript.cshtml")
+</head>
+
+<body>
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmNonScript.cshtml")
+    @Html.Sitecore().Placeholder("notification")
+    @Html.Sitecore().Placeholder("header")
+    <div id="GlobalSearchContainer">
+        @if (searchEnable != null && searchEnable.Checked)
+        {
+            @Html.Partial("~/Views/SubLayouts/PartialViews/MobileGlobalSearch.cshtml")
+        }
+        <div class="airport_main_wrap widthControl blog-landing">@Html.Sitecore().Placeholder("main")</div>
+    </div>
+    <div id="footer">@Html.Sitecore().Placeholder("footer")</div>
+    <script>
+    var environmentAPIVersion= "@environmentAPIVersion"
+    </script>
+    <script defer src="@assetDomainURL/assets/airport/js/jquery.min.js?v=@_helper.GetLatestVersionFiles("/assets/airport/js/jquery.min.js")"></script>
+    <script defer src="@assetDomainURL/assets/airport/js/bootstrap.bundle.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/bootstrap.bundle.min.js")"></script>
+    <script defer src="@assetDomainURL/assets/airport/js/slick.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/slick.min.js")"></script>
+    <script defer src="@assetDomainURL/assets/airport/js/moment.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/moment.min.js")"></script>
+    <script defer src="@assetDomainURL/assets/airport/js/airport-landing-page.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/airport-landing-page.js")"></script>
+    <script defer src="@assetDomainURL/assets/airport/js/header.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/header.js")"></script>
+    <script defer src="@assetDomainURL/assets/airport/js/scrollbar.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/scrollbar.js")"></script>
+    <script defer src="@assetDomainURL/assets/airport/js/blog-landing.js?v=@_helper.GetLatestVersionFiles("/assets/airport/js/blog-landing.js")"></script>
+    <script>
+        $(document).ready(function () {
+            $(".slide").slice(0, 10).show();
+            $("#loadMore").on("click", function (e) {
+                e.preventDefault();
+                $(".slide:hidden").slice(0, 5).slideDown();
+                if ($(".slide:hidden").length == 0) {
+                    $("#loadMore").text("No Content").addClass("noContent");
+                }
+            });
+        });
+        $('.video').parent().click(function () {
+            if ($(this).children(".video").get(0).paused) {
+                $(this).children(".video").get(0).play();
+                $(this).children(".playpause").fadeOut();
+            } else {
+                $(this).children(".video").get(0).pause();
+                $(this).children(".playpause").fadeIn();
+            }
+        });
+    </script>
+    <script src="@assetDomainURL/flight/statics/js/cdn/bundles/libs/core.js?v= @widgetVersion"></script>
+
+</body>
+</html>
+

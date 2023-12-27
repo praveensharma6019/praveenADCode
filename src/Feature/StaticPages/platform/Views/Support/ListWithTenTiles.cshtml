@@ -1,0 +1,53 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField multiselectField = currentItem.Fields["ListItems"];
+    Sitecore.Data.Items.Item[] dListItems = multiselectField.GetItems();
+    string divID = string.Empty;
+    string cssClass = string.Empty;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    Helper _helper = new Helper();
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        divID = parms["id"];
+        cssClass = parms["class"];
+    }
+}
+@if (currentItem != null)
+{
+    <div class="sectionWrapper">
+        <div class="scrollableOffset @cssClass" id="@divID">
+            @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListSubTitle", currentItem))))
+            {
+                <h3 class="sr-heading">@Html.Sitecore().Field("ListTitle", currentItem)</h3>
+            }
+            @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListSubTitle", currentItem))))
+            {
+                <p>@Html.Sitecore().Field("ListSubTitle", currentItem)</p>
+            }
+            <ul class="banned-item">
+                @foreach (var dItem in dListItems)
+                {
+                    <li class="br-items">
+                        <img loading="lazy" src="@_helper.GetImageURL(dItem,"ItemImage")" />
+                        @Html.Sitecore().Field("ItemDescription", dItem)
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("NoteText", currentItem))))
+    {
+        <div class="subSection scrollableOffset">
+            <div class="link-note">
+                @Html.Sitecore().Field("NoteText", currentItem)
+            </div>
+        </div>
+    }
+}

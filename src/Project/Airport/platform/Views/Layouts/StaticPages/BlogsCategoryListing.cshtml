@@ -1,0 +1,81 @@
+﻿@using Sitecore.Mvc
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@{
+    Layout = null;
+    var assetDomainURL = string.Empty;
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var domainUrl = !string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString()) ? Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString() : string.Empty;
+    var pageUrl = contextItem != null ? Sitecore.Links.LinkManager.GetItemUrl(contextItem) : String.Empty;
+    var environmentVariable = Sitecore.Configuration.Settings.GetSetting("widzetEnvironmentVariable").ToString();
+    var environmentAPIVersion = Sitecore.Configuration.Settings.GetSetting("environmentAPIVersionVariable").ToString();
+    string currentDate = DateTime.Now.AddDays(1).ToString("ddMMyyyy");
+    IHelper _helper = new Helper();
+    var canonicalUrl = string.Empty;
+    var canonicalField = "Canonical";
+    if (contextItem != null && contextItem.Fields[canonicalField] != null && !string.IsNullOrEmpty(contextItem.Fields[canonicalField].Value))
+    {
+        string currentUrl = Sitecore.Context.Request.FilePath;
+        canonicalUrl = _helper.GetLinkURL(contextItem, canonicalField);
+    }
+
+    if (!string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl")))
+    {
+        assetDomainURL = Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl").ToString();
+
+    }
+    var widgetVersion = _helper.CacheVersion();
+}
+<!DOCTYPE html>
+<html>
+
+<head itemscope="" itemtype="https://schema.org/WebPage">
+    @if (contextItem != null)
+    {
+        <title itemprop="name">@contextItem["MetaTitle"]</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="@contextItem["Viewport"]" />
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta itemprop="description" name="description" content="@contextItem["MetaDescription"]" />
+        <meta name="robots" content="@contextItem["Robots"]" />
+        <meta name="keywords" content="@contextItem["Keywords"]" />
+        <meta property="og:title" content="@contextItem["OG-Title"]" />
+        <meta property="og:image" content="@contextItem["OG-Image"]" />
+        <meta property="og:description" content="@contextItem["OG-Description"]" />
+        <link rel="canonical" href="@canonicalUrl" />
+        <meta itemprop="url" content="@domainUrl@pageUrl" />
+    }
+    <link rel="icon" type="image/png" href="@domainUrl/favicon.ico" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/airport/css/common.css?v=@_helper.GetLatestVersionFiles("/assets/airport/css/common.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/airport/css/header.css?v=@_helper.GetLatestVersionFiles("/assets/airport/css/header.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/airport/css/footer.css?v=@_helper.GetLatestVersionFiles("/assets/airport/css/footer.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/airport/css/airport-landing-page.css?v=@_helper.GetLatestVersionFiles("/assets/airport/css/airport-landing-page.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/css/domestic-flight.css?v=@_helper.GetLatestVersionFiles("/assets/css/domestic-flight.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/css/blog-category-listing.css?v=@_helper.GetLatestVersionFiles("/assets/css/blog-category-listing.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/assets/css/blog-detail.css?v=@_helper.GetLatestVersionFiles("/assets/css/blog-detail.css")" />
+    <link rel="stylesheet" href="@assetDomainURL/flight/statics/css/cdn/bundles/libs/default/widgets-master.css?v=@widgetVersion" />
+
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmScript.cshtml")
+
+</head>
+
+<body data-bs-spy="scroll">
+    @Html.Partial("~/Views/SubLayouts/PartialViews/GtmNonScript.cshtml")
+    @Html.Sitecore().Placeholder("header")
+    <div class="airport_main_wrap @contextItem["cssClass"]">@Html.Sitecore().Placeholder("main")</div>
+    <div id="footer">@Html.Sitecore().Placeholder("footer")</div>
+
+</body>
+
+</html>
+
+<script>
+    var environmentAPIVersion= "@environmentAPIVersion"
+</script>
+<script defer src="@assetDomainURL/assets/airport/js/jquery.min.js?v=@_helper.GetLatestVersionFiles("/assets/airport/js/jquery.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/bootstrap.bundle.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/bootstrap.bundle.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/slick.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/slick.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/moment.min.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/moment.min.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/header.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/header.js")"></script>
+<script defer src="@assetDomainURL/assets/airport/js/blog-category-listing.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/blog-category-listing.js")"></script>
+<script defer src="@assetDomainURL/assets/statics/js/domestic-flights.js?v= @_helper.GetLatestVersionFiles("/assets/airport/js/domestic-flights.js")"></script>
+<script src="@assetDomainURL/flight/statics/js/cdn/bundles/libs/core.js?v= @widgetVersion"></script>

@@ -1,0 +1,34 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{ 
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["ServicesList"]);
+ }
+
+@if (currentItem != null)
+{
+    <div class="subSectionChild" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+        <h6 class="dark" auto_id="@Html.Sitecore().Field("AutoIdQ", currentItem)">@Html.Sitecore().Field("Title", currentItem)</h6>
+        <p>@Html.Sitecore().Field("Description", currentItem)</p>
+        <div class="servicesCntr scrollbar-x" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+            @foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["Image"]);
+                string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                <div class="servicesCntr__col">
+                    <a href="#" class="zoomEffect">
+                        <div class="card">
+                            <figure style="border-radius:8px;">
+                                <img src="@imageUrl" loading="lazy"/>
+                            </figure>
+                            <p>@Html.Sitecore().Field("Description", currentItem)</p>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+}
