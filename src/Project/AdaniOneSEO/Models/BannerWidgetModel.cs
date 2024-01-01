@@ -26,7 +26,6 @@ namespace Project.AdaniOneSEO.Website.Models
         public string gradientConfiguration { get; set; }
         public string gridConfiguration { get; set; }
         public string subItemColors { get; set; }
-        public string children { get; set; }
 
         public List<widgetItems> widgetItems { get; set; }
     }

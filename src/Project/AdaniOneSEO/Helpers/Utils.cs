@@ -56,19 +56,6 @@ namespace Project.AdaniOneSEO.Website.Helpers
             }
             return imageURL;
         }
-        public static string GetImageURLByFieldIdSolr(Item solrItem, ID fieldName)
-        {
-            if (solrItem.Fields.Contains(fieldName))
-            {
-                var field = solrItem.Fields[fieldName];
-                if (field != null && !string.IsNullOrEmpty(field.Value))
-                {
-                    return field.Value;
-                }
-            }
-
-            return string.Empty;
-        }
         public static string GetSitecoreDomain()
         {
             string strSitedomain = string.Empty;

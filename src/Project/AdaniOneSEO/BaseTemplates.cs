@@ -36,7 +36,6 @@ namespace Project.AdaniOneSEO.Website
             public static ID Description = ID.Parse("{820CE57B-4887-4EE9-A9C9-0C1E66DFE241}");
             public static ID Link = ID.Parse("{63767939-4CC0-4DCA-A92D-EE7B4447C01E}");
             public static ID Image = ID.Parse("{9775B51E-B023-4D05-B8DB-3AF8289FD750}");
-            
             public static ID btnText = ID.Parse("{7647D2C9-301B-4C4F-A25C-198F8B5BCF58}");
             public static ID OfferEligibility = ID.Parse("{48F163A3-6089-4677-96BB-726FA13C510F}");
             public static ID gridNumber = ID.Parse("{0D6D4774-B3DA-4575-9DCE-5BC55C96E066}");
@@ -50,7 +49,6 @@ namespace Project.AdaniOneSEO.Website
             public static ID BannerLogo = ID.Parse("{BC714310-33E6-494E-8866-222EC45085B8}");
 
             public static ID SubTitle = ID.Parse("{FBB1D96D-A53B-44DF-91AE-9B760FE57225}");
-            public static ID Key = ID.Parse("{EB9FBAB0-0F24-4E91-8439-6228951B871F}");
 
             public static ID AutoId = ID.Parse("{C0679279-72D8-439B-82D5-C1ABAC4B1DDC}");
 
@@ -66,7 +64,6 @@ namespace Project.AdaniOneSEO.Website
             public static ID SubCategory = ID.Parse("{84DC69B7-FB62-4207-B7F2-1C1D138210D4}");
             public static ID Type = ID.Parse("{31930532-D904-4B30-997C-74AB69DA095B}");
             public static ID Event = ID.Parse("{118A113B-4331-497E-8173-30A231672A5D}");
-            public static ID WidgetChildren = ID.Parse("{77E41976-C178-4811-B30A-D713D142D3B2}");
 
 
             //Widget
@@ -80,14 +77,6 @@ namespace Project.AdaniOneSEO.Website
             public static ID aspectRatio = ID.Parse("{5C907F2A-40BA-4AE2-8564-66660459E46C}");
             public static ID borderRadius = ID.Parse("{F9AE0EA0-FF71-4D38-BCE3-DD0C00316F87}");
             public static ID backgroundColor = ID.Parse("{DC284427-0FEF-40A0-A5AD-F57FA4FBDE63}");
-
-
-            public static ID Imagesrc = ID.Parse("{6AAFFD37-A781-4F87-A948-591AD0C85679}");
-            public static ID BannerImagelogo = ID.Parse("{8EF701B2-908C-468A-B054-1143D0AA3752}");
-            public static ID Bannermobileimage = ID.Parse("{A4F2E976-FA01-4A09-B3FD-F91132544244}");
-            public static ID Bannertitle = ID.Parse("{5D3F8235-D310-4BAA-A99B-653006BFC294}");
-            public static ID Bannerdescription = ID.Parse("{D4BDA7F7-C8AF-4DA3-ADA7-EF10387723D7}");
-            public static ID Bannersubtitle = ID.Parse("{A86745F9-82C9-4B31-B6EC-869DD9EB3282}");
 
         }
 
@@ -138,31 +127,6 @@ namespace Project.AdaniOneSEO.Website
             public static ID PlaceName = ID.Parse("{F4373AFA-1400-4573-9B91-539709F011E9}");
             public static ID PlaceLink = ID.Parse("{35456F83-4414-4FE6-AC87-58930868DB15}");
             public static ID LocationIcon = ID.Parse("{97D2DBE7-0AB5-4D72-AC8E-030B9D1C7A4B}");
-        }
-
-        public static class CityToCityFilterOption
-        {
-            public static ID TripType = ID.Parse("{6CF550D8-2A65-4DF2-B299-0FF3665571A9}");
-            public static ID FareType = ID.Parse("{21BBF9BC-C2E4-4EB8-86B9-153DFD252089}");
-            public static ID Cabin = ID.Parse("{00AE9D5A-BA2C-43EA-8F2D-F5D836E4566F}");
-            public static ID CityFrom = ID.Parse("{61496EFC-3DA8-45CB-90C9-4222D53D62FC}");
-            public static ID CityTo = ID.Parse("{DD335E59-9DF1-4888-8BF2-6D93C26ACE47}");
-            public static ID CityToCode = ID.Parse("{D2078374-D89F-48FA-ABEC-65584F04E7AA}");
-            public static ID CityFromCode = ID.Parse("{6B616CE1-7A67-4C44-9644-4F9500175464}");
-        }
-
-        public static class PageMetaData
-        {
-            public static ID MetaTitle = ID.Parse("{8E163446-97A6-4DF3-9367-A24A488F62ED}");
-            public static ID MetaDescription = ID.Parse("{75D15C69-29A1-43D5-A179-14D58826C12C}");
-            public static ID Keywords = ID.Parse("{F48C450C-5EB5-42A3-BD42-AE7A800B7530}");
-            public static ID Canonical = ID.Parse("{10133F53-CBFF-4C7A-B180-3B33DE15170A}");
-            public static ID Viewport = ID.Parse("{E1CF3212-9C8F-4F05-8800-A206E68D11C3}");
-            public static ID Robots = ID.Parse("{FBEF871E-E549-44D2-83B9-DCC33A71AC76}");
-            public static ID OG_Title = ID.Parse("{AB0FD215-FD3F-41B0-89F0-34AE2460EAE3}");
-            public static ID OG_Image = ID.Parse("{B0E5E6CB-86AE-4283-92B5-FD21E2E63939}");
-            public static ID OG_Description = ID.Parse("{78F7A067-1A52-4E65-87D0-0A7C9C10A833}");
-
         }
     }
 }

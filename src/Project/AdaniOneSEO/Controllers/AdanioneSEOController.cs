@@ -1,13 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Project.AdaniOneSEO.Website.Models;
 using Project.AdaniOneSEO.Website.Models.FlightsToDestination;
-using Sitecore.ContentSearch.SearchTypes;
-using Sitecore.ContentSearch;
 using Sitecore.Data;
 using Sitecore.Data.Fields;
 using Sitecore.Data.Items;
 using Sitecore.Diagnostics;
-using Sitecore.Pipelines.HttpRequest;
 using Sitecore.SecurityModel;
 using System;
 using System.Collections.Generic;
@@ -16,7 +13,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web.Mvc;
-using Sitecore;
 
 namespace Project.AdaniOneSEO.Website.Controllers
 {
@@ -450,7 +446,7 @@ namespace Project.AdaniOneSEO.Website.Controllers
                                                         filterOptionsResponseItem.Fields["arrivalTime"].Value = item.arrivalTime;
                                                         filterOptionsResponseItem.Fields["departureTime"].Value = item.departureTime;
 
-                                                        TimeSpan timeSpan = TimeSpan.FromMinutes(System.Convert.ToDouble(item.duration));
+                                                        TimeSpan timeSpan = TimeSpan.FromMinutes(Convert.ToDouble(item.duration));
                                                         string formattedTime = $"{(int)timeSpan.TotalHours} h {timeSpan.Minutes} m";
                                                         filterOptionsResponseItem.Fields["duration"].Value = formattedTime;
 
@@ -501,7 +497,7 @@ namespace Project.AdaniOneSEO.Website.Controllers
                                                         filterOptionsResponseItem.Fields["arrivalTime"].Value = item.arrivalTime;
                                                         filterOptionsResponseItem.Fields["departureTime"].Value = item.departureTime;
 
-                                                        TimeSpan timeSpan = TimeSpan.FromMinutes(System.Convert.ToDouble(item.duration));
+                                                        TimeSpan timeSpan = TimeSpan.FromMinutes(Convert.ToDouble(item.duration));
                                                         string formattedTime = $"{(int)timeSpan.TotalHours} h {timeSpan.Minutes} m";
                                                         filterOptionsResponseItem.Fields["duration"].Value = formattedTime;
 
@@ -513,7 +509,7 @@ namespace Project.AdaniOneSEO.Website.Controllers
                                                 }
                                             }
 
-                                            var lowestPriceItem = dateFolderItem.Children.OrderBy(i => System.Convert.ToDecimal(i.Fields["price"].Value)).FirstOrDefault();
+                                            var lowestPriceItem = dateFolderItem.Children.OrderBy(i => Convert.ToDecimal(i.Fields["price"].Value)).FirstOrDefault();
 
                                             if (lowestPriceItem != null && dateFolderItem.Children.Any())
                                             {
@@ -710,68 +706,6 @@ namespace Project.AdaniOneSEO.Website.Controllers
             }
 
             return Json(flightDetailResponse.OrderBy(y => y.price), JsonRequestBehavior.AllowGet);
-        }
-
-        public ActionResult GetItemName(HttpRequestArgs args)
-        {
-            if (Context.Item != null || Context.Database == null || args.Url == null || args.Url.ItemPath.Length == 0)
-            { return null; }
-
-
-            var requestUrl = args.Url.ItemPath.TrimEnd('/');
-            var index = requestUrl.LastIndexOf('/');
-
-            var itemName = requestUrl.Substring(index + 1);
-            string contextDB = Sitecore.Context.Database.Name;
-            string currentdb = GetContextIndexValue(contextDB, itemName);
-            using (var searchContext = ContentSearchManager.GetIndex(currentdb).CreateSearchContext())
-            {
-                ID itemTemplateID = new Sitecore.Data.ID(new Guid());
-                if (!string.IsNullOrEmpty(itemName))
-                {
-                    var result = searchContext.GetQueryable<SearchResultItem>().
-                        Where(
-                            x => x.TemplateId == itemTemplateID &&
-                            x.Name == itemName
-                        ).FirstOrDefault();
-
-                    if (result != null)
-                    {
-                        var item = result.GetItem();
-                        if (item.Language == Context.Language)
-                        {
-                            Context.Item = result.GetItem();
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-        public string GetContextIndexValue(string contextDB, string flighttype)
-        {
-            if (contextDB == "master")
-            {
-                if (flighttype == "domestic-flights")
-                {
-                    return null;
-                }
-                else if (flighttype == "international-flights")
-                {
-                    return null;
-                }
-            }
-            else if (contextDB == "web")
-            {
-                if (flighttype == "domestic-flights")
-                {
-                    return null;
-                }
-                else if (flighttype == "international-flights")
-                {
-                    return null;
-                }
-            }
-            return null;
         }
     }
 }

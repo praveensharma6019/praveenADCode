@@ -3,7 +3,6 @@ using Project.AdaniOneSEO.Website.Models;
 using Project.AdaniOneSEO.Website.Models.FlightsToDestination;
 using Project.AdaniOneSEO.Website.Services.FlightsToDestination;
 using Sitecore.Data;
-using Sitecore.Data.Items;
 using Sitecore.Mvc.Presentation;
 using System;
 using System.Collections.Generic;
@@ -27,66 +26,53 @@ namespace Project.AdaniOneSEO.Website.Services.CityToCityPage
             try
             {
                 Uri CurrentURL = new Uri(HttpContext.Current.Request.Url.Scheme + "://" + HttpContext.Current.Request.Url.Authority + HttpContext.Current.Request.RawUrl);
-
-                string itemsPath = HttpUtility.ParseQueryString(CurrentURL.Query).Get("item");
-                string itemPath = "";
-                if (!string.IsNullOrEmpty(itemsPath))
+                
+                string itemPath = HttpUtility.ParseQueryString(CurrentURL.Query).Get("item");
+                if (!string.IsNullOrEmpty(itemPath))
                 {
-                    if (ID.TryParse(itemsPath, out ID itemId))
+                    if (itemPath != null && itemPath.Contains("domestic-flights"))
                     {
-                        Item item = Sitecore.Context.Database.GetItem(itemId);
-
-                        if (item != null)
+                        Page = "domestic-flights";
+                    }
+                    else if (itemPath.Contains("international-flights"))
+                    {
+                        Page = "international-flights";
+                    }
+                    string[] itemPathSegment = itemPath.Split('/');
+                    string Flight = itemPathSegment[itemPathSegment.Length - 1];
+                    //Page = itemPathSegment[itemPathSegment.Length - 2];
+                    if (!string.IsNullOrEmpty(Flight))
+                    {
+                        string[] parts = Flight.Split('-');
+                        if (parts.Length >= 2)
                         {
-                            itemPath = item.Paths.FullPath;
-                            string[] itemPathSegment = itemPath.Split('/');
-                            string Flight = itemPathSegment[itemPathSegment.Length - 1];
-                            if (itemPath != null && itemPath.Contains("domestic-flights"))
+                            string City1 = parts[0]; // "city1"
+                            string City2 = parts[2]; // "city2"
+
+                            if (!string.IsNullOrEmpty(City1) && !string.IsNullOrEmpty(City2) && !string.IsNullOrEmpty(Page))
                             {
-                                Page = "domestic-flights";
-                            }
-                            else if (itemPath.Contains("international-flights"))
-                            {
-                                Page = "international-flights";
-                            }
-                            else
-                            { Page = itemPathSegment[itemPathSegment.Length - 2]; }
+                                //Popular Flights to City 1
+                                PopularFlightsList popularFlightsToList = GetPopularFlights(City1, "to", Page);
+                                popularFlightsList.Add(popularFlightsToList);
 
-                            if (!string.IsNullOrEmpty(Flight))
-                            {
-                                string[] parts = Flight.Split('-');
-                                if (parts.Length >= 2)
-                                {
-                                    string City1 = parts[0]; // "city1"
-                                    string City2 = parts[2]; // "city2"
+                                //Popular Flights from City 1
+                                PopularFlightsList popularFlightsFromList = GetPopularFlights(City1, "from", Page);
+                                popularFlightsList.Add(popularFlightsFromList);
 
-                                    if (!string.IsNullOrEmpty(City1) && !string.IsNullOrEmpty(City2) && !string.IsNullOrEmpty(Page))
-                                    {
-                                        //Popular Flights to City 1
-                                        PopularFlightsList popularFlightsToList = GetPopularFlights(City1, "to", Page);
-                                        popularFlightsList.Add(popularFlightsToList);
+                                //Popular Flights to City 2
+                                PopularFlightsList popularFlightsToList2 = GetPopularFlights(City2, "to", Page);
+                                popularFlightsList.Add(popularFlightsToList2);
 
-                                        //Popular Flights from City 1
-                                        PopularFlightsList popularFlightsFromList = GetPopularFlights(City1, "from", Page);
-                                        popularFlightsList.Add(popularFlightsFromList);
+                                //Popular Flights from City 2
+                                PopularFlightsList popularFlightsFromList2 = GetPopularFlights(City2, "from", Page);
+                                popularFlightsList.Add(popularFlightsFromList2);
 
-                                        //Popular Flights to City 2
-                                        PopularFlightsList popularFlightsToList2 = GetPopularFlights(City2, "to", Page);
-                                        popularFlightsList.Add(popularFlightsToList2);
-
-                                        //Popular Flights from City 2
-                                        PopularFlightsList popularFlightsFromList2 = GetPopularFlights(City2, "from", Page);
-                                        popularFlightsList.Add(popularFlightsFromList2);
-
-                                        //Top Domestic Routes
-                                        PopularFlightsList topDomesticRoute = GetTopDomesticRoutes(Page);
-                                        popularFlightsList.Add(topDomesticRoute);
-                                    }
-                                }
+                                //Top Domestic Routes
+                                PopularFlightsList topDomesticRoute = GetTopDomesticRoutes(Page);
+                                popularFlightsList.Add(topDomesticRoute);
                             }
                         }
                     }
-                    
                 }
             }
             catch (Exception ex)

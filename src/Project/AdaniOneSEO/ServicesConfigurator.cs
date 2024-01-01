@@ -18,9 +18,6 @@ namespace Project.AdaniOneSEO.Website
             serviceCollection.AddTransient<IPopularFlights, PopularFlights>();
             serviceCollection.AddTransient<IFilterOptions, FilterOptions> ();
             serviceCollection.AddTransient<IPageMetaData, PageMetaData>();
-            serviceCollection.AddTransient<IPageMetaDataNew, PageMetaDataNew>();
-            serviceCollection.AddTransient<IFAQWidget, FAQWidget>();
-            serviceCollection.AddTransient<ICityToCityFilterOptionService, CityToCityFilterOptionService>();
             serviceCollection.AddTransient<IGetLowestPrice, GetLowestPrice>();
             serviceCollection.AddTransient<IVideoGalleryService, VideoGalleryService>();
             serviceCollection.AddTransient<ICityToCityPageService, CityToCityPageService>();
