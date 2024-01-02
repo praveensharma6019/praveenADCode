@@ -1,0 +1,23 @@
+﻿@using Sitecore.ExperienceForms.Mvc.Html
+@model Adani.BAU.AdaniWelspunSXA.Project.FormValidator.FormFields.GoogleRecaptchaV3
+
+
+<input id="@Html.IdFor(m => Model.Value)" name="@Html.NameFor(m => Model.Value)" class="@Model.CssClass" type="hidden" value="" />
+
+<script src="https://www.google.com/recaptcha/api.js?onload=grecaptcha_ready&render=@Model.ApiKey"></script>
+<script>
+    function grecaptcha_ready() {
+        grecaptcha.ready(function () {
+            grecaptcha.execute('@Model.ApiKey', { action: 'form' }).then(function (token) {
+                document.getElementById("@Html.IdFor(m => Model.Value)").value = token;
+            });
+        });
+    }
+    var hiddenField = document.getElementById(@Html.Raw("\"" + Html.IdFor(m => Model.Value) + "\""));
+    var parent = hiddenField.parentNode;
+    if (parent.classList.contains("sc-formdesign-fieldcontainer")) {
+        var textDiv = document.createElement("div");
+        textDiv.innerHTML = "(ReCaptcha V3 Hidden Field)";
+        parent.appendChild(textDiv);
+    }
+</script>

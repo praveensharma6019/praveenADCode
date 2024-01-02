@@ -1,0 +1,124 @@
+﻿@using Adani.BAU.AdaniUpdates.Project.Helper;
+@using Adani.BAU.AdaniUpdates.Project.Models;
+@using Sitecore.Data.Fields;
+@using Sitecore.Data.Items;
+@using System.Globalization;
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var categoryItems = Sitecore.Context.Database.GetItem(datasource).Children;
+    var qsQuery = Request.QueryString.Get("q") ?? string.Empty;
+    var qsCategory = Request.QueryString.Get("cat") ?? string.Empty;
+    var qsDate = Request.QueryString.Get("dt") ?? string.Empty;
+    var qsPage = Request.QueryString.Get("pg") ?? string.Empty;
+
+    var selectedCategories = qsCategory.Split(',');
+    var isMediaReleasePage = Request.Path.ToLower() == "/media-release";
+
+    var model = Utils.GetSearchResult<CardItemModel>(Request.Path.ToLower());
+}
+
+<div class="d-lg-none mobile"></div>
+<!-- Search Container -->
+<div class="section-wrapper">
+    <div class="justify-content-between search-container">
+        @{
+            var placeholderText = isMediaReleasePage ? "Search in the Media Releases" : "Search in the Media News";
+        }
+        <div class="search-box-wrapper pg">
+            <div class="search-box d-flex align-items-center" data-bs-toggle="dropdown">
+                <img src="/-/media/Project/Adani-Updates/images/images/search" alt="">
+                <input type="text" value="@qsQuery" placeholder="@placeholderText" autocomplete="off" />
+            </div>
+            <div class="dropdown-menu search-box-dd">
+                <div class="search-box-dd-field">
+                    <form id="pg_search_form">
+                        <input type="text" value="@qsQuery" name="q" placeholder="@placeholderText">
+                        <img src="/-/media/Project/Adani-Updates/images/images/cross" alt="" class="clear-input">
+                    </form>
+                </div>
+                <ul>
+                </ul>
+            </div>
+        </div>
+
+        <aside class="d-flex align-items-center flex-wrap">
+            <div class="filter-buttons dropdown">
+                <div class="filter-btn-trigger" data-bs-toggle="dropdown">
+                    <input type="text" class="filter-btn category-btn d-flex justify-content-between align-items-center" placeholder="Select Category" value="@qsCategory" />
+                    <img src="/-/media/Project/Adani-Updates/images/images/arrow-downww" class="filter-arrow">
+                </div>
+                <div class="dropdown-menu filter-dd category-filter">
+                    <h4>Select</h4>
+                    <ul>
+                        @foreach (Item item in categoryItems)
+                        {
+                            string key = item.Fields["Key"].Value;
+                            string value = item.Fields["Phrase"].Value;
+                            bool isSelected = Array.IndexOf(selectedCategories, key) > -1;
+
+                            <li>
+                                <label>@value</label>
+                                <input type="checkbox" @(isSelected ? "checked" : "" ) value="@key">
+                                <span class="checkmark"></span>
+                            </li>
+                        }
+
+                    </ul>
+                    <div class="btn-group-dd">
+                        <button class="btn-reset-dd" type="button" onclick="resetFilter('cat')">Reset</button>
+                        <button class="btn-black-dd" type="button" onclick="applyFilter('cat')">Apply</button>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-buttons">
+                <div class="filter-date-trigger">
+                    <input type="text" class="filter-btn date-filter d-flex justify-content-between align-items-center"
+                           name="datefilter" placeholder="Select Period" value="@qsDate" autocomplete="off" />
+                    <img src="/-/media/Project/Adani-Updates/images/images/arrow-downww" class="filter-arrow">
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="media-grid row search-result-grid">
+        @foreach (var item in model.Result)
+        {
+            <div class="col-lg-4 col-md-6 mb-4 card-item">
+                <a href="@item.LinkUrl" target="@item.LinkTarget || '_blank'">
+                    <button type="button" class="btn btn-default btn-sm share-play @item.IsVideo ? '' : 'd-none'"> <img src="/-/media/Project/Adani Updates/images/images/player" width="80" /></button>
+                    <div class="single-item d-flex justify-content-between flex-column">
+                        <div>
+                            <figure>
+                                <img src="@item.ImageSrc" alt="@item.ImageAlt">
+                            </figure>
+                            <div class="content">
+                                <span class="subtext blackTx_666">@item.Date.ToLocalTime().ToString("d MMM yyyy")</span>
+                                <h5 class="subtext blackTx_222">@item.Title</h5>
+                                <p>@item.Summary</p>
+                            </div>
+                        </div>
+                        <div class="share-div" data-bs-toggle="modal" data-bs-target="#shareArticleModal">
+                            <img src="/-/media/Project/Adani-Updates/images/images/share" alt="" class="share-icon">
+                        </div>
+                        <span class="btm-text subtext blackTx_666 black-link">Know more</span>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <button class="load-more mt-5 d-none">
+        <span>Load More</span>
+    </button>
+    <div class="load-more-progress text-center d-none">
+        <svg viewBox="0 0 70 100" style="height:80px">
+            <circle cx="6" cy="50" r="6"><animateTransform attributeName="transform" dur="1s" type="translate" values="0 15 ; 0 -15; 0 15" repeatCount="indefinite" begin="0.1"></animateTransform></circle>
+            <circle stroke="none" cx="30" cy="50" r="6"><animateTransform attributeName="transform" dur="1s" type="translate" values="0 10 ; 0 -10; 0 10" repeatCount="indefinite" begin="0.2"></animateTransform></circle>
+            <circle stroke="none" cx="54" cy="50" r="6">
+                <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.3"></animateTransform>
+            </circle>
+        </svg>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item myItem = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Fields.MultilistField multiselectField = myItem.Fields["LatestHappening"];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+    var linkurl = "";
+    var ImageItemUrl = "";
+}
+
+<div class="latest-happen section-wrapper">
+    <div class="container">
+        <h1 class="h3">@myItem.Fields["Latest News Heading"].Value</h1>
+        <div class="media-grid row">
+            @if (items != null && items.Length > 0)
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    Sitecore.Data.Items.Item child = items[i];
+                    Sitecore.Data.Fields.LinkField linkValue = child.Fields["{BC6D06B0-EFE5-4310-8356-3431C102742A}"];
+                    Sitecore.Data.Fields.ImageField ImageItem = ((Sitecore.Data.Fields.ImageField)child.Fields["{8B8B1205-A9CB-4B8C-A9C3-A4387D857BB0}"]);
+                    if (ImageItem != null && ImageItem.MediaItem != null)
+                    {
+                        ImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageItem.MediaItem);
+                    }
+                    if (linkValue != null)
+                    {
+                        linkurl = linkValue.GetFriendlyUrl();
+                    }
+
+                    var dateField = (DateField)child.Fields["{64909438-066C-4730-A380-C88BAB276364}"];
+                    var serverTime = Sitecore.DateUtil.ToServerTime(dateField.DateTime);
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                        <a target="_blank"
+                           href="@linkurl">
+                            <div class="single-item d-flex justify-content-between flex-column small-card">
+                                <div>
+                                    <figure>
+                                        <img src="@ImageItemUrl"
+                                             alt="@ImageItem.Alt" />
+                                    </figure>
+                                    <div class="content">
+                                        @*<span class="subtext blackTx_666">@Html.Sitecore().Field("{64909438-066C-4730-A380-C88BAB276364}", child, new { format = "MMM dd yyyy" })</span>*@
+                                        <span class="subtext blackTx_666">@(serverTime.ToString("MMM dd yyyy"))</span>
+
+                                        <h5 class="subtext blackTx_222">
+                                            @Html.Sitecore().Field("{1F078F05-ADC8-4092-9777-4477848783C6}", child)
+                                        </h5>
+                                    </div>
+                                </div>
+                                <img src="./assets/icons/share.svg"
+                                     alt=""
+                                     class="share-icon d-none" />
+                                <span class="btm-text subtext blackTx_666 black-link">Know more</span>
+                            </div>
+                        </a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<!-- Latest happening | END -->

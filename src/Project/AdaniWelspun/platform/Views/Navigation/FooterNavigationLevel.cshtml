@@ -1,0 +1,73 @@
+﻿@using Sitecore.XA.Feature.Navigation.Models
+@using Sitecore.XA.Foundation.RenderingVariants.Extensions
+@using Sitecore.XA.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.XA.Foundation.Variants.Abstractions.Fields
+@model NavigationExtendedModel
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Adani.BAU.AdaniWelspunSXA.Project.Templates
+
+@foreach (var item in Model.Children)
+{
+    var Itemname = item.PageItem.DisplayName;
+    string buttonblockSize = string.Empty;
+    Sitecore.Data.Fields.LinkField linkvalue = item.PageItem.Fields["Link"];
+    if (Sitecore.Context.PageMode.IsExperienceEditor)
+    {
+        buttonblockSize = "height: 100px; width:100px;";
+    }
+
+    <ul>
+        <li>
+            <h3>
+                @if (System.Convert.ToString(item.PageItem.ID) == Template.FooterCareerItemId)
+                {
+
+                    @Html.Sitecore().Placeholder("footer-career-button")
+                }
+                else if (System.Convert.ToString(item.PageItem.ID) == Template.FooterContactItemId)
+                {
+
+                    @Html.Sitecore().Placeholder("footer-contact-button")
+                }
+                else
+                {
+                    if (linkvalue != null)
+                    {
+                        var linkurl = linkvalue.GetFriendlyUrl();
+                        <a href="@linkurl">@Html.Sxa().Field(Sitecore.Data.ID.Parse(Template.NavigationTitleFieldId), item.PageItem)</a>
+                    }
+                    else
+                    {
+
+                        @Html.Sxa().Field(Sitecore.Data.ID.Parse(Template.NavigationTitleFieldId), item.PageItem)
+
+                    }
+                }
+            </h3>
+        </li>
+        <li>
+            @if (item.Children != null && item.Children.Any())
+            {
+
+                foreach (var child in item.Children)
+                {
+                    foreach (BaseVariantField variantField in child.VariantFields)
+                    {
+                        if (child.IsFake)
+                        {
+                            @Html.RenderingVariants().RenderVariant(variantField, child.PageItem, child.IsControlEditable, Model, (fakeItem, s) => "#")
+                        }
+                        else
+                        {
+                            @Html.RenderingVariants().RenderVariant(variantField, child.PageItem, child.IsControlEditable, Model)
+                        }
+                    }
+                }
+            }
+        </li>
+    </ul>
+}
+

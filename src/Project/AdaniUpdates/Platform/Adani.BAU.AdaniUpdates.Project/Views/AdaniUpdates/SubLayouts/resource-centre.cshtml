@@ -1,0 +1,56 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var linkurl = "";
+    var ImageItemUrl = "";
+    var ShareImageItemUrl = "";
+    var DownloadImageItemUrl = "";
+}
+
+
+
+<div class="section-wrapper">
+    <div class="infoCntr">
+        <ul>
+            @if (models.Children.Count > 0)
+            {
+                foreach (Item resourceItem in models.Children)
+                {
+                    if (resourceItem.TemplateName == "Resource Centre")
+                    {
+                        Sitecore.Data.Fields.LinkField linkValue = resourceItem.Fields["{B54D7E2E-00EC-4BEA-8F6D-0C554EE4BE75}"];
+                        Sitecore.Data.Fields.ImageField ShareImageItem = ((Sitecore.Data.Fields.ImageField)resourceItem.Fields["{7893758A-A9BA-4144-8FFE-2DC1A3562389}"]);
+                        Sitecore.Data.Fields.ImageField DownloadImageItem = ((Sitecore.Data.Fields.ImageField)resourceItem.Fields["{9586A74F-6D61-42FB-9125-51EFB4F31148}"]);
+                        if (ShareImageItem != null && ShareImageItem.MediaItem != null)
+                        {
+                            ShareImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ShareImageItem.MediaItem);
+                        }
+                        if (DownloadImageItem != null && DownloadImageItem.MediaItem != null)
+                        {
+                            DownloadImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(DownloadImageItem.MediaItem);
+                        }
+                        if (linkValue != null)
+                        {
+                            linkurl = linkValue.GetFriendlyUrl();
+                        }
+                        <li>
+                            <div class="d-flex infoCntrData">
+                                <div>@Html.Sitecore().Field("Title", resourceItem)</div>
+                                <div class="listEvents">
+                                    <a target="_blank" href="@linkurl" rel="noopener noreferrer"><img src="@DownloadImageItemUrl" /></a>
+                                    <span class="share-div-center" data-bs-toggle="modal" data-bs-target="#shareArticleModal"><img src="@ShareImageItemUrl" /></span>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                }
+            }
+        </ul>
+    </div>
+</div>

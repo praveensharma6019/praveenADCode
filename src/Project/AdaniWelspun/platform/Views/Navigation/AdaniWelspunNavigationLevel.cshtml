@@ -1,0 +1,61 @@
+﻿@using Sitecore.XA.Feature.Navigation.Models
+@using Sitecore.XA.Foundation.RenderingVariants.Extensions
+@using Sitecore.XA.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.XA.Foundation.Variants.Abstractions.Fields
+@model NavigationExtendedModel
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Adani.BAU.AdaniWelspunSXA.Project
+<ul class="navbar-nav ms-auto">
+    @foreach (var item in Model.Children)
+    {
+        string linkurl = string.Empty;
+        string buttonblockSize = string.Empty;
+        Sitecore.Data.Fields.CheckboxField checkboxField = item.PageItem.Fields["HeaderNavigationVisibility"];
+
+        if (Sitecore.Context.PageMode.IsExperienceEditor)
+        {
+            buttonblockSize = "height: 100px; width:100px;";
+        }
+
+    
+        if (checkboxField != null && checkboxField.Checked)
+        {            
+            if (System.Convert.ToString(item.PageItem.ID) == "{7F5774EB-3EA9-4382-9652-6AFD873120DC}")
+            {
+                <li class="nav-item" style="@buttonblockSize">                    
+                    @Html.Sitecore().Placeholder("header-contact-button")
+                </li>
+            }
+            else
+            {
+                if (item.Children != null && item.Children.Any())
+                {
+                    { Html.RenderPartial("AdaniWelspunNavigationLevel2", new NavigationExtendedModel { Children = item.Children, RelativeLevel = Model.RelativeLevel + 1 }); }
+                }
+                else
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = item.PageItem.Fields["Link"];
+                    if (linkvalue == null)
+                    {
+                        <li class="nav-item">
+                            @Html.Sxa().Field(Sitecore.Data.ID.Parse("{4E0720E9-9D50-4DDC-87CF-ECD65E8E94C8}"), item.PageItem)
+                        </li>
+                    }
+                    else
+                    {
+                        linkurl = linkvalue.GetFriendlyUrl();
+                        <li class="nav-item">
+                            <a href="@linkurl" class="nav-link">
+                                @Html.Sxa().Field(Sitecore.Data.ID.Parse("{4E0720E9-9D50-4DDC-87CF-ECD65E8E94C8}"), item.PageItem)
+                            </a>
+                        </li>
+                    }
+                }
+            }
+        }
+
+    }
+</ul>

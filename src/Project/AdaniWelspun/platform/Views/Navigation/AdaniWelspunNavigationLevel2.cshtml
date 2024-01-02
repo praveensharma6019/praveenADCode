@@ -1,0 +1,67 @@
+@using Sitecore.XA.Feature.Navigation.Models
+@using Sitecore.XA.Foundation.RenderingVariants.Extensions
+@using Sitecore.XA.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.XA.Foundation.Variants.Abstractions.Fields
+@model NavigationExtendedModel
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+<li class="nav-item">
+    <div class="dropdown">
+        @{
+            var level2child = Model.Children.FirstOrDefault();
+            int count = 1;
+            string id = "dropdownMenuButton" + count;
+            Item parentItem = Sitecore.Context.Database.GetItem(level2child.PageItem.ParentID);
+            string parentItemTitle = parentItem.Name;
+            Sitecore.Data.Fields.LinkField linkvalue = parentItem.Fields["Link"];
+            string parentlinkurl = linkvalue.GetFriendlyUrl();
+            Sitecore.Data.Fields.CheckboxField checkboxField = parentItem.Fields["HeaderNavigationVisibility"];
+        }
+
+
+        @if (checkboxField != null && checkboxField.Checked)
+        {
+            <div class="btn">
+                @if (parentlinkurl != null && parentlinkurl != "")
+                {
+                    <a class="nav-link" href="@parentlinkurl">@parentItemTitle</a>
+                }
+                else
+                {
+                    <a class="nav-link" href="javascript:void(0)">@parentItemTitle</a>
+                }
+                <div class="bottom-menu">
+                    <ul class="dropdown-menu">
+                        @foreach (var child in Model.Children)
+                        {
+                            string childlinkurl = string.Empty;
+                            Sitecore.Data.Fields.LinkField childlinkvalue = child.PageItem.Fields["Link"];
+                            childlinkurl = childlinkvalue.GetFriendlyUrl();
+                            Sitecore.Data.Fields.CheckboxField checkboxField1 = child.PageItem.Fields["HeaderNavigationVisibility"];
+                            if (checkboxField1 != null && checkboxField1.Checked)
+                            {
+                                if (childlinkurl != null && childlinkurl != "")
+                                {
+
+                                    <li>
+                                        <a class="dropdown-item" href="@childlinkurl">@Html.Sxa().Field(Sitecore.Data.ID.Parse("{4E0720E9-9D50-4DDC-87CF-ECD65E8E94C8}"), child.PageItem)</a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0)">@Html.Sxa().Field(Sitecore.Data.ID.Parse("{4E0720E9-9D50-4DDC-87CF-ECD65E8E94C8}"), child.PageItem)</a>
+                                    </li>
+                                }
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
+
+    </div>
+</li>

@@ -1,0 +1,52 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var linkurl = "";
+    var ImageItemUrl = "";
+}
+
+<div class="section-wrapper">
+    <ul class="key-opinion">
+        @if (models.Children.Count > 0)
+        {
+
+            foreach (Item keyOpinionItem in models.Children)
+            {
+                if (keyOpinionItem.TemplateName == "Key Opinion Showcase List")
+                {
+
+                    <li>
+                        @{
+                            Sitecore.Data.Fields.LinkField linkValue = keyOpinionItem.Fields["{CA0E2999-ABD0-441E-9046-012546E2DEBF}"];
+                            Sitecore.Data.Fields.ImageField ImageItem = ((Sitecore.Data.Fields.ImageField)keyOpinionItem.Fields["{C085A16A-694E-4C0C-A7C6-CCAA56E46366}"]);
+                            if (ImageItem != null && ImageItem.MediaItem != null)
+                            {
+                                ImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageItem.MediaItem);
+                            }
+                            if (linkValue != null)
+                            {
+                                linkurl = linkValue.GetFriendlyUrl();
+                            }
+                            <figure>
+                                <img src="@ImageItemUrl" alt="@ImageItem.Alt">
+                            </figure>
+                            <aside>
+                                <h5>@Html.Sitecore().Field("Author Name", keyOpinionItem)<span>@Html.Sitecore().Field("Designation", keyOpinionItem)</span></h5>
+                                <p>@Html.Sitecore().Field("Description", keyOpinionItem)</p>
+                                <a href="@linkurl" target="_blank">@Html.Sitecore().Field("Source", keyOpinionItem)</a>
+                            </aside>
+                        }
+                    </li>
+
+                }
+            }
+        }
+    </ul>
+</div>
+

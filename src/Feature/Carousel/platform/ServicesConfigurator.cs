@@ -1,0 +1,13 @@
+﻿using Microsoft.Extensions.DependencyInjection;
+using Sitecore.DependencyInjection;
+
+namespace Adani.SuperApp.Realty.Feature.Carousel.Platform
+{
+    public class ServicesConfigurator : IServicesConfigurator
+    {
+        public void Configure(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddTransient<Services.IHeroCarouselService, Services.HeroCarouselService>();
+        }
+    }
+}

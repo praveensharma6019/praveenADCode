@@ -1,0 +1,102 @@
+﻿@using Sitecore.XA.Foundation.MarkupDecorator.Extensions
+@using Sitecore.XA.Foundation.RenderingVariants.Extensions
+@using Sitecore.XA.Foundation.RenderingVariants.Fields
+@using Sitecore.XA.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.XA.Foundation.Variants.Abstractions.Fields
+@model Sitecore.XA.Foundation.Variants.Abstractions.Models.VariantsRenderingModel
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@if (Model.DataSourceItem != null || Html.Sxa().IsEdit)
+{
+
+int count = 1;
+var sourceID = Model.DataSourceItem.ID;
+var sourceItem = Sitecore.Context.Database.GetItem(sourceID);
+var linkurl = "javascript:void(0)";
+
+
+<div class="evince-table">
+    @if (sourceItem.GetChildren().Count > 0)
+    {
+    <ul>
+        <li>
+            <div class="sr-number">  <h5 class="bold">S.No</h5></div>
+        </li>
+        <li>
+            <div class="refrenceno">
+                <div class="evince-refrenceno">
+                    <h5 class="bold">Ref. No</h5>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="discription">
+                <h5 class="bold">Description</h5>
+            </div>
+        </li>
+        <li>
+
+        </li>
+    </ul>
+    foreach (var child in sourceItem.GetChildren().ToList())
+    {
+
+        var description = child.Fields["PromoText"];
+        var refrenceno = child.Fields["Refrenceno"];
+        /*PDF Link*/
+        Sitecore.Data.Fields.LinkField linkvalue = child.Fields["PromoLink"];
+        if (linkvalue != null)
+        {
+            linkurl = linkvalue.GetFriendlyUrl();
+        }
+        /*Formatting End Date*/
+        Sitecore.Data.Fields.DateField endDate = child.Fields["enddate"];
+        DateTime endDateTime = endDate.DateTime;
+        string endDateTimeString = endDateTime.ToString("dd MMMM yyyy");
+
+        /*Formatting Start Date*/
+        Sitecore.Data.Fields.DateField startDate = child.Fields["startdate"];
+        DateTime startDateTime = startDate.DateTime;
+        string startDateTimeString = startDateTime.ToString("dd MMMM yyyy");
+
+        /*Fetching Current Date Time*/
+        DateTime currentDateTime = DateTime.Now;
+        /*Time Difference Calculation*/
+        TimeSpan timeRemain = endDateTime.Subtract(currentDateTime);
+        string Minutesdiff = System.Convert.ToString(timeRemain.Minutes);
+        string Hoursdiff = System.Convert.ToString(timeRemain.Hours);
+        string Daysdiff = System.Convert.ToString(timeRemain.Days);
+
+        if (timeRemain.Minutes <= 0 && timeRemain.Hours <= 0 && timeRemain.Days <= 0)
+        {
+            <ul>
+                <li>
+                    <div class="sr-number">@count</div>
+                </li>
+                <li>
+                    <div class="refrenceno">
+                        <p class="evince-refrenceno" data-refrence="@refrenceno">
+                            @Html.Sitecore().Field("Refrenceno", child)
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <div class="discription">
+                        <a href="@linkurl" target="_blank" rel="noopener noreferrer">
+                            <p class="evince-desc" data-desc="@description">
+                                @Html.Sitecore().Field("PromoText", child)
+                            </p>
+                        </a>
+                        <small>@endDateTimeString</small>
+                    </div>
+                </li>
+                <li></li>
+            </ul>
+            count++;
+        }
+    }
+    }
+</div>
+}

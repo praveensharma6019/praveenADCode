@@ -1,0 +1,95 @@
+﻿@using Adani.BAU.AdaniUpdates.Project.Helper;
+@using Adani.BAU.AdaniUpdates.Project.Models;
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var qsDate = Request.QueryString.Get("dt") ?? string.Empty;
+    var model = Utils.GetSearchResult<NewsHighlightsItemModel>(Request.Path.ToLower());
+    NewsHighlightsItemModel firstItem = null;
+    var grpedItems = Utils.GetGroupedNewsHighlights(model.Result, out firstItem);
+}
+
+<div class="section-wrapper">
+    <!-- Page Header -->
+    <div class="justify-content-end search-container">
+        <div class="search-box-wrapper">
+            <div class="filter-buttons">
+                <div class="filter-date-trigger">
+                    <input autocomplete="off" type="text" class="filter-btn date-filter d-flex justify-content-between align-items-center"
+                           name="datefilter" placeholder="Select Period" value="@qsDate">
+                    <img src="/-/media/Project/Adani-Updates/images/images/arrow-downww" class="filter-arrow">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-wrapper search-result-grid">
+        @if (firstItem != null)
+        {
+            <div class="infoCntr mt-5">
+                <p class="info-head">LATEST NEWSLETTER</p>
+                <ul class="flex-block">
+                    <li class="flex-item">
+                        <div class="d-flex infoCntrData">
+                            <div>
+                                <div class="flex-date">@firstItem.Date.ToLocalTime().ToString("d MMM yyyy")</div>
+                                <p class="flex-para">@firstItem.Title</p>
+                            </div>
+                            <div class="listEvents">
+                                <a href="@firstItem.GetFileUrl()" target="@(string.IsNullOrEmpty(firstItem.LinkTarget) ? "_blank" : firstItem.LinkTarget)" rel="noopener noreferrer">
+                                    <img src="/-/media/Project/Adani-Updates/images/images/download.ashx" />
+                                </a>
+                                <span class="share-div-news" data-bs-toggle="modal" data-bs-target="#shareArticleModal">
+                                    <img src="/-/media/Project/Adani-Updates/images/images/share.ashx" />
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        }
+        @foreach (var grpItem in grpedItems)
+        {
+            <div class="infoCntr mt-5">
+                <p class="info-head">@grpItem.Key</p>
+                <ul class="flex-block">
+                    @foreach (var item in grpItem)
+                    {
+                        <li class="flex-item">
+                            <div class="d-flex infoCntrData">
+                                <div>
+                                    <div class="flex-date">@item.Date.ToLocalTime().ToString("d MMM yyyy")</div>
+                                    <p class="flex-para">@item.Title</p>
+                                </div>
+                                <div class="listEvents">
+                                    <a href="@item.GetFileUrl()" target="@(string.IsNullOrEmpty(item.LinkTarget) ? "_blank" : item.LinkTarget)" rel="noopener noreferrer">
+                                        <img src="/-/media/Project/Adani-Updates/images/images/download.ashx" />
+                                    </a>
+                                    <span class="share-div-news" data-bs-toggle="modal" data-bs-target="#shareArticleModal">
+                                        <img src="/-/media/Project/Adani-Updates/images/images/share.ashx" />
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+
+    <button class="load-more mt-5 d-none">
+        <span>Load More</span>
+    </button>
+    <div class="load-more-progress text-center d-none">
+        <svg viewBox="0 0 70 100" style="height:80px">
+            <circle cx="6" cy="50" r="6"><animateTransform attributeName="transform" dur="1s" type="translate" values="0 15 ; 0 -15; 0 15" repeatCount="indefinite" begin="0.1"></animateTransform></circle>
+            <circle stroke="none" cx="30" cy="50" r="6"><animateTransform attributeName="transform" dur="1s" type="translate" values="0 10 ; 0 -10; 0 10" repeatCount="indefinite" begin="0.2"></animateTransform></circle>
+            <circle stroke="none" cx="54" cy="50" r="6">
+                <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.3"></animateTransform>
+            </circle>
+        </svg>
+    </div>
+</div>
