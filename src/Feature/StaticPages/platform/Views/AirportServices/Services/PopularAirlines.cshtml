@@ -1,0 +1,57 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+}
+@if (currentItem != null)
+{
+    <div class="subSection popularAirlines scrollableOffset" id="@currentItem.DisplayName">
+        <h3 class="lineHeading">@Html.Sitecore().Field("__Short description", currentItem)</h3>
+        <div class="flight_statusBlog">
+            <ul>
+                @foreach (Sitecore.Data.Items.Item route in currentItem.Children)
+                {
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)route.Fields["Image"]);
+                    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(route, "Image") : "";
+                    Sitecore.Data.Fields.LinkField link = ((Sitecore.Data.Fields.LinkField)route.Fields["Link"]);
+                    var url = link.GetFriendlyUrl();
+                    <li>
+                        @if (!string.IsNullOrEmpty(url))
+
+                        {
+
+                            <a href=@url>
+                                <div class="flightLogo">
+                                    <figure>
+                                        <img src="@imageUrl" loading="lazy">
+                                    </figure>
+                                    <h3>@Html.Sitecore().Field("Title", route) </h3>
+                                </div>
+                            </a>
+
+
+                        }
+                        else
+                        {
+                            <div class="flightLogo">
+                                <figure>
+                                    <img src="@imageUrl" loading="lazy">
+                                </figure>
+                                <h3>@Html.Sitecore().Field("Title", route) </h3>
+                            </div>
+                        }
+
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+
+

@@ -1,0 +1,40 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField similarBlogsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["BlogList"]);
+    Helper linkHelper = new Helper();
+}
+@if (currentItem != null && similarBlogsList != null)
+{
+ <div class="col-md-3 col-xs-12 right-area">
+     <div class="@(similarBlogsList.GetItems().Count()>0?"similar-blog":"")">
+         @if (similarBlogsList.GetItems().Count() > 0)
+         {
+             <h3>@Html.Sitecore().Field("Title", currentItem)</h3>
+         }
+         <ul>
+             @foreach (Item blog in similarBlogsList.GetItems())
+             {
+                 <li>
+                     <a href="@linkHelper.BlogLinkUrl(blog.Fields["CTA"])">
+                         <figure>
+                             <img src=@linkHelper.GetImageURL(blog,"TileImage") alt="@linkHelper.GetImageAlt(blog,"TileImage")" loading="lazy">
+                         </figure>
+                         <div class="desc">
+                             <h5 class="vertical_ellipsis">@Html.Sitecore().Field("Title", blog)</h5>
+                             <span class="link">@linkHelper.GetLinkText(blog, "CTA")</span>
+                         </div>
+                     </a>
+                 </li>
+             }
+         </ul>
+     </div>
+   </div>        
+}
+
+

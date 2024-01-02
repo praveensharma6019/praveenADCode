@@ -1,0 +1,27 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{ 
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField gallery = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["GalleryItems"]);
+}
+
+@if (currentItem != null)
+{
+    <section class="subSection scrollableOffset" id="@currentItem.DisplayName">
+        <div class="galleyCnter">
+            <h2>@Html.Sitecore().Field("Title", currentItem)</h2>
+            <div class="imagesSection scrollbar-y">
+                @foreach (Sitecore.Data.Items.Item galleryItem in gallery.GetItems())
+                {
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)galleryItem.Fields["Image"]);
+                    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";                           
+                    <div class="imagesframe @Html.Sitecore().Field("cssClass", galleryItem)">
+                        <img class="img-fluid h-100" src="@imageUrl" loading="lazy" />
+                    </div>
+                }
+            </div>
+        </div>
+    </section>    
+}

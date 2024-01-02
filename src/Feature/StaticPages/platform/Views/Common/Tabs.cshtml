@@ -1,0 +1,74 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string divClass = RenderingContext.Current.Rendering.Parameters["classname"];
+    var cnt = 0;
+}
+
+@if (currentItem != null)
+{
+    if (divClass != null)
+    {
+        <div class="container @divClass">
+                <nav id="navbar-tabs" class="horizontal-tab horizontal-tab_custom adl-htabs nav-tabs nav nav-pills scrollbar-x" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+                    @*<ul class="nav nav-pills">*@
+
+                    @foreach (Sitecore.Data.Items.Item tabItem in currentItem.Children)
+                    {
+                        if (cnt == 0)
+                        {
+                            <div class="nav-item">
+                                <a class="nav-link_custom tab-nav active" href="#@tabItem.DisplayName.Replace(" ", "")">
+                                    @tabItem["Title"]
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="nav-item">
+                                <a class="nav-link_custom tab-nav" href="#@tabItem.DisplayName.Replace(" ", "")">
+                                    @tabItem["Title"]
+                                </a>
+                            </div>
+                        }
+                        cnt++;
+                    }
+
+                    @*</ul>*@
+                </nav>
+            </div>
+    }
+    else
+    {
+            <nav id="navbar-tabs" class="horizontal-tab horizontal-tab_custom adl-htabs nav-tabs nav nav-pills scrollbar-x">
+                @*<ul class="nav nav-pills">*@
+                @foreach (Sitecore.Data.Items.Item tabItem in currentItem.Children)
+                {
+                    if (cnt == 0)
+                    {
+                        <div class="nav-item">
+                            <a class="nav-link_custom tab-nav active" href="#@tabItem.DisplayName.Replace(" ","")">
+                                @tabItem["Title"]
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="nav-item">
+                            <a class="nav-link_custom tab-nav" href="#@tabItem.DisplayName.Replace(" ","")">
+                                @tabItem["Title"]
+                            </a>
+                        </div>
+                    }
+                    cnt++;
+                }
+                @*</ul>*@
+            </nav>
+    }
+    @Html.Sitecore().DynamicPlaceholder("tab-content")
+}
+
+

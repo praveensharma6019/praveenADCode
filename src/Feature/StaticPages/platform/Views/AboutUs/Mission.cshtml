@@ -1,0 +1,47 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField mission = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["Mission"]);
+    IHelper _helper = new Helper();
+}
+
+@if (currentItem != null)
+{
+    <section class="other-service blueBG pt-wrap" id="mission">
+        <div class="container">
+            <h3>@Html.Sitecore().Field("MissionTitle", currentItem)</h3>
+            <p class="missionSubtitle">
+                @Html.Sitecore().Field("MissionDescription", currentItem)
+            </p>
+            <div class="arrow_pos">
+                <div class="other-services slider-airports">
+                    @foreach (Sitecore.Data.Items.Item missionItem in mission.GetItems())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)missionItem.Fields["Image"]);
+                        string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(missionItem, "Image") : "";
+
+                        <div class="slider-box">
+                            <img src="@imageUrl"
+                                 width="100%" loading="lazy"/>
+                            <div class="content">
+                                <p>
+                                    @Html.Sitecore().Field("Description", missionItem)
+                                </p>
+                            </div>
+                        </div>}
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+
+
+
+
+

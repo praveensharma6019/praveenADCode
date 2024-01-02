@@ -1,0 +1,52 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+}
+
+
+@if (currentItem != null)
+{
+
+    <div class="subSection scrollableOffset product-slider" id="@currentItem.DisplayName" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+        <div class="row d-flex align-items-center">
+            <div class="col-md-4 col-12 ">
+                <div class="heading-wraper">
+                    <h2 class="title">@Html.Sitecore().Field("Title", currentItem)</h2>
+                    @Html.Sitecore().Field("RichText", currentItem)
+                </div>
+            </div>
+            <div class="col-md-8 col-12 ps-0">
+                <div class="currency-slider slider-currency">
+
+
+                    @foreach (Sitecore.Data.Items.Item product in currentItem.Children)
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)product.Fields["Image"]);
+                        string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(product, Constant.Image) : "";
+
+                        <div class="item">
+                            <a href="#">
+                                <div class="img-Box">
+                                    @*<img src="/assets/images/services/currency-img.png" width="100%">*@
+                                    <img src="@imageUrl" width="100%">
+
+                                </div>
+                                <div class="content-box">
+                                    <h4>@Html.Sitecore().Field("Title", product)</h4>
+                                    @Html.Sitecore().Field("RichText", product)
+                                    <span class="btn btn-outline-dark">@Html.Sitecore().Field("SubTitle", product)</span>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

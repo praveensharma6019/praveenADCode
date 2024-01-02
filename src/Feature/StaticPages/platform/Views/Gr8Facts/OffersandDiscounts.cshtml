@@ -1,0 +1,57 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+
+@model RenderingModel
+@{
+    IHelper _helper = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+}
+
+@if (currentItem != null)
+{
+    <div class="mainsection slider-4 arrow_pos scrollableOffset" id="@currentItem.DisplayName">
+        <h3 class="sr-heading">@Html.Sitecore().Field("__Short Description", currentItem)</h3>
+        <div class="gradient-slider">
+            @if (currentItem.Children != null && currentItem.Children.Count() > 0)
+            {
+                foreach (Sitecore.Data.Items.Item facts in currentItem.Children)
+                {
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)facts.Fields["Image"]);
+                    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(facts, "Image") : "";
+                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)facts.Fields["Link"]);
+                    if (linkField != null)
+                    {
+                        var redirectUrl = linkField.GetFriendlyUrl();
+                        if (!string.IsNullOrEmpty(redirectUrl))
+                        {
+                            <a href="@redirectUrl">
+                                <div class="slide">
+                                    <div class="cl-img">
+                                        <img src="@imageUrl" loading="lazy">
+                                    </div>
+                                    <div class="content">
+                                        <h5 class="title">@Html.Sitecore().Field("Title", facts)</h5>
+                                        <p>
+                                            @Html.Sitecore().Field("Description", facts)
+                                        </p>
+                                        @if (!string.IsNullOrEmpty(redirectUrl))
+                                        {
+                                            <span href="@redirectUrl" class="black_link">@linkField.Text</span>
+                                        }
+                                        else
+                                        {
+                                            <span href="javascript:void(0)" class="black_link">@linkField.Text</span>
+                                        }
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    }
+                }
+            }
+        </div>
+    </div>
+}

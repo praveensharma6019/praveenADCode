@@ -1,0 +1,77 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using ContantPages= Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform.Models
+
+
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["MobileImage"]);
+    string mobileImageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(currentItem, "MobileImage") : "";
+    Sitecore.Data.Fields.ImageField bgimgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["DesktopImage"]);
+    string desktopImageUrl = bgimgField != null && bgimgField.MediaItem != null ? _helper.GetImageURL(currentItem, "DesktopImage") : "";
+    string queryString = !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isapp"]) ? Sitecore.Context.Request.QueryString["isapp"].ToLower() : "";
+    HttpBrowserCapabilitiesBaseExtensions objBrowserCapabilities = new HttpBrowserCapabilitiesBaseExtensions();
+    Sitecore.Data.Fields.LinkField linkfield = currentItem.Fields["RedirectLink"];
+    var redirectLink = linkfield.GetFriendlyUrl();
+}
+
+@if (currentItem != null)
+{
+    <section>
+        <h1 class="pageTitle" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+            @if (queryString != "true")
+            {
+                if (Request != null && Request.Browser != null && objBrowserCapabilities.IsMobileNotTablet(Request.Browser))
+                {
+                    <span class="d-flex d-md-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottomTest"
+                          aria-controls="offcanvasBottomTest">
+                        @Html.Sitecore().Field("Title", currentItem)
+                        <span class="i-arrow-d"></span>
+                    </span>
+                }
+                else
+                {
+                    <span class="d-none d-md-block" onclick="onChange(isClicked)">
+                        <span class="i-arrow-l"></span>
+                        @Html.Sitecore().Field("Title", currentItem)
+                    </span>
+                }
+            }
+            else
+            {
+                <span class="d-flex d-md-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottomTest"
+                      aria-controls="offcanvasBottomTest">
+                    @Html.Sitecore().Field("Title", currentItem)
+                    <span class="i-arrow-d"></span>
+                </span>
+            }
+        </h1>
+        @if (redirectLink != null && redirectLink != "")
+        {
+            <a href="@redirectLink" target="_blank" class="flexBanner d-none d-md-block" style="background-image:url('@desktopImageUrl');" auto_id="@Html.Sitecore().Field("AutoIdImage", currentItem)">
+                <!-- <img src="../../assets/images/services/medical-banner.png" /> -->
+            </a>
+            <div class="cate-banner d-block d-md-none">
+                <a href="@redirectLink" target="_blank">
+                    <img src="@mobileImageUrl" auto_id="@Html.Sitecore().Field("AutoIdImage", currentItem)" loading="lazy"/>
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="flexBanner d-none d-md-block" style="background-image:url('@desktopImageUrl');" auto_id="@Html.Sitecore().Field("AutoIdImage", currentItem)">
+                <!-- <img src="../../assets/images/services/medical-banner.png" /> -->
+            </div>
+            <div class="cate-banner d-block d-md-none">
+                <img src="@mobileImageUrl" auto_id="@Html.Sitecore().Field("AutoIdImage", currentItem)"  loading="lazy"/>
+            </div>
+        }
+
+    </section>
+}

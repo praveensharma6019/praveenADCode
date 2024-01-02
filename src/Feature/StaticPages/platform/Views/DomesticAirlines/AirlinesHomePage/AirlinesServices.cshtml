@@ -1,0 +1,29 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{ 
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+}
+
+@if (currentItem != null)
+{
+    <div class="services-slide">
+        <h2 class="section-title mb-4">@Html.Sitecore().Field("__Short description", currentItem)</h2>
+        @foreach (Sitecore.Data.Items.Item services in currentItem.Children)
+        {
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["CardImage"]);
+            string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+            <div class="zigzg-wrap">
+                <div class="content">
+                    <h3>@Html.Sitecore().Field("CardTitle", services)</h3>
+                    <p>
+                        @Html.Sitecore().Field("CardDescription", services)
+                    </p>
+                </div>
+                <div class="img-wrap"><img src="@imageUrl" loading="lazy"></div>
+            </div>
+        }
+    </div>
+} 
+

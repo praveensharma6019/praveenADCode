@@ -1,0 +1,36 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField topDomesticRoutesField = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["SelectRoutes"]);
+
+}
+@if (currentItem != null && topDomesticRoutesField != null)
+{
+    <div class="sectionWrapper">
+        <div class="heading-content">
+            <h3 class="sub-heading">@Html.Sitecore().Field("TopDomesticFlightsTitle", currentItem)</h3>
+            <div class="routes-histry">
+                @foreach (Sitecore.Data.Items.Item route in topDomesticRoutesField.GetItems())
+                {
+                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)route.Fields["Link"]);
+                    var redirectUrl = linkField!=null?linkField.GetFriendlyUrl():String.Empty;
+                    if (!String.IsNullOrEmpty(redirectUrl))
+                    {
+                        <ul>
+                            <li><a href="@redirectUrl">@linkField.Text</a></li>
+                        </ul>
+                    }
+                    else if(!string.IsNullOrEmpty(linkField.Text))
+                    {
+                        <ul>
+                            <li><a href = "javascript:void(0)">@linkField.Text </a></li>
+                        </ul>
+                    }              
+                }
+            </div>
+        </div>
+    </div>
+}

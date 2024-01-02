@@ -1,0 +1,78 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Helper _helper = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField ourPhilosophy = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OurPhilosophy"]);
+    var i = 0;
+}
+
+@if (currentItem != null)
+{
+    <div class="container">
+        <div class="internal-service pt-top" id="ourphilosophy">
+            <h3>@Html.Sitecore().Field("PhilosophySectionTitle", currentItem)</h3>
+            @foreach (Sitecore.Data.Items.Item philosophy in ourPhilosophy.GetItems())
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)philosophy.Fields["Image"]);
+                string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(philosophy, "Image") : "";
+
+                if (i == 0)
+                {
+                    <div class="card-box">
+                        <div class="card m-0">
+                            <div class="row g-0 grid-Box align-items-center">
+                                <div class="col-md-5 order1">
+                                    <img src="@imageUrl"
+                                         class="img-fluid"
+                                         alt="..." 
+                                          loading="lazy"/>
+                                    @* @Html.Sitecore().Field("Image", philosophy, new { @class = "img-fluid" })*@
+                                </div>
+                                <div class="col-md-7 order2">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@Html.Sitecore().Field("Title", philosophy)</h5>
+                                        <p class="card-text">
+                                            @Html.Sitecore().Field("Description", philosophy)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card-box">
+                        <div class="card">
+                            <div class="row g-0 grid-Box align-items-center">
+                                <div class="col-md-5 order1">
+                                    <img src="@imageUrl"
+                                         class="img-fluid"
+                                         alt="..." loading="lazy"/>
+                                    @* @Html.Sitecore().Field("Image", philosophy, new { @class = "img-fluid" })*@
+                                </div>
+                                <div class="col-md-7 order2">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@Html.Sitecore().Field("Title", philosophy)</h5>
+                                        <p class="card-text">
+                                            @Html.Sitecore().Field("Description", philosophy)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                i++;
+            }
+        </div>
+    </div>
+}
+
+
+

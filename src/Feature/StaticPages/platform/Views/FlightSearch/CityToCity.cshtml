@@ -1,0 +1,133 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Sitecore.Data.Items.Item CityToCityPage = Sitecore.Context.Item;
+    IHelper _helper = new Helper();
+    string arrivalCityAltText = string.Empty;
+    string departureCityAltText = string.Empty;
+    string baggageAltText = string.Empty;
+    Sitecore.Data.Fields.ImageField arrivalImgField = ((Sitecore.Data.Fields.ImageField)CityToCityPage.Fields["ArrivalCityImage"]);
+    string arrivalCityImageUrl = arrivalImgField != null && arrivalImgField.MediaItem != null ? _helper.GetImageURL(CityToCityPage, Constant.ArrivalCityImage) : "";
+    if (arrivalImgField != null && arrivalImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem arrivalCityImage = new Sitecore.Data.Items.MediaItem(arrivalImgField.MediaItem);
+        arrivalCityAltText = arrivalCityImage != null && arrivalCityImage.Alt != null ? arrivalCityImage.Alt : "";
+    }
+
+    Sitecore.Data.Fields.ImageField departureImgField = ((Sitecore.Data.Fields.ImageField)CityToCityPage.Fields["DepartureCityImage"]);
+    string departureCityImageUrl = departureImgField != null && departureImgField.MediaItem != null ? _helper.GetImageURL(CityToCityPage, Constant.DepartureCityImage) : "";
+    if (departureImgField != null && departureImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem departureCityImage = new Sitecore.Data.Items.MediaItem(departureImgField.MediaItem);
+        departureCityAltText = departureCityImage != null && departureCityImage.Alt != null ? departureCityImage.Alt : "";
+    }
+
+    Sitecore.Data.Fields.ImageField baggageImgField = ((Sitecore.Data.Fields.ImageField)CityToCityPage.Fields["BaggageImage"]);
+    string baggageImageUrl = departureImgField != null && baggageImgField.MediaItem != null ? _helper.GetImageURL(CityToCityPage, Constant.BaggageImage) : "";
+    if (baggageImgField != null && baggageImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem baggageImage = new Sitecore.Data.Items.MediaItem(baggageImgField.MediaItem);
+        baggageAltText = baggageImage != null && baggageImage.Alt != null ? baggageImage.Alt : "";
+    }
+}
+
+@if (CityToCityPage != null)
+{
+    <div class="city-wrapper">
+        <div class="container">
+            @Html.Sitecore().Placeholder("banner")
+            <div class="row">
+                <div class="col-sm-12 col-md-7 col-xl-8 order_1 ">
+                    <div class="section-wrap flights-info ">
+                        <h2 class="section-heading">@CityToCityPage["BannerTitle"]</h2>
+                        <div class="text-container">
+                            <div class="text-wrapper ">
+                                <p>@Html.Raw(@CityToCityPage["BannerDescription"])</p>
+                            </div>
+                            <div class="black_link sectionReadMore" onclick="sectionReadMoreToggle(this)">@CityToCityPage["ReadMoreText"]</div>
+                        </div>
+                    </div>
+                    <!-- <p class="mb-3"> Here you'll find all the information
+                    you need on flights between Delhi and Ahmedabad.</p> -->
+
+                    <div class="section-wrap mt-top flightFromDelhi">
+                        <h2 class="section-heading"> @CityToCityPage["ResultsListTitle"]</h2>
+                        <div id="cityToCityResultsList">
+                        </div>
+                    </div>
+
+                    @Html.Sitecore().Placeholder("tabs")
+                    <div id="@CityToCityPage["ArrivalCity"].Replace(" ","")" class="scrollableOffset"></div>
+                    <section class="section-wrap @CityToCityPage["ArrivalCityClass"]">
+                        <h3 class="section-title">@CityToCityPage["ArrivalCity"]</h3>
+                        <div class="airport-card mdl-heading">
+                            <img src="@arrivalCityImageUrl"
+                                 width="100%"
+                                 class="rounded"
+                                 alt="@arrivalCityAltText" loading="lazy" />
+                        </div>
+                        @Html.Sitecore().Placeholder("arrivalcity")
+                    </section>
+                    <section class="section-wrap baggageInfo mt-top">
+                        <h3 class="section-title @CityToCityPage["BaggageSectionDisplayClass"]">@CityToCityPage["BaggageInfoTitle"]</h3>
+                        <div class="airport-card mdl-heading @CityToCityPage["BaggageSectionDisplayClass"]">
+                            <img src="@baggageImageUrl"
+                                 width="100%"
+                                 class="rounded baggageInfo"
+                                 alt="@baggageAltText" loading="lazy" />
+                            <div class="weather-status">
+                                <i class="i-luggage"></i>
+                                <label>
+                                    Check in <span>
+                                        15 kg*
+                                    </span>
+                                </label>
+                                <label>
+                                    Hand <span>
+                                        7 kg
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        @Html.Sitecore().Placeholder("baggage")
+                    </section>
+                    <div id="@CityToCityPage["DepartureCity"].Replace(" ","")" class="scrollableOffset"></div>
+                    <section class="section-wrap">
+                        <h3 class="section-title">
+                            <span>@CityToCityPage["DepartureCity"]</span>
+                        </h3>
+                        <div class="airport-card mdl-heading">
+                            <img src="@departureCityImageUrl"
+                                 width="100%"
+                                 class="rounded"
+                                 alt="@departureCityAltText" loading="lazy" />
+                        </div>
+                        @Html.Sitecore().Placeholder("departurecity")
+                    </section>
+                </div>
+               <div class="col-sm-12 col-md-5 col-xl-4 fightRightSec">
+                    <div class="bookingWrapper">
+                        <div class="section-wrap mb-0 p-2">
+                            <h5 class="section-heading mb-2">Book Flights</h5>
+                        </div>
+                        <div class="flightBookingForm" id="searchFlightCityToCity">
+
+                        </div>
+                    </div>
+                    @Html.Sitecore().Placeholder("topdomestic")
+                    @Html.Sitecore().Placeholder("airportinfo")
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <input type="hidden" value="@CityToCityPage["ArrivalCityCode"]" id="arrivalCityCode" />
+    <input type="hidden" value="@CityToCityPage["DepartureCityCode"]" id="departureCityCode" />
+    @Html.Sitecore().Placeholder("faq")
+}
+
+

@@ -1,0 +1,50 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField multiselectField = currentItem.Fields["ListItems"];
+    Sitecore.Data.Items.Item[] dListItems = multiselectField.GetItems();
+    string divID = string.Empty;
+    string cssClass = string.Empty;
+    int inCnt = 0;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        divID = parms["id"];
+        cssClass = parms["class"];
+    }
+}
+@if (currentItem != null)
+{
+    <div class="bottom-nav">
+        @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListTitle", currentItem))))
+        {
+            <h5>@Html.Sitecore().Field("ListTitle", currentItem)</h5>
+        }
+        @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListSubTitle", currentItem))))
+        {
+            <h5>@Html.Sitecore().Field("ListSubTitle", currentItem)</h5>
+        }
+        <div class="row">
+            @foreach (var dItem in dListItems)
+            {
+                if (inCnt < dListItems.Count())
+                {
+                    <div class="col-xl-3 col-md-6">
+                        <div class="navlink">
+                            @for (int cnt = 0; cnt < (dListItems.Count() / 4); cnt++)
+                            {
+                                <p> @Html.Sitecore().Field("CTA", dListItems[inCnt]) </p>
+                                inCnt++;
+                            }
+                        </div>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+}

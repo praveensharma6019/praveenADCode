@@ -1,0 +1,36 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{ 
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string imageAltText = string.Empty;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        imageAltText = image != null && image.Alt != null ? image.Alt : "";
+    }
+}                
+
+@if (currentItem != null)
+{
+    <section class="section-wrap guide-top mb-0">
+        <div class="container">
+            <div class="section-title heading-dropdown">
+                @Html.Sitecore().Field("Title", currentItem)
+                @Html.Sitecore().Placeholder("travelguide-citydropdown")
+            </div>
+            <p>
+                @Html.Sitecore().Field("Description", currentItem)
+            </p>
+        </div>
+        <div class="banner-img">
+            <div class="container">
+                <img src="@imageUrl" loading="lazy">
+            </div>
+        </div>
+            @Html.Sitecore().DynamicPlaceholder("travelwidget-section")
+</section>
+}

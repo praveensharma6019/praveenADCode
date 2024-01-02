@@ -1,0 +1,30 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+}
+@if (currentItem != null)
+{
+<section class="map">
+        @Html.Sitecore().Field("Image", currentItem, new { @class = "imgForDesktop" })
+        @Html.Sitecore().Field("MobileImage", currentItem, new { @class = "imgForMobile" })
+        <div class="map-heading">
+            <div class="container">
+                <h3>@Html.Sitecore().Field("Title", currentItem)</h3>
+                <p>@Html.Sitecore().Field("Description", currentItem)</p>
+                @if (@linkHelepr.LinkUrl(currentItem.Fields["Link"]).Contains("{CurrentDate}"))
+                {
+                    <a class="btn btn-secondary gtmBannerClick" href="@linkHelepr.LinkUrl(currentItem.Fields["Link"]).Replace("{CurrentDate}",@DateTime.Now.ToString("dd/MM/yyyy").Replace("/",""))" auto_id="data_href_see_all_flights" data-subcategory="@Html.Sitecore().Field("Title", currentItem)" data-bannercategory="Map" data-label="See All Flights">@linkHelepr.GetLinkText(currentItem, "Link")</a>
+                }
+                else
+                {
+                    @Html.Sitecore().Field("Link", currentItem, new { @class = "btn btn-secondary gtmBannerClick", @auto_id = "data_href_see_all_flights", @data_subcategory=@Html.Sitecore().Field("Title", currentItem), @data_bannercategory="Map",@data_label="See All Flights" })
+                }
+            </div>
+        </div>
+    </section>
+}

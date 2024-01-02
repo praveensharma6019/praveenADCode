@@ -1,0 +1,98 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Feature.Media.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    var ancestors = currentItem.Axes.GetAncestors().ToList();
+    ancestors.Add(currentItem);
+    ancestors = ancestors.Skip(2).ToList();
+    var domestic = ancestors[1];
+    var blogCat = ancestors.Count >= 3 ? ancestors[2] : null;
+    var last = ancestors.LastOrDefault();
+    var i = 1;
+    var domainUrl = !string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString()) ? Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString() : string.Empty;
+}
+@if (currentItem != null)
+{
+    if (currentItem.TemplateID.Guid == Constant.CityToCityTemplateId)
+    {
+        <div class="container">
+            <div aria-label="breadcrumb">
+                <ol itemscope itemtype="http://schema.org/BreadcrumbList" class="breadcrumb">
+                    @foreach (Item ancestor in ancestors)
+                    {
+                        var pageUrl = Sitecore.Links.LinkManager.GetItemUrl(ancestor);
+                        <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem" class="breadcrumb-item">
+                            <a href="@domainUrl@pageUrl">@ancestor.DisplayName</a>
+                            <meta itemprop="name" content="@ancestor.DisplayName" />
+                            <meta itemprop="position" content="@i" />
+                            <meta itemprop="item" content="@domainUrl@pageUrl" />
+                        </li>
+                        if (ancestor.Equals(domestic))
+                        {
+                            break;
+                        }
+                        i++;
+                    }
+                    <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem" class="breadcrumb-item active" aria-current="page">
+                        @last.DisplayName
+                        <meta itemprop="name" content="@last.DisplayName" />
+                        <meta itemprop="position" content="@(i+1)" />
+                    </li>
+                </ol>
+            </div>
+        </div>
+    }
+    else if (currentItem.TemplateID.Guid == Constant.BlogDetailPageTemplateId)
+    {
+        <div class="container">
+            <div aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    @foreach (Item ancestor in ancestors)
+                    {
+                        var pageUrl = Sitecore.Links.LinkManager.GetItemUrl(ancestor);
+                        <li class="breadcrumb-item"><a href="@pageUrl">@ancestor.DisplayName</a></li>
+                        if (ancestor.Equals(blogCat))
+                        {
+                            break;
+                        }
+                    }
+                    <li class="breadcrumb-item active" aria-current="page">@last.DisplayName</li>
+                </ol>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="container">
+            <div aria-label="breadcrumb">
+                <ol itemscope itemtype="http://schema.org/BreadcrumbList" class="breadcrumb">
+                    @foreach (Item ancestor in ancestors)
+                    {
+                        var pageUrl = Sitecore.Links.LinkManager.GetItemUrl(ancestor);
+                        if (ancestor.Equals(last))
+                        {
+                            <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem" class="breadcrumb-item active" aria-current="page">
+                                @ancestor.DisplayName
+                                <meta itemprop="name" content="@ancestor.DisplayName" />
+                                <meta itemprop="position" content="@i" />
+                            </li>
+                        }
+                        else
+                        {
+                            <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem" class="breadcrumb-item">
+                                <a href="@domainUrl@pageUrl">@ancestor.DisplayName</a>
+                                <meta itemprop="name" content="@ancestor.DisplayName" />
+                                <meta itemprop="position" content="@i" />
+                                <meta itemprop="item" content="@domainUrl@pageUrl" />
+                            </li>
+                        }
+                        i++;
+                    }
+                </ol>
+            </div>
+        </div>
+    }
+}

@@ -1,0 +1,32 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper _helper = new Helper();
+}
+
+@if (currentItem != null && currentItem.Children != null && currentItem.Children.Any())
+{   
+        <div class="sm-collum-option  scrollableOffset" id="@currentItem.DisplayName">
+            <h3 class="sr-heading">@Html.Sitecore().Field("Title", currentItem)</h3>
+
+            @foreach (Sitecore.Data.Items.Item AirportItem in currentItem.Children)
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)AirportItem.Fields["Image"]);
+                string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(AirportItem, "Image") : "";
+
+                <div class="d-flex align-items-center hr-slide">
+                    <img src="@imageUrl" loading="lazy">
+                    <aside>
+                        <h4 class="title">@Html.Sitecore().Field("Title", AirportItem)</h4>
+                        @Html.Sitecore().Field("Description", AirportItem)
+                    </aside>
+                </div>
+
+            }
+        </div>
+   
+}

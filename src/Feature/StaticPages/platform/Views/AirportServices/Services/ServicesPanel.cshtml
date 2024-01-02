@@ -1,0 +1,100 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    var assetDomainURL = string.Empty;
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Item contextItem = RenderingContext.Current.ContextItem;
+    string queryString = !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isapp"]) ? Sitecore.Context.Request.QueryString["isapp"].ToLower() : "false";
+    var name = string.Empty;
+    IHelper _helper = new Helper();
+    if (!string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl")))
+    {
+        assetDomainURL = Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl").ToString();
+
+    }
+
+}
+
+@if (contextItem != null && currentItem != null)
+{
+    <div class="services-menu" id="services-main-menu" auto_id="data_services_leftMenuPanel">
+        <h6 class="cursorEnable" onclick="onChange(isClicked)">
+            <div class="icon-button">
+                <img class="icon-services" src="@assetDomainURL/assets/images/services/new-ico.gif" alt="service" loading="lazy">
+            </div>
+            <span>@Html.Sitecore().Field("__Short description", currentItem)</span>
+        </h6>
+        <div class="offcanvas offcanvas-bottom serviceOffcanvas offcanvas-desktop" tabindex="-1" id="offcanvasBottomTest"
+             aria-labelledby="offcanvasBottomLabel">
+
+            <div class="offcanvas-header d-lg-none">
+                <div class="searchSection">
+                    <div class="inside-search d-lg-flex">
+                        <i class="i-search searchIcon"></i>
+                        <input type="text" class="searchFilter" placeholder="Search" id="serviceInput"
+                               onkeyup="filterList('#serviceInput', '#serviceList li')" />
+                        <div class="clearIcon d-none">
+                            <i class="i-cross" onclick="clearSearch('#serviceInput', '#serviceList li')"></i>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="offcanvas-title" id="offcanvasBottomLabel">@Html.Sitecore().Field("__Short description", currentItem)</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul id="serviceList">
+                    @foreach (Sitecore.Data.Items.Item listItem in currentItem.Children)
+                    {
+                        <ul class="option-service">
+                            <li>
+                                <h4 class="title">@Html.Sitecore().Field("__Short description", listItem)</h4>
+                            </li>
+                            @foreach (Sitecore.Data.Items.Item childListItem in listItem.Children)
+                            {
+                                if (childListItem.Name.Replace(" ", "").Replace("-", "").ToLower() == contextItem.Name.Replace("-", "").ToLower())
+                                {
+                                    name = "nav-link activelink";
+                                }
+                                else
+                                {
+                                    name = "nav-link";
+                                }
+                                Sitecore.Data.Fields.LinkField linkfield= childListItem.Fields["ServiceUrl"]; ;
+                                var url = linkfield.GetFriendlyUrl();
+                                if (queryString.ToLower() == "true")
+                                {
+                                    
+                                    url = string.IsNullOrEmpty(childListItem.Fields["AppServiceUrl"].Value) ? linkfield.GetFriendlyUrl() : childListItem.Fields["AppServiceUrl"].Value;
+                                }
+
+                                if (!string.IsNullOrEmpty(url))
+                                {
+                                    <li>
+                                        <a href="@url" class="@name" onclick="closeOffcanvas();">
+                                            @Html.Sitecore().Field("Title", childListItem)
+                                            @if((childListItem.Fields["name"].Value) != "")
+                                             {
+                                                <span class="comingSoon ">@Html.Sitecore().Field("name", childListItem)</span>
+                                             }
+                                        </a>
+                                    </li>
+                                }
+                                else
+                            {
+                                    <li>
+                                        <a href="javascript:void(0)" class="@name" onclick="closeOffcanvas();">@Html.Sitecore().Field("Title", childListItem)</a>
+                                    </li>
+                                }
+
+                            }
+                        </ul>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}

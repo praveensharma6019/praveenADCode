@@ -1,0 +1,59 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+}
+@if (currentItem != null)
+{
+    <section class="hero-slider">
+        <div class="mumbai-airport">
+            @foreach (Item slider in currentItem.Children)
+            {
+                string subcategory = "";
+                if (slider != null)
+                {
+                    subcategory = @Html.Sitecore().Field("Title", slider) + " " + @Html.Sitecore().Field("SubTitle", slider);
+                }
+
+                if (@linkHelepr.LinkUrl(slider.Fields["Link"]).Contains("{CurrentDate}"))
+                {
+                    <a href="@linkHelepr.LinkUrl(slider.Fields["Link"]).Replace("{CurrentDate}",@DateTime.Now.ToString("dd/MM/yyyy").Replace("/",""))" class="banner_slide bannerShadow gtmViewBannerClick" auto_id=@Html.Sitecore().Field("AutoId", slider)  data-event="view_banner">
+                        <div class="imgBox">
+                            @Html.Sitecore().Field("Image", slider, new { @alt = "Airport-banner", @width = "100%" })
+                            <div class="banner-content">
+                                @Html.Sitecore().Field("BannerLogo", slider, new { @alt = "Airport-banner", @width = "100%", @class = "bannerLogo" })
+                                <h3><span>@Html.Sitecore().Field("Title", slider)</span>@Html.Sitecore().Field("SubTitle", slider)<sup>@Html.Sitecore().Field("OfferEligibility", slider)</sup></h3>
+                                <p>@Html.Sitecore().Field("Description", slider)</p>
+                                <button type="button" class="btn btn-outline-dark know-more-btn " data-event="view_book_now" data-subcategory="@subcategory" data-bannercategory="Hero/Slider Banner" data-label="@subcategory">@linkHelepr.GetLinkText(slider, "Link")</button>
+                            </div>
+                        </div>
+                    </a>
+
+                }
+                else
+                {
+                    @Html.Sitecore().BeginField("Link", slider, new { haschildren = true, @class = "banner_slide bannerShadow gtmViewBannerClick", @auto_id = @Html.Sitecore().Field("AutoId", slider), @data_event = "view_banner" })
+                    <div class="imgBox">
+                        @Html.Sitecore().Field("Image", slider, new { @alt = "Airport-banner", @width = "100%" })
+                        <div class="banner-content">
+                            @Html.Sitecore().Field("BannerLogo", slider, new { @alt = "Airport-banner", @width = "100%", @class = "bannerLogo" })
+                            <h3><span>@Html.Sitecore().Field("Title", slider)</span>@Html.Sitecore().Field("SubTitle", slider)<sup>@Html.Sitecore().Field("OfferEligibility", slider)</sup></h3>
+                            <p>@Html.Sitecore().Field("Description", slider)</p>
+                            <button type="button" class="btn btn-outline-dark know-more-btn" data-event="view_book_now" data-subcategory="@subcategory" data-bannercategory="Hero/Slider Banner" data-label="@subcategory">@linkHelepr.GetLinkText(slider, "Link")</button>
+                        </div>
+                    </div>
+                    @Html.Sitecore().EndField()
+                }
+
+            }
+        </div>
+        <div class="formWrap">
+            <div id="flight-be" class="container"></div>
+        </div>
+    </section>
+}
+

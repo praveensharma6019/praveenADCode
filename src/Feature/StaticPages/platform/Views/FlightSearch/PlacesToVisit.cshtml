@@ -1,0 +1,93 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string carousalImageAltText = string.Empty;
+    Sitecore.Data.Fields.MultilistField heroImagesField = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["Select Card"]);
+    IHelper _helper = new Helper();
+}
+@if (currentItem != null)
+{
+    <div class="airport-card mdl-heading">
+        <h4 class="ahemdabad_heading section-heading">
+            @Html.Sitecore().Field("Title", currentItem)
+            <label class="d-none d-md-block">@Html.Sitecore().Field("Description", currentItem)</label>
+        </h4>
+        <div class="arrow_pos">
+            <div class="card-slider slider-citytocity">
+
+                @if (heroImagesField != null)
+                {
+                    foreach (Sitecore.Data.Items.Item image in heroImagesField.GetItems())
+                    {
+                        Sitecore.Data.Fields.LinkField historyUrl = ((Sitecore.Data.Fields.LinkField)image.Fields["HistoryURL"]);
+                        Sitecore.Data.Fields.LinkField architectureUrl = ((Sitecore.Data.Fields.LinkField)image.Fields["ArchitectureURL"]);
+                        Sitecore.Data.Fields.ImageField carousalImgField = ((Sitecore.Data.Fields.ImageField)image.Fields["Image"]);
+                        string carousalImageUrl = carousalImgField != null && carousalImgField.MediaItem != null ? _helper.GetImageURL(image, Constant.Image) : "";
+                        if (carousalImgField != null && carousalImgField.MediaItem != null)
+                        {
+                            Sitecore.Data.Items.MediaItem carousalImage = new Sitecore.Data.Items.MediaItem(carousalImgField.MediaItem);
+                            carousalImageAltText = carousalImage != null && carousalImage.Alt != null ? carousalImage.Alt : "";
+                        }
+                        else
+                        {
+                            carousalImageAltText = string.Empty;
+                        }
+                        <div class="card">
+                            <a href="#" data-bs-toggle="offcanvas" data-bs-target="#@image.Name.Replace(" ", "")"
+                               aria-controls="@image.Name.Replace(" ", "")">
+                                <div class="zoomEffect">
+                                    <img class="card-img-top"
+                                         src="@carousalImageUrl"
+                                         alt="@carousalImageAltText" loading="lazy" />
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title card_heading">@image["Title"]</h5>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="@historyUrl.InternalPath" class="badge badge-pill badge-secondary">@historyUrl.Text</a>
+                                    <a href="@architectureUrl.InternalPath" class="badge badge-pill badge-secondary">@architectureUrl.Text</a>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+    if (heroImagesField != null)
+    {
+        foreach (Sitecore.Data.Items.Item images in heroImagesField.GetItems())
+        {
+            Sitecore.Data.Fields.ImageField carousalImgField = ((Sitecore.Data.Fields.ImageField)images.Fields["Image"]);
+            string carousalImageUrl = carousalImgField != null && carousalImgField.MediaItem != null ? _helper.GetImageURL(images, Constant.Image) : "";
+            <div class="offcanvas offcanvas-end cityCanvas" tabindex="-1" id="@images.Name.Replace(" ", "")"
+                 aria-labelledby="citycanvasRightLabel">
+                <div class="offcanvas-header p-0">
+                    <div>
+                        <button type="button" class="btn-close text-reset px-0 lightRipple"
+                                data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                </div>
+
+                <div class="offcanvas-body scrollbar-y">
+                    <div class="bannerContent">
+                        <img class="card-img-top" src="@carousalImageUrl"
+                             alt="Card image cap" loading="lazy" />
+                        <div class="discripContent">
+                            <h5 id="citycanvasRightLabel">@images["Title"]</h5>
+                            <p>
+                                @images["Description"]
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}

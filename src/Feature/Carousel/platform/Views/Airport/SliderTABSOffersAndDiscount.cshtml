@@ -1,0 +1,112 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using System.Linq
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+    List<string> tabData = new List<string>();
+    if (currentItem != null)
+    {
+        tabData = currentItem.GetChildren().Select(y => y.Fields["TabTitle"].Value).Distinct().Reverse().ToList();
+    }
+
+    int index = 1;
+}
+@if (currentItem != null)
+{<div class="borderRemove_card mumbai-other-service">
+        <section class="duty-free-sallers pt-wrap duty-free-sallersAddCart">
+            <div class="container">
+                <h3>Offers & Discounts</h3>
+                <div class="arrow_pos">
+                    <div class="tab-wrapper">
+                        <div class="scrollbar-x adl-htabs nav-tabs nav nav-pills">
+                            @if (tabData != null && tabData.Count > 0)
+                            {
+
+                                foreach (var tab in tabData)
+                                {
+                                    if (index == 1)
+                                    {
+                                        <div class="nav-item">
+                                            <a class="nav-link active" data-id="@tab">@tab</a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="nav-item">
+                                            <a class="nav-link" data-id="@tab">@tab</a>
+                                        </div>
+                                    }
+                                    index += 1;
+                                }
+                            }
+                        </div>
+                        <div class="tab-content">
+                            <div class="fade tab-pane active show"
+                                 id="@currentItem.GetChildren().Where(x =>((Sitecore.Data.Fields.CheckboxField) x.Fields["isinstoreoffers"]).Checked==true).Select(y=>y.Fields["TabTitle"].Value).Distinct().FirstOrDefault()">
+                                <div class="arrow_pos">
+                                    <div class="slider-airports">
+                                        @foreach (Item service in currentItem.GetChildren().Where(x => ((Sitecore.Data.Fields.CheckboxField)x.Fields["isinstoreoffers"]).Checked == true).OrderBy(y => y.Fields["DisplaySequence"].Value).ToList())
+                                        {
+
+                                            <div class="slider-box">
+                                                @Html.Sitecore().BeginField("Link", service, new { haschildren = true, @class = "card zoomEffect gtmKnowMoreClick", @auto_id = @Html.Sitecore().Field("AutoId", service), @data_event = "view_know_more", @data_subcategory = "", @data_bannercategory = @Html.Sitecore().Field("__Short description", currentItem), @data_label = @Html.Sitecore().Field("Title", service) })
+                                                <figure>
+                                                    @Html.Sitecore().Field("Image", service, new { @width = "100%", @class = "h-auto" })
+                                                </figure>
+                                                <div class="card-body">
+                                                    <span>@linkHelepr.GetLinkText(service, "Link")</span>
+                                                    <h3 class="card-title">
+                                                        @Html.Sitecore().Field("Title", service)
+                                                    </h3>
+                                                    <p class="card-text vertical_ellipsis">
+                                                        @Html.Sitecore().Field("Description", service)
+                                                    </p>
+                                                    <span class="black_link">@Html.Sitecore().Field("SubTitle", service)</span>
+                                                </div>
+                                                @Html.Sitecore().EndField()
+                                            </div>
+
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="fade tab-pane show" id="@currentItem.GetChildren().Where(x =>((Sitecore.Data.Fields.CheckboxField) x.Fields["isinstoreoffers"]).Checked==false).Select(y=>y.Fields["TabTitle"].Value).Distinct().FirstOrDefault()">
+                                <div class="arrow_pos">
+                                    <div class="slider-airports">
+                                        @foreach (Item service in currentItem.GetChildren().Where(x => ((Sitecore.Data.Fields.CheckboxField)x.Fields["isinstoreoffers"]).Checked == false).OrderBy(y => y.Fields["DisplaySequence"].Value).ToList())
+                                        {
+                                            <div class="slider-box">
+                                                @Html.Sitecore().BeginField("Link", service, new { haschildren = true, @class = "card zoomEffect gtmKnowMoreClick", @auto_id = @Html.Sitecore().Field("AutoId", service), @data_event = "view_know_more", @data_subcategory = "", @data_bannercategory = @Html.Sitecore().Field("__Short description", currentItem), @data_label = @Html.Sitecore().Field("Title", service) })
+                                                <figure>
+                                                    @Html.Sitecore().Field("Image", service, new { @width = "100%", @class = "h-auto" })
+                                                </figure>
+                                                <div class="card-body">
+                                                    <span>@linkHelepr.GetLinkText(service, "Link")</span>
+                                                    <h3 class="card-title">
+                                                        @Html.Sitecore().Field("Title", service)
+                                                    </h3>
+                                                    <p class="card-text vertical_ellipsis">
+                                                        @Html.Sitecore().Field("Description", service)
+                                                    </p>
+                                                    <span class="black_link">@Html.Sitecore().Field("SubTitle", service)</span>
+                                                </div>
+                                                @Html.Sitecore().EndField()
+                                            </div>
+
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+}
+

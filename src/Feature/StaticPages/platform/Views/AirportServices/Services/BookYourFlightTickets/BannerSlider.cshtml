@@ -1,0 +1,81 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform.Models
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    IHelper _helper = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string queryString = !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isapp"]) ? Sitecore.Context.Request.QueryString["isapp"].ToLower() : "";
+    HttpBrowserCapabilitiesBaseExtensions objBrowserCapabilities = new HttpBrowserCapabilitiesBaseExtensions();
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OtherServices"]);
+}
+<section>
+    <h1 class="pageTitle">
+        @if (queryString != "true")
+        {
+            if (Request != null && Request.Browser != null && objBrowserCapabilities.IsMobileNotTablet(Request.Browser))
+            {
+                <span class="d-flex d-md-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottomTest"
+                      aria-controls="offcanvasBottomTest">
+                    @Html.Sitecore().Field("Title", currentItem)
+                    <span class="i-arrow-d"></span>
+
+                </span>
+            }
+            else
+            {
+                <span class="d-none d-md-block" onclick="onChange(isClicked)">
+                    <span class="i-arrow-l"></span>
+                    @Html.Sitecore().Field("Title", currentItem)
+                </span>
+            }
+        }
+        else
+        {
+            <span>
+                @Html.Sitecore().Field("Title", currentItem)
+            </span>
+        }
+    </h1>
+    <div class="custom-banner-slider">
+        <div class="inner-service-slider">            
+                    @foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["MobileImage"]);
+                        string mobileImageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(services, "MobileImage") : "";
+                        Sitecore.Data.Fields.ImageField bgimgField = ((Sitecore.Data.Fields.ImageField)services.Fields["DesktopImage"]);
+                        string desktopImageUrl = bgimgField != null && bgimgField.MediaItem != null ? _helper.GetImageURL(services, "DesktopImage") : "";
+                        Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["RedirectLink"]);
+                        var redirectUrl = linkField.GetFriendlyUrl();                   
+                        if (!string.IsNullOrEmpty(redirectUrl))
+                        {
+                            <a class="slide" href="@redirectUrl">
+                                <div class="flexBanner f-d"
+                                     style="background-image:url(@desktopImageUrl);">
+                                </div>
+                                <div class="flexBanner f-m"
+                                     style="background-image:url(@mobileImageUrl);">
+                                </div>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="slide" href="javascript:void(0)">
+                                <div class="flexBanner f-d"
+                                     style="background-image:url(@desktopImageUrl);">
+                                </div>
+                                <div class="flexBanner f-m"
+                                     style="background-image:url(@mobileImageUrl);">
+                                </div>
+                            </a>                            
+                        }
+                   
+                    }
+                </div>                
+            </div>        
+</section>

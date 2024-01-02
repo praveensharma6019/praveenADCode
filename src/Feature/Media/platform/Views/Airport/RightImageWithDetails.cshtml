@@ -1,0 +1,44 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.Media.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+}
+@if (currentItem != null)
+{
+    <div class="internal-service adani-rewards pt-wrap">
+        <div class="container">
+            @Html.Sitecore().BeginField("Link", currentItem, new { haschildren = true, @auto_id = @Html.Sitecore().Field("AutoId", currentItem), @class = "gtmBannerClick", @data_subcategory = "Adani Rewards", @data_bannercategory = "Rewards", @data_label = "Explore Now" })
+            <div class="rewardEntryBanner">
+                    <video playsinline onplaying="this.controls=false" class="rewarBannerDesktop" loop muted controls="false" autoPlay>
+                        <source src="@(currentItem.Fields[Constant.Video] != null ? linkHelepr.LinkUrl(currentItem.Fields[Constant.Video]):string.Empty)" type="video/mp4" />
+                    </video>
+                    <video playsinline onplaying="this.controls=false" class="rewardBannerMobile" loop muted controls="false" autoPlay>
+                        <source src="@(currentItem.Fields[Constant.MobileVideo] != null ? linkHelepr.LinkUrl(currentItem.Fields[Constant.MobileVideo]):string.Empty)" type="video/mp4" />
+                    </video>
+                    <div class="rewardBannerText">
+                        <div class="rewardLogoBanner">
+                            @Html.Sitecore().Field("Image", currentItem, new { @alt = "" })
+                            <p>@Html.Sitecore().Field("Description", currentItem)<sup>@Html.Sitecore().Field("OfferEligibility", currentItem)</sup></p>
+                            <ul class="rewardsPoints">
+                                @if (!string.IsNullOrEmpty(currentItem.Fields[Constant.Title].Value))
+                                {
+                                    <li>@Html.Sitecore().Field("Title", currentItem)</li>
+                                }
+                                @if (!string.IsNullOrEmpty(currentItem.Fields[Constant.TextColor].Value))
+                                {
+                                    <li>@Html.Sitecore().Field("textColor", currentItem)</li>
+                                }  
+                            </ul>
+                            <span class=" ExploreBtn">@linkHelepr.GetLinkText(currentItem, "Link")</span>
+                        </div>
+                    </div>
+                </div>
+            @Html.Sitecore().EndField()
+        </div>
+    </div>
+}

@@ -1,0 +1,153 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Item contextItem = RenderingContext.Current.ContextItem;
+    var name = string.Empty;
+    var mobileName = string.Empty;
+    string altText = string.Empty;
+    Sitecore.Data.Fields.ImageField noResultsImgField = ((Sitecore.Data.Fields.ImageField)contextItem.Fields["NoResultsFoundImage"]);
+    string noResultsImageUrl = noResultsImgField != null && noResultsImgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(noResultsImgField.MediaItem) : "";
+    
+    if (noResultsImgField != null && noResultsImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(noResultsImgField.MediaItem);
+        altText = image != null && image.Alt != null ? image.Alt : "";
+    }
+
+}
+
+@if (contextItem != null && currentItem != null)
+{
+    <span class="icon-button location-arrow" />
+    <div class="dropdown citydropdown ">
+        <a class="basic_dropdown  d-none d-lg-flex" data-bs-toggle="dropdown">
+            <span id="" class="icon-button location-arrow heading-dropdown-icon mrginRemove">
+                <i class="i-arrow-d"></i>
+            </span>
+        </a>
+        <div class="dropdown-menu locationLayer menu-city scrollbar-y" aria-labelledby="brands">
+            <div class="inside-search d-lg-flex">
+                <i class="i-search searchIcon"></i>
+                <input type="text" id="serviceInput"
+                       onkeyup="filterList('#serviceInput', '.services-list li',true,false,false,false,true)"
+                       placeholder="Search City" />
+                <div class="clearIcon d-none"
+                     onclick="clearSearch('#serviceInput', '.services-list li',true)">
+                    <i class="i-cross"></i>
+                </div>
+            </div>
+            <div class="scroll-visible filtersection">
+                <ul class="services-list">
+                    @foreach (Sitecore.Data.Items.Item listItem in currentItem.Children)
+                    {
+                        if (listItem.Name.Replace(" ", "").Replace("-", "").ToLower() == contextItem.Name.Replace("-", "").ToLower())
+                        {
+                            name = "nav-link activelink";
+                        }
+                        else
+                        {
+                            name = "nav-link";
+                        }
+                        Sitecore.Data.Fields.LinkField linkfield = listItem.Fields["ServiceUrl"];
+                        var url = linkfield.GetFriendlyUrl();
+                        if (linkfield != null)
+                        {
+                        <li>
+                            <a href="@url" class="dropdown-item filtersubsectionTitle @name" data-airport="mumbai">
+                                <div class="airportLogo">
+                                    <h3 class="filter-heading">@Html.Sitecore().Field("Title", listItem)</h3>
+                                </div>
+
+                            </a>
+                        </li>
+                        }
+                    }
+
+                </ul>
+            </div>
+        </div>
+        <a class="basic_dropdown d-flex d-lg-none mbl" data-bs-toggle="offcanvas"
+           data-bs-target="#city-filter-dropdown" aria-controls="select-city-dropdowm">
+            <!-- onclick="getAirportListCanvas()" -->
+            <!-- onclick="getAirportList()" airportListOffcanvas -->
+            <span class="icon-button location-arrow">
+                <i class="i-arrow-d"></i>
+            </span>
+        </a>
+
+    </div>
+}
+
+<div class="offcanvas offcanvas-bottom" id="city-filter-dropdown" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="false">
+    <div class="offcanvas-dialog modal-xl">
+        <div class="offcanvas-content">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="staticBackdropLabel">@Html.Sitecore().Field("__Short description", currentItem)</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" id="modal-body">
+
+                <div class="dropdown-menu locationLayer scrollbar-y" aria-labelledby="brands">
+                    <div class="inside-search d-lg-flex">
+                        <i class="i-search searchIcon"></i>
+                        <input type="text" id="serviceInput"
+                               onkeyup="filterList('#serviceInput', '.services-list li',true,false,false,false,true)"
+                               placeholder="Search City" />
+                        <div class="clearIcon d-none" onclick="clearSearch('#serviceInput', '.services-list li',true)">
+                            <i class="i-cross"></i>
+                        </div>
+                    </div>
+                    <div class="scroll-visible filtersection">
+                        <ul class="services-list">
+                            @foreach (Sitecore.Data.Items.Item mobilelistItem in currentItem.Children)
+                            {
+                                if (mobilelistItem.Name.Replace(" ", "").Replace("-", "").ToLower() == contextItem.Name.Replace("-", "").ToLower())
+                                {
+                                    mobileName = "nav-link activelink";
+                                }
+                                else
+                                {
+                                    mobileName = "nav-link";
+                                }
+                                Sitecore.Data.Fields.LinkField mobilelinkfield = mobilelistItem.Fields["ServiceUrl"];
+                                var mobileurl = mobilelinkfield.GetFriendlyUrl();
+                                if (mobilelinkfield != null)
+                                {
+                                <li>
+                                    <a href="@mobileurl" class="dropdown-item filtersubsectionTitle @mobileName" data-airport="mumbai">
+                                        <div class="airportLogo">
+                                            <h3 class="filter-heading">@Html.Sitecore().Field("Title", mobilelistItem)</h3>
+                                        </div>
+
+                                    </a>
+                                </li>
+                                }
+                            }
+
+                            </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="noFoundsection my-5 text-center d-none">
+    <div class="emptyWrapper">
+        <figure>
+            <img src="@noResultsImageUrl" alt="@altText" loading="lazy" />
+        </figure>
+        <h6>@Html.Sitecore().Field("SearchItemNotFound", contextItem)</h6>
+        <p></p>
+        <button type="button" class="adl-button btn btn-outline-secondary btn-md"
+                onclick="clearSearch('#serviceInput', '.services-list li',true)">
+            @Html.Sitecore().Field("ResetFiltersText", contextItem)
+        </button>
+    </div>
+</div>

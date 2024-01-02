@@ -1,0 +1,54 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper _helper = new Helper();
+}
+@if (currentItem != null && currentItem.Children != null && currentItem.Children.Any())
+{
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(currentItem, "Image") : "";
+    <div class="air-guidlines-section scrollableOffset section-wrap" id="@currentItem.DisplayName">
+        <div class="wrap scrollbar-x">
+            @foreach (Item guideline in currentItem.Children)
+            {
+                Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)guideline.Fields["Link"]);
+                if (linkField != null)
+                {
+                    var redirectUrl = linkField.GetFriendlyUrl();
+                    <div class="covidInfoWrap">
+                        @if (!string.IsNullOrEmpty(redirectUrl))
+                        {
+                            <a href="@redirectUrl">
+                                <figure>
+                                    @Html.Sitecore().Field("Image", guideline, new { @alt = @Html.Sitecore().Field("Title", guideline) })
+
+                                </figure>
+                                <aside>
+                                    <h3>@Html.Sitecore().Field("Title", guideline)</h3>
+                                    <span class="black_link">@_helper.GetLinkText(guideline, "Link")</span>
+                                </aside>
+                            </a> }
+                        else
+                        {
+                            <a href="javascript:void(0)">
+                                <figure>
+                                    @Html.Sitecore().Field("Image", guideline, new { @alt = @Html.Sitecore().Field("Title", guideline) })
+
+                                </figure>
+                                <aside>
+                                    <h3>@Html.Sitecore().Field("Title", guideline)</h3>
+                                    <span class="black_link">@_helper.GetLinkText(guideline, "Link")</span>
+                                </aside>
+                            </a>
+                        }
+
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}

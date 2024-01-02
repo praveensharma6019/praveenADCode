@@ -1,0 +1,90 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+    string domesticServiceAltText = string.Empty;
+    string internationalServiceAltText = string.Empty;
+    Sitecore.Data.Fields.MultilistField domesticServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["DomesticServices"]);
+    Sitecore.Data.Fields.MultilistField internationalServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["InternationalServices"]);
+}
+
+@if (currentItem != null)
+{
+    <div class="subSection scrollableOffset" id="@currentItem.DisplayName" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+        <div class="book-service">
+            <h2>@Html.Sitecore().Field("BookServiceTitle", currentItem)</h2>
+            <div class="row">
+                @if (domesticServices != null && domesticServices.GetItems() != null && domesticServices.GetItems().Count() > 0)
+                {
+                    foreach (Sitecore.Data.Items.Item domesticservice in domesticServices.GetItems())
+                    {
+                        Sitecore.Data.Fields.ImageField domesticImgField = ((Sitecore.Data.Fields.ImageField)domesticservice.Fields["Image"]);
+                        string domesticImageUrl = domesticImgField != null && domesticImgField.MediaItem != null ? _helper.GetImageURL(domesticservice, Constant.Image) : "";
+                        if (domesticImgField != null && domesticImgField.MediaItem != null)
+                        {
+                            Sitecore.Data.Items.MediaItem domesticImage = new Sitecore.Data.Items.MediaItem(domesticImgField.MediaItem);
+                            domesticServiceAltText = domesticImage != null && domesticImage.Alt != null ? domesticImage.Alt : "";
+                        }
+                        <div class="col-sm-12 col-md-6" auto_id="@Html.Sitecore().Field("AutoId", domesticservice)">
+                            <a href="javascript:void(0)" class="book-service__box">
+                                <div class="service-tiles-Box d-flex align-items-top">
+                                    <div class="outside-warp">
+                                        <div class="bookServive_title">@Html.Sitecore().Field("Title", domesticservice)</div>
+                                        <div class="help">
+                                            @Html.Sitecore().Field("Description", domesticservice)
+                                        </div>
+                                        <label>@Html.Sitecore().Field("ButtonText", domesticservice)</label>
+                                    </div>
+                                    <div class="right-img">
+                                        <img src="@domesticImageUrl" loading="lazy">
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+
+            </div>
+            <div class="row">
+                @if (internationalServices != null && internationalServices.GetItems() != null && internationalServices.GetItems().Count() > 0)
+                {
+                    foreach (Sitecore.Data.Items.Item internationalservice in internationalServices.GetItems())
+                    {
+
+                        Sitecore.Data.Fields.ImageField internationalImgField = ((Sitecore.Data.Fields.ImageField)internationalservice.Fields["Image"]);
+                        string internationalImageUrl = internationalImgField != null && internationalImgField.MediaItem != null ? _helper.GetImageURL(internationalservice, Constant.Image) : "";
+                        if (internationalImgField != null && internationalImgField.MediaItem != null)
+                        {
+                            Sitecore.Data.Items.MediaItem internationalImage = new Sitecore.Data.Items.MediaItem(internationalImgField.MediaItem);
+                            internationalServiceAltText = internationalImage != null && internationalImage.Alt != null ? internationalImage.Alt : "";
+                        }
+                        <div class="col-sm-12 col-md-6">
+                            <a href="javascript:void(0)" class="book-service__box">
+                                <div class="service-tiles-Box d-flex align-items-top">
+                                    <div class="outside-warp">
+                                        <div class="bookServive_title">@Html.Sitecore().Field("Title", internationalservice)</div>
+                                        <div class="help">
+                                            @Html.Sitecore().Field("Description", internationalservice)
+                                        </div>
+                                        <label>@Html.Sitecore().Field("ButtonText", internationalservice)</label>
+                                    </div>
+                                    <div class="right-img">
+                                        <img src="@internationalImageUrl" loading="lazy">
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        @Html.Sitecore().Placeholder("bookserviceform")
+
+    </div>
+}

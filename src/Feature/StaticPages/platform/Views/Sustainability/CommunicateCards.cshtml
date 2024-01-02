@@ -1,0 +1,40 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OtherServices"]);
+}
+
+@if (currentItem != null)
+{
+    <div class="comunicateSevice">
+        <h2 class="page-tittle">
+            @Html.Sitecore().Field("Title", currentItem)
+        </h2>
+        <div class="underTakenService">
+            @foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["CardImage"]);
+                string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                
+                    <div class="cardWrapper">
+                        <figure>
+                            <img src="@imageUrl" width="100%" loading="lazy" />
+                        </figure>
+                        <div class="contentText">
+                            <h3>@Html.Sitecore().Field("CardTitle", services)</h3>
+                            <div class="guidLinesPonits">
+                                <ul>
+                                    @Html.Sitecore().Field("CardDescription", services)
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+               
+            }
+                </div>
+            </div>
+
+}

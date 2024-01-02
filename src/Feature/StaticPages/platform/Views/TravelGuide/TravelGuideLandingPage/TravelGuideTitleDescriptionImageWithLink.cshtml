@@ -1,0 +1,41 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["Link"]);
+    string imageAltText = string.Empty;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        imageAltText = image != null && image.Alt != null ? image.Alt : "";
+    }
+}
+
+@if (currentItem != null)
+{
+    if (linkField != null)
+    {
+        var redirectUrl = linkField.GetFriendlyUrl();
+        <div class="hist-item cm-small">
+            <a href="@redirectUrl" tabindex="0" class="zoomEffect">
+                <div class="content">
+                    <h3>@Html.Sitecore().Field("Title", currentItem)</h3>
+                    <p>
+                        @Html.Sitecore().Field("Description", currentItem)
+                    </p>
+                    <span class="black_link">
+                        @linkField.Text
+                    </span>
+                </div>
+                <figure>
+                    <img src="@imageUrl" alt="@imageAltText" loading="lazy">
+                </figure>
+            </a>
+        </div>
+    }
+}
+

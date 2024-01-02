@@ -1,0 +1,34 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    
+
+}
+@if (currentItem != null)
+{
+<div class="subSection domestic-flights">
+    <h2>@Html.Sitecore().Field("__Short description", currentItem)</h2>
+    <div class="row">
+        @foreach (Sitecore.Data.Items.Item route in currentItem.Children)
+        {
+            Sitecore.Data.Fields.MultilistField popularFlightRoutes = ((Sitecore.Data.Fields.MultilistField)route.Fields["SelectFlights"]);
+
+            foreach (Sitecore.Data.Items.Item routes in popularFlightRoutes.GetItems())
+            {
+                Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)routes.Fields["Link"]);
+                <div class="col-sm-4">
+                    <ul class="flights-list">
+                        @if (linkField != null)
+                        {
+                            <li>@linkField.Text </li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    </div>
+</div>
+}

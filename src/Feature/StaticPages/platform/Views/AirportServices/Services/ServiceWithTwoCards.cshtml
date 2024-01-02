@@ -1,0 +1,47 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{ Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OtherServices"]); }
+
+@if (currentItem != null)
+{
+    <div class="cate-section baggageService scrollableOffset" id="@currentItem.DisplayName" auto_id="@Html.Sitecore().Field("AutoId", currentItem)">
+
+        <h2 class="page-title">@Html.Sitecore().Field("Title", currentItem)</h2>
+
+        <div class="cate-section__content services-card scrollbar-y">
+            @foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["CardImage"]);
+                string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["RedirectLink"]);
+                Sitecore.Data.Fields.LinkField cardLink = ((Sitecore.Data.Fields.LinkField)services.Fields["CardLink"]);
+                var redirectUrl = linkField.GetFriendlyUrl();
+                if (redirectUrl != null)
+                {
+                    <div class="services-card__col" auto_id="@Html.Sitecore().Field("AutoId", services)">
+                        <a href="@redirectUrl" class="card zoomEffect">
+                            <figure>
+                                <img src="@imageUrl" loading="lazy"/>
+                            </figure>
+                            <div class="card-body">
+                                <div class="card_heading">@Html.Sitecore().Field("CardTitle", services)</div>
+                                <p>
+                                    @Html.Sitecore().Field("CardDescription", services)
+                                </p>
+                            </div>
+                        </a>
+                        @if (@cardLink != null)
+                        {
+                            <span class="black_link">@linkHelepr.GetLinkText(services, "CardLink")</span>}
+
+                    </div>}
+            }
+        </div>
+    </div>}
+

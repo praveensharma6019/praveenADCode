@@ -1,0 +1,69 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField multiselectField = currentItem.Fields["ListItems"];
+    Sitecore.Data.Items.Item[] dListItems = multiselectField.GetItems();
+    string divID = string.Empty;
+    string cssClass = string.Empty;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        divID = parms["id"];
+        cssClass = parms["class"];
+    }
+}
+@if (currentItem != null)
+{
+    <div class="section-wrapper help-section">
+        @Html.Sitecore().Placeholder("help-center-search")
+        <div class="container">
+            <div class="fl-services">
+                @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListTitle", currentItem))))
+                {
+                    <h1>@Html.Sitecore().Field("ListTitle", currentItem)</h1>
+                }
+                @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListSubTitle", currentItem))))
+                {
+                    <h5>@Html.Sitecore().Field("ListSubTitle", currentItem)</h5>
+                }
+                <div class="services-tiles">
+                    <ul>
+                        @foreach (var dItem in dListItems)
+                        {
+                            <li>
+                                @Html.Sitecore().BeginField("CTA", dItem, new { haschildren = true, @class = "sm-card" })
+                                @*icon image class*@
+                                <i class="@Html.Sitecore().Field("ItemTitle", dItem)"></i>
+                                <p>@Html.Sitecore().Field("StepText", dItem)</p>
+                                <i class="i-arrow-r"></i>
+                                @Html.Sitecore().EndField()
+                            </li>
+                        }
+                    </ul>
+                </div>
+                @Html.Sitecore().Placeholder("other-links")
+            </div>
+        </div>
+    </div>
+    <div class="offcanvas offcanvas-end search-bar-offcanvas" tabindex="-1" id="searchBarOffcanvas">
+        <div class="header">
+            <i class="i-arrow-left text-reset back-btn" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+            <div class="inside-search search-header">
+                <input type="text"
+                       id="serviceInput2"
+                       onkeyup="filterList('#serviceInput2', '.search-wrapper .faqList li',false,false,true,true)"
+                       placeholder="Search topic" />
+                <div class="clearIcon d-none"
+                     onclick="clearSearch('#serviceInput2', '.search-wrapper .faqList li',false,false,true,true)">
+                    <i class="i-cross"></i>
+                </div>
+            </div>
+        </div>
+        <div class="offcanvas-body offcanvasNoSpace">
+        </div>
+    </div>
+}

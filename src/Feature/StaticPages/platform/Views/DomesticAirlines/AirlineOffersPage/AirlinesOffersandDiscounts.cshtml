@@ -1,0 +1,72 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    IHelper _helper = new Helper(); 
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField offersList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["SelectOffers"]);
+    Helper linkHelepr = new Helper();
+}
+
+@if (currentItem != null)
+{
+    <div class="subSection scrollableOffset offer-discount" id="other-services">
+        <h2>@Html.Sitecore().Field("Title", currentItem)</h2>
+        <div class="city-airport-slider">
+            <div class="customslider arrow_pos">
+                <div class="slick-slider">
+                    <div class="services-card scrollbar-x">
+                        @if (offersList != null && offersList.GetItems() != null && offersList.GetItems().Count() > 0)
+                        {
+                            foreach (Sitecore.Data.Items.Item offers in offersList.GetItems())
+                            {
+                                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)offers.Fields["Image"]);
+                                string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(offers, "Image") : "";
+                                if (string.IsNullOrEmpty(offers.Fields["ContainerLink"].Value))
+                                {
+                                    <div class="services-card__col">
+                                        <div class="zoomEffect ">
+                                            <div class="card">
+                                                <div class="overflow-hidden rounded">
+                                                    <img src="@imageUrl" loading="lazy"/>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="card_heading">@Html.Sitecore().Field("Title", offers)</div>
+                                                    <p class="vertical_ellipsis">
+                                                        @Html.Sitecore().Field("Description", offers)
+                                                    </p>
+                                                    <span class="black_link">@Html.Sitecore().Field("ReadMoreText", offers)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a class="services-card__col" href="@linkHelepr.GetLinkURL(offers, "ContainerLink")">
+                                        <div class="card">
+                                            <img src="@imageUrl" class="card-img-top" alt="..." loading="lazy">
+                                            <div class="card-body">
+                                                <div class="card_heading">@Html.Sitecore().Field("Title", offers)</div>
+                                                <p>@Html.Sitecore().Field("Description", offers)</p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                }
+                            }
+                        }
+
+                    </div>
+                    <i class="i-arrow-l slick-prev slick-arrow servicesPrev  slick-disabled"
+                       onclick="scrollToPrevItem(this)"></i>
+                    <i class="i-arrow-r slick-next slick-arrow  servicesNext" onclick="scrollToNextItem(this)"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

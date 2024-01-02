@@ -1,0 +1,94 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string seasonImageAltText = string.Empty;
+    string desktopImageAltText = string.Empty;
+    string mobileImageAltText = string.Empty;
+    Sitecore.Data.Fields.MultilistField seasonsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["SeasonsList"]);
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["DesktopImage"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    Sitecore.Data.Fields.ImageField mobileImgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["MobileImage"]);
+    string mobileImageUrl = mobileImgField != null && mobileImgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(mobileImgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem desktopimage = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        desktopImageAltText = desktopimage != null && desktopimage.Alt != null ? desktopimage.Alt : "";
+    }
+
+    if (mobileImgField != null && mobileImgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem mobileImage = new Sitecore.Data.Items.MediaItem(mobileImgField.MediaItem);
+        mobileImageAltText = mobileImage != null && mobileImage.Alt != null ? mobileImage.Alt : "";
+    }
+
+
+}
+
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["Link"]);
+    <div class="visit-section scrollableOffset" id="@currentItem.DisplayName">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 desc">
+                    <h3 class="cm-heading"> @Html.Sitecore().Field("Title", currentItem)</h3>
+                    <figure class="mob-img">
+                        <img src="@mobileImageUrl" alt="@mobileImageAltText" loading="lazy">
+                    </figure>
+                    @if (linkField != null && !String.IsNullOrEmpty(linkField.Url))
+                    {
+                        var redirectUrl = linkField.GetFriendlyUrl();
+                        <div class="text-container">
+                            <div class="text-wrapper ">
+                                <p>@Html.Sitecore().Field("Description", currentItem)</p>
+                            </div>
+                            <div class="black_link sectionReadMore" onclick="sectionReadMoreToggle(this)">@linkField.Text</div>
+                        </div>
+                    }
+
+                    else
+                    {
+                        <div class="text-container">
+                            <div class="text-wrapper ">
+                                @Html.Sitecore().Field("Description", currentItem)
+                                <div class="black_link sectionReadMore" onclick="sectionReadMoreToggle(this)">@linkField.Text</div>
+                            </div>
+                        </div>
+                    }
+                    @if (seasonsList != null && seasonsList.GetItems() != null && seasonsList.GetItems().Count() > 0)
+                    {
+                        <div class="wrap">
+                            @foreach (Sitecore.Data.Items.Item seasons in seasonsList.GetItems())
+                            {
+                                Sitecore.Data.Fields.ImageField seasonImgField = ((Sitecore.Data.Fields.ImageField)seasons.Fields["SeasonImage"]);
+                                string seasonImageUrl = seasonImgField != null && seasonImgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(seasonImgField.MediaItem) : "";
+                                if (imgField != null && imgField.MediaItem != null)
+                                {
+                                    Sitecore.Data.Items.MediaItem seasonImage = new Sitecore.Data.Items.MediaItem(seasonImgField.MediaItem);
+                                    seasonImageAltText = seasonImage != null && seasonImage.Alt != null ? seasonImage.Alt : "";
+                                }
+                                <div class="item">
+                                    <figure>
+                                        <img src="@seasonImageUrl" alt="@seasonImageAltText" loading="lazy">
+                                    </figure>
+                                    <h6> @Html.Sitecore().Field("SeasonName", seasons)</h6>
+                                    <h5> @Html.Sitecore().Field("SeasonalMonth", seasons)</h5>
+                                    <p> @Html.Sitecore().Field("SeasonalPrice", seasons)</p>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                </div>
+                <div class="col-md-6 image">
+                    <figure class="desk-img">
+                        <img src="@imageUrl" alt="@desktopImageAltText" loading="lazy">
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </div>
+}

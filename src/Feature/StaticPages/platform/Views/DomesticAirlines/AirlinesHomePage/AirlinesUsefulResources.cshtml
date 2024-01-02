@@ -1,0 +1,27 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+
+}
+@if (currentItem != null)
+{
+<div class="routes-info mt-top">
+    <h5 class="section-heading">@Html.Sitecore().Field("__Short Description", currentItem)</h5>
+    @foreach (Sitecore.Data.Items.Item resources in currentItem.Children)
+    {
+        Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)resources.Fields["Link"]);
+        var redirectUrl = linkField.GetFriendlyUrl();
+        if (!String.IsNullOrEmpty(linkField.Url))
+        {
+            <p class="text-decoration-underline"><a href="@redirectUrl">@linkField.Text</a></p>
+        }
+        else
+        {
+            <p class="text-decoration-underline"><a href="javascript:void(0)">@linkField.Text </a></p>
+        }
+    }
+</div>
+}

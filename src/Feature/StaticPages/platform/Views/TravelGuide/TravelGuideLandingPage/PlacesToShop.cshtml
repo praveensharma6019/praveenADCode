@@ -1,0 +1,64 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField otherServices = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["OtherServices"]);
+    string imageAltText = string.Empty;
+
+}
+
+@if (currentItem != null)
+{
+    <div class="shop-section scrollableOffset" id="@currentItem.DisplayName">
+        <div class="container">
+            <div class="heading-content">
+                <h3 class="cm-heading">@Html.Sitecore().Field("Title", currentItem)</h3>
+                <p>
+                    @Html.Sitecore().Field("RichText", currentItem)
+                </p>
+            </div>
+            <div class="arrow_pos">
+                <div class="card-slider slider-citytocity">
+                    @foreach (Sitecore.Data.Items.Item services in otherServices.GetItems())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["CardImage"]);
+                        string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+                            imageAltText = image != null && image.Alt != null ? image.Alt : "";
+                        }
+                        else
+                        {
+                            imageAltText = string.Empty;
+                        }
+                        Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["RedirectLink"]);
+                        if (linkField != null)
+                        {
+                            var redirectUrl = linkField.GetFriendlyUrl();
+                            <div class="card">
+                                <a href="@redirectUrl" class="zoomEffect">
+                                    <figure>
+                                        <img class="card-img-top" src="@imageUrl"
+                                             alt="@imageAltText"  loading="lazy" />
+                                    </figure>
+                                    <div class="card-body">
+                                        <h5 class="card-title">@Html.Sitecore().Field("CardTitle", services)</h5>
+                                        <p class="card-text">
+                                            @Html.Sitecore().Field("CardDescription", services)
+                                            <span class="black_link">
+                                                @linkField.Text
+                                            </span>
+                                        </p>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

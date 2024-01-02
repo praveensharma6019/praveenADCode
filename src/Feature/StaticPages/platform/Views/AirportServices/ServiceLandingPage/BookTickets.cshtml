@@ -1,0 +1,38 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+}
+@if (currentItem != null)
+{
+    <section class="services-wrapper">
+        <header class="section-title mb-5">
+            <h3>@Html.Sitecore().Field("__Short description", currentItem)</h3>
+        </header>
+        <ul class="services-list">
+            @foreach (Item airport in currentItem.Children)
+            {
+            <li class="@((@Html.Sitecore().Field("Description", airport).ToString() == "deactivate")?"deactivate":"zoomEffect")">
+                @Html.Sitecore().BeginField("ServiceUrl", airport, new { haschildren = true })
+
+                @if (@Html.Sitecore().Field("Description", airport).ToString() == "deactivate")
+                {
+                    <span class="tag-coming-soon">COMING SOON</span>
+                    <figure>
+                        @Html.Sitecore().Field("ServiceImage", airport, new { @alt = "Services", @class = "img-fluid" })
+                    </figure>
+                }
+                else
+                {
+                    <figure>@Html.Sitecore().Field("ServiceImage", airport, new { @alt = "Services", @class = "img-fluid" })</figure>
+                }
+                <label>@Html.Sitecore().Field("ServiceTitle", airport)</label>
+                @Html.Sitecore().EndField()
+            </li>
+            }
+
+        </ul>
+    </section>
+}

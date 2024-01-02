@@ -1,0 +1,52 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField multiselectField = currentItem.Fields["ListItems"];
+    Sitecore.Data.Items.Item[] dListItems = multiselectField.GetItems();
+    string divID = string.Empty;
+    string cssClass = string.Empty;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    Helper _helper = new Helper();
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        divID = parms["id"];
+        cssClass = parms["class"];
+    }
+}
+@if (currentItem != null)
+{
+    <div class="subSection scrollableOffset enquiries-info @cssClass" id="@divID">
+        @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListTitle", currentItem))))
+        {
+            <h2>@Html.Sitecore().Field("ListTitle", currentItem)</h2>
+        }
+        @if (!string.IsNullOrEmpty(Convert.ToString(@Html.Sitecore().Field("ListSubTitle", currentItem))))
+        {
+            <p>@Html.Sitecore().Field("ListSubTitle", currentItem)</p>
+        }
+        <div class="row">
+            @foreach (var dItem in dListItems)
+            {
+                <div class="col-lg-3">
+                    <div class="service-info">
+                        <div class="sr-img">
+                            <img loading="lazy" src="@_helper.GetImageURL(dItem,"ItemImage")" />
+                        </div>
+                        <h4>@Html.Sitecore().Field("StepText", dItem)</h4>
+                        <div class="text-container">
+                            <div class="text-wrapper">
+                                @Html.Sitecore().Field("ItemDescription", dItem)
+                            </div>
+                            <div class="black_link sectionReadMore" onclick="sectionReadMoreToggle(this)">@Html.Sitecore().Field("NoteText", currentItem)</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

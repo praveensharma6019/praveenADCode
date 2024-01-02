@@ -1,0 +1,52 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    string imageAltText = string.Empty;
+    IHelper _helper = new Helper();
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["Image"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(currentItem, "Image") : "";
+   if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        imageAltText = image != null && image.Alt != null ? image.Alt : "";
+    }
+}
+
+
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)currentItem.Fields["Link"]);
+    if (linkField != null)
+    {
+        var redirectUrl = linkField.GetFriendlyUrl();
+        <div class="state-wise-guidelies scrollableOffset section-wrap" id="@currentItem.DisplayName">
+            <div class="internal-service pt-top">
+                <div class="card-box ">
+                    <a href="@redirectUrl" class="card zoomEffect" target="_blank">
+                        <div class="row g-0 grid-Box align-items-center">
+                            <div class="col-md-5 order1">
+                                <figure>
+                                    <img src="@imageUrl" class="img-fluid" alt="@imageAltText" loading="lazy" />
+                                </figure>
+                            </div>
+                            <div class="col-md-7 order2">
+                                <div class="card-body">
+                                    <h5 class="card-title">@Html.Sitecore().Field("Title", currentItem)</h5>
+                                    <p class="card-text">
+                                        @Html.Sitecore().Field("Description", currentItem)
+                                    </p>
+                                    <span class="black_link">@linkField.Text</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+}

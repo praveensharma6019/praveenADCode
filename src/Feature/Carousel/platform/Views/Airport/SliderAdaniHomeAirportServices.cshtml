@@ -1,0 +1,136 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform.Models
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+    string serviceClass = string.Empty;
+}
+
+@if (currentItem != null)
+{
+    <section class="card-Box feature-service pt-wrap desk-service-slider">
+        <div class="container">
+            <h3 class="d-none d-md-block">@Html.Sitecore().Field("__Short description", currentItem)</h3>
+            <div class="arrow_pos">
+                <div class="mumbai-airports airport-features ad-service-slider ShimmerWrap all-service">
+                    @foreach (Item slider in currentItem.Children)
+                    {
+                        <div class="slider-box">
+                            <ul class="services-list">
+
+                                @if (@Html.Sitecore().Field("Title", slider).ToString() == "View All")
+                                {
+                                    <li>
+                                        @Html.Sitecore().BeginField("Link", slider, new { haschildren = true, @auto_id = @Html.Sitecore().Field("AutoId", slider) })
+                                        <figure class="zoomEffect">
+                                            <div class="viewAllServices">
+                                                @Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })
+                                            </div>
+                                            <i class="i-services"></i>
+                                        </figure>
+                                        <label>@Html.Sitecore().Field("Title", slider)</label>
+                                        @Html.Sitecore().EndField()
+                                    </li>
+
+                                }
+                                else
+                                {
+                                    if (@Html.Sitecore().Field("Description", slider).ToString() == "deactivate")
+                                    {
+                                        serviceClass = "deactivate";
+                                    }
+                                    else if (@Html.Sitecore().Field("Description", slider).ToString() == "nonCursueTag")
+                                    {
+                                        serviceClass = "nonCursueTag zoomEffect";
+                                    }
+                                    else
+                                    {
+                                        serviceClass = "zoomEffect";
+                                    }
+
+                                    <li class="@serviceClass">
+                                        @if (@Html.Sitecore().Field("Description", slider).ToString() == "deactivate")
+                                        {
+
+                                            <div auto_id=@Html.Sitecore().Field("AutoId", slider)>
+                                                @if (@Html.Sitecore().Field("Description", slider).ToString() == "deactivate")
+                                                {
+                                                    <span class="tag-coming-soon">COMING SOON</span>
+                                                    <figure class="round Shimmeritem">
+                                                        @Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })
+                                                    </figure>
+                                                }
+                                                else
+                                                {
+                                                    <figure class="round Shimmeritem">@Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })</figure>
+                                                }
+                                                <label>@Html.Sitecore().Field("Title", slider)</label>
+                                            </div>
+
+                                        }
+                                        else
+                                        {
+
+                                            if (@linkHelepr.LinkUrl(slider.Fields["Link"]).Contains("{NextDayDate}"))
+                                            {
+                                                <a href="@linkHelepr.LinkUrl(slider.Fields[" Link"]).Replace("{NextDayDate}",@DateTime.Now.AddDays(1).ToString("dd/MM/yyyy").Replace("/",""))"
+                                                   class="gtmEventClick" data-event="lob_selection" data-subcategory="@Html.Sitecore().Field("Title", slider)">
+                                                    <span class="tag-coming-soon">domestic</span>
+                                                    <figure class="round Shimmeritem">@Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })</figure>
+                                                    <label>@Html.Sitecore().Field("Title", slider)</label>
+                                                </a>
+                                            }
+                                            else if (@linkHelepr.LinkUrl(slider.Fields["Link"]).Contains("{CurrentDate}"))
+                                            {
+                                                <a href="@linkHelepr.LinkUrl(slider.Fields["Link"]).Replace("{CurrentDate}",@DateTime.Now.ToString("dd/MM/yyyy").Replace("/",""))"
+                                                   class="gtmEventClick" data-event="lob_selection" data-subcategory="@Html.Sitecore().Field("Title", slider)">
+                                                    <figure class="round Shimmeritem">@Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })</figure>
+                                                    <label>@Html.Sitecore().Field("Title", slider)</label>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                @Html.Sitecore().BeginField("Link", slider, new { haschildren = true, @class = "gtmEventClick", @auto_id = @Html.Sitecore().Field("AutoId", slider), @data_event = "lob_selection", @data_subcategory = @Html.Sitecore().Field("Title", slider) })
+
+                                                if (@Html.Sitecore().Field("Description", slider).ToString() == "deactivate")
+                                                {
+                                                    <span class="tag-coming-soon">COMING SOON</span>
+                                                    <figure class="round Shimmeritem">
+                                                        @Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })
+                                                    </figure>
+                                                }
+                                                else if (@Html.Sitecore().Field("Description", slider).ToString() == "nonCursueTag")
+                                                {
+                                                    <span class="tag-coming-soon">domestic</span>
+                                                    <figure class="round Shimmeritem">
+                                                        @Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })
+                                                    </figure>
+                                                }
+                                                else
+                                                {
+                                                    <figure class="round Shimmeritem">@Html.Sitecore().Field("Image", slider, new { @alt = "Services", @class = "img-fluid" })</figure>
+                                                }
+                                                <label>@Html.Sitecore().Field("Title", slider)</label>
+                                                @Html.Sitecore().EndField()
+                                            }
+                                        }
+                                    </li>
+                                }
+
+                            </ul>
+                        </div>
+
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+
+

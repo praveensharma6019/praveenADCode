@@ -1,0 +1,40 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+}
+
+@if (currentItem != null)
+{
+    Sitecore.Data.Fields.MultilistField mediaContactsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["SelectItems"]);
+    <section class="serviceOption mediaContact scrollableOffset" id="media-contacts">
+        <h3>@Html.Sitecore().Field("Title", currentItem)</h3>
+        <div class="row">
+            @if (mediaContactsList!=null && mediaContactsList.GetItems() != null && mediaContactsList.GetItems().Count() > 0)
+            {
+                foreach (Sitecore.Data.Items.Item mediacontacts in mediaContactsList.GetItems())
+                {
+                    Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)mediacontacts.Fields["Link"]);
+                    <div class="col-md-4">
+                        <div class="card flex-row align-items-center">
+                            <div class="icon d-flex align-items-center justify-content-center">
+                                <i class="@Html.Sitecore().Field("cssClass", mediacontacts)"></i>
+                            </div>
+                            <div class="card-body">
+                                <h4 class="card-title h5 h4-sm">@Html.Sitecore().Field("Title", mediacontacts)</h4>
+                                <p class="card-text">
+                                    @if (linkField != null)
+                                    {
+                                        <a href="@linkField.Url">@linkField.Text </a>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            </div>
+    </section>
+}

@@ -1,0 +1,824 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Sitecore.Collections
+@using Adani.SuperApp.Airport.Feature.Navigation.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Sitecore.Globalization
+
+
+
+@model RenderingModel
+@{
+
+    string floatingHeaderClass = string.Empty;
+    if (Sitecore.Context.PageMode.IsExperienceEditor)
+    {
+        return;
+    }
+    Helper linkHelepr = new Helper();
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Collections.ChildList childList = null;
+    if (currentItem != null)
+    {
+        childList = currentItem.Children;
+    }
+    else
+    {
+        childList = null;
+    }
+    var divClass = string.Empty;
+    var navEnd = string.Empty;
+    var businessDropdown = string.Empty;
+    string enableNotificationClass = string.Empty;
+    string airportHeaderLogo = string.Empty;
+    string airportHeaderServicePageLogo = string.Empty;
+    string homeIdentifier = string.Empty;
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    string disableDropList = string.Empty;
+
+
+    if (rc != null)
+    {
+        var parms = rc.Rendering.Parameters;
+        enableNotificationClass = parms["EnableTopNav"];
+        floatingHeaderClass = parms["FloatingHeaderClass"];
+        airportHeaderLogo = parms["HeaderLogoDisable"];
+        airportHeaderServicePageLogo = parms["HeaderServicePageLogo"];
+
+
+        if (parms["Enable_Airport_Dropdown"] != null && !String.IsNullOrEmpty(parms["Enable_Airport_Dropdown"]))
+        {
+            disableDropList = parms["Enable_Airport_Dropdown"];
+        }
+        else
+        {
+            disableDropList = "false";
+        }
+    }
+    var i = 0;
+    var j = 0;
+    var k = 0;
+    var x = 0;
+    var z = 0;
+    var l = 0;
+    Sitecore.Collections.ChildList logoLink = null;
+
+    var assetDomainURL = string.Empty;
+    if (!string.IsNullOrEmpty(Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl")))
+    {
+        assetDomainURL = Sitecore.Configuration.Settings.GetSetting("mediaDomainUrl").ToString();
+
+    }
+}
+<div id="header">
+    <div class="page-backdrop"></div>
+    <div class="toast-container toastTopRight">
+        <div class="fade toast bg-secondary">
+            <div class="toast-body">
+                <div class="toastContent">
+                    <i class="i-tick"></i>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <header class="main-header @floatingHeaderClass">
+        <div class="container-fluid">
+            @if (enableNotificationClass == "True")
+            {
+                <div class="top_nav">
+                    @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["TopNavigation"] != null)
+                    {
+                        foreach (Item topNav in childList["TopNavigation"].Children)
+                        {
+                            Sitecore.Data.Fields.CheckboxField isEnable = topNav.Fields["IsActive"];
+
+                            if (isEnable != null && isEnable.Checked)
+                            {
+                                if (@Html.Sitecore().Field("LinkTitle", topNav).ToString() == "Businesses")
+                                {
+                                    businessDropdown = "businessDropdown";
+                                }
+                                else
+                                {
+                                    businessDropdown = "";
+                                }
+                                <div class="dropdown nav_item @businessDropdown">
+
+                                    @if (@Html.Sitecore().Field("LinkTitle", topNav).ToString().ToLower() == "app" || @Html.Sitecore().Field("LinkTitle", topNav).ToString().ToLower() == "help")
+                                    {
+                                        @Html.Sitecore().BeginField("LinkUrl", topNav, new { haschildren = true, @class = "basic_dropdown dropdown-toggle gtmTopNavInteraction", @id = "dropdownMenuButton", @target = "_blank", @auto_id = @Html.Sitecore().Field("AutoId", topNav), @data_event = "top_navigation_interaction", @data_subcategory = "top_navigation", @data_type = "top_navigation_interaction" })
+                                        <i class="@Html.Sitecore().Field("LeftIconClass", topNav)"></i> @Html.Sitecore().Field("LinkTitle", topNav)
+                                        @Html.Sitecore().EndField()
+                                    }
+                                    else
+                                    {
+                                        <a class="basic_dropdown dropdown-toggle gtmTopNavInteraction" id="dropdownMenuButton" data-bs-toggle="dropdown" auto_id=@Html.Sitecore().Field("AutoId", topNav) data-event="top_navigation_interaction" data-subcategory="top_navigation" data-type="top_navigation_interaction">
+                                            <i class="@Html.Sitecore().Field("LeftIconClass", topNav)"></i> @Html.Sitecore().Field("LinkTitle", topNav)
+                                        </a>
+                                        <div class="dropdown-menu columns-2" aria-labelledby="dropdownMenuButton" auto_id="data_ddl_business_vertical">
+                                            @foreach (Item topNavChild in topNav.Children)
+                                            {
+                                                Sitecore.Data.Fields.CheckboxField topNavChildEnable = topNavChild.Fields["IsActive"];
+                                                if (topNavChildEnable != null && topNavChildEnable.Checked)
+                                                {
+                                                    if (x == 2)
+                                                    {
+                                                        @Html.Sitecore().BeginField("LinkUrl", topNavChild, new { haschildren = true, @auto_id = @Html.Sitecore().Field("AutoId", topNavChild), @data_event = "top_navigation_menu", @data_subcategory = "top_navigation", @data_type = "top_navigation_menu", @onclick = "gtmTopNavInteractionEvent(this)" })
+                                                        <i class="@Html.Sitecore().Field("LeftIconClass", topNavChild)"></i>
+                                                        @Html.Sitecore().Field("LinkTitle", topNavChild)
+                                                        <i class="i-tick"></i>
+                                                        @Html.Sitecore().EndField()
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.Sitecore().Field("LinkUrl", topNavChild, new { @class = "dropdown-item gtmTopNavInteraction", @auto_id = @Html.Sitecore().Field("AutoId", topNavChild), @data_event = "top_navigation_menu", @data_subcategory = "top_navigation", @data_type = "top_navigation_menu" })
+                                                    }
+                                                }
+
+                                            }
+                                        </div>
+                                    }
+
+                                </div>
+                            }
+                            x++;
+                        }
+                    }
+                </div>
+            }
+            <nav class="navbar navbar-light main-nav">
+                <div class="brand">
+                    <!-- hamburger start -->
+                    <a href="#offcanvasExample" class="icon-button menu d-none d-lg-flex gtmHambergerOpen" data-bs-toggle="offcanvas" role="button"
+                       aria-controls="offcanvasExample" data-event="hamburger_open" data-subcategory="hamburger" auto_id="data_hamburger">
+                        <i class="i-hamburger"></i>
+                    </a>
+                    <!-- hamburger end -->
+                    <!-- Logo start-->
+
+                    @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["HeaderLogos"] != null)
+                    {
+                        var logoClasshome = string.Empty;
+                        logoLink = childList["HeaderLogos"].Children;
+                        if (childList["HeaderLogos"].Fields["LogoClass"] != null)
+                        {
+                            logoClasshome = childList["HeaderLogos"].Fields["LogoClass"].Value;
+                        }
+                        if (airportHeaderLogo == "True")
+                        {
+                            <div class="brandBox ">
+                                <a href="/">
+                                    <div class="AirportHomeLogo">
+                                        <div class="brandLogo">
+                                            @foreach (Item airportHomeLogos in childList["HeaderLogos"].Children)
+                                            {
+                                                if (j == 1)
+                                                {
+                                                    @Html.Sitecore().Field("Image", airportHomeLogos, new { @class = "airport-icon-white " + logoClasshome, @alt = "Adani" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.Sitecore().Field("Image", airportHomeLogos, new { @class = logoClasshome, @alt = "Adani" })
+                                                }
+
+                                                j++;
+                                            }
+                                        </div>
+                                    </div>
+                                </a>
+                                @if (airportHeaderServicePageLogo != "True")
+                                {
+                                    <div class="selectLocation">
+
+                                        @*dropdown starts*@
+
+
+                                        <div class="dropdown citydropdown">
+                                            <a class="basic_dropdown d-none d-lg-flex"
+                                               data-bs-toggle="dropdown">
+                                                <span class="icon-button location-arrow ms-0 mrginRemove">
+                                                    <i class="i-arrow-d"></i>
+                                                </span>
+                                            </a>
+                                            <a class="basic_dropdown d-flex d-lg-none"
+                                               data-bs-toggle="offcanvas"
+                                               data-bs-target="#airportListOffcanvas"
+                                               aria-controls="airportListOffcanvas"
+                                               onclick="getAirportListCanvas()">
+                                                <!-- onclick="getAirportList()" airportListOffcanvas -->
+                                                <span class="icon-button location-arrow mrginRemove">
+                                                    <i class="i-arrow-d"></i>
+                                                </span>
+                                            </a>
+                                            <div class="dropdown-menu locationLayer"
+                                                 aria-labelledby="brands">
+                                                <div class="scroll-visible">
+                                                    @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["LogoDropdown"] != null)
+                                                    {
+                                                        foreach (Item logoDropdown in childList["LogoDropdown"].Children)
+                                                        {
+                                                            @Html.Sitecore().BeginField("LinkUrl", logoDropdown, new { haschildren = true, @data_event = "airport_selection", @data_subcategory = "airport_selection", @data_businessunit = @Html.Sitecore().Field("LeftIconClass", logoDropdown), @onclick = "gtmAirportDropdownSelectEvent(this)" })
+                                                            <div class="airportLogo">
+
+                                                                <h5>@Html.Sitecore().Field("LeftIconClass", logoDropdown)</h5>
+
+                                                                <small>@Html.Sitecore().Field("RightIconClass", logoDropdown)</small>
+
+                                                            </div>
+                                                            @Html.Sitecore().EndField()
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @*dropdown starts*@
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="brandBox">
+                                <div class="MumbaiHomeLogo">
+                                    @if (!string.IsNullOrEmpty(linkHelepr.LinkUrl(logoLink["ColorLogo"].Fields["Link"])))
+                                    {
+                                        @Html.Sitecore().BeginField("Link", logoLink["ColorLogo"], new { haschildren = true, @class = "brandLogo" })
+                                        foreach (Item headerlogos in childList["HeaderLogos"].Children)
+                                        {
+                                            var logoClass = string.Empty;
+                                            if (headerlogos.Fields["LogoClass"] != null)
+                                            {
+                                                logoClass = headerlogos.Fields["LogoClass"].Value;
+                                            }
+                                            if (l == 1)
+                                            {
+                                                @Html.Sitecore().Field("Image", headerlogos, new { @class = "airport-icon-white " + logoClass, @alt = "Adani" })
+                                            }
+                                            else
+                                            {
+                                                @Html.Sitecore().Field("Image", headerlogos, new { @class = logoClass, @alt = "Adani" })
+                                            }
+
+                                            l++;
+                                        }
+                                        @Html.Sitecore().EndField()
+                                    }
+
+                                    <div class="selectLocation">
+                                        <input type="hidden" id="airportCode" value="@Html.Sitecore().Field("AirportCode", logoLink["ColorLogo"])" />
+                                        <input type="hidden" id="airportUrl" value="@linkHelepr.LinkUrl(logoLink.FirstOrDefault().Fields["Link"]).Replace(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString(), "")" />
+                                        <input type="hidden" id="cart_link" value="@linkHelepr.LinkUrl(logoLink.FirstOrDefault().Fields["Link"]).Replace(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString(), "")@Translate.Text("cart_link")" />
+                                        <input type="hidden" id="api_url" value="@Translate.Text("api_url")" />
+
+
+                                        @Html.Sitecore().BeginField("Link", logoLink["ColorLogo"], new { haschildren = true })
+                                        <i class="i-@Html.Sitecore().Field("__Short description", logoLink["ColorLogo"])-airport airportLogo"></i>
+                                        <input type="hidden" id="airportService_itemPath" value="@Html.Sitecore().Field("ServicesJsonPath", logoLink["ColorLogo"])" />
+
+                                        @Html.Sitecore().EndField()
+
+                                        @*dropdown starts*@
+                                        @if (disableDropList.ToLower() == "true")
+                                        {
+                                            <div class="dropdown citydropdown">
+                                                <a class="basic_dropdown d-none d-lg-flex"
+                                                   data-bs-toggle="dropdown">
+                                                    <span class="icon-button location-arrow">
+                                                        <i class="i-arrow-d"></i>
+                                                    </span>
+                                                </a>
+                                                <a class="basic_dropdown d-flex d-lg-none"
+                                                   data-bs-toggle="offcanvas"
+                                                   data-bs-target="#airportListOffcanvas"
+                                                   aria-controls="airportListOffcanvas"
+                                                   onclick="getAirportListCanvas()">
+                                                    <span class="icon-button location-arrow">
+                                                        <i class="i-arrow-d"></i>
+                                                    </span>
+                                                </a>
+                                                <div class="dropdown-menu locationLayer"
+                                                     aria-labelledby="brands">
+                                                    <div class="scroll-visible">
+                                                        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["LogoDropdown"] != null)
+                                                        {
+                                                            foreach (Item logoDropdown in childList["LogoDropdown"].Children)
+                                                            {
+                                                                @Html.Sitecore().BeginField("LinkUrl", logoDropdown, new { haschildren = true, @data_event = "airport_selection", @data_subcategory = "airport_selection", @data_businessunit = @Html.Sitecore().Field("LeftIconClass", logoDropdown), @onclick = " gtmAirportDropdownSelectEvent(this)" })
+                                                                <div class="airportLogo">
+
+                                                                    <h5>@Html.Sitecore().Field("LeftIconClass", logoDropdown)</h5>
+
+                                                                    <small>@Html.Sitecore().Field("RightIconClass", logoDropdown)</small>
+
+                                                                </div>
+
+                                                                <i class="i-tick"></i>
+                                                                @Html.Sitecore().EndField()
+                                                            }
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="header-nav">
+                    <div class="navbar-nav">
+                        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["PrimaryHeaderMenu"] != null)
+                        {
+                            foreach (Item primaryNav in childList["PrimaryHeaderMenu"].Children)
+                            {
+                                Sitecore.Data.Fields.CheckboxField isPrimaryNavEnable = primaryNav.Fields["IsActive"];
+                                if (isPrimaryNavEnable != null && isPrimaryNavEnable.Checked)
+                                {
+                                    <div class="nav_item dropdown">
+                                        @if (@Html.Sitecore().Field("LinkTitle", primaryNav).ToString().ToLower() == Constant.AdaniRewards)
+                                        {
+                                            @Html.Sitecore().BeginField("LinkUrl", primaryNav, new { haschildren = true, @class = "basic_dropdown dropdown-toggle gtmTopNavInteraction", @auto_id = @Html.Sitecore().Field("AutoId", primaryNav), @data_event = "top_navigation_interaction", @data_subcategory = "top_navigation", @data_type = "top_navigation_interaction" })
+                                            @Html.Sitecore().Field("LinkTitle", primaryNav)
+                                            @Html.Sitecore().EndField()
+                                        }
+                                        else if (primaryNav.Children.Count == 0)
+                                        {
+                                            @Html.Sitecore().Field("LinkUrl", primaryNav, new { @class = "basic_dropdown dropdown-toggle gtmTopNavInteraction", @auto_id = @Html.Sitecore().Field("AutoId", primaryNav), @data_event = "top_navigation_interaction", @data_subcategory = "top_navigation", @data_type = "top_navigation_interaction" })
+                                        }
+                                        else
+                                        {
+                                            @Html.Sitecore().BeginField("LinkUrl", primaryNav, new { haschildren = true, @class = "basic_dropdown dropdown-toggle gtmTopNavInteraction", @auto_id = @Html.Sitecore().Field("AutoId", primaryNav), @data_event = "top_navigation_interaction", @data_subcategory = "top_navigation", @data_type = "top_navigation_interaction" })
+                                            @Html.Sitecore().Field("LinkTitle", primaryNav)
+                                            @Html.Sitecore().EndField()
+
+                                            if (@Html.Sitecore().Field("LinkTitle", primaryNav).ToString() == "Services")
+                                            {
+                                                navEnd = "dropdown-menu-end";
+                                            }
+                                            else
+                                            {
+                                                navEnd = string.Empty;
+                                            }
+                                            <div class="dropdown-menu columns-2 @navEnd">
+                                                <div class="scroll-visible scroll-control">
+                                                    @foreach (Item childPrimary in primaryNav.Children)
+                                                    {
+                                                        Sitecore.Data.Fields.CheckboxField childPrimaryEnable = childPrimary.Fields["IsActive"];
+                                                        if (childPrimaryEnable != null && childPrimaryEnable.Checked)
+                                                        {
+                                                            if (@linkHelepr.LinkUrl(childPrimary.Fields["LinkUrl"]).Contains("{CurrentDate}"))
+                                                            {
+                                                                <a class="dropdown-item gtmTopNavInteraction" auto-id="@Html.Sitecore().Field("AutoId", childPrimary)" href="@linkHelepr.LinkUrl(childPrimary.Fields["LinkUrl"]).Replace("{CurrentDate}",@DateTime.Now.ToString("dd/MM/yyyy").Replace("/",""))" data-event="top_navigation_menu" data-subcategory="top_navigation" data-type="top_navigation_menu">@Html.Sitecore().Field("LinkTitle", childPrimary)</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                @Html.Sitecore().Field("LinkUrl", childPrimary, new { @class = "dropdown-item gtmTopNavInteraction", @auto_id = @Html.Sitecore().Field("AutoId", childPrimary), @data_event = "top_navigation_menu", @data_subcategory = "top_navigation", @data_type = "top_navigation_menu" })
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+
+                                            </div>
+                                        }
+
+                                    </div>
+                                }
+                                z++;
+                            }
+                        }
+                        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["SearchSuggester"] != null)
+                        {
+                            Sitecore.Collections.ChildList searchDisable = childList["SearchSuggester"].Children;
+                            Sitecore.Data.Fields.CheckboxField isSearchEnable = searchDisable["PopularSearches"].Fields["IsActive"];
+                            if (isSearchEnable != null && isSearchEnable.Checked)
+                            {
+                                <div class="nav_item dropdown">
+                                    <a class="basic_dropdown dropdown-toggle icon-button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                                        <i class="i-search"></i>
+                                    </a>
+
+                                    <div class="dropdown-menu search-layer dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                        <div class="search-box">
+                                            <i class="i-search"></i>
+
+                                            <input type="text" class="search-box__field" />
+
+                                            <div class="icon-button">
+                                                <i class="i-cross"></i>
+                                            </div>
+                                        </div>
+                                        @{Sitecore.Collections.ChildList search = childList["SearchSuggester"].Children;}
+                                        <div class="search-suggester">
+                                            <h5 className="d-flex align-items-center">
+                                                <i class="i-search"></i>
+                                                @Html.Sitecore().Field("LinkTitle", search["RecentSearches"])
+
+                                                <div class="icon-button">
+                                                    <i class="i-cross"></i>
+                                                </div>
+                                            </h5>
+                                            <div class="recentSearches">
+                                                @foreach (Item recentsearch in search["RecentSearches"].Children)
+                                                {
+                                                    <button type="button" class="btn btn-light">
+                                                        @Html.Sitecore().Field("LinkTitle", recentsearch)
+                                                    </button>
+                                                }
+                                            </div>
+
+                                            <h5 className="d-flex align-items-center">
+                                                <i class="i-search"></i>
+                                                @Html.Sitecore().Field("LinkTitle", search["PopularSearches"])
+                                            </h5>
+                                            <ul>
+                                                @foreach (Item searchSuggester in search["PopularSearches"].Children)
+                                                {
+                                                    <li>
+                                                        @Html.Sitecore().BeginField("LinkUrl", searchSuggester, new { haschildren = true })
+                                                        <i class="@Html.Sitecore().Field("LeftIconClass", searchSuggester)"></i>
+                                                        @Html.Sitecore().Field("LinkTitle", searchSuggester)
+                                                        @Html.Sitecore().EndField()
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["TopNavRightIcons"] != null)
+                        {
+                            foreach (Item topNav in childList["TopNavRightIcons"].Children)
+                            {
+                                if (topNav.Name.ToLower() == "search")
+                                {
+                                    Sitecore.Data.Fields.CheckboxField isEnable = topNav.Fields["IsActive"];
+
+                                    if (isEnable != null && isEnable.Checked)
+                                    {
+                                        <div class="nav_item dropdown" onmousemove="searchLayerFlag = true;" onmouseleave="searchLayerFlag = false;">
+                                            <a class="basic_dropdown dropdown-toggle icon-button" onclick="dropDownSearchLayer(true);" auto_id="data_menu_search_icon">
+                                                <i class="i-search"></i>
+                                            </a>
+                                            <div class="dropdown-menu search-layer dropdown-menu-end d-none">
+                                                <div class="search-box">
+                                                    <i class="i-search"></i>
+                                                    <input type="text" class="search-box__field" placeholder="Search Airport Services" onkeyup="airportServiceListFilter(this);" />
+                                                    <div class="clearIcon icon-button d-none" onclick="airportServiceListCross(this)">
+                                                        <i class="i-cross"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="search-suggester">
+
+                                                    <div class="searchListCntr scrollbar-y">
+                                                        <div class="allSearchListCntr d-none">
+                                                            <ul class="allSearchList">
+                                                            </ul>
+                                                        </div>
+                                                        <div class="popularSearchesCntr">
+                                                            <h5 className="d-flex align-items-center">
+                                                                <i class="i-popularity"></i>
+                                                                Popular Searches
+                                                            </h5>
+                                                            <ul class="popularSearches">
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+                        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["TopNavRightIcons"] != null)
+                        {
+                            foreach (Item topNav in childList["TopNavRightIcons"].Children)
+                            {
+                                if (topNav.Name.ToLower() == "cart")
+                                {
+                                    Sitecore.Data.Fields.CheckboxField isEnable = topNav.Fields["IsActive"];
+
+                                    if (isEnable != null && isEnable.Checked)
+                                    {
+                                        if (airportHeaderLogo == "True")
+                                        {
+                                            homeIdentifier = "data-page=\"home\"";
+                                        }
+                                        <div class="nav_item cart_dropdown">
+                                            <a data-badgeurl="@linkHelepr.LinkUrl(topNav.Fields["LinkUrl"]).Replace(Sitecore.Configuration.Settings.GetSetting("domainUrl").ToString(), "")" href="javascript:void(0)" class="icon-button" auto_id="data_menu_cart" @homeIdentifier>
+                                                <span class="badge rounded-pill bg-danger d-none"><label></label></span>
+                                                <i class="i-cart"></i>
+                                            </a>
+                                            <div class='dropdown-menu dropdown-menu-end d-none' id="cartListDP">
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+
+                        <div class="nav_item dropdown">
+                            <a class="basic_dropdown dropdown-toggle icon-button" id="dropdownMenuButton" data-bs-toggle="dropdown" auto_id="data_menu_user_icon">
+                                <i class="i-user userMenuIcon"></i>
+                            </a>
+                            <div class="user-account columns-2 dropdown-menu dropdown-menu-end d-none" aria-labelledby="dropdownMenuButton">
+                                @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["UserAccount"] != null)
+                                {
+                                    Sitecore.Collections.ChildList account = childList["UserAccount"].Children;
+                                    <div class="loginProfileView d-none">
+                                        <div class="user-profile">
+                                            <div class="profileImage rounded-circle userMenuIcon">
+                                            </div>
+                                            <div class="profileDetail">
+                                                <div class="userName">Nitin Sethi</div>
+                                                <a href="/my-account/profile" class="viewProfile">View Profile</a>
+                                            </div>
+                                        </div>
+                                        @Html.Sitecore().Field("LinkUrl", account["Item1"])
+                                        @Html.Sitecore().Field("LinkUrl", account["MyAccount"])
+                                        @Html.Sitecore().BeginField("LinkUrl", account["Item2"], new { haschildren = true })
+                                        @Html.Sitecore().Field("LinkTitle", account["Item2"])
+                                        <span class="loyaltyCoins">
+                                            <span class="loader"><span class="loaderDot" style="background: rgb(0, 0, 0);"></span><span class="loaderDot" style="background: rgb(0, 0, 0);"></span><span class="loaderDot" style="background: rgb(0, 0, 0);"></span></span>
+                                            <span class="loyaltyDetail d-none">
+                                                <i class="coinIcon">
+                                                    <img src="@assetDomainURL/assets/airport/images/header/Coin.svg" alt="" loading="lazy"/>
+                                                </i> <small class="ammount" id="reward_balance"></small>
+                                            </span>
+                                        </span>
+                                        @Html.Sitecore().EndField()
+                                        @Html.Sitecore().Field("LinkUrl", account["Item3"])
+                                    </div>
+                                    <div class="guestUserProfile ">
+                                        @Html.Sitecore().Field("LinkUrl", account["Login"])
+                                        @Html.Sitecore().Field("LinkUrl", account["Register"])
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div class="menuOffcanvas offcanvas offcanvas-start header-Offcanvas" tabindex="-1" id="offcanvasExample"
+         aria-labelledby="offcanvasExampleLabel">
+        <div class="offcanvas-body">
+            <div class="hamburger" auto_id="data_Hamburger_list">
+                <div class="sidenav">
+                    <div class="hamburger_section hamburger_header single_item">
+                        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["MyAccounts"] != null)
+                        {
+                            foreach (Item myAccounts in childList["MyAccounts"].Children)
+                            {
+
+                                @Html.Sitecore().BeginField("LinkUrl", myAccounts, new { haschildren = true, @class = "menu_item hamburgerLoginDetail gtmHambergerLinkSelect", @auto_id = @Html.Sitecore().Field("AutoId", myAccounts), @data_event = "hamburger_select", @data_subcategory = "hamburger", @data_type = @myAccounts.Name })
+                                <span class="user-box"><i class="i-user userMenuIcon"></i></span>
+
+                                <label>@Html.Sitecore().Field("LinkTitle", myAccounts)<strong>@Html.Sitecore().Field("LeftIconClass", myAccounts)</strong></label>
+
+                                <i class="i-arrow-r icon"></i>
+                                @Html.Sitecore().EndField()
+                            }
+                        }
+                    </div>
+                </div>
+                @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["HamburgerMenu"] != null)
+                {
+                    foreach (Item menu in childList["HamburgerMenu"].Children)
+                    {
+                        Sitecore.Data.Fields.CheckboxField menuEnable = menu.Fields["IsActive"];
+                        if (menuEnable != null && menuEnable.Checked)
+                        {
+                            if (i == 1)
+                            {
+                                divClass = "single_item";
+                            }
+                            else
+                            {
+                                divClass = string.Empty;
+                            }
+                            <div class="hamburger_section @divClass">
+                                @if (i != 1)
+                                {
+                                    <h5>@Html.Sitecore().Field("LinkTitle", menu)</h5>
+                                }
+                                <ul>
+                                    @if (i == 1)
+                                    {
+
+                                        <li>
+                                            <a href="#adaniBusinesses" class="menu_item" data-bs-toggle="collapse" href="#adaniBusinesses"
+                                               role="button" aria-expanded="false" aria-controls="adaniBusinesses" auto_id=@Html.Sitecore().Field("AutoId", menu)>
+                                                <span class="icon_box"><i class="@Html.Sitecore().Field("LeftIconClass", menu)"></i></span>
+                                                <label>@Html.Sitecore().Field("LinkTitle", menu)</label>
+                                                <i class="i-arrow-d icon"></i>
+                                            </a>
+                                            <div class="collapse" id="adaniBusinesses">
+                                                <ul class="submenu">
+                                                    @{Sitecore.Collections.ChildList business = childList["HamburgerMenu"].Children;}
+                                                    @foreach (Item adaniBusiness in business["AdaniBusinesses"].Children)
+                                                    {
+                                                        Sitecore.Data.Fields.CheckboxField adaniBusinessEnable = adaniBusiness.Fields["IsActive"];
+                                                        if (adaniBusinessEnable != null && adaniBusinessEnable.Checked)
+                                                        {
+                                                            <li>
+                                                                @Html.Sitecore().BeginField("LinkUrl", adaniBusiness, new { haschildren = true, @auto_id = @Html.Sitecore().Field("AutoId", adaniBusiness), @data_event = "hamburger_select", @data_subcategory = "hamburger", @data_type = @adaniBusiness.Name, @onclick = "gtmHambergerLinkSelectEvent(this)" })
+                                                                <span class="icon_box"><i class="@Html.Sitecore().Field("LeftIconClass", adaniBusiness)"></i></span>
+                                                                <label>@Html.Sitecore().Field("LinkTitle", adaniBusiness)</label>
+                                                                @if (k == 0)
+                                                                {
+                                                                    <i class="i-tick tick"></i>
+                                                                }
+                                                                @Html.Sitecore().EndField()
+                                                            </li>
+                                                        }
+                                                        k++;
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    }
+                                    @foreach (Item menuChildren in menu.Children)
+                                    {
+                                        Sitecore.Data.Fields.CheckboxField menuChildrenEnable = menuChildren.Fields["IsActive"];
+                                        if (menuChildrenEnable != null && menuChildrenEnable.Checked)
+                                        {
+                                            if (menuChildren.Children.Count > 0)
+                                            {
+                                                <li>
+                                                    <a href="#@menuChildren.Name" class="menu_item" data-bs-toggle="collapse" href="#@menuChildren.Name"
+                                                       role="button" aria-expanded="false" aria-controls="@menuChildren.Name" auto_id=@Html.Sitecore().Field("AutoId", menuChildren)>
+                                                        <span class="icon_box"><i class="@Html.Sitecore().Field("LeftIconClass", menuChildren)"></i></span>
+                                                        <label>@Html.Sitecore().Field("LinkTitle", menuChildren)</label>
+                                                        <i class="i-arrow-d icon"></i>
+                                                    </a>
+                                                    <div class="collapse" id="@menuChildren.Name">
+                                                        <ul class="submenu" id="@menuChildren.Name">
+                                                            @foreach (Item menuGrandChild in menuChildren.Children)
+                                                            {
+                                                                Sitecore.Data.Fields.CheckboxField menuGrandChildEnable = menuGrandChild.Fields["IsActive"];
+                                                                if (menuGrandChildEnable != null && menuGrandChildEnable.Checked)
+                                                                {
+                                                                    <li>
+                                                                        @Html.Sitecore().BeginField("LinkUrl", menuGrandChild, new { @class = "menu_item gtmHambergerLinkSelect", @auto_id = @Html.Sitecore().Field("AutoId", menuGrandChild), @data_event = "hamburger_select", @data_subcategory = "hamburger", @data_type = @menuChildren.Name })
+                                                                        @if ((menuGrandChild.Fields["name"].Value) != "")
+                                                                        {
+                                                                            <span class="comingSoon ">@Html.Sitecore().Field("name", menuGrandChild)</span>
+                                                                        }
+                                                                        @Html.Sitecore().EndField()
+                                                                    </li>
+                                                                }
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            }
+
+                                            else
+                                            {
+                                                if (i == 1)
+                                                {
+
+                                                }
+                                                else
+                                                {
+                                                    <li>
+                                                        @Html.Sitecore().BeginField("LinkUrl", menuChildren, new { haschildren = true, @class = "menu_item gtmHambergerLinkSelect", @auto_id = @Html.Sitecore().Field("AutoId", menuChildren), @data_event = "hamburger_select", @data_subcategory = "hamburger", @data_type = @menuChildren.Name })
+                                                        <span class="icon_box"><i class="@Html.Sitecore().Field("LeftIconClass", menuChildren)"></i></span>
+                                                        @{var comingSoon = @Html.Sitecore().Field("LinkTitle", menuChildren);}
+                                                        @if (comingSoon.ToString() == "Adani Rewards")
+                                                        {
+                                                            <label>@Html.Sitecore().Field("LinkTitle", menuChildren)</label>
+                                                            <span class="loyaltyCoins rewardCoins d-none">
+                                                                <span class="loader"><span class="loaderDot" style="background: rgb(0, 0, 0);"></span><span class="loaderDot" style="background: rgb(0, 0, 0);"></span><span class="loaderDot" style="background: rgb(0, 0, 0);"></span></span>
+                                                                <span class="loyaltyDetail d-none">
+                                                                    <span class="coinIcon">
+                                                                        <img src="@assetDomainURL/assets/airport/images/header/Coin.svg" alt="" loading="lazy" />
+                                                                    </span>
+                                                                    <small class="ammount" id="reward_balance_hamburger"></small>
+                                                                </span>
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <label>@Html.Sitecore().Field("LinkTitle", menuChildren)</label>
+                                                        }
+                                                        @Html.Sitecore().EndField()
+                                                    </li>
+
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        i++;
+                    }
+                }
+                <footer>
+                    @if (currentItem != null && currentItem.Children.Count > 0)
+                    {
+                        @Html.Sitecore().Field("Image", currentItem.Children["HeaderLogos"])
+                    }
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["AirportList"] != null)
+    {
+        if (childList["AirportList"].Children != null && childList["AirportList"].Children.Count > 0)
+        {
+            <div class="airportList" id="airportList">
+                @foreach (Item airportList in childList["AirportList"].Children)
+                {
+                    string title = "";
+                    if (airportList != null)
+                    {
+                        title = @Html.Sitecore().Field("Title", airportList).ToString();
+                    }
+                    @Html.Sitecore().BeginField("Link", airportList, new { haschildren = true, @class = "figureBox figure zoomEffect gtmAirportDropdownSelect", @data_event = "airport_selection", @data_subcategory = "airport_selection", @data_businessunit = @title })
+                    <figure>
+                        @Html.Sitecore().Field("Image", airportList, new { @width = "100%", @alt = @Html.Sitecore().Field("Title", airportList) })
+                        <div class="checkicon">
+
+                            <i class="i-tick"></i>
+
+                        </div>
+
+                    </figure>
+
+                    <figcaption class="figure-caption @Html.Sitecore().Field("textColor", airportList)">@Html.Sitecore().Field("Title", airportList)</figcaption>
+                    @Html.Sitecore().EndField()
+                }
+            </div>
+        }
+    }
+
+</div>
+
+
+
+<div class="offcanvas offcanvas-bottom airportListDialog" tabindex="-1" id="offcanvas_airportList"
+     aria-labelledby="offcanvasBottomLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasBottomLabel">
+            Select Airport
+        </h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" id="offcanvas-body"></div>
+</div>
+
+<div class="modal fade airportListDialog" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false"
+     tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">@Html.Sitecore().Field("__Short description", currentItem)</h5>
+                <button type="button" class="btn-close text-reset gtmAirportDropdownSelect" data-bs-dismiss="modal" aria-label="Close" data-event="airport_selection" data-subcategory="airport_selection" data-businessunit="Cross" data-label="Cross"></button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+        </div>
+    </div>
+</div>
+
+
+<!--Html.Sitecore().Placeholder("AgePopup")-->
+@Html.Sitecore().Rendering(Constant.LogoutRendering)
+@Html.Sitecore().Rendering(Constant.TerminalPopupRendering)
+@if (disableDropList.ToLower() == "true")
+{
+    @Html.Sitecore().Rendering(Constant.CookieConsentRendering)
+}
+@Html.Sitecore().Rendering(Constant.TerminalChangePopupRendering)
+@Html.Sitecore().Rendering(Constant.PranaamCartClearPopupRendering)
+
+<div id="emptyCart_overLay" class="d-none"></div>
+
+<script>
+    _adaniairportlistJSON = {
+        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0 && childList["AirportList"] != null)
+     {
+            if (childList["AirportList"].Children != null && childList["AirportList"].Children.Count > 0)
+            {
+                foreach (Item codes in childList["AirportList"].Children)
+                {
+
+                    @Html.Raw("'"+@Html.Sitecore().Field("AirportCode", codes)+"'"); @Html.Raw(":"); @Html.Raw("'"+@Html.Sitecore().Field("airportURLName", codes)+"'");@Html.Raw(",");
+                }
+            } }
+    }
+</script>

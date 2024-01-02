@@ -1,0 +1,72 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Item contextItem = RenderingContext.Current.ContextItem;
+    string altText = string.Empty;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)contextItem.Fields["NoResultsFoundImage"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        altText = image != null && image.Alt != null ? image.Alt : "";
+    }
+    else
+    {
+        altText = string.Empty;
+    }
+
+}
+
+<section class="services-wrapper filtersection mt-4">
+    <header class="section-pagetitle d-block d-lg-flex mb-0 pb-0">
+        <h1 class="main-heading">@Html.Sitecore().Field("__Short description", currentItem)</h1>
+        <div class="inside-search d-lg-flex">
+            <i class="i-search searchIcon"></i>
+            <input type="text" id="serviceInput" onkeyup="filterList('#serviceInput', '.services-list h3',false,true)"
+                   placeholder="@Html.Sitecore().Field("SearchPlaceholderText", contextItem)" />
+            <div class="clearIcon d-none" onclick="clearSearch('#serviceInput', '.services-list h3',false,true)">
+                <i class="i-cross"></i>
+            </div>
+        </div>
+    </header>
+</section>
+<section class="services-wrapper">
+    <div class="services-list dutyFreeFeaturePoints">
+        @foreach (Sitecore.Data.Items.Item allowance in currentItem.Children)
+        {
+            Sitecore.Data.Fields.MultilistField allowancesList = ((Sitecore.Data.Fields.MultilistField)allowance.Fields["SelectItems"]);
+        <div class="serviceList_detail">
+            <h3>@Html.Sitecore().Field("Heading", allowance)</h3>
+            @if (allowancesList != null)
+            {
+                foreach (Sitecore.Data.Items.Item allowanceListItem in allowancesList.GetItems())
+                {
+                    <h4 class="secPoitns">@Html.Sitecore().Field("Title", allowanceListItem)</h4>
+                    <ul class="detailOption">
+                        @Html.Sitecore().Field("Description", allowanceListItem)
+                    </ul>
+                }
+            }
+            
+                <ul class="detailOption">
+                    @Html.Sitecore().Field("HeadingDescription", allowance)
+                </ul>
+            
+
+        </div>  
+        }
+    </div>
+</section>
+
+<div class="noFoundsection my-5 text-center d-none">
+    <div class="emptyWrapper">
+        <figure>
+            <img src="@imageUrl" alt="@altText" loading="lazy"/>
+        </figure>
+        <h6>@Html.Sitecore().Field("SearchItemNotFoundText", contextItem)</h6>       
+        <button type="button" class="adl-button btn btn-outline-secondary btn-md" onclick="clearSearch('#serviceInput', '.services-list h3',false,true)">@Html.Sitecore().Field("ResetFiltersText", contextItem)</button>
+    </div>
+</div>

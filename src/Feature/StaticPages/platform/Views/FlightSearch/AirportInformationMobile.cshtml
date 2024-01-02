@@ -1,0 +1,34 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField airportsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["SelectAirports"]);
+}
+@if (currentItem != null && airportsList != null)
+{
+    <div class="section-wrap rightairport-info mb-0 d-block d-md-none container">
+        <h5 class="section-heading">@Html.Sitecore().Field("Title", currentItem)</h5>
+        @foreach (Sitecore.Data.Items.Item airport in airportsList.GetItems())
+        {
+            Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)airport.Fields["Name"]);
+            if (linkField != null)
+            {
+                var redirectUrl = linkField.GetFriendlyUrl();
+                <p>
+                    @if (!String.IsNullOrEmpty(linkField.Url))
+                    {
+                        <a href="@linkField.Url" class="cityTab" target="_blank">@linkField.Text </a>
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)" class="cityTab">@linkField.Text </a>
+                    }
+
+                    @Html.Sitecore().Field("Address", airport)
+                </p>
+            }
+        }
+    </div>
+}

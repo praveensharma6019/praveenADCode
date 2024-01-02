@@ -1,0 +1,91 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Item contextItem = RenderingContext.Current.ContextItem;
+    string altText = string.Empty;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)contextItem.Fields["NoResultsFoundImage"]);
+    string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        altText = image != null && image.Alt != null ? image.Alt : "";
+    }
+    else
+    {
+        altText = string.Empty;
+    }
+    Sitecore.Data.Fields.LinkField viewAllLinkField = ((Sitecore.Data.Fields.LinkField)contextItem.Fields["ViewAllLink"]);
+    var viewAllRedirectUrl = viewAllLinkField != null ? viewAllLinkField.GetFriendlyUrl() : String.Empty;
+}
+@if (currentItem != null && contextItem != null)
+{
+    <section class="text-center faq-heading">
+        <h1>@Html.Sitecore().Field("Title", contextItem)</h1>
+        <h5>@Html.Raw(contextItem.Fields["Description"])</h5>
+        <div class="serviceFaqList">
+            <div class="inside-search">
+                <i class="i-search searchIcon"></i>
+                <input type="text"
+                       id="serviceInput1"
+                       onkeyup="filterList('#serviceInput1', '.search-wrapper .faqList li',false,false,true,true)"
+                       placeholder="@Html.Sitecore().Field("SearchPlaceholderText", contextItem)" />
+                <div class="clearIcon d-none"
+                     onclick="clearSearch('#serviceInput1', '.search-wrapper .faqList li',false,false,true,true)">
+                <i class="i-cross"></i>
+            </div>
+            </div>
+            <div class="search-wrapper">
+                <ul class="faqList scrollbar-y">
+                    @foreach (Sitecore.Data.Items.Item item in currentItem.Children)
+                    {
+                        Sitecore.Data.Fields.MultilistField faqItems = ((Sitecore.Data.Fields.MultilistField)item.Fields["AllCategoriesList"]);
+                        Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)item.Fields["FAQQuestionRedirectLink"]);
+                        var redirectUrl = linkField != null ? linkField.GetFriendlyUrl() : String.Empty;
+                        if (faqItems != null && faqItems.GetItems().Count() > 0)
+                        {
+                            foreach (Sitecore.Data.Items.Item faqitem in faqItems.GetItems())
+                            {
+                                <li>
+                                    @if (redirectUrl != null)
+                                    {
+                                        <a href="@redirectUrl">
+                                            <span class="search-icon"><i class="i-search searchIcon"></i></span><span class="desc">@faqitem["Question"]</span>
+                                        </a>
+                                    }
+                                </li>
+                            }
+                        }
+                    }
+                </ul>
+                <div class="faqCategory d-none">
+                    @foreach (Sitecore.Data.Items.Item item in currentItem.Children)
+                    {
+                        if (item != null)
+                        {
+                            var categoryName = item.Name;
+                            <span>@categoryName</span>
+                        }
+                    }
+                </div>
+                <ul class="viewAll_faqList d-none">
+                    <li>
+                        @if (viewAllRedirectUrl != null && !string.IsNullOrEmpty(viewAllRedirectUrl))
+                        {
+                            <a href="@viewAllRedirectUrl" data-href="@viewAllRedirectUrl">
+                                <span class="search-icon"><i class="i-search"></i></span><span class="desc">@Html.Sitecore().Field("ViewAllText", contextItem) <strong class="searchText"></strong></span>
+                            </a>
+                        }
+                    </li>
+                </ul>
+                <div class="noFoundsection my-5 text-center d-none">
+                    <div class="emptyWrapper">
+                        <h6>@Html.Sitecore().Field("SearchItemNotFound", contextItem)</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

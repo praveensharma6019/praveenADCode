@@ -1,0 +1,51 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+}
+
+@if (currentItem != null)
+{
+    <div class="airport-card offer-slider mt-top">
+        <section class="other-service dom-slider">
+            <h3 class="section-title">@Html.Sitecore().Field("__Short description", currentItem)</h3>
+            <div class="arrow_pos">
+                <div class="other-services slider-airports">
+                    @foreach (Sitecore.Data.Items.Item services in currentItem.Children)
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)services.Fields["Image"]);
+                       // string imageUrl = imgField != null && imgField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem) : "";
+                        string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(services, "Image") : "";
+                        Sitecore.Data.Fields.LinkField linkField = ((Sitecore.Data.Fields.LinkField)services.Fields["Link"]);
+                        if (linkField != null)
+                        {
+                            var redirectUrl = linkField.GetFriendlyUrl();
+                            <div class=" slider-box">
+                                <div class="zoomEffect">
+                                    <a href="@redirectUrl">
+                                        <figure>
+                                            <img src="@imageUrl" width="100%" loading="lazy" />
+                                        </figure>
+                                        <div class="content">
+                                            <h3>@Html.Sitecore().Field("Title", services)</h3>
+                                            <p>
+                                                @Html.Sitecore().Field("Description", services)
+                                            </p>
+                                            <span class="black_link">
+                                                @Html.Sitecore().Field("SubTitle", services)
+                                            </span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+    </div>
+}

@@ -1,0 +1,37 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Helper linkHelepr = new Helper();
+}
+@if (currentItem != null)
+{
+    <!-- mobile banner -->
+    <section class="mobile-slider ShimmerWrap">
+        <div class="container">
+            <div class="duty-free scrollbar-x mobSlider">
+                @foreach (Item service in currentItem.Children)
+                {
+
+                    if (@linkHelepr.LinkUrl(service.Fields["Link"]).Contains("{CurrentDate}"))
+                    {
+                        <a href="@linkHelepr.LinkUrl(service.Fields["Link"]).Replace("{CurrentDate}",@DateTime.Now.ToString("dd/MM/yyyy").Replace("/",""))" class="card Shimmeritem mobSlideItem">
+                            @Html.Sitecore().Field("Image", service)
+                        </a>
+
+                    }
+                    else
+                    {
+                        @Html.Sitecore().BeginField("Link", service, new { haschildren = true, @class = "card Shimmeritem mobSlideItem" })
+                        @Html.Sitecore().Field("Image", service)
+                        @Html.Sitecore().EndField()
+                    }
+                }
+            </div>
+        </div>
+    </section>
+    <!-- mobile  -->
+}

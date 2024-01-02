@@ -1,0 +1,58 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{ 
+    IHelper _helper = new Helper();
+
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField offersList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["Selectoffers"]);
+    Helper linkHelepr = new Helper();
+    string divClass = RenderingContext.Current.Rendering.Parameters["classname"];
+}
+
+@if (currentItem != null)
+{
+    <div class="customslider arrow_pos @currentItem.DisplayName @divClass" id="@currentItem.DisplayName">
+        <div class="slick-slider">
+            <h2>@Html.Sitecore().Field("Title", currentItem)</h2>
+            <div class="services-card scrollbar_Y">
+                @if (offersList != null)
+                {
+                    foreach (Sitecore.Data.Items.Item offers in offersList.GetItems())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)offers.Fields["Image"]);
+                         string imageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(offers, "Image") : "";
+                        if (string.IsNullOrEmpty(offers.Fields["ContainerLink"].Value))
+                        {
+                            <div class="services-card__col">
+                                <div class="card">
+                                    <img src="@imageUrl" class="card-img-top" alt="..."  loading="lazy">
+                                    <div class="card-body">
+                                        <div class="card_heading">@Html.Sitecore().Field("Title", offers)</div>
+                                        <p>@Html.Sitecore().Field("Description", offers)</p>
+                                    </div>
+                                </div>
+                            </div> }
+                        else
+                        {
+                            <a class="services-card__col" href="@linkHelepr.GetLinkURL(offers, "ContainerLink")">
+                                <div class="card">
+                                    <img src="@imageUrl" class="card-img-top" alt="..." loading="lazy">
+                                    <div class="card-body">
+                                        <div class="card_heading">@Html.Sitecore().Field("Title", offers)</div>
+                                        <p>@Html.Sitecore().Field("Description", offers)</p>
+                                    </div>
+                                </div>
+                            </a>}
+                    }
+                }
+            </div>
+            <i class="i-arrow-l slick-prev slick-arrow servicesPrev slick-disabled" onclick="scrollToPrevItem(this)"></i>
+            <i class="i-arrow-r slick-next slick-arrow servicesNext" onclick="scrollToNextItem(this)"></i>
+        </div>
+    </div>
+}

@@ -1,0 +1,98 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.Carousel.Platform.Models
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.SuperApp.Airport.Feature.StaticPages.Platform
+@model RenderingModel
+@{
+    Item contextItem = RenderingContext.Current.ContextItem;
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    IHelper _helper = new Helper();
+
+    string altText = string.Empty;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["MobileImage"]);
+    string mobileImageUrl = imgField != null && imgField.MediaItem != null ? _helper.GetImageURL(currentItem, "MobileImage") : "";
+    Sitecore.Data.Fields.ImageField bgimgField = ((Sitecore.Data.Fields.ImageField)currentItem.Fields["DesktopImage"]);
+    string desktopImageUrl = bgimgField != null && bgimgField.MediaItem != null ? _helper.GetImageURL(currentItem, "DesktopImage") : "";
+    string queryString = !string.IsNullOrEmpty(Sitecore.Context.Request.QueryString["isapp"]) ? Sitecore.Context.Request.QueryString["isapp"].ToLower() : "";
+    Sitecore.Data.Fields.ImageField noResultsImgField = ((Sitecore.Data.Fields.ImageField)contextItem.Fields["NoResultsFoundImage"]);
+    string noResultsImageUrl = noResultsImgField != null && noResultsImgField.MediaItem != null ? _helper.GetImageURL(contextItem, "NoResultsFoundImage") : "";
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(imgField.MediaItem);
+        altText = image != null && image.Alt != null ? image.Alt : "";
+    }
+    else
+    {
+        altText = string.Empty;
+    }
+    HttpBrowserCapabilitiesBaseExtensions objBrowserCapabilities = new HttpBrowserCapabilitiesBaseExtensions();
+}
+
+@if (currentItem != null)
+{
+    <section>
+        <div class="d-block d-md-flex">
+            <h1 class="pageTitle">
+                @if (queryString != "true")
+                {
+                    if (Request != null && Request.Browser != null && objBrowserCapabilities.IsMobileNotTablet(Request.Browser))
+                    {
+                        <span class="d-flex d-md-none" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottomTest"
+                              aria-controls="offcanvasBottomTest">
+                            @Html.Sitecore().Field("Title", currentItem)
+                            <span class="i-arrow-d"></span>
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="d-none d-md-block" onclick="onChange(isClicked)">
+                            <span class="i-arrow-l"></span>
+                            @Html.Sitecore().Field("Title", currentItem)
+                        </span>
+                    }
+                }
+                else
+                {
+                    <span>
+                        @Html.Sitecore().Field("Title", currentItem)
+                    </span>
+                }
+            </h1>
+            <div class="searchBtn">
+                <div class="inside-search d-lg-flex">
+                    <i class="i-search searchIcon"></i>
+                    <input type="text" id="faqSearchField" onkeyup="accordionFilterList('#faqSearchField','.serviceDetail .accordion-item','#accordionNoFound',4)" placeholder="@Html.Sitecore().Field("SearchPlaceholderText", contextItem)">
+                    <div class="clearIcon d-none" onclick="clearAccordionFilterList('#faqSearchField','.serviceDetail .accordion-item','#accordionNoFound')">
+                        <i class="i-cross"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flexBanner d-none d-md-block"
+             style="background-image:url('@desktopImageUrl');">
+            <!-- <img src="../../assets/images/services/medical-banner.png" /> -->
+        </div>
+        @if (queryString != "true")
+        {
+            <div class="cate-banner d-block d-md-none">
+                <img src="@mobileImageUrl"  loading="lazy"/>
+            </div>
+        }
+
+    </section>
+    <div class="my-5 text-center d-none" id="accordionNoFound">
+        <div class="emptyWrapper">
+            <figure>
+                <img src="@noResultsImageUrl" alt="@altText"  loading="lazy"/>
+            </figure>
+            <h6>@Html.Sitecore().Field("SearchItemNotFound", contextItem)</h6>
+            <p></p>
+            <button type="button" class="adl-button btn btn-outline-secondary btn-md" onclick="clearAccordionFilterList('#faqSearchField','.serviceDetail .accordion-item','#accordionNoFound')">@Html.Sitecore().Field("ResetFiltersText", contextItem)</button>
+        </div>
+    </div>
+}

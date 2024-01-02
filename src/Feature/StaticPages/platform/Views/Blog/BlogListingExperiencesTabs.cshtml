@@ -1,0 +1,74 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.SuperApp.Airport.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    Sitecore.Data.Fields.MultilistField tabsList = ((Sitecore.Data.Fields.MultilistField)currentItem.Fields["TabList"]);
+    Helper linkHelper = new Helper();
+}
+@if (currentItem != null && tabsList != null)
+{
+    <div class="eating-section scrollableOffset" id="places-eat">
+        <div class="container">
+            <div class="heading-content">
+                <h2 class="cm-heading">@Html.Sitecore().Field("Title", currentItem)</h2>
+                <p>@Html.Sitecore().Field("SubTitle", currentItem)</p>
+            </div>
+            <div class="exp-links scrollbar-x">
+                <ul>
+                    @foreach (Item tabPanel in tabsList.GetItems())
+                    {
+                        foreach (Item tabNames in tabPanel.Children)
+                        {
+                            <li><a data-id="@(tabNames.Name=="LocalDS"?"All":tabNames.DisplayName.Replace(" ", ""))" class="nav-link"><span>@(tabNames.Name == "LocalDS" ? "All":tabNames.DisplayName)</span></a></li>
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="filter-content">
+                <div class="filter-pane">
+                    <div class="blog-tiles">
+                        @foreach (Item tabs in tabsList.GetItems())
+                        {
+                            foreach (Item tabRowChildren in tabs.Children)
+                            {
+                                if (tabRowChildren.Name == "LocalDS")
+                                {
+                                    continue;
+                                }
+                                foreach (Item tabsContent in tabRowChildren.Children)
+                                {
+                                    <div class="slide" data-item="@tabRowChildren.DisplayName.Replace(" ", "")">
+                                        <div class="item slide">
+                                            <a href="@linkHelper.BlogLinkUrl(tabsContent.Fields["CTA"])" class="zoomEffect" tabindex="0">
+                                                <figure>
+                                                    <img src=@linkHelper.GetImageURL(tabsContent,"TileImage") alt="@linkHelper.GetImageAlt(tabsContent,"TileImage")" loading="lazy">
+                                                </figure>
+                                                <div class="content">
+                                                    <h3 class="vertical_ellipsis">@Html.Sitecore().Field("Title", tabsContent)</h3>
+                                                    <p class="vertical_ellipsis">
+                                                        @Html.Sitecore().Field("Description", tabsContent, new { @class = "vertical_ellipsis" })
+                                                    </p>
+                                                    <span class="black_link">@linkHelper.GetLinkText(tabsContent, "CTA")</span>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="d-block mt-5 text-center">
+                <button id="loadMore" type="button" class="btn btn-outline-dark viewall-btn">
+                    View more
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+
