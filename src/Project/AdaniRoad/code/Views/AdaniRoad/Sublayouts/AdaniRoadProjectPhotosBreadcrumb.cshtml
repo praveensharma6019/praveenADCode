@@ -1,0 +1,47 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+
+@{
+
+    var ContentPath = Sitecore.Context.Item.Paths.ContentPath.Replace("/AdaniRoad/", "");
+    var path = ContentPath.Replace("/AdaniRoad/", "");
+    string[] pathArr = path.Split('/');
+    var navPath = "/";
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "breadcrumb-sl-inner breadcrumb-sl-inner_contact";
+    }
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    
+}
+
+<section class="main-banner">
+
+    @foreach (var item in elements.Children.ToList())
+    {
+        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+
+        string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+        <img src="@url" class="img-fluid w-100" />
+
+    }
+</section>
+<div class="@paramid">
+    <div class="container">
+
+        <ul>
+            @for (int i = 0; i <= pathArr.Count() - 1; i++)
+            {
+                navPath = navPath + pathArr[i];
+
+
+                <li><a href="@navPath">@pathArr[i].Replace("-", " ")</a></li>
+                navPath = navPath + "/";
+            }
+        </ul>
+    </div>
+</div>
+

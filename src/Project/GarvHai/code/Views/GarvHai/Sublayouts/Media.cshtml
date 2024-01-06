@@ -1,0 +1,187 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.GarvHai.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var BGImage = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["BGImage"];
+    var i = 0;
+    List<string> videoindex = new List<string>();
+}
+
+
+<section class="bg-gradient-v py-5 txt-white position-relative d-block">
+    <div class="bg-images"><img src="@BGImage"></div>
+    <div class="container position-relative d-block">
+        <div id="gallery-filter" class="txt-center mb-5">
+            
+            <button class="btn active" onclick="filterSelection('photos')"> Photos</button>
+            <button class="btn" onclick="filterSelection('video')"> Videos</button>
+            <button class="btn" onclick="filterSelection('news')"> In the News</button>
+        </div>
+        <!-- Gallery Grid -->
+
+        <div class="row">
+            @if (models.Children != null)
+            {
+                foreach (var item in models.Children.ToList())
+                {
+                    if (item != null)
+                    {
+                        if (item.Name.ToString() == "Photo")
+                        {
+                            foreach (var child in item.Children.ToList())
+                            {
+
+                                var imageUrl = string.Empty;
+
+                                Sitecore.Data.Fields.ImageField imageField = child.Fields["MediaImage"];
+                                if (imageField?.MediaItem != null)
+                                {
+                                    var image = new MediaItem(imageField.MediaItem);
+                                    imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                                }
+
+                                <div class="col-lg-4 col-md-6 column photos">
+                                    <a href="#gallery-@i" class="btn-gallery">
+                                        @Html.Sitecore().ImageField("MediaImage", child, 0, 0, "img-fluid")
+                                    </a>
+                                    <div id="gallery-@i" class="hidden">
+                                        <a href="@imageUrl"></a>
+                                    </div>
+                                </div>
+                                i++;
+                            }
+
+
+                        }
+
+                        if (item.Name.ToString() == "News")
+                        {
+                            foreach (var child in item.Children.ToList())
+                            {
+
+                                var imageUrl = string.Empty;
+
+                                Sitecore.Data.Fields.ImageField imageField = child.Fields["MediaImage"];
+                                if (imageField?.MediaItem != null)
+                                {
+                                    var image = new MediaItem(imageField.MediaItem);
+                                    imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                                }
+								
+								
+                                LinkField URL = child.Fields["MediaLink"];
+
+                                <div class="col-lg-4 col-md-6 column news">                                 
+									<a target="_blank" href="@URL.Url" class="btn-news" >
+                                        @Html.Sitecore().ImageField("MediaImage", child, 0, 0, "img-fluid")
+                                        <div>
+                                            @Html.Sitecore().Field("MediaDescription", child)
+                                        </div>
+                                    </a>
+                                </div>
+                                i++;
+                            }
+
+
+                        }
+                        if (item.Name.ToString() == "Video")
+                        {
+                            foreach (var child in item.Children.ToList())
+                            {
+                                var imageUrl = string.Empty;
+
+
+                                LinkField URL = child.Fields["MediaLink"];
+
+                                <div class="col-lg-4 col-md-6 column video">
+                                    <div class="media-video" data-toggle="modal" data-target="#video-@i">
+                                        @Html.Sitecore().ImageField("MediaImage", child, 0, 0, "img-fluid")
+                                        <p>@Html.Sitecore().Field("MediaDescription", child)</p>
+                                        @{
+
+                                            videoindex.Add(i.ToString());
+                                        }
+                                    </div>
+                                    @*<!-- The Modal -->
+                                        <div class="modal video" id="video-@i">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                <div class="modal-content">
+                                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                    <!-- Modal body -->
+                                                    <div class="modal-body">
+                                                        <div class='embed-container'>
+                                                            @if (URL != null)
+                                                            {
+                                                                <iframe src='@URL.Url' frameborder='0' allowfullscreen></iframe>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>*@
+                                </div>
+                                i++;
+                            }
+
+                        }
+                    }
+                }
+            }
+        </div>
+
+
+
+
+
+
+        <!-- / Gallery Grid -->
+    </div>
+</section><!--/Section-->
+<!-- The Modal -->
+@if (models.Children != null)
+{
+    foreach (var item in models.Children.ToList())
+    {
+        if (item != null)
+        {
+            if (item.Name.ToString() == "Video")
+            {
+			var j=0;
+               
+                
+                    foreach (var child in item.Children.ToList())
+                    {
+                        var imageUrl = string.Empty;
+
+
+                        LinkField URL = child.Fields["MediaLink"];
+            <div class="modal video" id="video-@videoindex[j]">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <div class='embed-container'>
+                                @if (URL != null)
+                                {
+                                    <iframe src='@URL.Url' frameborder='0' allowfullscreen></iframe>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			j++;
+                    }
+                
+            }
+        }
+    }
+}

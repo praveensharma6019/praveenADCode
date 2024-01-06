@@ -1,0 +1,84 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.AdaniCapital.Website.Models.LoginInfoModel
+@{
+    ViewBag.TextMeassage = Session["EnquiryMessage"];
+}
+
+<section class="login-container">
+    <div class="container-fluid p-0">
+        <div class="bg-images"><img src="/-/media/10972CD3BCD74798803CC78106F33D15.ashx"></div>
+        <div class="login-sidebar--form--v-middle">
+            <h2>Welcome to</h2>
+            <h1>Adani Capital</h1>
+            @using (Html.BeginForm())
+            {
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <div class="form-check">
+                            @Html.RadioButtonFor(model => model.MobileNoOrLoanAccountNumber, "Loan Account Number", new { id = "LAN", @class = "form-check-input", @checked = "checked" })
+                            <label class="form-check-label" for="LAN">Loan Account Number (LAN)</label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            @Html.RadioButtonFor(model => model.MobileNoOrLoanAccountNumber, "Mobile No", new { id = "MobileNo", @class = "form-check-input" })
+                            <label class="form-check-label" for="MobileNo">Mobile No</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="MobileNoOrLoanAccountNumberValue">Enter Loan Account Number (LAN)</label>
+                    @if (Model.IsOTPSend != null && Model.IsOTPSend == true)
+                    {
+                        @Html.TextBoxFor(x => x.MobileNoOrLoanAccountNumberValue, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(x => x.MobileNoOrLoanAccountNumberValue, new { @class = "form-control", required = "required" })
+                    }
+                    @Html.ValidationMessageFor(x => x.MobileNoOrLoanAccountNumberValue, "", new { @class = "help-block text-danger" }, "p")
+                    @*<small class="d-block text-right"><a href="">New user? Register</a></small>*@
+                    @if (Model.IsOTPSend != null && Model.IsOTPSend == true)
+                    {
+                        <label for="OTP">Enter OTP</label>
+                        @Html.TextBoxFor(x => x.OTP, new { @class = "form-control", required = "required", type="password" })
+                        @Html.ValidationMessageFor(x => x.OTP, "", new { @class = "help-block text-danger" }, "p")
+                    }
+                </div>
+                if (Model.IsOTPSend == false)
+                {
+                    <div class=""><button id="login" type="submit" name="sendOTP" value="sendOTP" class="login btn btn-primary mb-2">Sign In <span class="fa fa-angle-right ml-3"></span></button></div>
+                }
+                else
+                {
+                    <div class="">
+
+                        <button id="login" type="submit" name="signIn" value="signIn" class="login btn btn-primary mb-2">Sign In <span class="fa fa-angle-right ml-3"></span></button>                        <button id="ResendOTP" type="submit" name="ResendOTP" value="ResendOTP" class="login btn btn-secondary mb-2 mr-3">Resend OTP</button>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+</section>
+<footer class="">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <p class="text-lg-left text-center">&copy;2021 Adani Capital</p>
+            </div>
+            <div class="col-lg-6">
+                <ul class="footer_links text-lg-right text-center">
+                    <li><a href="/privacy-policy" target="_blank">Privacy Policy</a></li>
+                    <li><a href="/legal-disclaimer" target="_blank">Legal Disclaimer</a></li>
+                    <li><a href="/terms-and-conditions" target="_blank">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>

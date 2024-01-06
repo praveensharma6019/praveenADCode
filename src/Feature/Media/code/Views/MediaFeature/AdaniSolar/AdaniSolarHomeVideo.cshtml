@@ -1,0 +1,92 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    int i = 1;
+    int j = 1;
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants();
+
+<section class="bg-gray py-5 position-relative d-block z-index overflow-hidden" data-aos="fade-up">
+    <div class="container position-relative d-block">
+        <div id="big" class="owl-carousel owl-theme">
+            @if (itemList != null)
+            {
+                foreach (var item in itemList)
+                {
+                    <div class="slideItem gallery-main-img">
+                        <div class="row no-gutters">
+                            <div class="col-lg-8">
+                                <div class="video-section" data-toggle="modal" data-target="#video-@i">
+                                    @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMedia.Fields.Thumbnail, item, cssClass: "img-fluid w-100 h-100")
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="video-content p-4">
+                                    <h3>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</h3>
+                                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)
+                                    <p><a href="video-01" data-toggle="modal" data-target="#video-@i">Watch Now</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    i++;
+                }
+            }
+
+        </div>
+        <div class="owlthumb">
+            <div id="thumbs" class="owl-carousel home-video-thumb owl-theme py-3 px-1">
+                @if (itemList != null)
+                {
+                    foreach (var item in itemList)
+                    {
+                        <div class="slideItem gallery-item">
+                            @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMedia.Fields.Thumbnail, item)
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="scroll-icon scroll-section-btm" data-aos="fade-up">
+        <img src="../styles/images/graphic-rotate-1.png"
+             class="img-fluid">
+    </div>
+</section>
+    foreach (var item in itemList)
+    {
+        <div class="modal video" id="video-@j">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="modal-body">
+                        <div class='embed-container'>
+                            <video controls="controls" id="ascp-video">
+                                <source src="@item.LinkFieldUrl(Templates.HasMedia.Fields.Link)" type="video/mp4">
+                                <source src="@item.LinkFieldUrl(Templates.HasMedia.Fields.Link)" type="video/ogg">
+                                <source src="@item.LinkFieldUrl(Templates.HasMedia.Fields.Link)" type="video/webm">
+                            </video>
+                            @*<iframe class="homevideo-popup" src='@item.LinkFieldUrl(Templates.HasMedia.Fields.Link)' frameborder='0' allowfullscreen></iframe>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        j++;
+    }
+
+}

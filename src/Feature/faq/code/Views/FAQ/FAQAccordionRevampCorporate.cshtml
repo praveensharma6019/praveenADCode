@@ -1,0 +1,106 @@
+﻿@using Sitecore.Feature.FAQ
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+@if (element != null)
+{
+    //Cast to a Sitecore item
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)element;
+
+    //Read the Multifield List
+    Sitecore.Data.Fields.MultilistField Multiitemslist = myItem.Fields["FAQList"];
+
+    //var Imageplus = myItem.Fields["ImagePlus"].ImageUrl().ToString();
+    Sitecore.Data.Items.Item[] itemsList = Multiitemslist != null ? Multiitemslist.GetItems() : null;
+
+    Sitecore.Data.Items.Item home = Sitecore.Context.Database.GetItem("{A2FCDC11-BE31-430F-8AB8-99699556B9D4}");
+
+    string sectionClass = "section-wrapper";
+    if (Sitecore.Context.Item.ID == home.ID)
+    {
+        sectionClass = "section-container";
+    }
+
+    string firstElliClass = string.Empty;
+    string firstElStyleAttr = "none";
+    if (myItem["IsFirstOpen"].ToString() == "1")
+    {
+        firstElliClass = "active";
+        firstElStyleAttr = "block";
+    }
+
+    string innersectionClass = "section-container";
+
+    if (Sitecore.Context.Item.ID == home.ID)
+    {
+        innersectionClass = "section-wrapper";
+    }
+
+    <div class="@sectionClass custom_accrdion">
+        <header class="section-header-main">
+            <h2>@Html.Sitecore().Field(Templates.FaqDetails.Fields.Title, myItem).ToString()</h2>
+            @if (Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString() != string.Empty)
+            {
+                <p>@Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString()</p>
+            }
+        </header>
+        <div class="accordion">
+            <ul class="collapsible collapsible-accordion @innersectionClass">
+                @if (itemsList != null)
+                {
+                    foreach (var item in itemsList)
+                    {
+                        <li class="@firstElliClass" id="faqexpand">
+                            <div class="collapsible-header" data-gaevent="regulatory_section"
+                                 data-gaeventCategory="Corporate Portal | Home Page/Regulatory"
+                                 data-gaeventAction="Regulatory Section"
+                                 data-gaeventLabel="Expand">
+                                @Html.Sitecore().Field(Templates.Faq.Fields.Question, item)
+                            </div>
+                            <div class="collapsible-body" style="display:@firstElStyleAttr">
+                                @Html.Sitecore().Field(Templates.Faq.Fields.Answer, item)
+                            </div>
+                        </li>
+                        firstElliClass = string.Empty;
+                        firstElStyleAttr = "none";
+                    }
+                }
+            </ul>
+
+
+            @if (Sitecore.Context.Item.ID == home.ID)
+            {
+                Sitecore.Data.Items.Item faqPageItem = Sitecore.Context.Database.GetItem("{41E7A83D-D31F-45F2-A33E-8F70AEEDAFF1}");
+                string faqsPageUrl = faqPageItem != null ? Sitecore.Links.LinkManager.GetItemUrl(faqPageItem) : "/CorporateHome/Regulatory";
+                <a href="@faqsPageUrl"
+                   data-gaevent="check_all_regulations"
+                   data-gaeventCategory="Corporate Portal | Home Page"
+                   data-gaeventAction="Check All Regulations"
+                   data-gaeventLabel="NA"
+                   class="link-btn">Check All Regulations</a>
+            }
+      
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $('.collapsible-header').click(function () {
+        dataLayer.push({
+            'event': $(this).attr('data-gaevent'),
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        })
+    });
+</script>

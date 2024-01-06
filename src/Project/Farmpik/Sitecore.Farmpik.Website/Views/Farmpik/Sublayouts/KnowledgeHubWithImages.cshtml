@@ -1,0 +1,50 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@using Sitecore.Farmpik.Website;
+@using System.Linq;
+
+@{
+    var dataSource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Sitecore.Data.Items.Item dataSourceItem = Sitecore.Context.Database.GetItem(dataSource);
+
+    MultilistField selectedImagesItems = dataSourceItem.Fields[Constant.BaseImagesList];
+    var selectedImagesCount = selectedImagesItems.GetItems().Count();
+    string scrollImagesClass = string.Empty;
+    if (selectedImagesCount > 1)
+    {
+        scrollImagesClass = "scroll";
+    }
+    var heading = dataSourceItem.Fields[Constant.Heading].Value;
+    var subHeading = dataSourceItem.Fields[Constant.SubHeading].Value;
+}
+
+<div class="text-container">
+    @if (!string.IsNullOrEmpty(heading))
+    {
+        <h5>@heading</h5>}
+    @if (!string.IsNullOrEmpty(subHeading))
+    {
+        <b>@subHeading</b>
+    }
+    @Html.Raw(@dataSourceItem.Fields[Constant.Description])
+</div>
+
+@if (selectedImagesCount > 0)
+{
+    <div class="nameImg-block @scrollImagesClass">
+        @foreach (var imageItem in selectedImagesItems.GetItems())
+        {
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)imageItem.Fields[Constant.Image]);
+            var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            <div class="image">
+                <img class="small-image" src="@imgurl" />
+                <small>@imageItem.Fields[Constant.ImageTitle]</small>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,48 @@
+﻿@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var imgurl = "#";
+    var btnurl = "#";
+    var altText = "";
+}
+
+<!-- Sixth section start -->
+<div class="container">
+    <div class="text-center text-dark mx-5 my-5 mt-3">
+        <h1> <strong>@Html.Sitecore().Field("Text", model)</strong></h1>
+        <span>
+            @Html.Sitecore().Field("MediaInfo", model)
+        </span>
+    </div>
+    <div class="row container h-100 my-3">
+        @foreach (Item item in model.GetChildren())
+        {
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+            if (imgField != null && imgField.MediaItem != null)
+            {
+                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                altText = imgField.Alt;
+            }
+            else
+            {
+                imgurl = "#";
+                altText = "";
+            }
+            <div class="col-lg-4 col-md-4 col-12">
+                <div class="card card1 mentorimage">
+
+                    <img src="@imgurl"
+                         class="card-img-top mentorimage" alt="@altText">
+                    <div class="card-body">
+                        <strong>@Html.Sitecore().Field("Title", item)</strong><br>
+                        <small>@Html.Sitecore().Field("Designation", item)</small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<!-- Sixth section end -->

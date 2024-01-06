@@ -1,0 +1,324 @@
+﻿@using Sitecore.Data.Fields;
+@using Sitecore.Links;
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore.Electricity.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Electricity.Website.Model.FeedbackModel
+
+
+<div class="container">
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmUserFeedback", @class = "form-signin", @enctype = "multipart/form-data" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(m => m.IsInputCorrect)
+        @Html.HiddenFor(m => m.Source)
+        @Html.HiddenFor(m => m.FeedbackType)
+        @Html.HiddenFor(m => m.SR_Number)
+    <div class="form-panel">
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="bg-cream">
+                    <p>Was your concern/query addressed to your satisfaction?</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div id="exp_call-center_1" class="rating_section">
+                    <div class="text-left w-100">
+                        <div class="row w-100">
+                            @foreach (var r in Model.Concerns_addressed_List)
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        @Html.RadioButtonFor(m => m.Concerns_addressed, r.RatingValue, new { @class = "form-check-input", id = "Concerns_addressed_" + r.RatingValue })
+                                        <label class="form-check-label text-left" for="Concerns_addressed_@r.RatingValue">@r.RatingName</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-11 mx-auto"><hr></div>
+        </div>
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="bg-cream">
+                    <p>How was your experience while you connected with our Customer Service Delivery Team for e-mails?</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div id="exp_call-center" class="rating_section">
+                    @foreach (var r in Model.Rating)
+                    {
+                        <div>
+                            @Html.Label(r.RatingName)
+                            @Html.RadioButtonFor(m => m.OverallExperience, r.RatingValue, new { @class = r.RatingClass + " OverallExperience" })
+                        </div>
+                    }
+                </div>
+                <div>
+                    @Html.ValidationMessageFor(m => m.OverallExperience, "", new { @class = "OverallExperienceError" })
+                </div>
+            </div>
+            <div class="col-lg-11 mx-auto"><hr></div>
+        </div>
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="bg-cream">
+                    <p>Please rate your experience with the customer service representative.</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div id="exp_call-center" class="rating_section">
+                    @foreach (var r in Model.Rating)
+                    {
+                        <div>
+                            @Html.Label(r.RatingName)
+                            @Html.RadioButtonFor(m => m.Attitude_Empathy, r.RatingValue, new { @name = "Attitude_Empathy", @class = r.RatingClass + " Attitude_Empathy" })
+                        </div>
+                    }
+                </div>
+                <div>
+                    @Html.ValidationMessageFor(m => m.Attitude_Empathy, "", new { @class = "Attitude_EmpathyError" })
+                </div>
+                <div id="Attitude_Empathy_Unsatisfied_reason" style="display:none;">
+                    <div class="px-3">
+                        <div class="row">
+                            @foreach (var item in Model.Attitude_Empathy_Unsatisfied_List)
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="Attitude_Empathy_Unsatisfied_@item.Value" name="Attitude_Empathy_Unsatisfied_Ids" value="@item.Value" />
+                                        <label class="form-check-label" for="Attitude_Empathy_Unsatisfied_@item.Value">@item.Text</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-11 mx-auto"><hr></div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="bg-cream">
+                    <p>How would you rate the Email desk executive in understanding your Query/Concern?</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div id="exp_call-center" class="rating_section">
+                    @foreach (var r in Model.Rating)
+                    {
+                        <div>
+                            @Html.Label(r.RatingName)
+                            @Html.RadioButtonFor(m => m.Process, r.RatingValue, new { @name = "Process", @class = r.RatingClass + " Process" })
+                        </div>
+                    }
+                    @Html.ValidationMessageFor(m => m.Process, "", new { @class = "ProcessError" })
+                </div>
+                <div id="Process_Unsatisfied_reason" style="display:none;">
+                    <div class="px-3">
+                        <div class="row">
+                            @foreach (var item in Model.Process_Unsatisfied_List)
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="Process_Unsatisfied_@item.Value" name="Process_Unsatisfied_Ids" value="@item.Value" />
+                                        <label class="form-check-label" for="Process_Unsatisfied_@item.Value">@item.Text</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-11 mx-auto"><hr></div>
+        </div>
+        <div class="row">
+            @Html.HiddenFor(m => m.Recomandation_scale_Adani_Electricity)
+            <div class="col-lg-5">
+                <div class="bg-cream">
+                    <p>Based on your recent experience, how likely are you to recommend Adani Electricity to a friend or colleague?</p>
+                </div>
+            </div>
+            <div class="col-lg-7 text-center">
+                <div class="input-range">
+                    <div id="range-slider" data-value=""></div>
+                    <div id="labels-list" class="labels" data-value=""></div>
+                </div>
+            </div>
+            <div class="col-lg-11 mx-auto"><hr></div>
+        </div>
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="bg-cream">
+                    <p>Number of times you wrote to customer care for the same issue?</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div id="exp_call-center_1" class="rating_section">
+                    <div class="text-left w-100">
+                        <div class="row w-100">
+                            @foreach (var r in Model.Number_Contacted_List)
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        @Html.RadioButtonFor(m => m.Number_Contacted, r.RatingValue, new { @class = "form-check-input", id = "Numberoftimes_" + r.RatingValue })
+                                        <label class="form-check-label text-left" for="Numberoftimes_@r.RatingValue">@r.RatingName</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-11 mx-auto"><hr></div>
+        </div>
+      
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="bg-cream">
+                    <p>Was it easy to register your questions and concerns?</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div id="exp_call-center_1" class="rating_section">
+                    <div class="text-left w-100">
+                        <div class="row w-100">
+                            @foreach (var r in Model.Ease_of_register_concerns_List)
+                            {
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        @Html.RadioButtonFor(m => m.Ease_of_register_concerns, r.RatingValue, new { @class = "form-check-input", id = "register_" + r.RatingValue })
+                                        <label class="form-check-label text-left" for="register_@r.RatingValue">@r.RatingName</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-11 mx-auto"><hr></div>
+        </div>
+
+        <div id="moreQuestionDiv" style="display:none;">
+            @Html.HiddenFor(m => m.AnswerMoreQuestions)
+
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="bg-cream">
+                        <p>Were you informed of the alternate digital channels to register your concern?</p>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div id="exp_call-center_1" class="rating_section">
+                        <div class="text-left w-100">
+                            <div class="row w-100">
+                                @foreach (var r in Model.Informed_alternate_digital_channels_List)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Informed_alternate_digital_channels, r.RatingValue, new { @class = "form-check-input", id = "digital_" + r.RatingValue })
+                                            <label class="form-check-label text-left" for="digital_@r.RatingValue">@r.RatingName</label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-11 mx-auto"><hr></div>
+            </div>
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="bg-cream">
+                        <p>What is one thing AEML could be doing differently to increase the value of our services to you?</p>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div id="exp_call-center_1" class="rating_section pb-0">
+                        <div class="text-left w-100">
+                            <div class="row w-100">
+                                @foreach (var r in Model.AEML_could_be_doing_differently_List)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.AEML_could_be_doing_differently, r.RatingValue, new { @name = "AEML_could_be_doing_differently", @class = "form-check-input AEML_could_be_doing_differently", id = "AEML_" + r.RatingValue })
+                                            <label class="form-check-label text-left" for="AEML_@r.RatingValue">@r.RatingName</label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div id="AEML_could_be_doing_differently_Other" style="display:none;">
+                        <div class="text-left w-100 pr-md-5 pb-3">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <label class="form-check-label text-left mb-2" for="@Model.AEML_could_be_doing_differently_Other_Text">Please specify</label>
+                                        @Html.TextAreaFor(M => M.AEML_could_be_doing_differently_Other_Text, new { @class = "form-control", @rows = "3" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="bg-white @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                    <div class="row captcha_box pt-3">
+                        <div class="col-lg-5 text-right">
+                            <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-5 text-right">
+                        </div>
+                        <div class="col-lg-6">
+                            <div>
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-11 mx-auto"><hr></div>
+
+        <div class="row" id="moreQuestionAskDiv">
+            <div class="col-lg-12 mx-auto">
+                <div class="bg-white text-center p-4">
+                    <p class="mt-4">
+                        <input type="submit" class="btn btn-primary" id="SubmitAndClose" name="SubmitAndClose" value="Submit & Close" />
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="moreQuestionShowDiv" style="display:none;">
+            <div class="col-lg-12 mx-auto">
+                <div class="bg-white text-center p-4">
+
+                    <p class="mt-4">
+                        <input type="submit" class="btn btn-primary" id="SubmitAll" name="SubmitAll" value="Submit" />
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

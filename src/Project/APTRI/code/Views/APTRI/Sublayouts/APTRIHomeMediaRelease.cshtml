@@ -1,0 +1,96 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+   @* var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item elements = Sitecore.Context.Database.GetItem(datasource);*@
+
+var internalDataSource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["internal"];
+var internalLink = Sitecore.Context.Database.GetItem(internalDataSource);
+
+
+var externalDataSource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["external"];
+var externalLink = Sitecore.Context.Database.GetItem(externalDataSource);
+
+
+var i = 0;
+var j = 0;
+var internalSortedItem = internalLink.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+var externalSortedItem = externalLink.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+}
+
+
+<section class="bg-gray pt-5 pb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 newsupdate">
+                <div class="bg-white box-shadow p-4  aos-init aos-animate h-100" data-aos="fade-right">
+                    <ul class="nav nav-tabs events-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#internal">Internal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#external">External</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content events-tab-content">
+                        <div class="tab-pane container active" id="internal">
+
+                            <ul class="ul-media-section">
+                                @foreach (Item item in internalSortedItem.ToList())
+                                {
+                                    if (i < 4)
+                                    {
+                                        string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+                                        <li>
+                                            <p><a href="@linkUrl">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })   </span></p>
+                                        </li>
+                                    }
+                                    i++;
+                                }
+                            </ul>
+
+                            <p class="text-right"><a href="/events" class="btn btn-gradient">Read more</a></p>
+                          
+                        </div>
+                        <div class="tab-pane container fade" id="external">
+
+                            <ul class="ul-media-section">
+                                @foreach (Item item in externalSortedItem.ToList())
+                                {
+                                    if (j < 4)
+                                    {
+                                        string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+                                        <li>
+                                            <p><a href="@linkUrl">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })   </span></p>
+                                        </li>
+                                    }
+                                    j++;
+                                }
+                            </ul>
+                            <p class="text-right"><a href="/events" class="btn btn-gradient">Read more</a></p>
+                        </div>
+                    </div>
+
+                   
+
+                </div>
+            </div>
+
+
+            
+
+        <div class="col-lg-8">
+             @Html.Sitecore().Placeholder("feature-slider")
+        </div>
+            
+        </div>
+    </div>
+</section>

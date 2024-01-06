@@ -1,0 +1,100 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniHousing.Website.Helper
+@using Sitecore.Foundation.Dictionary.Repositories;
+@model Sitecore.AdaniHousing.Website.Models.LoginInfoModel
+@{
+    ViewBag.TextMeassage = Session["EnquiryMessage"];
+    Sitecore.Data.Database db = Sitecore.Configuration.Factory.GetDatabase("web");
+    Item element = db.GetItem("{7E593E85-7E41-495B-926B-285DE5292628}"); //sitecore/content/AdaniHousing/Global/Links/Login Navigation
+}
+<div class="overlay"></div>
+<div class="wrapper-header">
+    <div class="header-brand">
+        <a href="/"><img src="https://www.adanicapital.in/Images/AdaniHousing/logo.png"></a>
+    </div>
+    <div class="">
+        <button class="header-toggler" type="button" data-target="#sidebar" data-class="sidebar-lg-show" responsive="true">
+            <span class="fa fa-bars"></span>
+        </button>
+    </div>
+
+    <div class="ml-auto wrapper-header-avatar">
+        <ul>
+            <li><a href="/login/dashboard"><span class="fa fa-home mr-2"></span>Home</a></li>
+            <li class="has-submenu">
+                <a href="#"><span class="fa fa-user-circle mr-2 mr-lg-3"></span><span>Welcome, @Model.getLoansList.Select(x => x.customerName).FirstOrDefault()</span></a>
+                <ul class="wrapper-header-avatar-dropdown">
+                    <li><a href="/login/userprofile">My Profile</a></li>
+                    <li>
+                        @using (Html.BeginForm("LogoutAdaniHousing", "AdaniHousing", FormMethod.Post, new { @class = "form-signin px-3 py-2" }))
+                        {
+                            <a onclick="this.parentNode.submit();" href="#">Logout</a>
+                            @*<button type="submit" class="">@DictionaryPhraseRepository.Current.Get("/Accounts/Edit Profile/Button Logout", "Logout")</button>*@
+                        }
+                    </li>
+                </ul>
+            </li>
+            @*<li><a href="#"><i class="fa fa-bell"></i></a></li>*@
+        </ul>
+    </div>
+</div>
+<div class="position-relative">
+    <div class="sidebar-fixed sidebar-fixed-show" id="sidebar">
+        <ul class="sidebar-fixed-nav">
+            @if (element != null && element.HasChildren)
+            {
+                foreach (Item item in element.GetChildren())
+                {
+                    var url = Helper.LinkUrl(item.Fields["LinkUrl"]);
+                    var imgurl = Helper.ImageUrl("LinkImage", item);
+                    string activeClass = "";
+                    if((HttpContext.Current.Request.Url.AbsolutePath.ToLower()).Contains(url.ToLower()))
+                    {
+                        activeClass = "active";
+                    }
+                    if (!string.IsNullOrWhiteSpace(imgurl))
+                    {
+                        <li class="sidebar-nav-item @activeClass"><a class="" href="@url"><img alt="@Html.Sitecore().Field("Title", item)" src="@imgurl"><span>@Html.Sitecore().Field("Title", item)</span></a></li>
+                    }
+                }
+            }
+        </ul>
+    </div>
+    <div class="content-wrapper">
+        <div class="wrapper-breadcrumb">
+            <ol>
+                <li class="float-right pr-3"><a>Last Login: @Model.LastLoginInfo</a></li>
+            </ol>
+        </div>
+        @Html.Sitecore().Placeholder("dashboard")
+    </div>
+</div>
+<footer class="footer-md">
+    <div class="row">
+        <div class="col-lg-6 text-lg-left text-center mb-lg-0 mb-3"><p>&copy; 2021 Adani Housing</p></div>
+        <div class="col-lg-6 text-lg-right text-center">
+            <ul class="ft-policy-links">
+                <li><a target="_blank" href="/privacy-policy">Privacy Policy</a></li>
+                <li><a target="_blank" href="/legal-disclaimer">Legal Disclaimer</a></li>
+                <li><a target="_blank" href="/terms-and-conditions">Terms &amp; Conditions</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+<div class="modal modal-pdf" id="printPDFModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content gallery-slider">
+            <!-- Modal Header -->
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div id="main-pdf" style="display:none;">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Sitecore().Placeholder("form-model")

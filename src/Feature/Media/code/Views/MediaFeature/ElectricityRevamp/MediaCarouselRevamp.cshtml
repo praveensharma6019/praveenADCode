@@ -1,0 +1,98 @@
+﻿@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+}
+<div class="owl-carousel" data-items-desktop="1" data-margin="0" data-dots="enable" data-items-loop="true" data-items-autoplay="true">
+    @foreach (var element in elements)
+    {
+        var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+        var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+        Sitecore.Data.Fields.LinkField linkfield = element.Item.Fields[Templates.HasMedia.Fields.Link];
+        var url = linkfield.GetFriendlyUrl();
+
+        Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Item.Fields["MediaThumbnail"]);
+        string ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+        if (!string.IsNullOrEmpty(url))
+        {
+            <a href="@url" data-gaevent="banner_click"
+               data-gaeventCategory="User Interaction"
+               data-gaeventAction="Banner Click"
+               data-gaeventLabel="@Html.Sitecore().Field("MediaTitle", element).ToString()">
+                @if (!string.IsNullOrEmpty(ImageUrl))
+                {
+                    <div class="card summer-banner" style="background: @style 0 0 no-repeat; background-size: cover;">
+                        <div class="card-hero-content">
+                            <div class="inner-hero-content" style="background: url(@ImageUrl) 0 0 no-repeat; background-size: cover; background-position: center; ">
+                                <h6>@Html.Raw(element.Item["MediaTitle"])</h6>
+                                <p>@Html.Raw(element.Item["SubTitle"])</p>
+                                @if (!string.IsNullOrEmpty(element.Item["CTAText"]))
+                                {
+                                    <span href="@url" class="waves-effect waves-light btn">@Html.Raw(element.Item["CTAText"])</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card" style="background: @style 0 0 no-repeat; background-size: cover;">
+                        <div class="card-hero-content">
+                            <div class="inner-hero-content">
+                                <h6>@Html.Raw(element.Item["MediaTitle"])</h6>
+                                <p>@Html.Raw(element.Item["SubTitle"])</p>
+                                @if (!string.IsNullOrEmpty(element.Item["CTAText"]))
+                                {
+                                    <span href="@url" class="waves-effect waves-light btn">@Html.Raw(element.Item["CTAText"])</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </a>
+        }
+        else
+        {
+            <a href="javascript:void(0)" data-gaevent="banner_click"
+               data-gaeventCategory="User Interaction"
+               data-gaeventAction="Banner Click"
+               data-gaeventLabel="">
+                @if (!string.IsNullOrEmpty(ImageUrl))
+                {
+                    <div class="card summer-banner" style="background: @style 0 0 no-repeat; background-size: cover;">
+                        <div class="card-hero-content">
+                            <div class="inner-hero-content" style="background: url(@ImageUrl) 0 0 no-repeat; background-size: cover; background-position: center; ">
+                                <h6>@Html.Raw(element.Item["MediaTitle"])</h6>
+                                <p>@Html.Raw(element.Item["SubTitle"])</p>
+                                @if (!string.IsNullOrEmpty(element.Item["CTAText"]))
+                                {
+                                    <span href="javascript:void(0)" class="waves-effect waves-light btn">@Html.Raw(element.Item["CTAText"])</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card" style="background: @style 0 0 no-repeat; background-size: cover;">
+                        <div class="card-hero-content">
+                            <div class="inner-hero-content">
+                                <h6>@Html.Raw(element.Item["MediaTitle"])</h6>
+                                <p>@Html.Raw(element.Item["SubTitle"])</p>
+                                @if (!string.IsNullOrEmpty(element.Item["CTAText"]))
+                                {
+                                    <span href="javascript:void(0)" class="waves-effect waves-light btn">@Html.Raw(element.Item["CTAText"])</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </a>
+        }
+    }
+</div>

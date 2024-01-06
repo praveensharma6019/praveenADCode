@@ -1,0 +1,47 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.SingleText.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.SingleText.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+}
+
+<section class="section">
+    <div class="container box-center">
+        <h3 class="sectionHeading mt-0 txt-center">@Html.Sitecore().Field(Templates.SingleText.Fields.Text, models)</h3>
+        <div class="large-12 columns">
+            @foreach (var item in models.Children.ToList())
+            {
+                <h3 class="sectionHeading mt-0 txt-center">@Html.Sitecore().Field(Templates.SingleText.Fields.Text, item)</h3>
+                <div class="carousel-wrap">
+                    <div class="bootleggers owl-carousel resmonthlystatus">
+                        @foreach (var subitem in item.Children.ToList())
+                        {
+                            Sitecore.Data.Fields.ImageField imageField = subitem.Fields[Templates.HasMediaImage.Fields.Image];
+                            if (imageField?.MediaItem != null)
+                            {
+                                var image = new MediaItem(imageField.MediaItem);
+                                var imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                                <a class="item popup" href="@imageUrl"><img src="@imageUrl" class="img-fluid" alt="Gallery"></a>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

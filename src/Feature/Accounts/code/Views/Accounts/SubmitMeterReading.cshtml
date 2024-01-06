@@ -1,0 +1,223 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.SubmitMeterReading
+@{
+    var index = 0;
+    var index2 = 0;
+    var index3 = 0;
+    var attachIndex = 0;
+}
+
+@if (Model.IsSubmitted == false)
+{
+    using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreatecorrigendum", @class = "form-signin", @enctype = "multipart/form-data" }))
+    {
+        
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.CANumber);
+        @Html.HiddenFor(x => x.Source);
+
+        <form action="/submit-meter-reading" class="form-signin" id="frmMeterSubmit" method="post">
+            <div class="pageContent">
+                <div class="container">
+                    <div class="panel">
+                        <div class="clearfix"></div>
+                        <!-- Sign up Form -->
+
+                        <div class="row">
+                            <div class="col-md-6 col-lg-6">
+                                <span>CA Number : <b>@Html.DisplayTextFor(x => x.CANumber)</b></span>
+                            </div>
+                        </div>
+                        <div class="bg-white border p-3 mt-3">
+                            <div class="row">
+                                @if (Model.MeterList != null)
+                                {
+                                    <div class="col-md-6 col-lg-3">
+                                        <label>Mobile Number* :</label>
+                                        @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", @type = "number", id = "MobileNumber", maxlength = 10, @autocomplete = "off", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "error" })
+                                    </div>
+                                    <div class="col-md-12">	<hr class="w-100 mb-3"> </div>
+
+                                    foreach (var meterdetail in Model.MeterList)
+                                    {
+                                        @Html.HiddenFor(x => x.MeterList[index].MeterNumber);
+                                        <div class="col-md-12">
+                                            <input id="MeterList_0__MeterNumber" name="MeterList[0].MeterNumber" type="hidden" value="7947291">
+                                            <label class="mb-3">Meter Number :<b> @Html.DisplayTextFor(x => x.MeterList[index].MeterNumber)</b></label>
+                                        </div>
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="form-group">
+                                                <label class="d-block">Meter Reading* :</label>
+                                                @Html.TextBoxFor(x => x.MeterList[index].MeterReading, new { @class = "form-control reset-control", @type = "number", id = "MeterReading", @autocomplete = "off", required = "required" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="form-group">
+                                                <label>Meter Reading Date* :</label>
+                                                <div class="position-relative calendarInput">
+                                                    @Html.TextBoxFor(x => x.MeterList[index].MeterReadingDate, new { @class = "form-control reset-control datepicker docs-date dateCal", id = "MeterReadingDate", required = "required" })
+
+                                                    @Html.ValidationMessageFor(x => x.MeterList[index].MeterReadingDate, "", new { @class = "error" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @*<div class="col-md-6 col-lg-4">
+                                                <div class="form-group">
+                                                    <label>Mobile Number* :</label>
+                                                    @Html.TextBoxFor(x => x.MeterList[index].MobileNumber, new { @class = "form-control reset-control", @type = "number", id = "MobileNumber", maxlength = 10, @autocomplete = "off", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.MeterList[index].MobileNumber, "", new { @class = "error" })
+                                                </div>
+                                            </div>*@
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="form-group" style="overflow: hidden;">
+                                                <label>Meter Photo* :</label>
+                                                @Html.TextBoxFor(x => x.MeterList[index].File, "", new { @type = "file", @multiple = "multiple", @onchange = "Validate(this);", @accept = ".jpg,.jpeg,.png", required = "required" })
+
+
+                                                @Html.HiddenFor(x => x.MeterList[index].SMRD)
+
+                                            </div>
+
+                                            @if (HttpContext.Current.Session["MeterReadingObj"] != null)
+                                            {
+                                                if (Model.MeterAttachments[attachIndex].FileCT != null)
+                                                {
+                                                    <label class="mb-3">
+                                                        uploaded Photo :<b>
+                                                            @Html.ActionLink("Click Here", "DownloadFile", new { id = Model.MeterAttachments[attachIndex].Id }, new { @class = "txt-orange" })
+                                                        </b>
+                                                    </label>
+                                                    attachIndex = attachIndex + 1;
+                                                }
+                                            }
+
+
+                                        </div>
+                                        <div class="col-md-12">	<hr class="w-100 mb-3" /> </div>
+                                        index = index + 1;
+                                    }
+                                }
+                                @if (Model.MeterAttachments != null)
+                                {
+                                    foreach (var meterAttachments in Model.MeterAttachments)
+                                    {
+                                        <div style="display:none">
+                                            @Html.HiddenFor(x => x.MeterAttachments[index2].Id);
+
+                                            @Html.DisplayTextFor(x => x.MeterAttachments[index2].Id)
+                                            @Html.DisplayTextFor(x => x.MeterAttachments[index2].FileName)
+                                            @Html.DisplayTextFor(x => x.MeterAttachments[index2].FileCT)
+                                            @Html.DisplayTextFor(x => x.MeterAttachments[index2].FileByte)
+                                        </div>
+                                        index2 = index2 + 1;
+                                    }
+
+                                }
+                            </div>
+
+                            @if (Model.CANumber != null && Model.MeterList != null)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-12 text-right">
+                                        <button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("/Accounts/Register/Button/Submit", "Submit")</button>
+
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.Result != null && Model.Result != "")
+                            {
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <label class="txt-orange">   @Html.DisplayTextFor(x => x.Result)</label>
+
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <!-- /Page Content -->
+                </div>
+        </form>
+
+
+    }
+}
+else
+{
+    <br />
+    <br />
+    <br />
+    <br />
+    <div class="pageContent">
+        <div class="container">
+            <div class="panel">
+                <h5 class="txt-orange">Meter reading submitted sucessfully.</h5>
+                <div class="clearfix"></div>
+                <!-- Sign up Form -->
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <span>CA Number : <b>@Html.DisplayTextFor(x => x.CANumber)</b></span>
+                    </div>
+                </div>
+
+
+
+
+
+                @if (Model.MeterAttachments != null)
+                {
+                    foreach (var meterAttachments in Model.MeterAttachments)
+                    {
+                        <div class="row">
+                            @Html.HiddenFor(x => x.MeterList[index3].MeterNumber)
+                            <div class="col-lg-12">
+                                <label class="mb-3">Meter Number :<b>    @Html.DisplayTextFor(x => x.MeterList[index3].MeterNumber)</b></label>
+                            </div>
+
+                            <div class="col-lg-3 col-md-6">
+                                <label class="mb-3">Meter Reading :<b>    @Html.DisplayTextFor(x => x.MeterList[index3].MeterReading)</b></label>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <label class="mb-3">Meter Reading Date :<b>    @Html.DisplayTextFor(x => x.MeterList[index3].MeterReadingDate)</b></label>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+                                <label class="mb-3">Mobile Number :<b>    @Html.DisplayTextFor(x => x.MeterList[index3].MobileNumber)</b></label>
+                            </div>
+                            <div class="col-lg-3 col-md-6">
+
+                                <label class="mb-3">
+                                    Meter Photo :<b>
+                                        @Html.ActionLink("Click Here", "DownloadFile", new { id = meterAttachments.Id }, new { @class = "txt-orange" })
+                                    </b>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">	<hr class="w-100 mb-3" /> </div>
+                        @Html.HiddenFor(x => meterAttachments.FileName);
+                        @Html.HiddenFor(x => meterAttachments.FileCT);
+                        @Html.HiddenFor(x => meterAttachments.FileByte);
+
+                        index3 = index3 + 1;
+
+                    }
+                }
+
+            </div>
+
+
+
+
+        </div>
+    </div>
+    <!-- /Page Content -->
+
+}

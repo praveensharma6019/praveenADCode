@@ -1,0 +1,135 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    int i = 1;
+    int j = 1;
+}
+
+@if (elements != null)
+{
+    if (elements.Fields["SubTitle"].Value == "NoTab")
+    {
+        <section class="py-5 solutions-tab">
+            <div class="container" data-aos="fade-up">
+                <h2 class="text-center sectionHeading mb-3">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h2>
+                <p class="mb-3 text-center">
+                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, elements)
+                </p>
+                @*@Html.Sitecore().Placeholder("adani-solar-calc")*@
+                <div class="row roofttopsolar-works">
+                    <div class="col-lg-4">
+                        <h3 class="txt-lg vertical-middle">How Rooftop Solar Works?</h3>
+                    </div>
+                    <div class="col-lg-8 text-right">
+                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, elements, cssClass: "img-fluid")
+                        <div class="arrow-pointer arr-r-1">
+                            <i class="">1</i>
+                            <div class="specification-block">
+                                <p>Solar Panels</p>
+                            </div>
+                        </div>
+                        <div class="arrow-pointer arr-r-2">
+                            <i class="">2</i>
+                            <div class="specification-block">
+                                <p>Solar Batteries</p>
+                            </div>
+                        </div>
+                        <div class="arrow-pointer arr-r-3">
+                            <i class="">3</i>
+                            <div class="specification-block">
+                                <p>Solar Invertor</p>
+                            </div>
+                        </div>
+                        <div class="arrow-pointer arr-r-4">
+                            <i class="">4</i>
+                            <div class="specification-block">
+                                <p>Electricity Meter</p>
+                            </div>
+                        </div>
+                        <div class="arrow-pointer arr-r-5">
+                            <i class="">5</i>
+                            <div class="specification-block">
+                                <p>Power Grid</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        var epcItems = elements.Axes.GetDescendants();
+        <section class="py-5 solutions-tab">
+            <div class="container" data-aos="fade-up">
+                <h2 class="text-center sectionHeading mb-3">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h2>
+                <p class="mb-3">
+                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, elements)
+                </p>
+                <ul class="nav nav-tabs mb-4" id="solution" role="tablist">
+                    @foreach (var types in epcItems)
+                    {
+                        var actv = string.Empty;
+                        var selected = string.Empty;
+                        if (i == 1)
+                        {
+                            actv = "active";
+                            selected = "true";
+                        }
+                        else
+                        {
+                            actv = "";
+                            selected = "false";
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link @actv" id="tabs-@i" data-toggle="tab" href="#tab-s-@i" role="tab"
+                               aria-controls="tab-s-@i" aria-selected="@selected">
+                                <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, types)</p>
+                            </a>
+                        </li>
+                        i++;
+                    }
+                </ul>
+                <div class="tab-content" id="solutionstab">
+                    @foreach (var item in epcItems)
+                    {
+                        var actv = string.Empty;
+                        if (j == 1)
+                        {
+                            actv = "show active";
+                        }
+                        else
+                        {
+                            actv = "";
+                        }
+                        <div class="tab-pane fade @actv" id="tab-s-@j" role="tabpanel" aria-labelledby="tabs-@j">
+                            <div class="row">
+                                <div class="col-lg-6 py-5">
+                                    <p class="mb-3">
+                                        @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)
+                                    </p>
+                                </div>
+                                <div class="col-lg-6 text-center position-relative">
+                                    <div class="floating-element">
+                                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item, cssClass: "img-fluid")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        j++;
+                    }
+                </div>
+            </div>
+        </section>
+    }
+}

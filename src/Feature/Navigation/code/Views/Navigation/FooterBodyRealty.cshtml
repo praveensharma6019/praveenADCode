@@ -1,0 +1,31 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Items
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Fields.LinkField linkfield = model.Fields[Templates.Navigable.Fields.Link];
+}
+
+<div class="row">
+    <div class="col-md-3 txt-center">
+        <h6>@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, model)</h6>
+        @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, model)
+    </div>
+    @foreach (var item in model.GetChildren().ToList().Take(4))
+    {
+        <div class="col-sm-4 col-md-3 col-6">
+            <h5>@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</h5>
+            <ul class="mobile-none">
+                @foreach (var itemchild in item.GetChildren().ToList())
+                {
+                    <li><a href="#">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, itemchild)</a></li>
+                }
+            </ul>
+            <p classs="py-2"></p>
+        </div>
+
+    }
+</div>

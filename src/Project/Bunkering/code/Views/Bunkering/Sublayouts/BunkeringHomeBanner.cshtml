@@ -1,0 +1,61 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var banner = elements.Children;
+}
+<div class="mainSlider">
+    <div class="owl-carousel owl-theme homeslider">
+        @foreach (var item in banner.ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaVideoLink"];
+            var url = linkField.Url;
+            <div class="item" data-videosrc="@url">
+                @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "image-fluid")
+            </div>
+
+        }
+    </div>
+    <div class="bannercontent">
+        @foreach (var item in banner.ToList())
+        {
+            @Html.Sitecore().Field("MediaDescription", item)
+        }
+    </div>
+</div>
+
+
+
+
+@{
+    var downloadDoc = Request.Cookies["enqabout"].Value;
+
+
+    if (downloadDoc != "" && downloadDoc == "request-floor-plan")
+    {
+        Response.Write("<script>window.open('https://www.adanirealty.com/-/media/Project/Realty/Property/Residential/Samsara-Phase-2/Masterplan-26-Mar19c.pdf?la=en&hash=64EA362C184B52EFDD6FF7357D719CF5','_blank');</script>");
+
+
+    }
+    else if (downloadDoc != "" && downloadDoc == "download-brochure")
+    {
+        Response.Write("<script>window.open('https://www.adanirealty.com/-/media/Project/Realty/Property/Residential/Samsara-Phase-2/Brochure-samsara.pdf','_blank');</script>");
+
+    }
+    else if (downloadDoc != "" && downloadDoc == "get-direction")
+    {
+        Response.Write("<script>window.open('https://www.google.com/maps/place/Adani+Samsara/@28.4016912,77.0923839,828m/data=!3m2!1e3!4b1!4m5!3m4!1s0x390d18728705ab7b:0x13176394e50b084!8m2!3d28.4016912!4d77.0941654?hl=en','_blank');</script>");
+
+    }
+    else
+    {
+        Response.Cookies["enqabout"].Value = "";
+      
+    }
+
+}
+
+ 

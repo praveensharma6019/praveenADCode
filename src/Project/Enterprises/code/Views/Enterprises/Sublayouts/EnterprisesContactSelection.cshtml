@@ -1,0 +1,85 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var x = 0;
+}
+<div class="tab-pane fade show active" id="ports" role="tabpanel" aria-labelledby="home-tab">
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <form>
+                <div class="form-group">
+                    @foreach (var child in parent.Children.ToList())
+                    {
+                        var ddlSource = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+
+
+                        @Html.DropDownList("contactaddress", new SelectList(ddlSource.Children, "Id", "Name"), new
+                   {
+                       @id = ddlSource.DisplayName,
+                       @class = "form-control",
+                       @style = "width:200px",
+                       @onchange= "addressSelection(" +"'" + ddlSource.DisplayName + "'" + ")"
+                   })
+
+
+
+                    }
+                </div>
+            </form>
+        </div>
+        <div class="col-md-8">
+            <div class="main-add">
+                <div id="mainAddress" class="Hazira d-block" style="display:none">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="add-parent">
+        <div id="detailAddress" class="row Hazira" style="display:none">
+          
+        </div>
+    </div>
+</div>
+
+<script>
+    $.noConflict();
+
+    function addressSelection(id) {
+        var itemId = $('#' + id).val();
+
+        jQuery.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/Enterprises/GetContactAddress",
+            context: this,
+            success: function (addr) {
+                var summary = "";
+                var body = "";
+                if (addr.indexOf("Summary:") > -1) {
+                    body = addr.slice(0,addr.indexOf("Summary:"));
+                    summary = addr.slice(addr.indexOf("Summary:"));
+                    summary = summary.replace('Summary:','')
+                }
+                
+                $('#' + id).closest('#drpdwnControl').find('#detailAddress').show();
+                $('#' + id).closest('#drpdwnControl').find('#detailAddress').html("");
+                $('#' + id).closest('#drpdwnControl').find('#detailAddress').append(body);
+
+
+                $('#' + id).closest('#drpdwnControl').find('#mainAddress').show();
+                $('#' + id).closest('#drpdwnControl').find('#mainAddress').html("");
+                $('#' + id).closest('#drpdwnControl').find('#mainAddress').append(summary);
+
+                /*$("#CustomerCareCenterArea").show();
+                $("#addressColl").html("");
+                $("#addressColl").append(addr);*/
+            }
+        });
+    }
+</script>

@@ -1,0 +1,62 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Items
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    var sortedItem = elements.GetChildren().OrderByDescending(x => x.Fields["Date"].Value);
+    var locate = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "school").FirstOrDefault().Value;
+    List<Item> items = null;
+    if (sortedItem != null)
+    {
+        items = sortedItem.Where(x => x.Fields["Location"].Value == locate).ToList();
+    }
+}
+<section class="latest_happenings pb-5">
+    <div class="section_top_curve">
+        <img alt="" src="-/media/9A918C6789554712ABCAA41919F0EC9A.ashx" class="lazyload" loading="lazy" />
+    </div>
+    <div class="container">
+        <h2 data-aos="fade-down" data-aos-easing="linear" data-aos-duration="1000">Latest Happenings</h2>
+		<div class="row">
+        @foreach (var item1 in items)
+        {
+            Sitecore.Data.Fields.ImageField imgFieldss = ((Sitecore.Data.Fields.ImageField)item1.Fields["Image"]);
+            string imgurls = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgFieldss.MediaItem);
+
+            
+                <div class="col-lg-6 mb-lg-0 mb-5">
+                    <div class="latest_happenings--active" data-aos="fade-right" data-aos-easing="linear" data-aos-duration="1500">
+                        <a href="/latest-happenings">
+                            <div class="latest_happenings--thumb">
+                                <img alt="Latest Happenings" src="@imgurls" class="lazyload" loading="lazy" />
+                            </div>
+                            <div class="latest_happenings--desc">
+                                <h4>@Html.Sitecore().Field("Body", item1)</h4>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+				   i++;
+            if (i == 2)
+            {
+                break;
+            }
+        }
+            </div>
+         
+
+    </div>
+
+    <div class="text-center mt-lg-5 mt-4"><a href="/latest-happenings" class="btn btn-dark d-inline-block">All News</a></div>
+</section>
+<!--/Section-->

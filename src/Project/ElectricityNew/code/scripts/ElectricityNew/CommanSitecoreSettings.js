@@ -1,0 +1,2 @@
+﻿var apiSettings = "/api/sitecore";
+

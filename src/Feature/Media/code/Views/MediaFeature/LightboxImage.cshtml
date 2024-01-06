@@ -1,0 +1,66 @@
+@using Sitecore.Feature.Media
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaImage.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaImage.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@*TODO: Page editor mode*@
+@{
+    const int ThumbnailWidth = 750;
+    const int maxWidth = 1200;
+    var thumbnailField = Model.Item.FieldHasValue(Templates.HasMedia.Fields.Thumbnail) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+    var thumbnail = Html.Sitecore().ImageField(thumbnailField, Model.Item, mw: ThumbnailWidth, cssClass: "img-responsive");
+    if (string.IsNullOrWhiteSpace(thumbnail?.ToString()))
+    {
+        return;
+    }
+}
+
+@*<div class="thumbnail mosaic mosaic-circle lightbox-item lightbox-image">
+      <div class="mosaic-overlay mosaic-overlay-no-pointer">
+        <span class="fa fa-search-plus icon-lg"></span>
+      </div>
+      <div class="mosaic-backdrop">
+        <a href="@Model.Item.ImageUrl(Templates.HasMediaImage.Fields.Image, new MediaUrlOptions(maxWidth, 0, false))" data-type="image" data-title="@Model.Item[Templates.HasMedia.Fields.Title]" data-footer="@Html.Encode(Html.Sitecore().Field(Templates.HasMedia.Fields.Description, Model.Item))" data-toggle="lightbox" data-gallery="page">
+          @thumbnail
+        </a>
+      </div>
+    </div>*@
+<div class="homepage">
+    <div class="mainBanner">
+        <div class="bannerImg">
+            @thumbnail
+        </div>
+        <div class="customerCare">
+            <span class="sprite phoneIcon align-middle"></span>
+            <span class="align-middle">&nbsp;&nbsp;1800-200-3030(24x7 Toll Free)</span>
+        </div>
+        <div class="bannerCnt d-none d-md-block">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-7 col-lg-5 col-xl-4 ml-auto">
+                        @Html.Sitecore().Placeholder("banner-login")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- Account Box for mobile users -->
+    <section class="section bg-pattern-light d-block d-md-none">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-sm-12">
+                    @Html.Sitecore().Placeholder("login-mobile-Control")
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /Account Box for mobile users -->

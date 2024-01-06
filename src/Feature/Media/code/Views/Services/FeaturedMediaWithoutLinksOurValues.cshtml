@@ -1,0 +1,83 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var currentPage = Sitecore.Context.Item;
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+    var dataSource = Sitecore.Context.Database.GetItem(dataSourceId);
+}
+
+@if (dataSource != null)
+{
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectField = dataSource.Fields[Templates.Offers.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+    <div class="section-container">
+        <div class="carousel_wrapper">
+            <header class="section-header-main justify-item">
+                @{
+                    var componentTitle = Html.Sitecore().Field(Templates.Offers.Fields.Title);
+                    var message = Html.Sitecore().Field(Templates.Offers.Fields.Title);
+                    <h2>@componentTitle<span class="subcopy"> @Html.Sitecore().Field(Templates.Offers.Fields.Description)</span></h2>
+                    <aside>
+                        <a class="waves-effect waves-light btn see-all"> @Html.Sitecore().Field(Templates.Offers.Fields.Title)</a>
+                        <div class="carousel-nav hide-on-med-and-down"></div>
+                    </aside>
+                }
+            </header>
+
+            <div class="owl-carousel standard-card removeSliderMob image-height-auto " data-items-desktop="3" data-items-mobile="1.5">
+                @foreach (var item in items)
+                {
+                    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                    string ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+
+                    Sitecore.Data.Fields.LinkField linkfld = item.Fields["CTALink"];
+                    var url = linkfld.GetFriendlyUrl();
+
+                    var title = @Html.Sitecore().Field(Templates.Services.Fields.Title, item);
+
+                    var description = @Html.Sitecore().Field(Templates.Services.Fields.Description, item);
+
+                    var ctaText = @Html.Sitecore().Field(Templates.Services.Fields.CTAText, item);
+
+                    <div class="card">
+                        @{
+
+                            <div class="card-image">
+
+                                @if (!string.IsNullOrEmpty(ImageUrl))
+                                {
+
+                                    <img src="@ImageUrl" alt="@title">
+
+                                }
+
+                            </div>
+                            <div class="card-content">
+                                @if (!string.IsNullOrEmpty(title.ToString()))
+                                {
+                                    <h5 class="title-h">@title  </h5>
+                                }
+                                @if (!string.IsNullOrEmpty(description.ToString()))
+                                {
+                                    @Html.Raw(description)
+                                }
+                                @if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(ctaText.ToString()))
+                                {
+                                    <span class="link-btn">@ctaText </span>
+                                }
+
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

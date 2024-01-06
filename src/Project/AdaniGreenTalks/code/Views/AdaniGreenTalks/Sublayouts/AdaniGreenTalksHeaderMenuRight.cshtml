@@ -1,0 +1,146 @@
+﻿@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string linkurl = "#";
+    string childlinkurl = "#";
+    string linkClass = "";
+    int count = 1;
+}
+
+
+
+@if (model != null)
+{
+    if (model.GetChildren().Count > 0)
+    {
+        <ul>
+            @foreach (Item item in model.GetChildren())
+            {
+
+				if (item.HasChildren)
+				{
+					Sitecore.Data.Fields.LinkField linkvalue = item.Fields[Constant.Link];
+					if (linkvalue != null)
+					{
+						linkurl = linkvalue.GetFriendlyUrl();
+
+						if (linkvalue.LinkType == "internal")
+						{
+							<li>
+								<a>
+									@Html.Sitecore().Field(Constant.ShortTitle, item)
+								</a>
+								<ul class="submenu-btm">
+								 @foreach (Item childitem in item.GetChildren())
+								 {
+								    Sitecore.Data.Fields.LinkField childlinkvalue = childitem.Fields[Constant.Link];
+									childlinkurl = childlinkvalue.GetFriendlyUrl();
+									<li>
+										<a href="@childlinkurl">
+											@Html.Sitecore().Field(Constant.ShortTitle, childitem)
+										</a>
+									</li>
+								 }
+							</ul>
+							</li>
+
+						}
+						if (linkvalue.LinkType == "external")
+						{
+							<li>
+								<a href="@linkurl" target="_blank">
+									@Html.Sitecore().Field(Constant.ShortTitle, item)
+								</a>
+								<ul class="submenu-btm">
+								 @foreach (Item childitem in item.GetChildren())
+								 {
+								    Sitecore.Data.Fields.LinkField childlinkvalue = childitem.Fields[Constant.Link];
+									childlinkurl = childlinkvalue.GetFriendlyUrl();
+									<li>
+										<a href="@childlinkurl">
+											@Html.Sitecore().Field(Constant.ShortTitle, childitem)
+										</a>
+									</li>
+								 }
+							</ul>
+							</li>
+						}
+
+					}
+					else
+					{
+						<li>
+							<a href="@linkurl">
+								@Html.Sitecore().Field(Constant.ShortTitle, item)
+							</a>
+							<ul class="submenu-btm">
+								 @foreach (Item childitem in item.GetChildren())
+								 {
+								    Sitecore.Data.Fields.LinkField childlinkvalue = childitem.Fields[Constant.Link];
+									childlinkurl = childlinkvalue.GetFriendlyUrl();
+									<li>
+										<a href="@childlinkurl">
+											@Html.Sitecore().Field(Constant.ShortTitle, childitem)
+										</a>
+									</li>
+								 }
+							</ul>
+						</li>
+
+					}
+				} 
+				else
+				{
+					Sitecore.Data.Fields.LinkField linkvalue = item.Fields[Constant.Link];
+					if (linkvalue != null)
+					{
+						linkurl = linkvalue.GetFriendlyUrl();
+
+						if (linkvalue.LinkType == "internal")
+						{
+							<li>
+								<a href="@linkurl">
+									@Html.Sitecore().Field(Constant.ShortTitle, item)
+								</a>
+							</li>
+
+						}
+						if (linkvalue.LinkType == "external")
+						{
+							<li>
+								<a href="@linkurl" target="_blank">
+									@Html.Sitecore().Field(Constant.ShortTitle, item)
+								</a>
+							</li>
+						}
+
+					}
+					else
+					{
+						<li>
+							<a href="@linkurl">
+								@Html.Sitecore().Field(Constant.ShortTitle, item)
+							</a>
+						</li>
+
+					}
+				}          
+                count++;
+            }
+
+
+        </ul>
+
+    }
+}
+

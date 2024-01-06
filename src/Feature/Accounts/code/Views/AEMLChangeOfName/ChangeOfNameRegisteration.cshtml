@@ -1,0 +1,208 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.ChangeOfNameRegistrationModel
+@{
+    var LECLoginPage = (Sitecore.Context.Database.GetItem(Templates.LECPortal.LECUserLoginPage)).Url();
+}
+@if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+{
+    <div class="form-group row">
+        <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+    </div>
+}
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmregistrationValidate" }))
+{
+    <div class="row" style="padding: 0rem 0rem;">
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="col-lg-12 my-4" style="margin-top: 2rem !important;">
+            <div class="accServicesOuter">
+                <div class="breadcrumbBar">
+                    <ul>
+                        <li class=""><a href="/">Home</a></li>
+                    </ul>
+                </div>
+                <h2 class="txt-orange">Change Name on the Bill</h2>
+                <p>&nbsp;</p>
+                <a href="@LECLoginPage" class="btn btn-secondary">Click here if you are an LEC</a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="form_namechange h-100">
+                <h3><em class="fas fa-user-plus mr-3"></em>@Html.Sitecore().Dictionary("/CON/Register/New Request Text", "New Request")</h3>
+                <div class="px-4">
+
+                    @if (!Model.IsvalidatAccount)
+                    {
+                        <div class="input-group mb-3">
+                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AccountNo, "", new { @class = "help-block" }, "p")
+                        </div>
+                        <div class="captcha_box">
+                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                <div class="row captcha_box">
+                                    <div class="col-lg-12">
+                                        <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <div class="ml-auto text-right">
+                                    <input type="submit" class="btn btn-primary" name="ValidateAccount" value="@Html.Sitecore().Dictionary("/CON/Register/Validate Account Button text", "Validate")" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="input-group mb-3">
+                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                        </div>
+                    }
+
+
+                    @if (Model.IsvalidatAccount || Model.IsOTPSent)
+                    {
+                        <div class="form-group">
+                            <label for="">@Html.Sitecore().Dictionary("/CON/Register/Registered Customer Name", "Registered Customer Name")</label>
+                            @Html.TextBoxFor(x => x.Name, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                            @Html.ValidationMessageFor(x => x.Name, "", new { @class = "help-block" }, "p")
+                        </div>
+                        <div class="input-group mb-3">
+                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/Mobile Number", "Mobile Number")</label>
+                            @Html.TextBoxFor(x => x.MobileNo, new { @class = "form-control reset-control", id = "MobileNo", required = "required" })
+
+                            @if (!Model.IsOTPCallExceeded)
+                            {
+                                if (Model.IsvalidatAccount && Model.IsOTPSent)
+                                {
+                                    <div class="input-group-append">
+                                        <input type="submit" class="btn btn-secondary" name="SendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Send OTP", "Resend OTP")" />
+                                    </div>
+                                }
+                                else if (Model.IsvalidatAccount)
+                                {
+                                    <div class="input-group-append">
+                                        <input type="submit" class="btn btn-secondary" name="SendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Get OTP", "Get OTP")" />
+                                    </div>
+                                }
+                            }
+
+                        </div>
+                        <div>@Html.ValidationMessageFor(x => x.MobileNo, "", new { @class = "help-block" }, "p")</div>
+                    }
+                    @if (Model.IsOTPSent)
+                    {
+                        <div class="input-group mb-3">
+                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/Enter OTP", "Enter OTP")</label>
+                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber" })
+
+                            <div class="input-group-append">
+                                <input type="submit" class="btn btn-secondary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/CON/Register/Submit Button text", "Submit")" />
+                            </div>
+                        </div>
+                        <div>
+                            @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                        </div>
+                    }
+                    @*@if (Model.IsOTPValid)
+                        {
+                            <div class="form-group text-right mb-0">
+                                <input type="submit" class="btn btn-primary" name="submit" value="@Html.Sitecore().Dictionary("/CON/Register/Submit Button text", "Submit")" />
+                            </div>
+                        }*@
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 mt-3 mt-lg-0 ml-lg-4">
+            <form class="h-100" id="checkAppform">
+                <div class="form_namechange-login h-100">
+                    <h3><em class="fas fa-file-signature mr-3"></em>Check status of Application /<br> Access Draft Application</h3>
+                    <div class="px-4">
+                        <div class="input-group mb-3" id="divAccountNum">
+                            <label for="" class="w-100">Enter 9 digit Consumer Account Number</label>
+                            @Html.TextBoxFor(x => x.AccountNoForCheckApplication, new
+                       {
+                           @class = "form-control"})
+
+                        </div>
+                        <p class="my-3 text-center" id="divor"><b>OR</b></p>
+                        <div class="input-group mb-3" id="divRegNum">
+                            <label for="" class="w-100">Enter Reference No</label>
+                            @Html.TextBoxFor(x => x.RegistrationNoForCheckApplication, new
+                       {
+                           @class = "form-control"})
+
+                        </div>
+                        <div class="input-group mb-3" id="OTPForCheckApplication" style="display:none;">
+                            <p id="messageCaReg" class="txt-green"></p>
+                            <label for="" class="w-100">Enter OTP</label>
+                            @Html.TextBoxFor(x => x.OTPNumberForCheckApplication, new
+                       {
+                           @class = "form-control"})
+
+                        </div>
+                        <div>
+                            @*@Html.ValidationMessageFor(x => x.AccountNoForCheckApplication, "", new { @class = "help-block" }, "p")*@
+                            <p id="errorCaReg" class="txt-orange"></p>
+                        </div>
+                        <div class="form-group text-right mb-0">
+                            <input type="button" name="Register" value="Check Application" id="CheckApplication" class="btn btn-primary">
+                            <input type="button" style="display:none;" name="cancel" value="Cancel" id="CancelApp" class="btn btn-secondary">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                                <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+

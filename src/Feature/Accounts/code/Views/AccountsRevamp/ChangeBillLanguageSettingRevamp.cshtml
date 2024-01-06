@@ -1,0 +1,337 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.ChangeBillLanguage
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+
+}
+
+
+
+<div class="col s12 l8 offset-l1">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+
+    <div class="card brand-gradient remove-gradient outlined border-none-mobile section-container">
+        <div style="padding:32px;">
+            @Html.Sitecore().Placeholder("switch-account-content")
+            <div class="step-2-form">
+                <div class="card">
+                    <div class="card-body">
+
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.AntiForgeryToken()
+
+                            <div class="form-field">
+
+                                <header class="section-header">
+                                    <h4 style="font-size: 16px; font-family: Roboto-bold;">@Html.Sitecore().Dictionary("/Services/ChangeBillLanguageRevamp/Choose your billing language", "Choose your billing language")</h4>
+                                    <p>
+                                        @Html.Sitecore().Dictionary("/Services/ChangeBillLanguageRevamp/Simply choose the language", " Simply choose the language in which you want to receive your electricity.")
+                                    </p>
+                                </header>
+
+                                <div class="field-group">
+                                    @foreach (var language in Model.BillLanguageList)
+                                    {
+                                        <div class="radio-field">
+                                            <div class="radio-field">
+                                                <label>
+
+                                                    @Html.RadioButtonFor(model => model.BillLanguageSelected, language.ToString(), new { id = "lang" + language, @class = "with-gap" })
+                                                    <span>@language.ToString()</span>
+
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="card-with-form">
+                                    <div class="h-right btn-group">
+                                        <button type="submit" class="waves-effect btn login-btn"data-gaevent="settings_change_language"
+                                            data-gaeventCategory="My Account"
+                                            data-gaeventAction="Settings | Change Language"
+                                            data-gaeventLabel="@Model.BillLanguageSelected">Update</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        @if (ViewBag.Paperless_Billing != null)
+        {
+            <div class="setting-wrapper">
+                <div class="bill-statement setting-inner-wrapper">
+                    <div class="items">
+                        <img src="/electricity_assets/images/billstatement.png" />
+                        <div class="item-content">
+                            <h5>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Paperless Billing", "Paperless Billing")
+
+                            </h5>
+                            <p>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Paperless Billing Enable to receive your bills", "Enable to receive your bills on your registered Email ID and Mobile No.")
+
+                            </p>
+                        </div>
+                    </div>
+                    <div class="switch">
+                        <label>
+                            @*@Html.CheckBox("chkPaperlessBilling", (bool)ViewBag.Paperless_Billing)*@
+                            <input type="checkbox" id="chkPaperlessBilling" @if ((bool)ViewBag.Paperless_Billing) { <text> checked</text>} onclick="checkPaperlessBillingStatus()" />
+                            <span class="lever"></span>
+                        </label>
+                    </div>
+                </div>
+                @*<div class="bill-statement setting-inner-wrapper">
+                    <div class="items">
+                        <img src="/electricity_assets/images/billstatement.png" />
+                        <div class="item-content">
+                            <h5>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Bill Over SMS", "Bill Over SMS")
+
+
+                            </h5>
+                            <p>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Bill Over SMS Enable to receive your bills", "Enable to receive your bills on your registered Email ID and Mobile No.")
+
+                            </p>
+                        </div>
+
+                    </div>
+                    <div class="switch">
+                        <label>
+                            @*<input type="checkbox" id="chkBillOverSMS" @if ((bool)ViewBag.BillOverSMS) { <text> checked</text>} onclick="checkBillOverSMS()" />*@
+                @*<input type="checkbox" />
+                                <span class="lever"></span>
+                            </label>
+                        </div>
+                    </div>*@
+                <div class="bill-statement setting-inner-wrapper">
+                    <div class="items">
+                        <img src="/electricity_assets/images/billstatement.png" />
+                        <div class="item-content">
+                            <h5>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Email Alert", "Email Alert")
+
+                            </h5>
+                            <p>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Email Alert Enable to receive your bills", "Enable to receive your bills on your registered Email ID and Mobile No.")
+                            </p>
+                        </div>
+
+                    </div>
+                    <div class="switch">
+                        <label>
+                            <input type="checkbox" id="chkEmailAlert" @if ((bool)ViewBag.EmailAlert) { <text> checked</text>} onclick="checkEmailAlert()" />
+                            <span class="lever"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="bill-statement setting-inner-wrapper">
+                    <div class="items">
+                        <img src="/electricity_assets/images/billstatement.png" />
+                        <div class="item-content">
+                            <h5>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/SMS Alert", "SMS Alert")
+
+                            </h5>
+                            <p>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/SMS Alert Enable to receive your bills", "Enable to receive your bills on your registered Email ID and Mobile No.")
+                            </p>
+                        </div>
+
+                    </div>
+                    <div class="switch">
+                        <label>
+                            <input type="checkbox" id="chkSMSAlert" @if ((bool)ViewBag.SMSAlert) { <text> checked</text>} onclick="checkSMSAlert()" />
+                            <span class="lever"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script>
+    function checkPaperlessBillingStatus() {
+        var PaperlessBilling = $("#chkPaperlessBilling").prop('checked');
+        $('.loader-wrap').show();
+
+        var isChecked = '@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Paperless Billing", "Paperless Billing") | Un-check ';
+        if ($('#chkPaperlessBilling').is(":checked")) {
+            isChecked = ' @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Paperless Billing", "Paperless Billing") |checked ';
+        }
+        dataLayer.push({
+            'event': "settings_toggle_button_click",
+            'eventCategory': "My Account",
+            'eventAction': "Settings | Toggle Button Clicked",
+            'eventLabel' :  isChecked ,
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+        $.ajax({
+            url: apiSettings + "/AccountsRevamp/PaperlessBilling",
+            type: 'GET',
+            /**/
+            data: { PaperlessBilling: PaperlessBilling },
+            /**/
+            dataType: 'text',
+            success: function (data) {
+                $('.loader-wrap').hide();
+                console.log("sucess");
+                var result = JSON.parse(data);
+                ShowAlert(result.IsSuccess, result.Header, result.Message);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation--' + "http://" + $(location).attr('host') + '/Setting/ChangeBillLanguageSettingRevamp?ca_number=' + errorThrown);
+
+            }
+        });
+    }
+
+    function checkBillOverSMS() {
+        var BillOverSMS = $("#chkBillOverSMS").prop('checked');
+        $('.loader-wrap').show();
+
+         @*dataLayer.push({
+            'event': "settings_toggle_button_click",
+            'eventCategory': "My Account",
+            'eventAction': "Settings | Toggle Button Clicked",
+            'eventLabel' : "@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Paperless Billing", "Paperless Billing") |@if ((bool)ViewBag.Paperless_Billing) { <text> checked</text>} else {<text> Unchecked </text> }" ,
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#CANumber').val(),
+            'page_type': $('head title').text()
+        });*@
+        $.ajax({
+            url: apiSettings + "/AccountsRevamp/PaperlessBilling",
+            type: 'GET',
+            /**/
+            data: { BillOverSMS: BillOverSMS },
+            /**/
+            dataType: 'text',
+            success: function (data) {
+                $('.loader-wrap').hide();
+                console.log("sucess");
+                if (data == "success") {
+                    location.reload();
+                    console.log("sucess");
+                } else {
+                    location.reload();
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation--' + "http://" + $(location).attr('host') + '/Setting/ChangeBillLanguageSettingRevamp?ca_number=' + errorThrown);
+
+            }
+        });
+    }
+
+    function checkEmailAlert() {
+        var EmailAlert = $("#chkEmailAlert").prop('checked');
+        $('.loader-wrap').show();
+
+        var isChecked = '@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Email Alert", "Email Alert") | Un-check';
+        if ($('#chkEmailAlert').is(":checked")) {
+            isChecked = ' @Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/Email Alert", "Email Alert") | checked';
+        }
+         dataLayer.push({
+            'event': "settings_toggle_button_click",
+            'eventCategory': "My Account",
+            'eventAction': "Settings | Toggle Button Clicked",
+            'eventLabel' : isChecked ,
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+        $.ajax({
+            url: apiSettings + "/AccountsRevamp/EmailAlertsBody",
+            type: 'GET',
+            /**/
+            data: { EmailAlert: EmailAlert },
+            /**/
+            dataType: 'text',
+            success: function (data) {
+                $('.loader-wrap').hide();
+                console.log("sucess");
+                var result = JSON.parse(data);
+                ShowAlert(result.IsSuccess, result.Header, result.Message);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation--' + "http://" + $(location).attr('host') + '/Setting/ChangeBillLanguageSettingRevamp?ca_number=' + errorThrown);
+
+            }
+        });
+    }
+
+    function checkSMSAlert() {
+        var SMSAlert = $("#chkSMSAlert").prop('checked');
+        $('.loader-wrap').show();
+        var isChecked = '@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/SMS Alert", "SMS Alert")| Un-check ';
+        if ($('#chkSMSAlert').is(":checked")) {
+            isChecked = '@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Settings/SMS Alert", "SMS Alert")| checked ';
+        }
+               dataLayer.push({
+            'event': "settings_toggle_button_click",
+            'eventCategory': "My Account",
+            'eventAction': "Settings | Toggle Button Clicked",
+            'eventLabel' :  isChecked,
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+        $.ajax({
+            url: apiSettings + "/AccountsRevamp/SMSAlertsBody",
+            type: 'GET',
+            /**/
+            data: { SMSAlert: SMSAlert },
+            /**/
+            dataType: 'text',
+            success: function (data) {
+                $('.loader-wrap').hide();
+                console.log("sucess");
+                var result = JSON.parse(data);
+                ShowAlert(result.IsSuccess, result.Header, result.Message);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation--' + "http://" + $(location).attr('host') + '/Setting/ChangeBillLanguageSettingRevamp?ca_number=' + errorThrown);
+
+            }
+        });
+    }
+
+    //$('.lever').click(function () {
+    //    dataLayer.push({
+    //        'event': "manage_connections_unlink_account_confirmation",
+    //        'eventCategory': "My Account",
+    //        'eventAction': "'Manage Connections | Unlink Account |Confirmation",
+    //        'eventLabel': "NA",
+    //        'business_user_id': $('#BusinessUserId').val(),
+    //        'login_status': $('#login_status').val(),
+    //        'ca_number': $('#CANumber').val(),
+    //        'page_type': $('head title').text()
+    //    });
+
+    //})
+
+
+
+
+</script>

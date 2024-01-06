@@ -1,0 +1,281 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    string datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+
+    Item rootItem = Sitecore.Context.Database.GetItem(Sitecore.Context.Site.RootPath);
+    string linkurl = string.Empty;
+    string childlinkurl = string.Empty;
+    string itemName = string.Empty;
+
+    int i = 1;
+}
+<header class="c-header fixed-top">
+    <div class="container">
+        <nav class="navbar navbar-expand-md navbar-dark">
+            <a class="navbar-brand" href="/">
+                @if (rootItem != null)
+                {
+                    @Html.Sitecore().ImageField("Logo", rootItem)
+                }
+            </a>
+
+            <button class="navbar-toggler btn-menu" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <em class="fas fa-bars"></em>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav ml-auto web-nav">
+
+                    @if (model != null)
+                    {
+                        if (model.GetChildren() != null)
+                        {
+                            foreach (Item item in model.GetChildren())
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+
+                                if (linkvalue != null)
+                                {
+                                    linkurl = linkvalue.GetFriendlyUrl();
+                                }
+
+                                if (item.HasChildren)
+                                {
+
+                                    <li class="nav-item dropdown">
+                                        @if (linkurl != null && !string.IsNullOrEmpty(linkurl))
+                                        {
+                                            CheckboxField checkbox = item.Fields["IsExternalLink"];
+                                            if (checkbox != null && checkbox.Checked)
+                                            {
+                                                <a rel="noopener noreferrer" class="nav-link" href="@linkurl" target="_blank">@Html.Sitecore().Field("ShortTitle", item)</a>
+                                            }
+                                            else
+                                            {
+                                                <a rel="noopener noreferrer" class="nav-link" href="@linkurl">@Html.Sitecore().Field("ShortTitle", item)</a>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <a rel="noopener noreferrer" class="nav-link" >@Html.Sitecore().Field("ShortTitle", item)</a>
+                                        }
+
+
+                                        <div class="dropdown-content">
+                                            <div class="container-fluid drop-box">
+                                                <div class="row">
+                                                    @foreach (Item child in item.GetChildren())
+                                                    {
+                                                        <div class="col-lg-6 col-sm-12">
+                                                            <h6 class="drop-title">
+                                                                <strong>@Html.Sitecore().Field("ShortTitle", child)</strong>
+                                                            </h6>
+                                                            @if (child.HasChildren)
+                                                            {
+                                                            <div class="drop-link-move">
+                                                                @foreach (Item subitem in child.GetChildren())
+                                                                {
+                                                                    Sitecore.Data.Fields.LinkField childlinkvalue = subitem.Fields["Link"];
+                                                                    if (childlinkvalue != null)
+                                                                    {
+                                                                        childlinkurl = childlinkvalue.GetFriendlyUrl();
+                                                                    }
+                                                                    if (childlinkurl != null && !string.IsNullOrEmpty(childlinkurl))
+                                                                    {
+                                                                        CheckboxField checkbox = subitem.Fields["IsExternalLink"];
+                                                                        if (checkbox != null && checkbox.Checked)
+                                                                        {
+                                                                            <a class="dropdown-item" href="@childlinkurl" target="_blank">@Html.Sitecore().Field("ShortTitle", subitem)</a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a class="dropdown-item" href="@childlinkurl">@Html.Sitecore().Field("ShortTitle", subitem)</a>
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a class="dropdown-item">@Html.Sitecore().Field("ShortTitle", subitem)</a>
+                                                                    }
+
+                                                                }
+                                                            </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </li>
+
+                                }
+                                else
+                                {
+                                    if (linkurl != null && !string.IsNullOrEmpty(linkurl))
+                                    {
+                                        CheckboxField checkbox = item.Fields["IsExternalLink"];
+                                        if (checkbox != null && checkbox.Checked)
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="@linkurl" target="_blank">@Html.Sitecore().Field("ShortTitle", item)</a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="@linkurl">@Html.Sitecore().Field("ShortTitle", item)</a>
+                                            </li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link" >@Html.Sitecore().Field("ShortTitle", item)</a>
+                                        </li>
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                </ul>
+
+
+            @* Mobile Header *@
+
+                <ul class="navbar-nav ml-auto mobile-nav">
+
+                    @if (model != null)
+                    {
+                        if (model.GetChildren() != null)
+                        {
+                            foreach (Item item in model.GetChildren())
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+
+                                if (linkvalue != null)
+                                {
+                                    linkurl = linkvalue.GetFriendlyUrl();
+                                }
+
+                                if (item.HasChildren)
+                                {
+
+                                    <li class="nav-item dropdown sitemap-link d-block">
+                                    <span class="nav-link link-flex">
+                                        @if (linkurl != null && !string.IsNullOrEmpty(linkurl))
+                                        {
+                                            CheckboxField checkbox = item.Fields["IsExternalLink"];
+                                            if (checkbox != null && checkbox.Checked)
+                                            {
+                                                <a rel="noopener noreferrer" class="" href="@linkurl" target="_blank">@Html.Sitecore().Field("ShortTitle", item) </a>
+                                                <i class="fas fa-angle-right"></i>
+                                            }
+                                            else
+                                            {
+                                                <a rel="noopener noreferrer" class="" href="@linkurl">@Html.Sitecore().Field("ShortTitle", item) </a>
+                                                <i class="fas fa-angle-right"></i>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <a rel="noopener noreferrer" class="" >@Html.Sitecore().Field("ShortTitle", item) </a>
+                                            <i class="fas fa-angle-right"></i>
+                                        }
+                                    </span>
+
+
+                                        <div class="dropdown-content ft-mobilemenu">
+                                            <div class="container-fluid drop-box">
+                                                <div class="row">
+                                                    @foreach (Item child in item.GetChildren())
+                                                    {
+                                                        <div class="col-lg-6 col-sm-12">
+                                                            <h6 class="drop-title">
+                                                                <strong>@Html.Sitecore().Field("ShortTitle", child)</strong>
+                                                            </h6>
+                                                            @if (child.HasChildren)
+                                                            {
+                                                            <div class="drop-link-move">
+                                                                @foreach (Item subitem in child.GetChildren())
+                                                                {
+                                                                    Sitecore.Data.Fields.LinkField childlinkvalue = subitem.Fields["Link"];
+                                                                    if (childlinkvalue != null )
+                                                                    {
+                                                                        childlinkurl = childlinkvalue.GetFriendlyUrl();
+                                                                    }
+                                                                    if (childlinkurl != null  && !string.IsNullOrEmpty(childlinkurl))
+                                                                    {
+                                                                        CheckboxField checkbox = subitem.Fields["IsExternalLink"];
+                                                                        if (checkbox != null && checkbox.Checked)
+                                                                        {
+                                                                            <a class="dropdown-item" href="@childlinkurl" target="_blank">@Html.Sitecore().Field("ShortTitle", subitem)</a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a class="dropdown-item" href="@childlinkurl">@Html.Sitecore().Field("ShortTitle", subitem)</a>
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a class="dropdown-item" >@Html.Sitecore().Field("ShortTitle", subitem)</a>
+                                                                    }
+
+                                                                }
+                                                            </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </li>
+
+                                }
+                                else
+                                {
+                                    if (linkurl != null && !string.IsNullOrEmpty(linkurl))
+                                    {
+                                        CheckboxField checkbox = item.Fields["IsExternalLink"];
+                                        if (checkbox != null && checkbox.Checked)
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="@linkurl" target="_blank">@Html.Sitecore().Field("ShortTitle", item)</a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link" href="@linkurl">@Html.Sitecore().Field("ShortTitle", item)</a>
+                                            </li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item">
+                                            <a class="nav-link" >@Html.Sitecore().Field("ShortTitle", item)</a>
+                                        </li>
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                </ul>
+
+            </div>
+        </nav>
+    </div>
+</header>
+

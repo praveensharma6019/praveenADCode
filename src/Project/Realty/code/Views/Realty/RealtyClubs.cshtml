@@ -1,0 +1,48 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var model = Sitecore.Context.Item;
+    var homeitem = Sitecore.Context.Site.GetStartItem();
+    var property = homeitem.Axes.GetDescendants().Where(x => x.TemplateID == Templates.Clubs.ID).ToList();
+}
+<!-- Projects -->
+<section class="belvedere section">
+    <div class="bg-images">
+        @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, model)
+    </div>
+    <div class="container">
+        @if (property != null)
+        {
+            <div class="row">
+                @foreach (var item in property)
+                {
+                    var itemlocation = item.GetMultiListValueItems(Templates.Clubs.Fields.Location).FirstOrDefault();
+                    <div class="col-lg-6 mb-3">
+                        <div class="clubimg">
+                            @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid" })
+                        </div>
+                        <div class="clubhd txt-center bg-gray py-4 px-3">
+                            @Html.Sitecore().Field(Templates.Clubs.Fields.Logo, item, new { @class = "mb-3" })
+                            <h3 class="mb-2 txt-d-blue">@Html.Sitecore().Field(Templates.Clubs.Fields.ClubTitle, item)</h3>
+                            <h4 class="mb-3 txt-gray">@Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)</h4>
+                            <p class="mb-3">
+                                @Html.Sitecore().Field(Templates.Clubs.Fields.ClubDescription, item)
+                            </p>
+                            <p>
+                                @Html.Sitecore().BeginField("Link", item, new { haschildren = true, @class = "btn btn-contact ml-auto mr-auto", @target = "_blank" })
+                                @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)
+                                @Html.Sitecore().EndField()
+                            </p>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+
+    </div>
+</section>
+
+<!-- /Projects -->

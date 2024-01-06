@@ -1,0 +1,462 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization
+
+@model Sitecore.Feature.Accounts.Models.ViewPayBill
+@{
+    double outputval1 = 0;
+}
+
+
+<div class="col s12 l8 offset-l1 section-wrapper">
+    <header class="section-header">
+        <h1>@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Sub Menu/My Current Bills", "My Current Bills")</h1>
+        <p>@Sitecore.Context.Item.Fields["Summary"]</p>
+    </header>
+    <div class="card brand-gradient outlined section-inner-wrapper border-none-mobile">
+        @Html.Sitecore().Placeholder("switch-account-content")
+
+        @if (double.TryParse(Model.AmountPayable, out outputval1))
+        {
+            var addressFormat = Model.Address.ToLower().Replace("_", " ");
+            TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+            addressFormat = info.ToTitleCase(addressFormat);
+            if (outputval1 > 0)
+            {
+
+                <div class="bill-detail-header">
+                    <div class="bill-detail-content">
+                        @Html.HiddenFor(x => x.AccountNumber, new { @class = "form-control-plaintext", id = "AccountNumber", @readonly = "" })
+                        @Html.HiddenFor(x => x.AmountPayable, new { @class = "form-control-plaintext", id = "", @readonly = "" })
+                        @Html.HiddenFor(x => x.PaymentDueDate, new { @class = "form-control-plaintext", id = "", @readonly = "" })
+                        @Html.HiddenFor(x => x.TotalBillAmount, new { @class = "form-control-plaintext", id = "TotalBillAmount", @readonly = "" })
+                        <input type="hidden" value="@Model.AmountPayable" id="amount_payable_actual" />
+                        @*@{
+
+                                if (double.TryParse(Model.AmountPayable, out outputval1))
+                                {
+                                    if (outputval1 > 0)
+                                    {
+                                        @Html.TextBoxFor(x => x.AmountPayable, new { @class = "form-control", id = "amountPayable" })
+                                    }
+                                    else
+                                    {
+                                        @Html.TextBoxFor(x => x.AmountPayable, new { @class = "form-control-plaintext", id = "amountPayable", @readonly = "readonly" })
+                                    }
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(x => x.AmountPayable, new { @class = "form-control", id = "amountPayable" })
+                                }
+                            }*@
+                        <h4> ₹@Model.AmountPayable</h4>
+                        <p>
+                            @if (Model.AmountPayable != "0")
+                            {
+                                if (Model.PaymentDueDate == null || Model.PaymentDueDate == "0000-00-00")
+                                {
+                                    <span> N/A</span>
+                                }
+                                else
+                                {
+                                    if (Model.DueDateGraterthenFourDays)
+                                    {
+                                        //Changed by Prashant cause it was throwring error on again parsing it on view
+                                        <span style="color: red !important">Due on @Model.PaymentDueDate</span>
+                                        @*<span style="color:red"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+
+                                    }
+                                    else
+                                    {
+                                        //Changed by Prashant cause it was throwring error on again parsing it on view
+                                        <span style="color: red !important"> Due on @Model.PaymentDueDate</span>
+                                        @*<span style="color:black"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+                                    }
+                                    @*if (DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) > DateTime.Now.AddDays(-4))
+                                        {
+                                            <span style="color:black"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:red"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>
+                                        }*@
+
+                                }
+                            }
+                            else
+                            {
+                                <span style="color: black;"> No Bill Due</span>
+                            }
+                        </p>
+
+                    </div>
+                    <div class="bill-detail-cta">
+                        <button onclick="FetchQuickPay('')"
+                                data-gaevent="my_current_bill_payment_step_1"
+                                data-gaeventCategory="Bill Payment"
+                                data-gaeventAction="My Bill Payment Step 1"
+                                data-gaeventLabel="@Model.AccountNumber"
+                                class="waves-effect waves-light btn btn-continue">
+                            @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Pay Bill", "Pay Bill")
+                            </button>
+                            @*<input type="submit" class="waves-effect waves-light btn btn-continue" name="Pay_PaymentGateway" id="Pay_PaymentGateway" value="Pay Bill">*@
+                        </div>
+                    </div>
+
+
+                <div class="alert-box-discount success">
+                    <div class="alert-box-content-discount">
+                        <i class="vi-offer"></i>
+                        @Html.Raw(Sitecore.Context.Item.Fields["Body"])
+                    </div>
+                </div>
+
+
+                <div class="bill-detail-body">
+                    <h4>Bill Details</h4>
+                    <ul>
+
+                        <li>
+                            <label>Meter Number</label>
+                            <span>@Model.MeterNumber</span>
+                        </li>
+                        <li>
+                            <label>Book Number</label>
+                            <span>@Model.BookNumber</span>
+                        </li>
+                        <li>
+                            <label>Cycle Number</label>
+                            <span>@Model.CycleNumber</span>
+                        </li>
+                        <li>
+                            <label>Zone</label>
+                            <span>@Model.Zone</span>
+                        </li>
+                        <li>
+                            <label>Address</label>
+                            <span>@addressFormat</span>
+                        </li>
+                        <li>
+                            <label>Bill Month</label>
+                            <span>@Model.BillMonth</span>
+                        </li>
+                        <li>
+                            <label>Bill Date</label>
+                            <span>@Model.PaymentDueDate</span>
+                        </li>
+                        <li>
+                            <label>Tariff Slab</label>
+                            <span>@Model.TariffSlab</span>
+                        </li>
+                        <li>
+                            <label>Unit Consumed</label>
+                            <span>@Model.UnitsConsumed</span>
+                        </li>
+                        <li>
+                            <label>Total Bill Amount</label>
+                            <span>@Model.TotalBillAmount</span>
+                        </li>
+                        <li>
+                            <label>Current Month Bill</label>
+                            <span>@Model.CurrentMonthsBills</span>
+                        </li>
+                        <li>
+                            <label>Total Charges</label>
+                            <span>@Model.TotalCharges</span>
+                        </li>
+                        <li>
+                            <label>Previous Outstanding</label>
+                            <span>@Model.BroughtForward</span>
+                        </li>
+
+                        <li>
+                            <label>Minimum Payable</label>
+                            <span>@Model.AmountPayable</span>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+
+                @*<form action="/Payment/pay-your-bill" class="form-signin" id="frmRegister" method="Get">*@
+                    <div class="PayAdvancediv">
+                        <div class="bill-detail-header">
+                            <div class="bill-detail-content">
+
+                                @Html.HiddenFor(x => x.AccountNumber, new { @class = "form-control-plaintext", id = "AccountNumber", @readonly = "" })
+                                @Html.HiddenFor(x => x.AmountPayable, new { @class = "form-control-plaintext", id = "", @readonly = "" })
+                                @Html.HiddenFor(x => x.PaymentDueDate, new { @class = "form-control-plaintext", id = "", @readonly = "" })
+                                @Html.HiddenFor(x => x.TotalBillAmount, new { @class = "form-control-plaintext", id = "TotalBillAmount", @readonly = "" })
+                                <h4>₹@Model.AdvanceAmmount.ToString("0.00")</h4>
+
+                                <p>
+                                    @if (Model.AmountPayable != "0")
+                                    {
+                                        if (Model.PaymentDueDate == null || Model.PaymentDueDate == "0000-00-00")
+                                        {
+                                            <span> N/A</span>
+                                        }
+                                        else
+                                        {
+                                            if (Model.DueDateGraterthenFourDays)
+                                            {
+                                                //Changed by Prashant cause it was throwring error on again parsing it on view
+                                                <span style="color: red !important"> Due on @Model.PaymentDueDate</span>
+                                                @*<span style="color:black">Due on @Model.PaymentDueDate</span>*@
+                                                @*<span style="color:red"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+
+                                            }
+                                            else
+                                            {
+                                                //Changed by Prashant cause it was throwring error on again parsing it on view
+                                                <span style="color: red !important"> Due on @Model.PaymentDueDate</span>
+                                                @*<span style="color:black"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+                                            }
+                                            @*if (DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) > DateTime.Now.AddDays(-4))
+                                                {
+                                                    <span style="color:black"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:red"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>
+                                                }*@
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="color: black;"> No Bill Due</span>
+                                    }
+                                </p>
+                                @*<p>Next bill generation date: 28 Dec 2021</p> --- Not Available In SAP *@
+                            </div>
+                            @Html.ValidationMessageFor(x => x.AmountPayable, "", new { @class = "help-block" }, "p")
+                            <div class="bill-detail-cta">
+                                <button onclick="FetchQuickPay('')" class="waves-effect waves-light btn btn-continue" 
+                                        data-gaevent="current_bill_payment_step_1"
+                                        data-gaeventCategory="Bill Payment"
+                                        data-gaeventAction="Current Bill Payment Step 1"
+                                        data-gaeventLabel= "My Current Bills|Pay Advance">Pay Advance</button>
+                                @*<input type="submit" class="waves-effect waves-light btn btn-continue" name="Pay_PaymentGateway" id="Pay_PaymentGateway" value="Pay Advance">*@
+                            </div>
+                        </div>
+                    </div>
+                @*</form>*@
+
+                @*<div class="alert-box-discount success">
+                        <div class="alert-box-content-discount">
+                            <i class="vi-offer"></i>
+                            @Html.Raw(Sitecore.Context.Item.Fields["Body"])
+                        </div>
+                    </div>*@
+
+                @Html.Sitecore().Placeholder("divBenefitsContent")
+
+
+
+                <br />
+                <div class="bill-detail-body">
+                    <h4>Last Bill Details</h4>
+                    <ul>
+                        <li>
+                            <label> @Html.Sitecore().Dictionary("/Accounts/Edit Profile/Account Number", "Account Number")</label>
+                            @*<span>@Html.TextAreaFor(x => x.AccountNumber, new { @class = "form-control-plaintext", id = "AccountNumber", @readonly = "" })</span>*@
+                            <span>@Model.AccountNumber</span>
+                        </li>
+                        @*<li>
+                                <label>Last Payment Date</label>
+                                <span>@Model.TransactionDate</span>
+                            </li>
+                            <li>
+                                <label>Last Paid Amount</label>
+                                <span>@Model.AmountPayable</span>
+                            </li>
+                            <li>
+                                <label>Current Outstanding</label>
+                                <span>@Model.AdvanceAmmount</span>
+                            </li>*@
+
+                        <li>
+                            <label>Meter Number</label>
+                            <span>@Model.MeterNumber</span>
+                        </li>
+                        <li>
+                            <label>Book Number</label>
+                            <span>@Model.BookNumber</span>
+                        </li>
+                        <li>
+                            <label>Cycle Number</label>
+                            <span>@Model.CycleNumber</span>
+                        </li>
+                        <li>
+                            <label>Zone</label>
+                            <span>@Model.Zone</span>
+                        </li>
+                        <li>
+                            <label>Address</label>
+                            <span> @addressFormat</span>
+                        </li>
+                        <li>
+                            <label>Bill Month</label>
+                            <span>@Model.BillMonth</span>
+                        </li>
+                        <li>
+                            <label>Bill Date</label>
+                            <span>@Model.PaymentDueDate</span>
+                        </li>
+                        <li>
+                            <label>Tariff Slab</label>
+                            <span>@Model.TariffSlab</span>
+                        </li>
+                        <li>
+                            <label>Unit Consumed</label>
+                            <span>@Model.UnitsConsumed</span>
+                        </li>
+                        <li>
+                            <label>Total Bill Amount</label>
+                            <span>@Model.TotalBillAmount</span>
+                        </li>
+                        <li>
+                            <label>Current Month Bill</label>
+                            <span>@Model.CurrentMonthsBills</span>
+                        </li>
+                        <li>
+                            <label>Total Charges</label>
+                            <span>@Model.TotalCharges</span>
+                        </li>
+                        <li>
+                            <label>Previous Outstanding</label>
+                            <span>@Model.BroughtForward</span>
+                        </li>
+
+                        <li>
+                            <label>Minimum Payable</label>
+                            <span>@Model.AmountPayable</span>
+                        </li>
+
+                    </ul>
+                </div>
+            }
+        }
+
+
+
+
+
+
+
+
+        <div class="download-link-wrp" id="downloadLatestBillDetails">
+            <a href="javascript:void(0)">Download Bill</a>
+        </div>
+    </div>
+
+</div>
+
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+
+<script type="text/javascript">
+    function FetchQuickPay() {
+        var accountNumber = $('#AccountNumber').val();
+        $('.loader-wrap').show();
+       
+                window.location.href = "http://" + $(location).attr('host') + '/Payment/pay-your-bill?ca_number=' + getEncriptedKey(accountNumber);
+        
+    }
+
+    $(document).ready(function () {
+        BindDownPayBillRevampDataTable("#tblDownPayBillDataTable", apiSettings + "/AccountsRevamp/LoadData_DownloadPayBillRevamp");
+    })
+
+    function BindDownPayBillRevampDataTable(tableId, actionURL) {
+
+
+        $.ajax({
+            url: actionURL,
+            dataType: "json",
+            success: function (data) {
+                if (data.data != undefined && data.data != '' && data.data != null && data.data.InvoiceLines != '') {
+                    // $('#DownloadPayBillCount').html(data.data.InvoiceLines.length);
+                    $('#downloadLatestBillDetails').html(`<a class="waves-effect waves-light btn-small outlined" style="margin-top: 30px;color: #333;border: 1px solid #333;padding: 0 20px;text-decoration: none;" href="javascript:void(0)" onclick="DownloadFile('${data.data.InvoiceLines[0].BillMonth}');">Download Bill</a>`);
+                } else {
+                    $('#downloadLatestBillDetails').html('');
+                }
+            },
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+
+            }
+        });
+    }
+
+    function DownloadFile(month) {
+        var accountNumber = $('#AccountNumber').val();
+        $.ajax({
+            url: apiSettings + "/AccountsRevamp/DownloadPayBillRevamp", //  /api/Accounts/CreateDownloadPayBillRevamp    /api/AccountsRevamp/DownloadPayBillRevamp
+            type: 'POST',
+            cache: false,
+            data: { AccountNumber: getEncriptedKey(accountNumber), selectedMonth: month, viewBill: 'viewbill' },
+            success: function () {
+                openUrlInTab(apiSettings + "/AccountsRevamp/ActualPDFRenderingRevamp");
+                //window.open(apiSettings + "/AccountsRevamp/ActualPDFRenderingRevamp", "_blank");  //   /api/Accounts/ActualPDFRendering    /api/AccountsRevamp/ActualPDFRenderingRevamp
+            },
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+
+            }
+        });
+    }
+
+
+    function openUrlInTab(url) {
+        // Create link in memory
+        var a = window.document.createElement("a");
+        a.target = '_blank';
+        a.href = url;
+
+        // Dispatch fake click
+        var e = window.document.createEvent("MouseEvents");
+        e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
+    };
+
+
+
+</script>

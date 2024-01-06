@@ -1,0 +1,58 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.AdaniGreenTalks.Website;
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current?.Rendering?.DataSource;
+    Item model = datasource != null ? Sitecore.Context.Database.GetItem(datasource) : null;
+    string imgurl = "#";
+    string altText = string.Empty;
+
+}
+
+@if (model != null)
+{
+    string divOuterClass = model.Fields[Constant.Class].Value;
+    <div id="advisory-board" class="@divOuterClass">
+        <div class="container">
+            <div class="heading">
+                <h3 class="about-sub-heading">@Html.Sitecore().Field(Constant.MediaTitle, model)</h3>
+            </div>
+            <div class="row">
+                @if (model.HasChildren)
+                {
+
+                    foreach (Item item in model.GetChildren())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.Thumbnail]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+                        string divClass = item.Fields[Constant.Class].Value;
+                        <div class="@divClass item">
+                            <div class="jury-img-container">
+                                <img src="@imgurl" alt="@altText" />
+                            </div>
+                            <div class="desc">
+                                <h3>@Html.Sitecore().Field(Constant.Title, item)</h3>
+                                <p>@Html.Sitecore().Field(Constant.Designation, item)</p>
+                            </div>
+                        </div>
+
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+}

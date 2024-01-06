@@ -1,0 +1,73 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var containerId = Regex.Replace(@Html.Sitecore().Field("Heading").ToString().ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+    var energycalculator = DictionaryPhraseRepository.Current.Get("/More Services For You/Energy Calculator/Energy Calculator", "Energy Calculator");
+
+}
+
+<section class="breadcrumb-sub-layout bg-gray py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul class="breadcrumb-sublayout-ul">
+                    <li><a href="/">Home</a></li>
+                </ul>
+                <h1></h1>
+                <p></p>
+            </div>
+        </div>
+    </div>
+</section><!-- /Breadcrumb -->
+<section class="py-5 bg-gray">
+    <div class="container">
+        <div class="row">
+
+
+            @foreach (var child in parent.Children.ToList())
+            {
+                LinkField URL = child.Fields["Link"];
+                if (URL.TargetItem != null)
+                {
+                    var item = URL.TargetItem;
+
+
+                    <div class="col-lg-6 mb-5">
+                        <h3 class="heading pl-4 mb-4">@child.Name</h3>
+                        <div class="row">
+                            @foreach (var docs in item.Children.ToList())
+                            {
+                                var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+                                var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+                                <div class="col-md-4">
+                                    <div class="tariff-block bg-white border p-4">
+                                        <img src="images/xls-icon.svg" class="img-fluid">
+                                        <p><a href="@url">@docs.Name</a></p>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>                    
+                }
+            }
+
+
+
+        </div>
+    </div>
+</section>

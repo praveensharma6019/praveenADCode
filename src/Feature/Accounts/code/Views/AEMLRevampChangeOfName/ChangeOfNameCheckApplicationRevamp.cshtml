@@ -1,0 +1,108 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.ChangeOfNameRegistrationModel
+
+<div class="collapsible-header center">
+    <a href="javascript:void(0)">Check Application Status</a>
+</div>
+<div class="collapsible-body">
+    <h2>Check Application Status</h2>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmregistrationValidate" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="submit-new-request">
+            <div class="card brand-gradient outlined section-inner-wrapper card-with-form">
+                <form class="h-100" id="checkAppform">
+                    <div class="input-field custom input-has-icon" id="divAccountNum">
+                        @Html.TextBoxFor(x => x.AccountNoForCheckApplication, new { @class = "form-control", maxlength = "9", oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", type = "number" })
+                        <label class="active" for="AccountNoForCheckApplication">CA Number</label>
+                    </div>
+                    <p id="divor"><b>OR</b></p>
+                    <div class="input-field custom input-has-icon" id="divRegNum">
+                        @Html.TextBoxFor(x => x.RegistrationNoForCheckApplication, new { @class = "form-control" })
+                        <label class="active" for="RegistrationNoForCheckApplication">Reference No.</label>
+                    </div>
+                    <div class="input-field custom input-has-icon" id="OTPForCheckApplication" style="display:none;">
+                        @Html.TextBoxFor(x => x.OTPNumberForCheckApplication, new { @class = "form-control" })
+                        <label class="active" for="OTPNumberForCheckApplication">Enter OTP</label>
+                    </div>
+                    <div class="input-field custom">
+                        <p id="errorCaReg"></p>
+                    </div>
+                    <div class="input-field custom">
+                        <div class="captcha_box" id="CheckApplicationFormCaptcha">
+                            <div class="form-group pt-md-2">
+                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                <div class="row captcha_box" style="padding-left:10px;">
+                                    <div class="col-lg-12">
+                                        <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        <p class="field-validation-error" id="Captchaerror"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-right btn-group">
+                        <input type="button" name="cancel" value="Cancel" id="CancelApp" class="btn-flat"
+                               data-gaevent="name_change_check_application_status_step_1"
+                               data-gaeventCategory="'AEML Services"
+                               data-gaeventAction="Name Change Check Application Status Step 1"
+                               data-gaeventLabel="Cancel">
+                        <input type="button" name="Register" value="Check Application" id="CheckApplication" class="btn btn-primary"
+                               data-gaevent="name_change_check_application_status_step_1"
+                               data-gaeventCategory="'AEML Services"
+                               data-gaeventAction="Name Change Check Application Status Step 1"
+                               data-gaeventLabel="Check Application">
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    var CheckApplicationFormCaptcha;
+    var onloadCallback = function () {
+        CheckApplicationFormCaptcha = grecaptcha.render('CheckApplicationFormCaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+<script type="text/javascript">
+    $('#CancelApp').click(function () {
+
+        dataLayer.push({
+            'event': "name_change_check_application_status_step_1",
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+</script>
+<script type="text/javascript">
+    $('#CheckApplication').click(function () {
+
+        dataLayer.push({
+            'event': "name_change_check_application_status_step_1",
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+</script>

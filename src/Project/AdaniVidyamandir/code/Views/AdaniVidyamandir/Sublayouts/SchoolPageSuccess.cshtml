@@ -1,0 +1,66 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Items
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+	var elements = Sitecore.Context.Database.GetItem(datasource);
+	var i = 0;
+	var sortedItem = elements.GetChildren().OrderByDescending(x => x.Fields["Date"].Value);
+	var locate = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "school").FirstOrDefault().Value;
+	List<Item> items = null;
+	if (sortedItem != null)
+	{
+		items = sortedItem.Where(x => x.Fields["Location"].Value == locate).ToList();
+	}
+}
+<section class="success_stories">
+   @foreach (var item1 in items)
+   {
+   Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item1.Fields["Image"]);
+   string ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-lg-6">
+            <div class="h-100">
+               <div class="v_middle success_stories--thumb" data-aos="flip-left" data-aos-easing="ease-out-cubic" data-aos-duration="2000">
+                  <div>
+                     <div class="success_stories--thumb_page"><img alt="" src="@ImageUrl" class="img-fluid lazyload" loading="lazy" /></div>
+                     <p>@Html.Sitecore().Field("Author", item1)</p>
+                     <p>@Html.Sitecore().Field("AuthorDescription", item1)</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="col-lg-6" data-aos="fade-left" data-aos-easing="linear" data-aos-duration="2000">
+            <div class="blue_obj">
+               <div class="bg-images">
+                  <div class="curved_border"><img alt="" src="-/media/1284F03AF8C8429892E9B6112E51F2AC.ashx" class="lazyload" loading="lazy" /></div>
+                  <img alt="" src="-/media/1563329BE75546B4A443DC85F38F8127.ashx" loading="lazy" />
+               </div>
+               <div class="position-relative text-container">
+                  <h3>Success Story</h3>
+                  <h3 style="font-weight:500;">@Html.Sitecore().Field("Summary", item1)</h3>
+                  <p>@Html.Sitecore().Field("Body", item1)</p>
+                  <div class="text-left"><a href="/success-stories" class="btn btn-primary btn-white">Read full story</a></div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   i++;
+   if (i == 1)
+   {
+   break;
+   }
+   }
+  
+</section>
+<!--/Section-->

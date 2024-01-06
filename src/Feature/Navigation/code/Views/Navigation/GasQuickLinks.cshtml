@@ -1,0 +1,48 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+}
+
+<section class="section bg-white">
+    <div class="container">
+        <h3 class="pb-3">Quick Links</h3>
+        <!-- Service Tiles -->
+        <div class="quickLinksSec" id="quickLinksCng">
+            <div class="row">
+                @foreach (var item in Model.NavItems)
+                {
+                    var hasChildren = item.Children != null && item.Children.NavItems.Any() && item.ShowChildren;
+                    <div class="col-md-4">
+                        <a href="@item.Url" class="serviceTile">
+                            <div class="serviceIcon"> @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, item.Item, 75, 92)</div>
+                            <div class="serviceDetails">
+                                <h4 class="serviceName">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</h4>
+                                <div class="serviceBrief">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, item.Item)</div>
+                            </div>
+                        </a>
+
+                        @if (hasChildren)
+                        {
+                            foreach (var subitem in item.Children.NavItems)
+                            {
+                                <a href="@subitem.Url" class="serviceTile">
+                                    <div class="serviceIcon">@Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, subitem.Item, 75, 92)</div>
+                                    <div class="serviceDetails">
+                                        <h4 class="serviceName">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</h4>
+                                        <div class="serviceBrief">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, subitem.Item)</div>
+                                    </div>
+                                </a>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,81 @@
+﻿@model List<Sitecore.Electricity.Website.ITSR_BidderFormSubmission>
+@using Sitecore.Electricity.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var itemListing = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormListing);
+    var ITSRBidderFormSubmissionAdminView = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormSubmissionAdminView);
+    var adminview = ITSRBidderFormSubmissionAdminView.Url();
+}
+<div class="pageContent">
+    <div class="container">
+
+        <div class="col-12 p-0 pb-3">
+            <div class="float-right">
+                @using (Html.BeginForm("Logout", "ITSRForm", FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button>
+                }
+            </div>
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="col-12 p-0 pb-3">
+            <h2 class="txt-orange">@Html.Sitecore().Dictionary("Electricity/Tender/Form Listing", "Registered bidders")</h2>
+        </div>
+        @*@if (!string.IsNullOrEmpty(ViewBag.UserRole) && ViewBag.UserRole == "SuperAdmin")
+            {
+                <div class="col-12 p-0 pb-3">
+                    <div class="col-sm-6 p-0">
+                        <div class="txt-right">
+                            <a href="@CreateITSRFormItem.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Create Tender", "Create Tender")</a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            }*@
+        <!-- Tenders -->
+
+        <div class="table-responsive tableOuter listing-table">
+            <table class="table table-borderless table-white table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Company Name</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Mobile</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">CreatedDate</th>
+                        <th scope="col" style="width:10%;">View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var form in Model)
+                    {
+                        <tr>
+                            <td>@form.CompanyName</td>
+                            <td>@form.Location</td>
+                            <td>@form.MobileNumber</td>
+                            <td>@form.EmailId</td>
+                            <td>@form.CreatedDate.Value.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a href="@adminview?id=@form.Id" class="tender-btn txt-underline" title="View details">@Html.Sitecore().Dictionary("/ITSR/View Details", "View")</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer txt-right">
+            <a href="@itemListing.Url()" class="btn btn-link">@Html.Sitecore().Dictionary("Electricity/Tender/Back To form Text", "Back To form List")</a>
+        </div>
+    </div>
+    <!-- /Tenders -->
+</div>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.selectedTender.submit();
+    }
+</script>  

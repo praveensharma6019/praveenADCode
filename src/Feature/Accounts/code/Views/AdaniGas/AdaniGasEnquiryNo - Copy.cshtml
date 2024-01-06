@@ -1,0 +1,111 @@
+﻿@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.Services
+@using Sitecore.Feature.Accounts.Models
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@{
+    var msg = "";
+    if (Session["errmsg"] != null)
+    {
+        msg = Session["errmsg"].ToString();
+
+    }
+}
+
+<div id="Messagepopup" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Message</h4>
+            </div>
+            <div class="modal-body" style="color: black; font-family: Verdana">
+                @ViewBag.Message
+                <button type="submit" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if ('@ViewBag.Message' == 'CNG') {
+            // FOR GETTING TRACK INQUIRY STATUS.
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCNGInquiryStatus", "Enquiry")',
+                data: { "InquiryNo": '@ViewBag.InquiryNo' },
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $('#AssignedToDealerName').html(data.OEMName);
+                    $('#AssignedToDealerDate').html(data.OEMDate);
+                    $('#FittingName').html(data.OEMName);
+                    $('#FittingDate').html(data.ConvDate);
+                    $('#DocumentUploadName').html(data.OEMName);
+                    $('#DocumentUploadDate').html(data.DocumentUpload);
+                    $('#CardGivenName').html('@ViewBag.CustomerName');
+                    $('#CardGivenDate').html(data.CardGiven);
+
+                    jQuery.noConflict();
+                    $('#myModalCNGStatus').modal('show');
+                },
+                failure: function () {
+                    alert("Failed!");
+                }
+            });
+
+
+        }
+        else if ('@ViewBag.Message' != '') {
+            jQuery.noConflict();
+            $('#Messagepopup').modal('show');
+        }
+    });
+</script>
+
+
+@*<div id="InquiryTypePopup" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Select Inquiry Type</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                </div>
+                <div class="modal-body">
+
+                        @using (Html.BeginForm("SelectEnquiryType", "AdaniGas", FormMethod.Get))
+                        {
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12" style="color: #707070; font-size: 16px">
+                                        @Html.RadioButton("EnquiryType", "CNG") CNG
+
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="col-md-12 col-sm-12" style="color: #707070; font-size: 16px">
+
+                                        @Html.RadioButton("EnquiryType", "Domestic") Domestic
+                                    </div>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <button type="submit" class="btn btn-primary">Next</button>
+                        }
+                    </div>
+            </div>
+        </div>
+    </div>*@
+
+
+
+
+
+
+

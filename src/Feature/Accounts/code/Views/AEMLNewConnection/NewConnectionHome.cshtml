@@ -1,0 +1,193 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+
+
+@{
+    if (!string.IsNullOrEmpty(Model.IsExistingCustomer) && Model.IsExistingCustomer.ToLower() == "no")
+    {
+        Model.CANumber = string.Empty;
+    }
+
+    bool IsCAValidation = (Model.ApplicationSubType == "1" ? (((!string.IsNullOrEmpty(Model.IsExistingCustomer) && Model.IsExistingCustomer.ToLower() == "no" && string.IsNullOrEmpty(Model.CANumber)) && Model.IsCAValid == false || (!string.IsNullOrEmpty(Model.IsExistingCustomer) && Model.IsExistingCustomer.ToLower() == "yes" && Model.IsCAValid == true && !string.IsNullOrEmpty(Model.CANumber))) ? true : false) : true);
+
+    bool ApplicationFormValidation = ((Model.ApplicationSubType == "2" && Model.TempStartDate != null && !string.IsNullOrEmpty(Model.TempStartDate.ToString()) && Model.TempStartDate.ToString() != "01-01-0001 00:00:00" && Model.TempEndDate != null && !string.IsNullOrEmpty(Model.TempEndDate.ToString()) && Model.TempEndDate.ToString() != "01-01-0001 00:00:00") || Model.ApplicationSubType == "1" || Model.ApplicationSubType == "3");
+
+    //if (IsCAValidation && string.IsNullOrEmpty(Model.ApplicationMode))
+    //{
+    //    Model.ApplicationMode = "SAD";
+    //}
+    //bool IshowTwo = (Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD") ? true : false;
+    //bool IshowThree = (Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD") ? true : false;
+    //bool IshowFour = (Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD") ? true : false;
+
+    bool isedit = (Request.QueryString["id"] != null || !string.IsNullOrEmpty(Model.Id.ToString()) ? true : false);
+    //bool IshowOne = (Model.ApplicationMode == "SAD" ? true : false);
+    //bool IshowTwo = (Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" ? true : false);
+    //bool IshowThree = (Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" ? true : false);
+    //bool IshowFour = (Model.ApplicationMode == "SDD") ? true : false;
+
+    bool IshowOne = (IsCAValidation && ApplicationFormValidation && string.IsNullOrEmpty(Model.ApplicationMode) ? true : false);
+    bool IshowTwo = (IsCAValidation && ApplicationFormValidation && !string.IsNullOrEmpty(Model.ApplicationMode) && Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" ? true : false);
+    bool IshowThree = (IsCAValidation && ApplicationFormValidation && !string.IsNullOrEmpty(Model.ApplicationMode) && Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" ? true : false);
+    bool IshowFour = (IsCAValidation && ApplicationFormValidation && !string.IsNullOrEmpty(Model.ApplicationMode) && Model.ApplicationMode == "SDD") ? true : false;
+    if (isedit)
+    {
+        //IshowOne = (Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD" ? true : false);
+        //IshowTwo = (Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD" ? true : false);
+        //IshowThree = (Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD" ? true : false);
+        //IshowFour = (Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD") ? true : false;
+
+        IshowOne = (IsCAValidation && ApplicationFormValidation && string.IsNullOrEmpty(Model.ApplicationMode) || (Model.ApplicationMode != "SAD" && Model.ApplicationMode != "SLD" && Model.ApplicationMode == "SOD" && Model.ApplicationMode == "SDD") ? true : false);
+        IshowTwo = (IsCAValidation && ApplicationFormValidation && !string.IsNullOrEmpty(Model.ApplicationMode) && Model.ApplicationMode != "SLD" && Model.ApplicationMode != "SOD" && Model.ApplicationMode != "SDD" ? true : false);
+        IshowThree = (IsCAValidation && ApplicationFormValidation && !string.IsNullOrEmpty(Model.ApplicationMode) && Model.ApplicationMode != "SAD" && Model.ApplicationMode != "SOD" && Model.ApplicationMode != "SDD" ? true : false);
+        IshowFour = (IsCAValidation && ApplicationFormValidation && !string.IsNullOrEmpty(Model.ApplicationMode) && Model.ApplicationMode != "SAD" && Model.ApplicationMode != "SLD") ? true : false;
+    }
+
+    var formLang = Request.Form["AppLanguage"] == null ? "EN" : Request.Form["AppLanguage"].ToString();
+}
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmNewConnectionApplication", @class = "form-signin", enctype = "multipart/form-data" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <input type="hidden" name="hdnID" id="hdnID" value="@Model.Id" />
+    <input type="hidden" name="hdnStatus" id="hdnStatus" value="@Model.Status" />
+    <input type="hidden" name="ApplicationNo" id="ApplicationNo" value="@Model.ApplicationNo" />
+    <input type="hidden" name="AccountNo" id="AccountNo" value="@Model.AccountNo" />
+    <input type="hidden" name="ApplicationMode" id="ApplicationMode" value="@Model.ApplicationMode" />
+    <section class="section_feedback--form pb-5 section_ICRS-form">
+        <div class="container">
+            <ul class="breadcrumb">
+                <li><a href="/">Home</a></li>
+            </ul>
+            <h2 class="txt-orange">New Connection</h2>
+            <div class="text-right pt-3">
+                <a class="btn btn-primary mb-2 mb-md-0" href="/newconnection/newconnectionhome/newconnectionlist">My Application List</a>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 mb-2">
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <label for="exampleInputEmail1" class="eng">Application Type*</label>
+                            <label for="exampleInputEmail1" class="mar">अर्जाचा प्रकार*</label>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="form-group">
+                                <select id="AppLanguage" name="AppLanguage">
+                                    <option value="EN" @(formLang=="EN"?"selected":"")>English</option>
+                                    <option value="MA" @(formLang=="MA"?"selected":"")>Marathi</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="py-2"></div>
+            @Html.Partial("~/Views/AEMLNewConnection/Partial/_NewConnection.cshtml", Model)
+            <div class="complaint-panel border-radius-0">
+                <div>
+                    <div class="details_accordion">
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                            <div class="panel panel-default p-0">
+                                <div class="panel-heading" role="tab" id="headingOne">
+                                    <h4 class="panel-title">
+                                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="@(IshowOne?" true":"false")" aria-controls="collapseOne">
+                                            Application Details
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse in @(IshowOne?" show":"")" role="tabpanel" aria-labelledby="headingOne">
+
+                                    @if (IsCAValidation && ApplicationFormValidation)
+                                    {
+                                        <div class="panel">
+                                            @Html.Partial("~/Views/AEMLNewConnection/Partial/_NewConnectionApplicantDetail.cshtml", Model)
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                            <div class="panel panel-default p-0">
+                                <div class="panel-heading" role="tab" id="headingTwo">
+                                    <h4 class="panel-title">
+                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="@(IshowTwo?" true":"false")" aria-controls="collapseTwo">
+                                            Load Details
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse @(IshowTwo?" show":"")" role="tabpanel" aria-labelledby="headingTwo">
+
+                                    @if (IsCAValidation && ApplicationFormValidation && (Model.ApplicationMode == "SAD" || Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD"))
+                                    {
+                                        <div class="panel">
+                                            @Html.Partial("~/Views/AEMLNewConnection/Partial/_NewConnectionLoadDetail.cshtml", Model)
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                            <div class="panel panel-default p-0">
+                                <div class="panel-heading" role="tab" id="headingThree">
+                                    <h4 class="panel-title">
+                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="@(IshowThree?" true":"false")" aria-controls="collapseThree">
+                                            Other information
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseThree" class="panel-collapse collapse @(IshowThree?" show":"")" role="tabpanel" aria-labelledby="headingThree">
+
+                                    @if (IsCAValidation && ApplicationFormValidation && (Model.ApplicationMode == "SLD" || Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD"))
+                                    {
+                                        <div class="panel">
+                                            @Html.Partial("~/Views/AEMLNewConnection/Partial/_NewConnectionOtherDetail.cshtml", Model)
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                            <div class="panel panel-default p-0">
+                                <div class="panel-heading" role="tab" id="headingFour">
+                                    <h4 class="panel-title">
+                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="@(IshowFour?" true":"false")" aria-controls="collapseFour">
+                                            Upload Document
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseFour" class="panel-collapse collapse @(IshowFour?" show":"")" role="tabpanel" aria-labelledby="headingFour">
+
+                                    @if (IsCAValidation && ApplicationFormValidation && (Model.ApplicationMode == "SOD" || Model.ApplicationMode == "SDD"))
+                                    {
+                                        <div class="panel">
+                                            @Html.Partial("~/Views/AEMLNewConnection/Partial/_NewConnectionDocument.cshtml", Model)
+                                            <div class="form-group py-2 text-right mb-0">
+                                                <input type="submit" class="btn btn-secondary mb-2 mb-md-0" name="SaveDocumentDetail" id="SaveDocumentDetail" value="Save as Draft" />
+                                                <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="SubmitApplication" id="SubmitApplication" value="Submit Application" />
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>

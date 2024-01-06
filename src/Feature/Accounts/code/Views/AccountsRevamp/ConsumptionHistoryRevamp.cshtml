@@ -1,0 +1,73 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@model  SapPiService.Domain.ConsumptionHistory
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+@if (contextItem != null)
+{
+    <div class="col s12 m8 offset-m1">
+        <header class="section-header">
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+            <p>@Html.Raw(contextItem["Body"])</p>
+        </header>
+        <div class="section-inner-wrapper card brand-gradient section-container remove-gradient outlined border-none-mobile">
+            @Html.Sitecore().Placeholder("switch-account-content")
+
+            @if (!string.IsNullOrEmpty(contextItem["Warning"]))
+            {
+                <div class="message warning warning-info">
+                    <img src="/electricity_assets/assets/icons/info.png" />
+                    <div>
+                        <label>
+                            @Html.Raw(contextItem["Warning"])
+                        </label>
+                    </div>
+
+                </div>
+            }
+
+            <div class="section-header justify-item">
+                <header>
+                    <h5 class="custom-table-heading">@Html.Sitecore().Dictionary("/BillingAndPayment/ElectricityConsumption/TotalListing", "Total Listing") <span id="consumptionHistoryCount"></span></h5>
+                </header>
+            </div>
+            <input type="hidden" value="@Html.Sitecore().Dictionary("/BillingAndPayment/ElectricityConsumption/Noted", "Noted")" id="hdnDictNoted" />
+            <input type="hidden" value="@Html.Sitecore().Dictionary("/BillingAndPayment/ElectricityConsumption/Connection", "Connection")" id="hdnDictConnection" />
+            <div class="customer_detail_wrapper customer_detail_list  hide-on-med-and-down">
+                <table class="customer_detail_list-details" id="tblConsumptionHistoryDataTable">
+                    <thead>
+                        <tr>
+                            <th>@Html.Sitecore().Dictionary("/BillingAndPayment/ElectricityConsumption/Details", "Details")</th>
+                            <th>@Html.Sitecore().Dictionary("/BillingAndPayment/ElectricityConsumption/LastReading", "Last Reading")</th>
+                            <th>@Html.Sitecore().Dictionary("/BillingAndPayment/ElectricityConsumption/MonthlyUnits", "Monthly Units")</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tblConsumptionHistoryData">
+                    </tbody>
+                </table>
+            </div>
+            <div id="MobileConsumptionTablePaginationDiv">
+                <input type="hidden" id="paginationTableDiv" value="MobileConsumptionTablePaginationDiv" />
+                <input type="hidden" id="paginationDataSelector" value="#mobileConsumptionTable>div" />
+                <input type="hidden" id="paginationNumberElementSelector" value="#mobileConsumptionTablePagination" />
+                <input type="hidden" id="paginationScrollToElementSelector" value=".section-container" />
+                <input type="hidden" id="paginationPageSize" value="12" />
+            </div>
+            <div id="mobileConsumptionTable" class="hide-on-med-and-up">
+
+            </div>
+
+            <ul class="pagination  hide-on-med-and-down" id="desktopConsumptionTablePagination">
+            </ul>
+
+            <ul class="pagination  hide-on-med-and-up" id="mobileConsumptionTablePagination">
+            </ul>
+        </div>
+
+    </div>
+}
+<script src="/Scripts/Accounts/ConsumptionHistoryRevamp.js"></script>
+<script src="~/Scripts/Accounts/ElectricityRevampCustomPagination.js"></script>

@@ -1,0 +1,52 @@
+@using Sitecore
+@using Sitecore.Mvc.Presentation
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	
+   var LinksubChildurl="#";
+	var sidebarUrl="";
+	var sidebarAlt="";
+	
+	
+	Sitecore.Data.Fields.ImageField sidebarImage = ((Sitecore.Data.Fields.ImageField)model.Fields["ImageSource"]);
+    if (sidebarImage != null && sidebarImage.MediaItem != null)
+    {
+        sidebarUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(sidebarImage.MediaItem);
+        sidebarAlt = sidebarImage.Alt;
+    }
+		
+}
+
+            <div class="sidebar-navigation">
+               <div class="offcanvas-body">
+                  <div class="hamburger_section logo-sec">
+                     <a href="/">
+                     <img src="@sidebarUrl" alt="@sidebarAlt" class="logo">
+                     </a>
+                  </div>
+                  <div class="hamburger_section">
+	   @foreach(var child in model.GetChildren().ToList())
+		{ 
+					<h5>@Html.Sitecore().Field("Title",child)</h5>
+                     <ul>
+			@foreach(var subchild in child.GetChildren().ToList())
+		    {
+			    Sitecore.Data.Fields.LinkField linksubChildfield = ((Sitecore.Data.Fields.LinkField)subchild.Fields["LinkUrl"]); 
+				if(linksubChildfield != null) 
+				{ 
+					LinksubChildurl = linksubChildfield.GetFriendlyUrl();
+				}
+                        <li>
+                           <a href="@LinksubChildurl" >
+                           @Html.Sitecore().Field("LinkText",subchild)
+                           </a>
+                        </li>
+			}
+					</ul>
+		}
+                  </div>
+				</div>
+            </div>
+            
+	  

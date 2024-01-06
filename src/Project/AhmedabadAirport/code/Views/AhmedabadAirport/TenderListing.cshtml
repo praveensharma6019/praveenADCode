@@ -1,0 +1,313 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model Sitecore.AhmedabadAirport.Website.Model.TenderStatus
+@using Sitecore.AhmedabadAirport.Website.Model;
+@{
+    var Id = new Guid();
+    var currentDate = DateTime.Now;
+
+    var CorrigendumTender = Sitecore.Context.Database.GetItem(Templates.Tender.TenderCorrigendum);
+}
+
+@if (Model.OpenTender.Count > 0)
+{
+    if (TempData["Success"] != null)
+    {
+        <p class="alert alert-success container" id="successMessage">@TempData["Success"]</p>
+    }
+    if (TempData["Error"] != null)
+    {
+        <p class="alert alert-success container" id="successMessage">@TempData["Error"]</p>
+    }
+    <section class="py-5 bg-white">
+        <div class="container">
+            <!-- Tenders -->
+            <div class="my-lg-3 py-lg-3">
+                <ul class="nav nav-tabs" id="tendersList" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#openTenders">Open Tenders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#corrigendum">Corrigendum</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#closedTenders">Closed Tenders</a>
+                    </li>
+                </ul>
+                <div class="tab-content bg-gray-light px-0 py-0" id="tendersListContent">
+                    <div class="tab-pane fade show active " id="openTenders" role="tabpanel">
+                        <div class="table-responsive tableOuter">
+                            <table class="table mb-0 bg-white txt-xs">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="8%" scope="col">NIT No./PR No.</th>
+                                        <th width="8%" scope="col">Business</th>
+                                        <th width="10%" scope="col">Tender Description</th>
+                                        <!-- <th width="8%" scope="col">Estimated Cost (Rs. Lakhs)</th> -->
+                                        <!-- <th width="8%" scope="col">Cost of EMD (Rs. Lakhs)</th> -->
+                                        <th width="8%" scope="col">Date of Advertisement</th>
+                                        <th width="8%" scope="col">Bid Submision Closing Date</th>
+                                        <th width="5%" scope="col">Register</th>
+                                       <!-- <th width="8%" scope="col">Corrigendum</th>-->
+									   
+                                        <th width="5%" scope="col">Tender Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.OpenTender.Where(x => x.Status.ToLower() == "open" && x.NITPRNo != "-").Count() > 0)
+                                    {
+                                        foreach (var openTN in Model.OpenTender.Where(x => x.Status.ToLower() == "open" && x.NITPRNo != "-").OrderByDescending(x => x.Adv_Date))
+                                        {
+                                    <tr>
+                                        <td>@openTN.NITPRNo</td>
+                                        <td>@openTN.Business</td>
+                                        <td>@openTN.Description</td>
+                                        <!-- <td>@openTN.Estimated_Cost</td> -->
+                                        <!-- <td>@openTN.Cost_of_EMD</td> -->
+                                        <td>@openTN.Adv_Date.Value.ToString("dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture)</td>
+                                        @if (openTN.NITPRNo == "-")
+                                        {
+                                            <td>
+                                                -
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                @openTN.ClosingDate.Value.ToString("dd/MM/yy  h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                                            </td>
+                                        }
+                                        @{
+                                            var tempDate = openTN.ClosingDate.Value;
+                                        }
+                                        @if (openTN.NITPRNo == "-")
+                                        {
+                                            <td><a href="@openTN.Location" target="_blank" title="Click here">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Update Text", "Click Here")</a></td>
+                                        }
+                                        else if (currentDate <= tempDate)
+                                        {
+                                            <td><a href="#" data-toggle="modal" data-id="@openTN.Id" data-content="@openTN.SupportEmailAddress" data-target="#default_modal" class="txt-orange" title="Download"><i class="fas fa-download"></i></a></td>
+                                        }
+                                        else
+                                        {
+                                            <td></td>
+                                        }
+                                       <!-- <td>
+                                            @if (openTN.isCorrigendumPresent)
+                                            {
+                                                <a href="@CorrigendumTender.Url()?id=@openTN.Id" target="_blank" title="Click here">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Update Text", "Click Here")</a>
+                                            }
+                                        </td>-->
+                                        <td>@openTN.TenderType</td>
+                                    </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                                        <tr><td colspan="7">No Open Tender Available</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="corrigendum" role="tabpanel">
+                        <div class="table-responsive tableOuter">
+                            <table class="table mb-0 bg-white txt-xs">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="20%" scope="col">Corrigendum Date</th>
+                                        <th width="40%" scope="col">Corrigendum Title</th>
+                                        <th width="30%" scope="col">NIT No./PR No.</th>
+                                        <th width="10%" scope="col">Documents</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.CorrigendumTender.Count() > 0)
+                                    {
+                                        foreach (var item in Model.CorrigendumTender.OrderByDescending(x => x.Date))
+                                        {
+                                            <tr>
+
+                                                <td>
+                                                    @item.Date.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                                                </td>
+                                                <td>
+                                                    @item.Title
+                                                </td>
+                                                <td>
+                                                    @foreach (var nitNo in item.NITPRNo)
+                                                    {
+                                                        @nitNo.NITPRNo <br />
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @foreach (var docItem in item.TenderDocument)
+                                                    {
+                                                        <!--<a href="@docItem.DocumentPath" target="_blank">Click Here</a>-->
+														  @Html.ActionLink("Click Here", "DownloadCorrigendumFile", new { id = docItem.Id }, new { @class = "txt-orange" })
+                                                        <br />
+                                                    }
+
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4">No Corrigendum Available</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="closedTenders" role="tabpanel">
+                        <div class="table-responsive tableOuter">
+                            <table class="table mb-0 bg-white txt-xs">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="20%" scope="col">NIT No./PR No.</th>
+                                        <th width="20%" scope="col">Business</th>
+                                        <th width="40%" scope="col">Tender Description</th>
+                                        <th width="20%" scope="col">Tender Closing Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.OpenTender.Where(x => x.Status.ToLower() == "close" && x.NITPRNo != "-").Count() > 0)
+                                    {
+                                        foreach (var openTN in Model.OpenTender.Where(x => x.Status.ToLower() == "close" && x.NITPRNo != "-").OrderByDescending(x => x.ClosingDate))
+                                        {
+                                            <tr>
+                                                <td>@openTN.NITPRNo</td>
+                                                <td>@openTN.Business</td>
+                                                <td>@openTN.Description</td>
+                                                <td>@openTN.ClosingDate.Value.ToString("dd/MM/yy  h:mm tt", System.Globalization.CultureInfo.InvariantCulture)</td>
+                                                @*<td><a href="#" data-toggle="modal" data-id="@openTN.Id" data-target="#default_modal" class="txt-orange" title="Download"><i class="fas fa-download"></i></a></td>*@
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4">No Closed Tender Available</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /Tenders -->
+        </div>
+        @Html.Partial("~/Views/AhmedabadAirport/_UserRegistration.cshtml", new UserDetails() { TenderID = Id, SupportEmailAddress = "asd#sdf.sdf" })
+        <div id="downloadModal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+        </div>
+    </section>
+}
+else
+{
+    <section class="py-5 bg-white tender-listing">
+        <div class="container">
+            <p class="text-center"><b>No tenders available currently.</b></p>
+        </div>
+    </section>
+}
+
+
+<script>
+    var recaptcha1;
+    var onloadCallback = function () {
+
+
+        //Render the recaptcha2 on the element with ID "recaptcha2"
+        recaptcha1 = grecaptcha.render('recaptcha1', {
+            'sitekey': '6Lcql9QZAAAAAKGvvD4LZKHKys2Dwh0kFUVE5MGc', //Replace this with your Site key
+            //'sitekey': '6Lc3rKMZAAAAAO_vvNx45rSeRI1DUrolQENZitHA', //Replace this with your Site key
+            'theme': 'light'
+        });
+
+
+    };
+
+    $("#UseRegistrationBtn").click(function (event) {
+        var response = grecaptcha.getResponse(recaptcha1);
+
+        var mobileNo = $("#mobileNumber").val();
+        var emailAddress = $("#emailAddress").val();
+        var company = $("#company").val();
+        var UniqueId = $("#UniqueId").val();
+        var fax = $("#fax").val();
+        var name = $("#name").val();
+        if (!validateName(name)) {
+            event.preventDefault();
+            $("#nameerror").html("Please enter a valid name containing alphabets only");
+            $("#name").focus();
+            return false;
+        }
+        else {
+            $("#nameerror").html("");
+        }
+        if (company == null || company.trim() == "") {
+            event.preventDefault();
+            $("#companyerror").html("Please enter a valid company name");
+            $("#company").focus();
+            return false;
+        }
+        if (UniqueId == null || UniqueId.trim() == "") {
+            event.preventDefault();
+            $("#UniqueIderror").html("Please enter a valid company name");
+            $("#UniqueId").focus();
+            return false;
+        }
+        else {
+            $("#companyerror").html("");
+        }
+        if (!validateMobileNo(mobileNo)) {
+            event.preventDefault();
+            $("#mobileerror").html("Please enter a 9 digit valid mobile number");
+            $("#mobileNumber").focus();
+            return false;
+        }
+        else {
+            $("#mobileerror").html("");
+        }
+        if (fax != null && fax.trim() != "") {
+            if (!validateFax(fax)) {
+                event.preventDefault();
+                $("#faxerror").html("Please enter valid Fax number containing 12 digits");
+                $("#fax").focus();
+                return false;
+            }
+            else {
+                $("#faxerror").html("Please enter valid Fax number");
+            }
+        }
+        else {
+            $("#faxerror").html("");
+        }
+        if (!validateEmail(emailAddress)) {
+            event.preventDefault();
+            $("#emailerror").html("Please enter a valid Email Address");
+            $("#emailAddress").focus();
+            return false;
+        }
+        else {
+            $("#emailerror").html("");
+        }
+
+        if (response.length == 0) {
+            event.preventDefault();
+            $("#Captchaerror").html("Please validate captcha to continue");
+
+            return false;
+        }
+        else {
+            $("#Captchaerror").html("");
+        }
+        // $('#UseRegistrationForm').submit();
+       //  return false;
+		window.location.replace("https://www.adani.com/svpia-ahmedabad-airport/tenders");
+		//Response.redirect(window.location.href);
+    });
+</script>

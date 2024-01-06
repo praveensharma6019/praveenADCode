@@ -1,0 +1,316 @@
+﻿@*
+    *
+    * Copyright (c) 2022 Adani Digital Labs
+    * All rights reserved.
+    * Adani Digital Labs Confidential Information
+    *
+*@
+
+@model  Sitecore.Farmpik.Website.ViewModel.DashboardViewModel
+@{
+    ViewBag.Title = "Dashboard";
+
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Farmpik</title>
+    <link rel="stylesheet" href="/-/media/Project/Farmpik/DashboardAPI/css/bootstrapmin" />
+    <link rel="stylesheet" href="/-/media/Project/Farmpik/DashboardAPI/css/site" asp-append-version="true" />
+    <link rel="stylesheet" href="/-/media/Project/Farmpik/DashboardAPI/css/layout" asp-append-version="true" />
+    <link rel="stylesheet" href="/-/media/Project/Farmpik/DashboardAPI/css/dashboard" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" href="/DashboardAPI/Dashboard"><img src="/-/media/Project/Farmpik/DashboardAPI/image/Group_logo.svg" width="93px" height="36px" /></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="true" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
+                    <li class="nav-item dropdown">
+                        <a class="btn btn-link nav-link py-2 px-0 px-lg-2" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+                            <img src="/-/media/Project/Farmpik/DashboardAPI/image/Group_profile.svg" width="28px" height="28px" />
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" data-bs-popper="static">
+                            <li><a class="dropdown-item" href="/Login/SignOut">Sign Out</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <div class="loader">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <div class="banner">
+        <div class="container">
+            <div class="position-fixed pt-2" style="z-index: 11">
+                <div class="toast align-items-center text-white bg-farmpik-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <img src="/-/media/Project/Farmpik/DashboardAPI/image/@(Model.IsInValidTemplate == true?"error.svg":"success.svg" )" class="rounded mr-2" alt="..."> &nbsp; @Model.AlertMessage
+                            @if (Model.HasPartialError)
+                            {<span class="p-3"> <a class="text-white" href="#" data-href="/api/FarmpikTemplate/DownloadTemplate?name=@(Model.PartialErrorName)&isErrorTemplate=true" onclick="Farmpik.downloadTemplate()"> Download Error Template</a> </span>}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 para-1">Welcome @Model.UserName</div>
+            <div class="col-12 para-2">Upload & access all documents at one place.</div>
+        </div>
+    </div>
+    <div class="container">
+        <main role="main" class="pb-3">
+            <form action="/api/Dashboard/Index" method="post" class="row" enctype="multipart/form-data">
+                <div class="col-12 all-file" id="IsInValidTemplate"
+                     data-isInValidTemplate="@Model.IsInValidTemplate">
+                    All Files
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row pt-2">
+                                <div class="col-4">Files</div>
+                                <div class="col-2">No. Of Uploads</div>
+                                <div class="col-2">Last Updated</div>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="template-title">Vendor Master</div>
+                                        @*@if (@Model.VendorMaster.NoOfUploads > 0){<span><a href="/api/FarmpikTemplate/Vendors">View</a></span>}*@
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-records">
+                                            <span>
+                                                <a href="#" data-href="/api/FarmpikTemplate/DownloadTemplate?name=Vendor Master" onclick="Farmpik.downloadTemplate()">@Model.VendorMaster.NoOfUploads</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-date">@(Model.VendorMaster.LastImportedDate.HasValue? Model.VendorMaster.LastImportedDate.Value.ToString("d MMM yyyy"):"-")</div>
+                                        <span>By @Model.VendorMaster.LastImportedUser</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="drag-drop form-control form-control-lg">
+                                            <div class="row after-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/spreadsheet.svg" class="col-2" />
+                                                <div class="col-7">
+                                                    <div class="template-date">Vendor Master</div>
+                                                    <span class="file-name"></span>
+                                                </div>
+                                                <div class="col-3 change-icon">Change</div>
+                                            </div>
+                                            <div class="text-center before-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/add-plus.svg" /> &nbsp; Upload/ Drag & Drop
+                                            </div>
+                                        </div>
+                                        @Html.Hidden("ImportFile.VendorMaster", "", new { type = "file", hidden = true })
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="template-title">PRN Master</div>
+                                        @*@if (@Model.PRNMaster.NoOfUploads > 0){<span><a href="/api/FarmpikTemplate/Purchases">View</a></span>}*@
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-records">
+                                            <span>
+                                                <a href="#" data-href="/api/FarmpikTemplate/DownloadTemplate?name=PNR Master" onclick="Farmpik.downloadTemplate()">@Model.PRNMaster.NoOfUploads</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-date">@(Model.PRNMaster.LastImportedDate.HasValue? Model.PRNMaster.LastImportedDate.Value.ToString("d MMM yyyy") :"-")</div>
+                                        <span>By @Model.PRNMaster.LastImportedUser</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="drag-drop form-control form-control-lg">
+                                            <div class="row after-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/spreadsheet.svg" class="col-2" />
+                                                <div class="col-7">
+                                                    <div class="template-date">PRN Master</div>
+                                                    <span class="file-name"></span>
+                                                </div>
+                                                <div class="col-3 change-icon">Change</div>
+                                            </div>
+                                            <div class="text-center before-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/add-plus.svg" /> &nbsp; Upload/ Drag & Drop
+                                            </div>
+                                        </div>
+                                        @Html.Hidden("ImportFile.PRNMaster", "", new { type = "file", hidden = true })
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="template-title">Price Master </div>
+                                        @if (@Model.PriceMaster.NoOfUploads > 0)
+                                        {
+                                            <span>
+                                                <a href="/-/media/Project/Farmpik/DashboardAPI/files/Price Master.xlsx">Download Template</a>
+                                                @*<a href="/api/FarmpikTemplate/Prices">View</a>*@
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-records">
+                                            <span>
+                                                <a href="#" data-href="/api/FarmpikTemplate/DownloadTemplate?name=Price Master" onclick="Farmpik.downloadTemplate()">@Model.PriceMaster.NoOfUploads</a>
+                                            </span>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-date">@(Model.PriceMaster.LastImportedDate.HasValue? Model.PriceMaster.LastImportedDate.Value.ToString("d MMM yyyy"):"-") </div>
+                                        <span>By @Model.PriceMaster.LastImportedUser</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="drag-drop form-control form-control-lg">
+                                            <div class="row after-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/spreadsheet.svg" class="col-2" />
+                                                <div class="col-7">
+                                                    <div class="template-date">Price Master</div>
+                                                    <span class="file-name"></span>
+                                                </div>
+                                                <div class="col-3 change-icon">Change</div>
+                                            </div>
+                                            <div class="text-center before-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/add-plus.svg" />&nbsp; Upload/ Drag & Drop
+                                            </div>
+                                        </div>
+                                        @Html.Hidden("ImportFile.PriceMaster", "", new { type = "file", hidden = true })
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="template-title">Product details </div>
+                                        @if (@Model.ProductDetails.NoOfUploads > 0)
+                                        {
+                                            <span>
+                                                <a href="/-/media/Project/Farmpik/DashboardAPI/files/Product Details.xlsx">Download Template</a>
+                                                @*<a href="/api/FarmpikTemplate/Products">View</a>*@
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-records">
+                                            <span>
+                                                <a href="#" data-href="/api/FarmpikTemplate/DownloadTemplate?name=Product details" onclick="Farmpik.downloadTemplate()">@Model.ProductDetails.NoOfUploads</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-date">@(Model.ProductDetails.LastImportedDate.HasValue? Model.ProductDetails.LastImportedDate.Value.ToString("d MMM yyyy") :"-")</div>
+                                        <span>By @Model.ProductDetails.LastImportedUser</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="drag-drop form-control form-control-lg">
+                                            <div class="row after-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/spreadsheet.svg" class="col-2" />
+                                                <div class="col-7">
+                                                    <div class="template-date">Product details</div>
+                                                    <span class="file-name"></span>
+                                                </div>
+                                                <div class="col-3 change-icon">Change</div>
+                                            </div>
+                                            <div class="text-center before-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/add-plus.svg" /> &nbsp; Upload/ Drag & Drop
+                                            </div>
+                                        </div>
+                                        @Html.Hidden("ImportFile.ProductDetails", "", new { type = "file", hidden = true })
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="template-title">Payment status </div>
+                                        @if (@Model.PaymentStatus.NoOfUploads > 0)
+                                        {
+                                            <span>
+                                                @*<a href="/api/FarmpikTemplate/DownloadTemplate?name=Payment status">View</a>*@
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-records">
+                                            <span>
+                                                <a href="#" data-href="/api/FarmpikTemplate/DownloadTemplate?name=Payment status" onclick="Farmpik.downloadTemplate()">@Model.PaymentStatus.NoOfUploads</a>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="template-date">@(Model.PaymentStatus.LastImportedDate.HasValue?Model.PaymentStatus.LastImportedDate.Value.ToString("d MMM yyyy"):"-") </div>
+                                        <span>By @Model.PaymentStatus.LastImportedUser</span>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="drag-drop form-control form-control-lg">
+                                            <div class="row after-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/spreadsheet.svg" class="col-2" />
+                                                <div class="col-7">
+                                                    <div class="template-date">Payment status</div>
+                                                    <span class="file-name"></span>
+                                                </div>
+                                                <div class="col-3 change-icon">Change</div>
+                                            </div>
+                                            <div class="text-center before-upload">
+                                                <img src="/-/media/Project/Farmpik/DashboardAPI/image/add-plus.svg" /> &nbsp; Upload/ Drag & Drop
+                                            </div>
+                                        </div>
+                                        @Html.Hidden("ImportFile.PaymentStatus", "", new { type = "file", hidden = true })
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-8"></div>
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-secondary btn-lg login-button" disabled>Save</button>
+                        </div>
+                    </div>
+                </div>
+                </form>
+        </main>
+    </div>
+
+    <footer class="footer text-muted">
+        <div class="container">
+            <div class="border-top">&copy; 2022 - Farmpik</div>
+        </div>
+    </footer>
+
+    <script src="/-/media/Project/Farmpik/DashboardAPI/js/jquerymin"></script>
+    <script src="/-/media/Project/Farmpik/DashboardAPI/js/bootstrapbundlemin"></script>
+    <script src="/-/media/Project/Farmpik/DashboardAPI/js/site" asp-append-version="true"></script>
+    <script src="/-/media/Project/Farmpik/DashboardAPI/js/custom"></script>
+
+
+
+</body>
+</html>
+
+
+
+

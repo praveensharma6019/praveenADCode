@@ -1,0 +1,62 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string linkUrl = string.Empty;
+string imgUrl = string.Empty;
+string imgAltText = string.Empty;
+
+}
+
+@if(model != null)
+{
+if(model.HasChildren)
+{
+
+<div class="pageContent">
+   <section class="half-bg py-4">
+      <div class="container">
+         <div class="row">
+            @foreach(Item child in model.GetChildren())
+            {
+               
+                  Sitecore.Data.Fields.LinkField linkFields = child.Fields["link"];
+                  if(linkFields != null)
+                  {
+                  linkUrl = linkFields.GetFriendlyUrl();
+                  }
+                  Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                  if(imgField != null && imgField.MediaItem != null)
+                  {
+                  imgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                  imgAltText = imgField.Alt;
+                  }
+                  <div class="col-lg-6 my-lg-5 my-3 pr-lg-4">
+                     <div class="bg-gradient p-4 chairman-box row h-100">
+                        <a class="d-block h-100" href="@linkUrl">
+                        </a>
+                        <div class="col-md-8 mb-3">
+                           <a class="d-block h-100" href="@linkUrl">
+                              <h3 class="mb-3">@Html.Sitecore().Field("Title", child)</h3>
+                              @Html.Sitecore().Field("Description", child)
+                           </a>
+                        </div>
+                        <div class="col-md-4"><a class="d-block h-100" href="@linkUrl">
+                           <img alt="@imgAltText" src="@imgUrl" class="img-fluid">
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+                  
+            }
+         </div>
+      </div>
+   </section>
+</div>
+}
+}

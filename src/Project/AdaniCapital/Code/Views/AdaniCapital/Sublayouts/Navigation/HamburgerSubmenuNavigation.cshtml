@@ -1,0 +1,63 @@
+﻿@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource); //datasource
+}
+@if (element != null)
+{
+    if (element.HasChildren)
+    {
+        int count = 1;
+        foreach (Item menu in element.GetChildren()) //Get Each Menu
+        {
+            if (menu.HasChildren)
+            {
+                <div class="hamburger_submenu--item" id="child_@count" style="display:none;">
+                    <a href="#" class="back_header">
+                        <i>
+                            <img src="-/media/38B41B2145EF4C78ACCEC0AC15995455.ashx" alt="Back Arrow">
+                        </i>
+                    </a>
+                    <div class="hamburger_links" style="padding-top: 0;">
+                        <h5>@menu["Text"]</h5>
+                        <ul>
+                            @foreach (Item submenu in menu.GetChildren())
+                            {
+                                var url = Helper.LinkUrl(submenu.Fields["LinkUrl"]);
+                                var imgurls = Helper.ImageUrl("LinkImage", submenu);
+                                string IsActive = "";
+                                if(menu.GetChildren()[0].ID== submenu.ID)
+                                {
+                                    IsActive = "active";
+                                }
+                            <li class="@IsActive">
+                                <a href="@url">
+                                    <img src="@imgurls" alt="@Html.Sitecore().Field("Title", submenu)">@Html.Sitecore().Field("Title", submenu)
+                                    @if (submenu.HasChildren)
+                                    {
+                                        <img class="arrow" src="-/media/74B1C706E2DF4B63B62D663F16ED6D6C.ashx" />
+                                    }
+                                </a>
+                                @if (submenu.HasChildren)
+                                {
+                                    foreach (Item submenuitem in submenu.GetChildren())
+                                    {
+                                        var suburl = Helper.LinkUrl(submenuitem.Fields["LinkUrl"]);
+                                        <div class="accordian_sub_list">
+                                            <a href="@suburl">@Html.Sitecore().Field("Title", submenuitem)</a>
+                                        </div>
+                                        }
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+            count++;
+        }
+    }
+}

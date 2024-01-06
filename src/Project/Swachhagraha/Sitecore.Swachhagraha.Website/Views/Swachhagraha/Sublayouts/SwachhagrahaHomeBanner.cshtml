@@ -1,0 +1,51 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (!string.IsNullOrEmpty(datasource))
+{
+    if (element != null)
+    {
+        <section class="mainSlider">
+            <div class="owl-carousel owl-theme homeslider">
+                @if (element.GetChildren() != null)
+                {
+                    foreach (Item item in element.GetChildren())
+                    {
+                        var vidurl = Helper.LinkUrl(item.Fields["MediaVideoLink"]);
+                        var imgurl = Helper.ImageUrl("MediaThumbnail", item);
+                        <div class="item" data-videosrc="@vidurl">
+                            <img src="@imgurl">
+
+                            <div class="bannercontent">
+                                <div class="bannercontent_inner">
+                                    <h1><span> @Html.Sitecore().Field("MediaTitle", item)</span></h1>
+                                    <p>  @Html.Sitecore().Field("MediaDescription", item)<p>
+                                        @if (!String.IsNullOrWhiteSpace(item.Fields["MediaLink"].Value))
+                                        {
+                                            var url = Helper.LinkUrl(item.Fields["MediaLink"]);
+                                        <p class="mt-4"><a href="@url" class="btn btn-primary" target="_blank">Learn more</a></p>
+                                    }
+                                    </div>
+                                </div>
+
+                            </div>
+                        }
+                    }
+            </div>
+            <div class="container position-relative">
+                <div class="scroll-down">
+                    <a href="#first-section"><span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span></a>
+                </div>
+            </div>
+        </section>
+    }
+}

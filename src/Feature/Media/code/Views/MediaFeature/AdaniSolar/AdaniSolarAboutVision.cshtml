@@ -1,0 +1,50 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants();
+    <section class="bg-gray pb-5 z-index position-relative">
+        <div class="container-fluid p-0">
+            <div class="row no-gutters">
+                <div class="col-lg-6">
+                    <div class="vision vertical-fourth">
+                        <h3 class="heading pl-4 mb-4">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h3>
+                        <p class="pl-4">@Html.Sitecore().Field(Templates.HasMedia.Fields.Description, elements)</p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="owl-carousel owl-theme single-slide">
+                        @if (itemList != null)
+                        {
+                            foreach (var item in itemList)
+                            {
+                                if (item.FieldHasValue(Templates.HasMediaImage.Fields.Image))
+                                {
+                                    <div class="item">
+                                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item, 0, 0, cssClass: "w-100 h-100")
+                                        <div class="vertical-fourth pl-5">
+                                            <h3 class="heading-w pl-4 mb-4 txt-white">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</h3>
+                                            <p class="pl-4 txt-white">@Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)</p>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section><!--/Vision & Values-->
+}

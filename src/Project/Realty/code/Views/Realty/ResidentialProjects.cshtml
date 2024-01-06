@@ -1,0 +1,175 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.HasBannerSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasBannerSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+    var parameter = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["Type"];
+    var homeitem = Sitecore.Context.Site.GetStartItem();
+    var property = homeitem.Axes.GetDescendants().Where(x => x.TemplateID == Templates.ResidentialProjects.ID).ToList().OrderBy(x=>x.Appearance.Sortorder);
+}
+<!-- Projects -->
+<section class="pt-5 bg-white top-property">
+    <div class="container">
+        <h3 class="text-center sectionHeading">@Html.Sitecore().Field(Templates.HasBannerSelector.Fields.Title, model)</h3>
+        <p class="col-sm-9 txt-center mr-auto ml-auto">@Html.Sitecore().Field(Templates.HasBannerSelector.Fields.Description, model)</p>
+    </div>
+</section>
+<section class="bg-white">
+    <div class="container">
+        @if (property != null)
+        {
+            <div class="row">
+                @foreach (var item in property)
+                {
+                    var typeName = string.Empty;
+                    var URLLink = string.Empty;
+                    var target = string.Empty;
+                    target = item.Fields[Templates.Navigable.Fields.ShowInNewTab].IsChecked() ? "_blank" : "";
+                    if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+                    {
+                        URLLink = item.LinkFieldUrl(Templates.Navigable.Fields.Link).ToString();
+                    }
+                    else
+                    {
+                        URLLink = item.Url();
+                    }
+
+                    var itemproperty = item.GetMultiListValueItems(Templates.ResidentialProjects.Fields.ProjectStatus).FirstOrDefault();
+                    var itemlocation = item.GetMultiListValueItems(Templates.ResidentialProjects.Fields.Location).FirstOrDefault();
+                    var itemtownship = item.GetMultiListValueItems(Templates.ResidentialProjects.Fields.Township).FirstOrDefault();
+                    if (itemtownship != null)
+                    {
+                        typeName = itemtownship.Name;
+                    }
+
+
+                    if (parameter == "Individual" && string.IsNullOrEmpty(Convert.ToString(typeName)))
+                    {
+                        <div class="col-sm-4">
+                            <div class="border-box">
+                                <a href="@URLLink" target="@target">
+
+                                    @if (itemproperty != null)
+                                    {
+                                        <p>@Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemproperty)</p>
+                                    }
+
+                                    @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid property-tile" })
+                                        <span class="act">@Html.Sitecore().Field(Templates.ResidentialProjects.Fields.SiteStatus, item)</span>
+                                    <div class="bg-gray py-3 pl-3 pr-3">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="property-hd">
+                                                    @Html.Sitecore().Field(Templates._HasPageContent.Fields.Title, item)
+                                                    @if (itemlocation != null)
+                                                    {
+                                                        <span>
+                                                            @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)
+                                                        </span>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                            <div class="col-6 py-4">
+                                                @Html.Sitecore().Field(Templates.ResidentialProjects.Fields.Logo, item, new { @class = "img-fluid" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    else if (parameter == "Shantigram" && !string.IsNullOrEmpty(Convert.ToString(typeName)) && parameter == Convert.ToString(typeName))
+                    {
+                        <div class="col-sm-4">
+                            <div class="border-box">
+                                <a href="@URLLink" target="@target">
+
+                                    @if (itemproperty != null)
+                                    {
+                                        <p>@Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemproperty)</p>
+                                    }
+
+                                    @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid property-tile" })
+                                        <span class="act">@Html.Sitecore().Field(Templates.ResidentialProjects.Fields.SiteStatus, item)</span>
+                                    <div class="bg-gray py-3 pl-3 pr-3">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="property-hd">
+                                                    @Html.Sitecore().Field(Templates._HasPageContent.Fields.Title, item)
+                                                    @if (itemlocation != null)
+                                                    {
+                                                        <span>
+                                                            @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)
+                                                        </span>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                            <div class="col-6 py-4">
+                                                @Html.Sitecore().Field(Templates.ResidentialProjects.Fields.Logo, item, new { @class = "img-fluid" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    else if (parameter == "All")
+                    {
+                        <div class="col-sm-4">
+                            <div class="border-box">
+                                <a href="@URLLink" target="@target">
+
+                                    @if (itemproperty != null)
+                                    {
+                                        <p>@Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemproperty)</p>
+                                    }
+
+                                    @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid property-tile" })
+                                        <span class="act">@Html.Sitecore().Field(Templates.ResidentialProjects.Fields.SiteStatus, item)</span>
+                                    <div class="bg-gray py-3 pl-3 pr-3">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="property-hd">
+                                                    @Html.Sitecore().Field(Templates._HasPageContent.Fields.Title, item)
+                                                    @if (itemlocation != null)
+                                                    {
+                                                        <span>
+                                                            @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)
+                                                        </span>
+                                                    }
+
+                                                </div>
+                                            </div>
+                                            <div class="col-6 py-4">
+                                                @Html.Sitecore().Field(Templates.ResidentialProjects.Fields.Logo, item, new { @class = "img-fluid" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                    }
+                }
+
+            </div>
+
+        }
+    </div>
+</section>
+<!-- /Projects -->

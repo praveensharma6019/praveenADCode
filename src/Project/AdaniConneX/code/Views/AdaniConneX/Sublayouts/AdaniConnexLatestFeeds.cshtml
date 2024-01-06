@@ -1,0 +1,161 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var sortedModel = model.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+    string imgurl = "";
+    string altText = "";
+    var i = 1;
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var bgClass = paramid["bgClass"] != null ? paramid["bgClass"] : null;
+
+}
+
+@if (model != null)
+{
+    <div class="award-warpper section-holder @bgClass">
+        <div class="content-wrapper">
+
+
+
+            <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Summary", model)</p>
+            <ul class="full award-section flx-sb">
+                <li class="left">
+                    <div class="card-box">
+                        <div class="card-content latest-news-holder">
+                            <p class="full latest-news fm-asb tx-000">@Html.Sitecore().Field("MediaDescription", model)</p>
+                            <ul class="latest-news-list full">
+                                @if (model.HasChildren)
+                                {
+                                    foreach (Item item in sortedModel)
+                                    {
+
+                                        var currentUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+
+                                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+                                        if (imgField != null && imgField.MediaItem != null)
+                                        {
+                                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                            altText = imgField.Alt;
+                                        }
+                                        Sitecore.Data.Fields.LinkField linkUrl = item.Fields["LinkUrl"];
+                                        var linkbtnUrl = linkUrl.GetFriendlyUrl();
+
+                                        if (linkbtnUrl != "")
+                                        {
+                                            if (linkUrl.LinkType == "internal")
+                                            {
+                                                <li class="full">
+                                                    
+                                                        <div class="thumbnail">
+                                                            @if (imgurl != "")
+                                                            {
+                                                                <img src="@imgurl" alt="@altText" class="res-img" />
+                                                            }
+                                                        </div>
+														<p class="full">@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                                        <a href="@linkbtnUrl" class="tx-000">
+                                                            <p class="full news-heading fm-am">@Html.Sitecore().Field("Title", item)</p>
+                                                        </a>
+                                                            
+                                                       
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li class="full">
+
+                                                    <div class="thumbnail">
+                                                        @if (imgurl != "")
+                                                        {
+                                                            <img src="@imgurl" alt="@altText" class="res-img" />
+                                                        }
+                                                    </div>
+													<p class="full">@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                                    <a href="@linkbtnUrl" target="_blank" class="tx-000">
+                                                        <p class="full news-heading fm-am ">@Html.Sitecore().Field("Title", item)</p>
+                                                    </a>
+                                                    
+
+                                                </li>
+                                            }
+
+
+                                        }
+
+
+
+                                        else
+                                        {
+                                            <li class="full">
+                                                
+                                                    <div class="thumbnail">
+                                                        @if (imgurl != "")
+                                                        {
+                                                            <img src="@imgurl" alt="@altText" class="res-img" />
+                                                        }
+                                                    </div>
+													<p class="full">@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                                    <a href="#" class="tx-000">
+                                                        <p class="full news-heading fm-am">@Html.Sitecore().Field("Title", item)</p>
+                                                    </a>
+                                                       
+                                                    
+                                            </li>
+                                        }
+
+                                        if (i >= 3)
+                                        {
+                                            break;
+                                        }
+                                        i++;
+                                    }
+                                }
+
+
+                            </ul>
+
+                            @{
+                                if (model.GetChildren().Count > 3)
+                                {
+                                    Sitecore.Data.Fields.LinkField linkField = model.Fields["ButtonLink"];
+                                    var btnUrl = linkField.GetFriendlyUrl();
+
+                                    if (btnUrl != "")
+                                    {
+                                        CheckboxField checkbox = model.Fields["ExternalLink"];
+                                        if (checkbox != null && checkbox.Checked)
+                                        {
+                                            <a href="@btnUrl" target="_blank" class="know-more h-underline">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@btnUrl" class="know-more h-underline">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <a href="#" class="know-more h-underline">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                                    }
+                                }
+
+                            }
+
+                        </div>
+                    </div>
+                </li>
+                @Html.Sitecore().Placeholder("home-awards")
+            </ul>
+
+
+        </div>
+    </div>
+}

@@ -1,0 +1,131 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var Title = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Title").FirstOrDefault().Value;
+    var journeytype = Sitecore.Context.Database.GetItem("{FE93D8F7-33CA-488C-8211-F4D468C42998}");
+    var terminal = Sitecore.Context.Database.GetItem("{2F11A06C-EF63-44B2-8209-AC9A0AB8CBDF}");
+
+}
+
+@if (model != null)
+{
+
+
+
+    <section class="bg-cream section content-header" id="first-section">
+        <div class="container-fluid">
+			<div class="box-filter">
+				<div class="row">
+				<div class="col-lg-3 col-md-6">
+					<div class="form-group">
+					<label for="">Choose journey type</label>
+					<select class="form-control" id="journeytypeDDL">
+					 @foreach (var element in journeytype.GetChildren().ToList())
+                    {
+                         <option>@Html.Sitecore().Field("Title", element)</option>
+						 }						
+					</select>
+				  </div>
+				</div>
+				<div class="col-lg-3 col-md-6">
+					<div class="form-group">
+					<label for="">Choose terminal</label>
+					<select class="form-control" id="terminalDDL">
+					 @foreach (var element in terminal.GetChildren().ToList())
+                    {
+                         <option>@Html.Sitecore().Field("Title", element)</option>
+						 }	
+					</select>
+				  </div>
+				</div>
+				<div class="col-12 col-lg-6">
+					<div class="pt-lg-4 text-lg-left text-right">
+						<button class="btn btn-green applyfilter" type="button">Apply</button>
+						<button type="button" class="btn btn-link clrfilter">Clear filters</button>
+					</div>
+				</div>
+			</div>
+			</div>
+            <div class="filters__section">
+<div id="filter-dropdown" class="d-none">
+<select class="form-control dropdown-select">
+<option value="AllLink">ALL</option>
+<option value="ArrivalLink">Arrival</option>
+<option value="DepartureLink">Departure</option>
+</select>
+</div>
+                <div class="filters d-none">
+
+                    <div>
+                       
+                           <a href="#all" class="active" id="AllLink">All</a>
+
+                            <a href="#Departure" id="DepartureLink">Departure</a>
+
+                            <a href="#Arrival" id="ArrivalLink">Arrival</a>
+                           <!-- <a href="#Transit" id="TransitLink">Transfer</a> -->
+                        
+                    </div>
+                </div>
+
+
+                <div class="filters-content">
+					<div class="text-lg-right text-left pt-2"><span class="filter-results float-lg-right">Showing 12 out of 30</span></div>
+                    <h2>@Title </h2>
+                    <p>@Html.Sitecore().Field("Summary", model)</p>
+                    <div class="row airport-section__carousel">
+
+                        @foreach (var element in model.GetChildren().ToList())
+                        {
+                            if (element.Fields["Title"] != null)
+                            {
+							
+                             var  class12 = Html.Sitecore().Field("JourneyType", element).ToString();
+							 var  classTer = Html.Sitecore().Field("TerminalType", element).ToString();
+
+								if (class12 == "All")
+								{
+								class12 = "Arrival Departure";
+								}
+								
+								
+
+								if (classTer == "All Terminal")
+								{
+								classTer = "AllTerminal";
+								}
+								
+                            <div class="col-lg-3 col-md-6 @class12 @classTer my-3 AllLink">
+								<div class="filter_inner item">
+                                <a href="@element.Url()">
+                                    @Html.Sitecore().ImageField("Image", element, 0, 0, "img-fluid w-100")
+                                    <div>
+
+                                        <p>@Html.Sitecore().Field("Title", element)</p>
+                                        <span>@Html.Sitecore().Field("Body", element)</span>
+
+                                    </div>
+                                </a>
+								</div>
+                            </div>
+                        
+                            }
+                        }
+                    </div>
+					<div class="text-center mt-4 loadmoreBtnDIV"><button class="btn btn-green loadmoreBtn" type="button">Load more</button></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+}
+
+
+
+

@@ -1,0 +1,78 @@
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.PaperlessBilling
+
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    <!-- Toggle button to show/hide side nav -->
+    <div class="d-block d-md-none sideNavBtn">
+        <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+            <i class="fas fa-align-left"></i>
+            <span>&nbsp;Menu</span>
+        </button>
+    </div>
+    <!-- /Toggle button to show/hide side nav -->
+    <div class="clearfix"></div>
+    <!-- Update Profile Page Content-->
+    <div class="panel">
+        @if (ViewBag.Status == null)
+        {
+            <form class="pt-3" id="paperlessPanel">
+                @if (Model.Paperless_Billing != true)
+                {
+                    <div>
+                        <p>Welcome to Adani Electricity's paperless e-billing service. Now you can do your bit and help save paper by switching to e-bills. your little contribution will go a long way in helping reduce the usage of paper and building a greener environment. Once you register for this for this green service, you will receive your monthly energy bill via email only.</p>
+                        <br />
+                        <p>To register, please confirm/edit your contact details:<p>
+                            <br />
+                    </div>
+                }
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Account Number", "Account Number")<span class="required">*</span></label>
+                    <div class="col-sm-8 col-lg-6">
+                        @Html.DisplayFor(x => x.AccountNumber, new { @class = "form-control", required = "required" })
+                        @Html.HiddenFor(x => x.AccountNumber)
+                        @Html.HiddenFor(x => x.Paperless_Billing)
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Email", "Email id")<span class="required">*</span></label>
+                    <div class="col-sm-8 col-lg-6">
+                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control", required = "required" })
+                        @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Mobile No", "Mobile Number")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", required = "required" })
+                    </div>
+                </div>
+                <div class="form-group row py-2">
+                    <div class="col-sm-12">
+                        @if (Model.Paperless_Billing == true)
+                        {
+                            <input type="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Button Deregister", "Deregister")" class="btn btn-primary" />
+                        }
+                        else
+                        {
+                            <input type="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Button register", "Register")" class="btn btn-primary" />
+                        }
+                    </div>
+                </div>
+            </form>
+        }
+        else if (ViewBag.Status == "registered")
+        {
+            <img src="-/media/AD9396AA71164486AEF897010D7081B7.ashx" id="paperlessRegisterPanel" alt="register" class="img-fluid" />
+        }
+        else if (ViewBag.Status == "deregistered")
+        {
+            <img src="-/media/8F9C1CF23381440DB64E0ACE34036AA9.ashx" alt="paperlessDeregisterPanel" class="img-fluid" />
+        }
+    </div>
+}

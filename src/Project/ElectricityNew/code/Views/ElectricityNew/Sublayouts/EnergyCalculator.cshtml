@@ -1,0 +1,191 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@model RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var daysDropDownParent = Sitecore.Context.Database.GetItem("{771D5D88-9FD9-4478-BDF8-308C23C1A532}");
+    var usageDropDownParent = Sitecore.Context.Database.GetItem("{B278EEE5-DB64-46F0-85BE-3D05F025E187}");
+    var counter = 1;
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    string activeClass = "active";
+}
+
+<div class="col s12 l8 offset-l1">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+
+
+
+
+    <div class="bill-calculator">
+        <div class="border-none-mobile card brand-gradient section-container section-inner-wrapper outlined card-with-form">
+
+            <div class="carousel_wrapper carousel-center-nav">
+                <div class="carousel-nav hide-on-small-only"></div>
+                <div class="owl-carousel standard-card" data-items-desktop="4.2" data-items-mobile="2.15">
+                    @foreach (var item in parent.Children.ToList())
+                    {
+                        counter++;
+                        <a href="javascript:void(0)" onclick="CurrentCategory(@counter)" class="eqiptiles" id="@item.DisplayName" name="@item.DisplayName">
+                            
+                                        
+                            <div class="card bill-item waves-effect waves-teal @activeClass">
+                                <div class="wrapper">
+                                    <div class="icon-bg">
+                                        @Html.Sitecore().Field("{E6CD7A67-0869-4271-A535-F63E74BF205A}", item, new { @class = "menuSelect" })
+                                    </div>
+                                </div>
+                                <div class="card-content">
+                                    <h6 class="test"
+                                        data-gaevent="energy_calculator"
+                                        data-gaeventCategory="Money Saver"
+                                        data-gaeventAction="Energy Calculatork"
+                                        data-gaeventLabel="Kitchen Appliances">@Html.Sitecore().Field("Title", item)
+                                    </h6>
+
+                                </div>
+                            </div>
+                        </a>
+                        activeClass = string.Empty;
+                    }
+                </div>
+            </div>
+
+            <div class="container" id="MainContentContainer">
+                <div class="item-gap">
+                    <div class="input-field custom">
+                        <select id="days" onchange="DaysSelectChange()">
+                            @*<option value="" disabled selected>Choose Number of Days</option>*@
+                            @foreach (var item in daysDropDownParent.Children.ToList())
+                            {
+                                var txt = @Html.Sitecore().Field("Title", item);
+                                var val = @Html.Sitecore().Field("TagLine", item);
+                                <option value="@val">@txt</option>
+                            }
+
+                            @*<option value="5">5</option>
+                                <option value="10">10</option>*@
+                        </select>
+                        @*<label>8</label>*@
+                        <label>Choose Number of Days</label>
+                        <footer>
+
+                            @Html.Sitecore().Dictionary("/BillCalculator/FooterRemark", "*Results of calculations are approximations only. Electricity Consumption is based on 1 Unit = 1000 Watts per hour.")
+
+                        </footer>
+                    </div>
+                </div>
+
+
+                @foreach (var item in parent.Children.ToList())
+                {
+                    <div id="@item.DisplayName" class=" bill-calculator calc @item.DisplayName" name="@item.DisplayName">
+                        <h5>@Html.Sitecore().Field("{63D9A869-E27E-4438-822C-EB36C26DB1B3}", item)</h5>
+
+                        <ul>
+                            @foreach (var children in item.Children.ToList())
+                            {
+                                <li class="calparent">
+
+                                    <div class="img">
+                                        <div class="icon">
+                                            @{
+                                                var icon1 = @Html.Sitecore().Field("Icon", children);}
+
+                                            @icon1
+
+                                        </div>
+                                    </div>
+                                    <div class="appliances">
+                                        <div class="row feild-group-with-footer">
+                                            <div class="col s6 l3">
+                                                <div class="input-field custom">
+                                                    <input type="text"
+                                                           class="validate calfld actualLoad" onchange="calculate(this)" />
+                                                    <label class="active" for="first_name2">
+                                                        @Html.Sitecore().Dictionary("/BillCalculator/Warning/ActualLoad", "Actual Load (in Watts)")
+
+
+                                                    </label>
+                                                    <footer class="small">@Html.Sitecore().Dictionary("/BillCalculator/Warning/Approximate", "Approximate")</footer>
+                                                </div>
+                                            </div>
+                                            <div class="col s6 l2">
+                                                <div class="input-field custom">
+                                                    <input type="text" class="validate calfld quantity" onchange="calculate(this)" />
+                                                    <label class="active" for="first_name2">@Html.Sitecore().Dictionary("/BillCalculator/Warning/Quantity", "Quantity")</label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col s6 l3">
+                                                <div class="input-field custom">
+                                                    <select onchange="calculate(this)" class="calfld duration">
+                                                        @foreach (var itm in usageDropDownParent.Children.ToList())
+                                                        {
+                                                            var txt = @Html.Sitecore().Field("Title", itm);
+                                                            var val = @Html.Sitecore().Field("TagLine", itm);
+
+                                                            <option value="@val">@txt</option>
+                                                        }
+                                                        @*<option value="60" selected>1h</option>
+                                                            <option value="75">1h 15m</option>
+                                                            <option value="120">2h</option>
+                                                            <option value="200">3h 20m</option>*@
+                                                    </select>
+                                                    <label>@Html.Sitecore().Dictionary("/BillCalculator/Warning/AverageUsage", "Average Usage")</label>
+                                                    <footer class="small"> @Html.Sitecore().Dictionary("/BillCalculator/Warning/Hrs", "Hrs/Min Per Day")</footer>
+                                                </div>
+                                            </div>
+
+                                            <div class="col s6 l4">
+                                                <div class="input-field custom">
+                                                    <input type="text"
+                                                           class="validate units"
+                                                           readonly="readonly"
+                                                           disabled />
+                                                    <label class="active" for="first_name2">@Html.Sitecore().Dictionary("/BillCalculator/Warning/ApproximateUnits", "Approximate Units")</label>
+                                                    <footer class="small">@Html.Sitecore().Dictionary("/BillCalculator/Warning/Monthly", "Monthly")</footer>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                <div class="input-field custom">
+                    <input type="text" class="validate total_units" disabled>
+                    <label class="active" for="first_name2">@Html.Sitecore().Dictionary("/BillCalculator/Warning/TotalMonthlyUnits", "Total Monthly Units") </label>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/scripts/ElectricityNew/EnergyCalculator.js"></script>
+<script type="text/javascript">
+    $('.test').click(function () {
+        if ($(this).attr('data-gaevent') != undefined) {
+            dataLayer.push({
+                'event': 'energy_calculator',
+                'eventCategory': $(this).attr('data-gaeventCategory'),
+                'eventAction': $(this).attr('data-gaeventAction'),
+                'eventLabel': $(this).attr('data-gaeventLabel'),
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        }
+    })
+    </script>

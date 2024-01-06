@@ -1,0 +1,139 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+}
+@if (element != null)
+{
+    <ul class="hamburger_section single-item tollfree">
+
+        <li>
+
+            <a class=" waves-effect" href="tel:19122">
+
+                <span class="icon-box"><i class="tel-icon"><img src="/electricity_assets/images/tel-icon.svg" alt="Tel"></i></span>
+
+                <label>Toll-Free: 19122 (24x7)</label>
+
+                <span class="badge sidebar-badge blue">Call</span>
+
+            </a>
+
+        </li>
+
+    </ul>
+    <ul class="collapsible expandable hamburger_section">
+
+        <li><h5>@Html.Sitecore().Field("Text", element)</h5></li>
+
+
+        @if (element.HasChildren)
+        {
+            int count = 1;
+            foreach (Item item in element.GetChildren())
+            {
+                //var imgurls = Helper.ImageUrl("LinkImage", item);
+                //var url = Helper.LinkUrl(item.Fields["LinkUrl"]);
+
+
+                Sitecore.Data.Fields.LinkField itemLinkfld = item.Fields["LinkUrl"];
+                string url = "#";
+                if (itemLinkfld != null && itemLinkfld.LinkType != "anchor")
+                {
+                    url = itemLinkfld != null && !string.IsNullOrEmpty(itemLinkfld.GetFriendlyUrl()) ? itemLinkfld.GetFriendlyUrl() : "#";
+                }
+                else
+                {
+                    url = itemLinkfld.Url;
+                }
+
+                var urlTarget = itemLinkfld != null ? itemLinkfld.Target : "";
+
+                if (!item.HasChildren)
+                {
+                    var eventLabel1 = @Html.Sitecore().Field("Title", item);
+                    <li>
+                        <a href="@url" target="@urlTarget" class="waves-effect"
+                           data-gaevent="hamburger_menu_option_select"
+                           data-gaeventCategory="User Interaction"
+                           data-gaeventAction="Hamburger Menu Option Select"
+                           data-gaeventLabel="@eventLabel1">
+                            <span class="icon-box"><i class="@Html.Sitecore().Field("Class", item)"></i></span>
+                            <label>@Html.Sitecore().Field("Title", item)</label>
+                        </a>
+                    </li>
+                }
+
+                else
+                {
+                    var eventLabel2 = @Html.Sitecore().Field("Title", item);
+                    <li>
+
+                        <a href="@url" target="@urlTarget" class="collapsible-header collapsible_link"
+                           data-gaevent="hamburger_menu_option_select"
+                           data-gaeventCategory="User Interaction"
+                           data-gaeventAction="Hamburger Menu Option Select"
+                           data-gaeventLabel="@eventLabel2">
+                            <span class="icon-box"><i class="@Html.Sitecore().Field("Class", item)"></i></span>
+                            <label>@Html.Sitecore().Field("Title", item)</label>
+                        </a>
+                        <div class="collapsible-body">
+                            <ul class="submenu">
+                                @foreach (Item item1 in item.GetChildren())
+                                {
+                                    var classNav = Html.Sitecore().Field("Class", item1).ToString();
+                                    Sitecore.Data.Fields.LinkField item1Linkfld = item1.Fields["LinkUrl"];
+                                    Sitecore.Data.Fields.LinkField childLoggedOutlinkfld = item1.Fields["LoggedOutLink"];
+                                    if (Elemodel != null)
+                                    {
+                                        item1Linkfld = item1.Fields["LinkUrl"];
+                                    }
+                                    else if (childLoggedOutlinkfld != null && !string.IsNullOrEmpty(childLoggedOutlinkfld.GetFriendlyUrl()))
+                                    {
+                                        item1Linkfld = childLoggedOutlinkfld;
+                                    }
+                                    var url1 = item1Linkfld != null && !string.IsNullOrEmpty(item1Linkfld.GetFriendlyUrl()) ? item1Linkfld.GetFriendlyUrl() : "#";
+                                    var url1Target = item1Linkfld != null ? item1Linkfld.Target : "";
+                                    var eventLabel3 = @Html.Sitecore().Field("Title", item);
+                                    <li>
+                                        @if (!string.IsNullOrEmpty(classNav))
+                                        {
+                                            <a href="@url1" target="@url1Target" class="@classNav"
+                                               data-gaevent="hamburger_menu_option_select"
+                                               data-gaeventCategory="User Interaction"
+                                               data-gaeventAction="Hamburger Menu Option Select"
+                                               data-gaeventLabel="@eventLabel3">
+                                                <label>@Html.Sitecore().Field("Title", item1)</label>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@url1" target="@url1Target" class="waves-effect"
+                                               data-gaevent="hamburger_menu_option_select"
+                                               data-gaeventCategory="User Interaction"
+                                               data-gaeventAction="Hamburger Menu Option Select"
+                                               data-gaeventLabel="@eventLabel3">
+                                                <label>@Html.Sitecore().Field("Title", item1)</label>
+                                            </a>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                }
+
+
+            }
+            count++;
+
+        }
+
+
+
+    </ul>
+}

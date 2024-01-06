@@ -1,0 +1,51 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "#";
+    string altText = string.Empty;
+    string linkurl = "#";
+
+}
+
+@if (model != null)
+{
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["Thumbnail"]);
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+        altText = imgField.Alt;
+    }
+    else
+    {
+        imgurl = "#";
+        altText = "";
+    }
+
+    <div class="health-banner">
+        <div class="container">
+            <div class="circle">
+                <img src="@imgurl" alt="@altText">
+            </div>
+            <h3>@Html.Sitecore().Field("Title", model)</h3>
+            <p>@Html.Sitecore().Field("Heading", model)</p>
+        </div>
+        <div class="btm-img">
+            <img src="/-/media/project/adanigreentalks/themes/images/health-banner.svg" alt="Health" class="desk-img">
+            <img src="/-/media/project/adanigreentalks/themes/images/health-mob-img.svg" alt="Health" class="mob-img">
+        </div>
+    </div>
+
+}
+

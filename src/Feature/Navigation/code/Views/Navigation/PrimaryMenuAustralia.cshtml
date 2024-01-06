@@ -1,0 +1,89 @@
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+
+    var isSocialMenu = Model.NavItems.All(i => !string.IsNullOrWhiteSpace(i.Item[Templates.LinkMenuItem.Fields.Icon]));
+}
+<div class="col-auto col-lg-5 mr-lg-auto topLeft">
+    <div class="" id="topMenu">
+        <div id="dismiss" class="d-block d-lg-none"><i class="fas fa-arrow-left"></i></div>
+        <div class="clearfix"></div>
+        <ul class="topMenu">
+            @foreach (var item in Model.NavItems)
+            {
+                var liclass = item.IsActive ? "active " : "";
+                if (item.Item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+                {
+                    liclass += "divider-left";
+                }
+
+                var hasChildren = item.Children != null && item.Children.NavItems.Any() && item.ShowChildren;
+                var cssClass = "";
+
+                if (hasChildren)
+                {
+                    cssClass += " dropdown";
+
+                }
+                <li class="nav-item @liclass">
+
+                    @if (hasChildren)
+                    {
+                        <a href="@item.Url" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                            @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                            <span class="dropMenuIcon"><i class="fas fa-angle-down"></i></span>
+                        </a>
+                        <div class="dropdown-menu">
+                            @foreach (var subitem in item.Children.NavItems)
+                            {
+                                <a class="dropdown-item" href="@subitem.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</a>
+                            }
+                        </div>
+                    }
+
+                    else
+                    {
+                        if (!item.IsExternalLink)
+                        {
+                            if (!item.IsNewTab)
+                            {
+                                <a href="@item.Url" target="@item.Target">
+                                    @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@item.Url" target="_blank">
+                                    @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            if (!item.IsNewTab)
+                            {
+                                <a href="@item.Link" target="@item.Target">
+                                    @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@item.Link" target="_blank">
+                                    @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                </a>
+                            }
+                        }
+                    }
+                </li>
+            }
+        </ul>
+    </div>
+
+
+</div>

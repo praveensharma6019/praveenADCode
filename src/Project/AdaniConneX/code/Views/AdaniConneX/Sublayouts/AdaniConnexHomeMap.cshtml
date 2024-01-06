@@ -1,0 +1,93 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "";
+    string altText = "";
+    string sectionClass = "";
+}
+
+@if (model != null)
+{ 
+    <div class="map-holder section-holder">
+        <div class="content-wrapper">
+            <p class="full h1 fm-asb tx-000"> @Html.Sitecore().Field("Text", model)</p>
+            <p class="full d-txt desc"> @Html.Sitecore().Field("MediaInfo", model)</p>
+            <div class="map-data-holder">
+                <div class="map-data-content grid-wrapper">
+                    <div class="init-map-dot-holder connect-na"></div>
+                    <div class="init-map-dot-holder connect-sa"></div>
+                    <div class="init-map-dot-holder connect-emea"></div>
+                    <div class="map-connect connect-emea-vizag"></div>
+                    <div class="map-connect connect-emea-hyd"></div>
+                    <div class="map-connect connect-emea-chennai"></div>
+                    <div class="map-connect connect-sa-pune"></div>
+                    <div class="map-connect connect-sa-mumbai"></div>
+                    @if (model.HasChildren)
+                    {
+                        foreach (Item item in model.GetChildren())
+                        {
+                            if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", item).ToString()))
+                            {
+                                sectionClass = item.Fields["Class"].ToString();
+                            }
+
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                            if (imgField != null && imgField.MediaItem != null)
+                            {
+                                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                altText = imgField.Alt;
+                            }
+
+                            <div class="map-connect @sectionClass"></div>
+                            <div class="map-dot-holder @sectionClass">
+                                <div class="map-tooltip-wrapper">
+                                    <div class="map-tooltip-holder">
+                                        <div class="map-tooltop-content">
+                                            @if (imgurl != "")
+                                            {
+                                                <div class="map-tooltip-img">
+                                                    <img src="@imgurl" alt="@altText" class="res-img">
+                                                </div>
+                                            }
+                                            <p class="full h3 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                                            <p class="full d-txt">@Html.Sitecore().Field("MediaDescription", item)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+
+                    }
+
+                    <div class="map-connect connect-pune-chennai"></div>
+
+                 
+                    @Html.Sitecore().Placeholder("left-map")
+                    @Html.Sitecore().Placeholder("center-map")
+                    @Html.Sitecore().Placeholder("right-map")
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+}

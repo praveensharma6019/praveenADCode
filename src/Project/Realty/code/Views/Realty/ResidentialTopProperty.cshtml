@@ -1,0 +1,57 @@
+﻿
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.ResidentTopProperty.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.ResidentTopProperty.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+}
+<!-- Top Property -->
+<section class="bg-white top-property">
+    <div class="container">
+        <p class="py-3 overlay-p"></p>
+        <div class="row bg-gray">
+            <div class="col-lg-6 txt-center pt-4 pb-4">
+                @Html.Sitecore().ImageField(Templates.ResidentTopProperty.Fields.Logo, model)
+                <h3 class="txt-d-blue bold pt-3 pb-3">@Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Title, model)</h3>
+                <p>@Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Description, model)</p>
+                <p class="mt-4">
+                    @if (!string.IsNullOrEmpty(Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.LinkText, model).ToString()))
+                    {
+                        @Html.Sitecore().BeginField("LinkURL", new { haschildren = true, @class = "btn-primary blueBtn", @target = "_blank" })
+                        @Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.LinkText, model)
+                        @Html.Sitecore().EndField()
+                    }
+                </p>
+            </div>
+            <div class="col-lg-6 txt-right py-3">
+                <a href="video-01" data-toggle="modal" data-target="#video-01">@Html.Sitecore().ImageField(Templates.ResidentTopProperty.Fields.VideoThumb, model, 0, 0, "img-fluid")</a>
+            </div>
+        </div>
+        <!-- Video Model -->
+        <div class="modal video" id="video-01" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <button type="button" class="close" data-dismiss="modal">x</button>
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <iframe width="100%" height="350" src=@Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.VideoLink,model) frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Video Model -->
+        <p class="py-3 overlay-p"></p>
+    </div>
+</section>
+<!-- /Top Property -->

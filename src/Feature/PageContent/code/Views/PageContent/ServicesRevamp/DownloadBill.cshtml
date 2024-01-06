@@ -1,0 +1,67 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Feature.PageContent
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Items.Item DownloadBill = Sitecore.Context.Item;
+}
+
+@if (DownloadBill != null)
+{
+    <div class="col s12 l8 offset-l1">
+        <div class="section-wrapper custom_accrdion single-item">
+            <header class="section-header">
+                <h1>@Html.Raw(DownloadBill["Title"])</h1>
+                <p>@Html.Raw(DownloadBill["Body"])</p>
+            </header>
+            @if (datasource != null)
+            {
+                var prefix = parent.Name;
+                var i = 0;
+                <div class="accordion download-form">
+                    <ul class="collapsible collapsible-accordion">
+                        @foreach (var child in parent.Children.ToList())
+                        {
+                            var collection = Array.Empty<string>();
+                            if (child.Fields["Document Collection"] != null)
+                            {
+                                collection = child.Fields["Document Collection"].Value.Split('|').ToArray();
+                            }
+                            <li>
+                                <div class="collapsible-header">
+                                    @Html.Sitecore().Field("Title", child)
+                                </div>
+                                <div class="collapsible-body">
+                                    @foreach (var itemID in collection.ToList())
+                                    {
+                                        var title = "";
+                                        try
+                                        {
+                                            var item = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(itemID));
+                                            var url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(item);
+                                            title = item.Fields["Title"].Value;
+                                            if (string.IsNullOrEmpty(title))
+                                            {
+                                                title = item.Name;
+                                            }
+                                            <p><a href="@url" target="_blank"><i class="vi-download-bills"></i> @title</a></p>
+                                        }
+                                        catch
+                                        {
+
+                                        }
+                                    }
+                                    @Html.Sitecore().Field("Body", child)
+                                </div>
+                            </li>
+                            i++;
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+}

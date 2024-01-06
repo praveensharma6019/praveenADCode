@@ -1,0 +1,42 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.LocationDetial.TempalateId) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.LocationDetial.TempalateId), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+<section id="location">
+    <div class="row m-0">
+        <div class="col-sm-6 p-0">
+            @Html.Sitecore().Field(Templates.LocationDetial.Fields.LocationImage, models, new { @class = "img-fluid wd-100 h-cursor", data_toggle = "modal", data_target = "#map" })
+            <!-- The Modal -->
+            <div class="modal video media-video" id="map">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <!-- Modal Header -->
+                        <button type="button" class="close" data-dismiss="modal">x</button>
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <iframe src="@Html.Sitecore().Field(Templates.LocationDetial.Fields.Location, models)" style="border:0" allowfullscreen="" width="100%" height="450" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End-->
+        </div>
+        <div class="col-sm-6 pl-5">
+            <h3 class="sectionHeading txtleft">@Html.Sitecore().Field(Templates.LocationDetial.Fields.Title, models)</h3>
+            @Html.Sitecore().Field(Templates.LocationDetial.Fields.Address, models)
+        </div>
+    </div>
+</section>

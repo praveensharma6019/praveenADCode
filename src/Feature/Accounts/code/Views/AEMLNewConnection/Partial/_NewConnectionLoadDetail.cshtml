@@ -1,0 +1,513 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{
+    Model.ConnectionTypeSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.VoltageLevelSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.PurposeOfSupplySelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.PremiseTypeSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.MeterLoadSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+
+}
+<input type="hidden" name="ConnectionTypeCode" id="ConnectionTypeCode" value="@Model.ConnectionTypeCode" />
+<div class="panel-body">
+    <div class="bg-white p-3">
+        <div class="row">
+            <div class="col-lg-12 mb-3">
+                <label>*At least one load is mandatory to enter</label>
+                <a href="#" class="btn btn-light float-lg-right">Load Calculator</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-2">
+                <label for=""><b>Connected Load kW</b></label>
+                <div class="form-group">
+                    @Html.TextBoxFor(x => x.ConnectedLoadKW,new
+                    {
+                    @class = "form-control",
+                    id = "ddlConnectedLoadKW",
+                    })
+                    @Html.ValidationMessageFor(x => x.ConnectedLoadKW, "", new { @class = "error" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2">
+                <label for=""><b>Connected Load HP</b></label>
+                <div class="form-group">
+
+                    @Html.TextBoxFor(x => x.ConnectedLoadHP, new
+                    {
+                    @class = "form-control",
+                    id = "ddlConnectedLoadHP",
+                    })
+                    @Html.ValidationMessageFor(x => x.ConnectedLoadHP, "", new { @class = "error" }, "p")
+                </div>
+            </div>
+
+
+
+            @if ((!string.IsNullOrEmpty(Model.ConnectedLoadKW)) || (!string.IsNullOrEmpty(Model.ConnectedLoadHP)))
+            {
+
+                var data = Model.TotalLoad.ToString();
+                if ((Model.ApplicationSubType == "1") || (Model.ApplicationSubType == "2"))
+                {
+                    if (((System.Double.Parse(data)) > 0 && (System.Double.Parse(data) <= 99999)))
+                    {
+
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group">
+                                <label for="">
+                                    <b>
+                                        Total Load
+                                        <span class="required">*</span>
+                                    </b>
+                                </label>
+                                <p class="totalFund">@data</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group">
+                                <label for="">
+                                    <b>
+                                        Connection Type
+                                        <span class="required">*</span>
+                                    </b>
+                                </label>
+                                @if (Model.ConnectionTypeSelectList.Count == 1)
+                                {
+                                    @Html.DropDownListFor(model => model.SelectedConnectionType, new SelectList(Model.ConnectionTypeSelectList, "Value", "Text"), new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlConnectionType"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.SelectedConnectionType, "", new { @class = "help-block" }, "p")
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(model => model.SelectedConnectionType, new SelectList(Model.ConnectionTypeSelectList, "Value", "Text"), "Select", new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlConnectionType"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.SelectedConnectionType, "", new { @class = "help-block" }, "p")
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                            <div class="form-group">
+                                <label for="">
+                                    <b>
+                                        Voltage Level
+                                        <span class="required">*</span>
+                                    </b>
+                                </label>
+                                @if (Model.VoltageLevelSelectList.Count == 1)
+                                {
+                                    @Html.DropDownListFor(model => model.VoltageLevel, new SelectList(Model.VoltageLevelSelectList, "Value", "Text"), new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlVoltageLevel"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.VoltageLevel, "", new { @class = "help-block" }, "p")
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(model => model.VoltageLevel, new SelectList(Model.VoltageLevelSelectList, "Value", "Text"), "Select", new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlVoltageLevel"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.VoltageLevel, "", new { @class = "help-block" }, "p")
+                                }
+                            </div>
+                        </div>
+                        if (Model.VoltageLevel != null)
+                        {
+                            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                                <div class="form-group">
+                                    <label for=""><b>Meter Type<span class="required">*</span></b></label>
+                                    <p class="meterload">
+                                        @Html.DisplayFor(x => x.MeterType, new
+                                   {
+                                       @class = "form-control",
+                                       id = "MeterTypeValue",
+                                       value = Model.MeterType
+
+
+                                   })
+                                        @Html.ValidationMessageFor(model => model.MeterType, "", new { @class = "help-block" }, "p")
+                                    </p>
+
+                                </div>
+                            </div>
+
+                        }
+
+                        if (System.Double.Parse(data) > 20)
+                        {
+                            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                                <div class="form-group">
+                                    <label for="">
+                                        <b>
+                                            Contract Demand
+                                            <span class="required">*</span>
+                                        </b>
+                                    </label>
+                                    @Html.TextBoxFor(model => model.ContractDemand, new
+                               {
+                                   @class = "form-control",
+                               })
+                                    @Html.ValidationMessageFor(model => model.ContractDemand, "", new { @class = "help-block" }, "p")
+                                </div>
+                            </div>
+                        }
+                        <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                            <label for=""><b>Purpose of Supply<span class="required">*</span></b></label>
+                            <div class="form-group selectRow">
+
+                                @Html.DropDownListFor(m => m.PurposeOfSupply, new SelectList(Model.PurposeOfSupplySelectList, "Value", "Text"), "Select", new
+                           {
+                               @class = "form-control",
+                               required = "required",
+                               id = "ddlPurposeOfSupply"
+                           })
+                                @Html.ValidationMessageFor(x => x.PurposeOfSupply, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                        if (Model.PurposeOfSupply == "E04")
+                        {
+                            <p>
+                                Existing Electricity CA number is mandatory
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="col-lg-3 col-md-3">
+                                <div class="form-group">
+                                    <label for=""><b>Applied Tariff<span class="required">*</span></b></label>
+
+                                    @Html.TextBoxFor(x => x.AppliedTariff, new
+                               {
+                                   @class = "form-control",
+                                   id = "AppliedTraifValue",
+                                   @disabled = "disabled",
+                                   value = Model.AppliedTariff
+                               })
+                                    @Html.ValidationMessageFor(model => model.AppliedTariff, "", new { @class = "help-block" }, "p")
+
+
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group">
+                                <label for=""><b>Meter/Load Type<span class="required">*</span></b></label>
+                                @Html.DropDownListFor(m => m.MeterLoad, new SelectList(Model.MeterLoadSelectList, "Value", "Text"), "Select", new
+                           {
+                               @class = "form-control",
+                               required = "required",
+                               id = "ddlMeterLoad"
+                           })
+                                @Html.ValidationMessageFor(x => x.MeterLoad, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group  selectRows">
+                                <label for=""><b>Premise Type<span class="required">*</span></b></label>
+                                @if (Model.PremiseTypeSelectList.Count == 1)
+                                {
+                                    @Html.DropDownListFor(m => m.PremiseType, new SelectList(Model.PremiseTypeSelectList, "Value", "Text"), new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "ddlPremiseTyp" +
+                                   "e"
+                               })
+                                    @Html.ValidationMessageFor(x => x.PremiseType, "", new { @class = "help-block" }, "p")
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.PremiseType, new SelectList(Model.PremiseTypeSelectList, "Value", "Text"), "Select", new
+                          {
+                              @class = "form-control",
+                              required = "required",
+                              id = "ddlPremiseTyp" +
+                              "e"
+                          })
+                                    @Html.ValidationMessageFor(x => x.PremiseType, "", new { @class = "help-block" }, "p")
+                                }
+                            </div>
+                        </div>
+                        if (System.Double.Parse(data) > 20)
+                        {
+                            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                                <label for=""><b>LDP Order Number</b></label>
+                                <div class="form-group">
+                                    @Html.TextBoxFor(x => x.LDPOrderNumber, new
+                               {
+                                   @class = "form-control",
+                                   id = "LPDOrders"
+                               })
+                                    @Html.ValidationMessageFor(x => x.LDPOrderNumber, "", new { @class = "error" }, "p")
+                                </div>
+                            </div>
+                        }
+
+
+                    }
+                }
+
+                else if (Model.ApplicationSubType == "3")
+                {
+                    if (((System.Double.Parse(data)) >= 100 && (System.Double.Parse(data) <= 160)))
+                    {
+
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group">
+                                <label for="">
+                                    <b>
+                                        Total Load Type
+                                        <span class="required">*</span>
+                                    </b>
+                                </label>
+                                <p class="totalFund">@data<span class="float-right"><a href="#" class="btn btn-primary">Load Calculator</a></span></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group">
+                                <label for="">
+                                    <b>
+                                        Connection Type
+                                        <span class="required">*</span>
+                                    </b>
+                                </label>
+                                @if (Model.ConnectionTypeSelectList.Count == 1)
+                                {
+                                    @Html.DropDownListFor(model => model.SelectedConnectionType, new SelectList(Model.ConnectionTypeSelectList, "Value", "Text"), new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlConnectionType"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.SelectedConnectionType, "", new { @class = "help-block" }, "p")
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(model => model.SelectedConnectionType, new SelectList(Model.ConnectionTypeSelectList, "Value", "Text"), "Select", new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlConnectionType"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.SelectedConnectionType, "", new { @class = "help-block" }, "p")
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                            <div class="form-group">
+                                <label for="">
+                                    <b>
+                                        Voltage Level
+                                        <span class="required">*</span>
+                                    </b>
+                                </label>
+                                @if (Model.VoltageLevelSelectList.Count == 1)
+                                {
+                                    @Html.DropDownListFor(model => model.VoltageLevel, new SelectList(Model.VoltageLevelSelectList, "Value", "Text"), new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlVoltageLevel"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.VoltageLevel, "", new { @class = "help-block" }, "p")
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(model => model.VoltageLevel, new SelectList(Model.VoltageLevelSelectList, "Value", "Text"), "Select", new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "DdlVoltageLevel"
+
+
+                               })
+                                    @Html.ValidationMessageFor(model => model.VoltageLevel, "", new { @class = "help-block" }, "p")
+                                }
+                            </div>
+                        </div>
+                        if (Model.VoltageLevel != null)
+                        {
+                            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                                <div class="form-group">
+                                    <label for=""><b>Meter Type<span class="required">*</span></b></label>
+
+                                    <p class="meterload">
+                                        @Html.DisplayFor(x => x.MeterType, new
+                                {
+                                    @class = "form-control",
+                                    id = "MeterTypeValue",
+                                    value = Model.MeterType
+
+
+                                })
+                                        @Html.ValidationMessageFor(model => model.MeterType, "", new { @class = "help-block" }, "p")
+                                    </p>
+
+                                </div>
+                            </div>
+
+                        }
+
+                        if (System.Double.Parse(data) > 20)
+                        {
+                            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                                <div class="form-group">
+                                    <label for="">
+                                        <b>
+                                            Contract Demand
+                                            <span class="required">*</span>
+                                        </b>
+                                    </label>
+                                    @Html.TextBoxFor(model => model.ContractDemand, new
+                               {
+                                   @class = "form-control",
+                               })
+                                    @Html.ValidationMessageFor(model => model.ContractDemand, "", new { @class = "help-block" }, "p")
+                                </div>
+                            </div>
+                        }
+                        <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                            <label for=""><b>Purpose of Supply<span class="required">*</span></b></label>
+                            <div class="form-group selectRow">
+
+                                @Html.DropDownListFor(m => m.PurposeOfSupply, new SelectList(Model.PurposeOfSupplySelectList, "Value", "Text"), "Select", new
+                           {
+                               @class = "form-control",
+                               required = "required",
+                               id = "ddlPurposeOfSupply"
+                           })
+                                @Html.ValidationMessageFor(x => x.PurposeOfSupply, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                        if (Model.PurposeOfSupply == "E04")
+                        {
+                            <p>
+                                Existing Electricity CA number is mandatory
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="col-lg-3 col-md-3">
+                                <div class="form-group">
+                                    <label for=""><b>Applied Tariff<span class="required">*</span></b></label>
+
+                                    @Html.TextBoxFor(x => x.AppliedTariff, new
+                               {
+                                   @class = "form-control",
+                                   id = "AppliedTraifValue",
+                                   @disabled = "disabled",
+                                   value = Model.AppliedTariff
+                               })
+                                    @Html.ValidationMessageFor(model => model.AppliedTariff, "", new { @class = "help-block" }, "p")
+
+
+                                </div>
+                            </div>
+                        }
+
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group">
+                                <label for=""><b>Meter/Load Type<span class="required">*</span></b></label>
+                                @Html.DropDownListFor(m => m.MeterLoad, new SelectList(Model.MeterLoadSelectList, "Value", "Text"), "Select", new
+                           {
+                               @class = "form-control",
+                               required = "required",
+                               id = "ddlMeterLoad"
+                           })
+                                @Html.ValidationMessageFor(x => x.MeterLoad, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3">
+                            <div class="form-group selectRows">
+                                <label for=""><b>Premise Type<span class="required">*</span></b></label>
+                                @if (Model.PremiseTypeSelectList.Count == 1)
+                                {
+                                    @Html.DropDownListFor(m => m.PremiseType, new SelectList(Model.PremiseTypeSelectList, "Value", "Text"), new
+                               {
+                                   @class = "form-control",
+                                   required = "required",
+                                   id = "ddlPremiseTyp" +
+                                   "e"
+                               })
+                                    @Html.ValidationMessageFor(x => x.PremiseType, "", new { @class = "help-block" }, "p")
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(m => m.PremiseType, new SelectList(Model.PremiseTypeSelectList, "Value", "Text"), "Select", new
+                          {
+                              @class = "form-control",
+                              required = "required",
+                              id = "ddlPremiseTyp" +
+                              "e"
+                          })
+                                    @Html.ValidationMessageFor(x => x.PremiseType, "", new { @class = "help-block" }, "p")
+                                }
+                            </div>
+                        </div>
+                        if (System.Double.Parse(data) > 20)
+                        {
+                            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                                <label for=""><b>LDP Order Number</b></label>
+                                <div class="form-group">
+                                    @Html.TextBoxFor(x => x.LDPOrderNumber, new
+                               {
+                                   @class = "form-control",
+                                   id = "LPDOrders"
+                               })
+                                    @Html.ValidationMessageFor(x => x.LDPOrderNumber, "", new { @class = "error" }, "p")
+                                </div>
+                            </div>
+                        }
+
+
+
+                    }
+
+                }
+            }
+        </div>
+        <div class="form-group ml-4">
+            <p class="txt-orange" id="docErrorMessage">@ViewBag.Message</p>
+        </div>
+
+        <div class="text-right pt-3">
+            <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="SaveLoadDetail" id="SaveLoadDetail" value="Save As Draft" />
+        </div>
+
+
+    </div>
+</div>

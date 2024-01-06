@@ -1,0 +1,130 @@
+﻿
+@using System;
+@using System.Web;
+@using Sitecore.Foundation.Dictionary.Repositories;
+@using Sitecore.AGELPortal.Website.Models;
+@using System.ComponentModel.DataAnnotations;
+@using System.Web.Mvc;
+@using Sitecore.Data;
+@using Sitecore.AGELPortal.Website;
+
+
+@model Sitecore.AGELPortal.Website.Models.PortalAddContentModel
+@{
+
+    Layout = null;
+    var usertype = Session["AGELPortalUserType"]?.ToString();
+}
+
+<link href="https://amp.azure.net/libs/amp/latest/skins/amp-default/azuremediaplayer.min.css" rel="stylesheet">
+<script src="https://amp.azure.net/libs/amp/latest/azuremediaplayer.min.js"></script>
+<div class="container">
+    <div class="breadcrumbs">
+        <a href="/AGELPortal/Home" class="breadcrumb">Home</a>
+        <a href="/AGELPortal/Home/Video_List" class="breadcrumb">Videos</a>
+    </div>
+    <!-- <div class="container"> -->
+    <div class="row">
+        <div class="col s12 l3">
+            <header class="section-header hide-on-large-only">
+                <h1>Videos</h1>
+            </header>
+            <!--Category nav-->
+            <div class="side-nav hide-on-med-and-down">
+                <ul class="collapsible expandable z-depth-0">
+                    <li class="active">
+                        <div class="collapsible-header brand-gradient-left brand-gradient-thin outlined">
+                            <a href="#"><i class="i-cross-c"></i>Category</a>
+
+                        </div>
+                        <div class="collapsible-body">
+                            <div class="submenu">
+                                <style>
+
+                                    .tabs .indicator {
+                                        display: none;
+                                    }
+                                </style>
+
+                                <ul class="tabs" id="tab1" style="height: auto;  overflow:inherit;white-space: initial;border:none;">
+
+                                    @{
+                                        int count = 0; }
+
+                                    @foreach (var category in Model.videoCategories)
+                                    {
+                                        var ContentCount = Model.GetCount(category.Id, "video");
+                                        if (ContentCount > 0)
+                                        {
+
+                                            var activClass = count == 0 ? "active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined" : "";
+
+                                            <li class="tab" id="tab" style="display:block ; text-align:left;">
+                                                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+                                                <a href="#video-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))" class="@activClass" style="display:flex; align-items:center;">
+                                                    @category.name
+                                                </a>
+                                            </li>
+                                            count++;
+                                        }
+                                    }
+
+                                </ul>
+
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!--Cn-->
+        </div>
+        <div class="col s12 l8 offset-l1">
+            <header class="section-header hide-on-med-and-down">
+                <h1>Videos</h1>
+            </header>
+            <div class="carousel_wrapper">
+                <div class="row">
+                    @foreach (var category in Model.videoCategories)
+                    {
+                        var ContentCount = Model.GetCount(category.Id, "video");
+                        if (ContentCount > 0)
+                        {                  
+                                foreach (var videos in Model.videos)
+                                {
+                                    if (videos.category_id == category.Id)
+                                    {
+                                        <div class="card col s12 m4" id="video-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))">
+                                           
+                                            <div class="card">
+                                                <div class="card-image">
+<div class="vid-icon-show video-icon">  <a href="/AGELPortal/Home/Video-Detail?videourlId=@videos.Id"> <img src="/images/AGELPortal/video-icon.svg"></a></div>
+ @if (videos.DocVideoImage_Name == null || videos.DocVideoImage_Name == "")
+                                                {
+                                                    <img src="\images\AGELPortal\video.jpg">
+                                                }
+                                                else
+                                                {
+                                                    <img src="\images\AGELPortal\upload_images\@videos.DocVideoImage_Name">
+                                                }
+                                                    <video id="vid1" class="azuremediaplayer amp-default-skin" controls width="308" height="308" poster="@videos.url" data-setup='{"techOrder": ["azureHtml5JS", "flashSS", "html5FairPlayHLS","silverlightSS", "html5"], "nativeControlsForTouch": false}'>
+                                                        <source src="@videos.url" type="application/vnd.ms-sstr+xml" />
+                                                        <p class="amp-no-js">
+                                                            To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video
+                                                        </p>
+                                                    </video>
+                                                </div>
+                                                <div class="card-content">
+                                                    <h4>@videos.title</h4>
+                                                </div>
+                                            </div>
+					
+                                        </div>
+                                    }
+                                }                           
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

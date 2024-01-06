@@ -1,0 +1,142 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+
+    Sitecore.Data.Items.Item ConsumerBranding = null;
+
+    Sitecore.Data.Items.Item ConsumerTypess = null;
+
+    Sitecore.Data.Items.Item DemosType = null;
+
+    var ConsumerBrands = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["ConsumerBrand"];
+    if (!string.IsNullOrEmpty(ConsumerBrands))
+    {
+        ConsumerBranding = Sitecore.Context.Database.GetItem(ConsumerBrands);
+
+
+    }
+    var ConsumerTypes = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["ConsumerType"];
+    if (!string.IsNullOrEmpty(ConsumerTypes))
+    {
+        ConsumerTypess = Sitecore.Context.Database.GetItem(ConsumerTypes);
+
+    }
+    var ConsumerProducts = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["ConsumerProduct"];
+    var Consumerproductss = Sitecore.Context.Database.GetItem(ConsumerProducts);
+    var TabNmae = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["tabname"];
+    var demos = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["Demoss"];
+    if (!string.IsNullOrEmpty(demos))
+    {
+        DemosType = Sitecore.Context.Database.GetItem(demos);
+
+
+    }
+
+}
+
+
+
+
+<section class="section  position-relative d-block bg-white" id="@TabNmae">
+    <div class="container position-relative">
+        
+        <h2 class="text-left sectionHeading">
+            @Html.Sitecore().Field("Title", parent)
+           
+    <div data-toggle="collapse" data-target="#@DemosType" class="right-title product-filter">
+            <img alt="" src="-/media/D3F7728844494909BE1473053B13CAEB.ashx" />
+                    <h3>Fortune <span>X</span></h3>
+                </div>
+        </h2>
+                <div id="@DemosType" class="filter-content collapse" style="">
+                    <div class="product-brand">
+
+                        @{
+                            var CBName = "";
+                            if (ConsumerBranding != null)
+                            {
+                                CBName = ConsumerBranding.Name;
+
+                                <h5 class="mb-3"> @CBName</h5>
+                                <ul class="filter-list">
+                                    @foreach (var items in ConsumerBranding.Children.ToList())
+                                    {
+                                        var replacestr = Regex.Replace(@Html.Sitecore().Field("Title", items).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                                        <li class="">
+                                            <input type="checkbox" name="" id="@replacestr-@TabNmae" value="@replacestr">
+                                            <label for="@replacestr-@TabNmae">@Html.Sitecore().Field("Title", items)</label>
+                                        </li>
+                                    }
+
+
+                                </ul>
+                            }
+                        }
+                    </div>
+                    <div class="product-type">
+                        @{
+                            var CTName = "";
+                            if (ConsumerTypess != null)
+                            {
+                                CTName = ConsumerTypess.Name;
+
+
+                                <h5 class="mb-3">@CTName</h5>
+                                <ul class="filter-list">
+                                    @foreach (var item in ConsumerTypess.Children.ToList())
+                                    {
+                                        var replacestrs = Regex.Replace(@Html.Sitecore().Field("Title", item).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                                        <li class="">
+                                            <input type="checkbox" name="" id="@replacestrs-@TabNmae" value="@replacestrs">
+                                            <label for="@replacestrs-@TabNmae">@Html.Sitecore().Field("Title", item)</label>
+                                        </li>
+
+
+                                    }
+
+
+
+
+
+
+                                </ul>
+                            }
+                        }
+                    </div>
+                </div>
+          
+                <ul class="folding-menu">
+                    @foreach (var child in Consumerproductss.Children.ToList())
+                    {
+                        var BusinessType = child.Fields["Type"].Value;
+                        var formatedType = BusinessType.Replace(" ", "-");
+                        var BusinessBrand = child.Fields["Brand"].Value;
+                        var formatedBrand = BusinessBrand.Replace(" ", "-");
+
+                        <li class="menu-item folding-parent column @formatedType @formatedBrand">
+                            <a href="">
+                                @Html.Sitecore().ImageField("Image", child, 0, 0)
+                            </a>
+                            <div class="folding-content">
+                                <h3>@Html.Sitecore().Field("Title", child)</h3>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        @Html.Sitecore().Field("Body", child)
+                                    </div>
+                                    <div class="col-md-6">
+                                        @Html.Sitecore().Field("Summary", child)
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                   
+                </ul>
+    </div>
+</section>

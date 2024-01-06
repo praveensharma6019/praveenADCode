@@ -1,0 +1,187 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    Layout = null;
+}
+@model Sitecore.AGELPortal.Website.Models.PortalLessonlerneningVideo
+
+<style>
+
+
+
+    a.modal-trigger {
+        color: #2073b8 !important;
+    }
+</style>
+@if (Model.videos != null)
+{
+    <div class="table-container">
+        <div class="section-header">
+            <h4>User Learning</h4>
+        </div>
+        <div id="spinner-div" class="pt-5">
+            <div class="spinner-border text-primary" role="status">
+            </div>
+        </div>
+        <div class="customer_detail_wrapper customer_detail_list">
+            <table id="myTable" class="customer_detail_list-details">
+                <thead>
+                    <tr>
+                        <th style="width: 37%;">Name</th>
+                        <th style="width: 18%;">Site</th>
+                        <th style="width: 20%;">Video Seen</th>
+                        <th style="width: 25%;">Document read</th>
+                    </tr>
+                </thead>
+
+
+                @{
+                    var videoslength = System.Convert.ToInt32(Model.videos.Count());
+                    var rows = 8 - System.Convert.ToInt32(videoslength);
+                }
+                @if (videoslength > 8)
+                {
+                    <tbody>
+                        @foreach (var data in Model.videos)
+                        {
+
+                            <tr data-id="@data.userId">
+                                <td>
+                                    <div class="table-cell border-right">
+                                        <span>@data.part_user_name</span>
+                                        <div>
+                                            <h6>@data.user_name</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label>@data.User_Site</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label><a id="userPopup" class="userPopup modal-trigger" href="#content-viewed">@data.VideoCount</a></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label><a id="userPopup" class="userPopup modal-trigger" href="#content-viewed">@data.DocCount</a></label>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        }
+                    </tbody>
+                }
+                @if (videoslength <= 8)
+                {
+                    <tbody>
+                        @foreach (var data in Model.videos)
+                        {
+
+                            <tr data-id="@data.userId">
+                                <td>
+                                    <div class="table-cell border-right">
+                                        <span>@data.part_user_name</span>
+                                        <div>
+                                            <h6>@data.user_name</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label>@data.User_Site</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label><a id="userPopup" class="userPopup modal-trigger" href="#content-viewed">@data.VideoCount</a></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label><a id="userPopup" class="userPopup modal-trigger" href="#content-viewed">@data.DocCount</a></label>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                        @for (int i = 0; i < rows; i++)
+                        {
+                            <tr class="empty-table-box">
+                                <td>
+                                    <div class="table-cell border-right">
+                                        <div>
+                                            <h6></h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label></label>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                }
+
+
+            </table>
+        </div>
+    </div>
+}
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>*@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+
+
+        $('.userPopup').click(function () {
+
+            $('#spinner-div').show();
+                var userID = $(this).closest('tr').attr("data-id");
+                $.ajax({
+
+                    url: "@Url.Action("ContentOverviewPopup", "AGELPortal")",
+                    data: { userID: userID },
+                    beforeSend: function () { // Before we send the request, remove the .hidden class from the spinner and default to inline-block.
+
+                    },
+                    success: function (data) {
+                        //$('body').addClass('blur');
+                       $("#content-viewed").html(data);
+                       $("#content-viewed").show();
+                        $('.spinner').hide();
+
+                    },
+                    complete: function () {
+                        $('#spinner-div').hide();//Request is complete so hide spinner
+
+                    }
+                });
+
+        });
+
+
+
+    });
+
+
+
+
+</script>

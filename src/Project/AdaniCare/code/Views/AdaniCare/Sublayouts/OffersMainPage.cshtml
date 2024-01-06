@@ -1,0 +1,92 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.AdaniCare.Website.Models;
+@using Sitecore.AdaniCare.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+
+@{
+    /**/
+
+    var currents = Sitecore.Context.Item;
+    var current = Sitecore.Context.Item;
+    List<Sitecore.Data.Items.Item> breadcrumbs1 = new List<Sitecore.Data.Items.Item>();
+
+
+
+    while (current != null)
+    {
+        if (current.Fields["Title"] != null)
+        {
+            breadcrumbs1.Add(current);
+
+            if (current.Fields["Title"].Value == "Adani Care" || current.Fields["Title"].Value == "" || current.Fields["Title"].Value == "Home")
+            {
+                break;
+            }
+        }
+        current = current.Parent;
+    }
+
+    breadcrumbs1.Reverse();
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    var Id = "";
+    /**/
+    LinkField URL = currents.Fields["OfferDetailsLink"];
+    string company = currents.Fields["OfferCompany"].Value;
+#line default
+#line hidden }
+
+<section class="main-section">
+    <div class="container">
+        <div class="breadcrumb">
+            <ul>
+
+                @for (i = 1; i < breadcrumbs1.Count(); i++)
+                {
+                    <li><a href="@breadcrumbs1[i].Url()">@breadcrumbs1[i].Fields["Title"].Value</a></li>
+                }
+            </ul>
+        </div>
+        <div class="text-right mt-4 mb-4">
+            <a class="btn btn-gradient claim-offer claim-offer-check" href="#" data-toggle="modal" data-id="@currents.ID" data-target="#Claim_Offer_modal" title="Claim Offer">Claim Now <span class="fa fa-angle-right"></span></a>
+        </div>
+        <div class=""> @Html.Sitecore().ImageField("OfferImage", currents, 0, 0, "img-fluid w-100")</div>
+        <div class="section-content">
+            <h2 id="OfferHeading">@Html.Sitecore().Field("OfferHeading", currents)</h2>
+            <p>by <span id="OfferCompanyName">@currents.Fields["OfferCompany"]</span></p>
+            <p id="OfferDescriptions"><b>@Html.Sitecore().Field("OfferShortDescription", currents)</b></p>
+            <p>@Html.Sitecore().Field("OfferLongDescription", currents)</p>
+            <p>@Html.Sitecore().Field("OfferValidityInfo", currents)</p>
+            <div class="section-content d-none">
+                <p id="OfferCodeId"> @Html.Sitecore().Field("OfferID", currents)</p>
+                <p id="OfferIdCMS">@currents.ID</p>
+                <p id="OfferLinkToRedirect">@URL.Url</p>
+            </div>
+            <div class="text-right mt-4">
+                <a class="btn btn-gradient claim-offer claim-offer-check" href="#" data-toggle="modal" data-id="@currents.ID" data-target="#Claim_Offer_modal" title="Claim Offer">Claim Now <span class="fa fa-angle-right"></span></a>
+            </div>
+        </div>
+        @if (company.Contains("Electricity"))
+        {
+            @Html.Partial("~/Views/AdaniCare/_AdaniCareClaimOfferDirectRedirect.cshtml", new AdaniCareOfferDetails() { OfferId = Id })
+        }
+        else
+        {
+            @Html.Partial("~/Views/AdaniCare/_AdaniCareClaimOffer.cshtml", new AdaniCareOfferDetails() { OfferId = Id })
+        }
+    </div>
+</section>
+
+
+
+

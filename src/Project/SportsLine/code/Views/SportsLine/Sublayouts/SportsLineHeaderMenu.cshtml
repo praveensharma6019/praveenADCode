@@ -1,0 +1,65 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var SocialIcon = Sitecore.Context.Database.Items.GetItem("{5D563DCF-1826-407D-B8C5-1B0C281749AC}");
+}
+<div class="collapse navbar-collapse" id="mainMenu">
+    <ul class="navbar-nav mx-auto primaryMenu">
+
+        @if (element != null)
+        {
+            if (element.HasChildren)
+            {
+
+                foreach (Item item in element.GetChildren())
+                {
+                    var link = item.Fields["Link"];
+                    CheckboxField checkboxField = item.Fields["IsExternalLink"];
+
+                    <li class="nav-item">
+                        @if (checkboxField != null && checkboxField.Checked)
+                        {
+                            <a class="nav-link" target="_blank" href="@link" id="navbarDropdown">
+                                @item.Fields["NavigationTitle"]
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="nav-link" href="@link">
+                                @item.Fields["NavigationTitle"]
+                            </a>
+                        }
+
+                    </li>
+
+                }
+            }
+        }
+    </ul>
+    <div class="header-icons">
+        <ul>
+            @if (SocialIcon != null)
+            {
+                if (SocialIcon.HasChildren)
+                {
+
+                    foreach (Item item in SocialIcon.GetChildren())
+                    {
+                        Sitecore.Data.Fields.LinkField linkFields = item.Fields["Link"];
+                        var link = linkFields.GetFriendlyUrl();
+                        var SocialIcons = item.Fields["Icon"];
+
+                <li><a href="@link"><i class="@SocialIcons"></i></a></li>
+
+                    }
+                }
+            }
+            </ul>
+    </div>
+</div>
+
+
+

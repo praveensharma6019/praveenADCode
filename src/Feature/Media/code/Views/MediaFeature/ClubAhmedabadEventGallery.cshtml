@@ -1,0 +1,108 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    List<string> regyear = new List<string>();
+
+    var flag = 0;
+}
+
+
+<section class="pt-5 bg-white">
+    <div class="container">
+        <div class="clearfix">
+            <div class="float-left">
+                <ul class="pagination events-pag">
+
+                    @foreach (var child in parent.Children.ToList())
+                    {
+                        var childitems = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+                        var completedate = child.Fields["Date"].Value;
+                        var formatedcompletedate = DateTime.ParseExact(completedate, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+                        var year = formatedcompletedate.ToString("yyyy");
+
+                        if (i == 0)
+                        {
+                            regyear.Add(year);
+                            <li class="page-item active events-btn" id="@year">@year</li>
+                        }
+                        else
+                        {
+                            foreach (var appendyear in regyear)
+                            {
+
+                                if (appendyear == year)
+                                {
+                                    flag++;
+                                    break;
+                                }
+                            }
+                            if (flag == 0)
+                            {
+                                regyear.Add(year);
+                                <li class="page-item events-btn" id="@year">@year</li>
+                            }
+                            else
+                            {
+                                flag = 0;
+                            }
+                        }
+                        i++;
+                    }
+                </ul>
+            </div>
+            <div class="float-right upcoming-events">
+                <p><a href="#up-com-events"><i class="fa fa-calendar-alt mr-1"></i>Upcoming Events</a></p>
+            </div>
+        </div>
+        </div>
+</section>
+<!-- / Section -->
+<section class="py-5 bg-white" id="parent">
+    @foreach (var child in parent.Children.ToList())
+    {
+        var childitems = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+        var completedate = child.Fields["Date"].Value;
+        var formatedcompletedate = DateTime.ParseExact(completedate, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+        var year = formatedcompletedate.ToString("yyyy");
+
+        var classid = "container " + year + " py-5";
+
+
+        <div class="@classid" id="@child.DisplayName.ToString().Replace(" ", "")">
+            <h4 class="txt-d-blue font-weight-bold mb-3 text-uppercase">@Html.Sitecore().Field("Title", child)</h4>
+            <div class="bootleggers owl-carousel fourtiles-gallery">
+                @{
+
+                    var ddlSource = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+                }
+                @foreach (var subChild in ddlSource.Children.ToList())
+                {
+
+                    var items = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(subChild.ID));
+
+
+
+                    var mediaImageField = items.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                    var url = items.ImageUrl(mediaImageField, new MediaUrlOptions()).ToCssUrlValue();
+
+
+
+                    <a class="item popup" href="@url">
+
+                        @Html.Sitecore().Field("MediaImage", items, new { @class = "img-fluid" })
+                    </a>
+                }
+            </div>
+        </div>
+
+    }
+</section>

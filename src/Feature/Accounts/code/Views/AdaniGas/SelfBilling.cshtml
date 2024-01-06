@@ -1,0 +1,339 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.SelfBillingAdaniGas
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>*@
+
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", @id = "form-gas", @enctype = "multipart/form-data" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(m => m.ISTABLART)
+    @Html.HiddenFor(m => m.PreviousMeterReading)
+    @Html.HiddenFor(m => m.PreviousMeterReadingDateandTime)
+    @Html.HiddenFor(m => m.MeterNumber)
+    @Html.HiddenFor(m => m.CustomerName)
+    @Html.HiddenFor(m => m.CONTRACTNO)
+    @Html.HiddenFor(m => m.NextMeterReadingDateandTime)
+    @Html.HiddenFor(m => m.DEV_CAT)
+    @Html.HiddenFor(m => m.CustomerAddress)
+    @Html.HiddenFor(m => m.IsRelease)
+    @Html.HiddenFor(m => m.MeterReadingImagePath)
+
+    <div class="clearfix"></div>
+    <!-- Update Profile Page Content-->
+
+    <div class="container">
+        <div class="">
+            <div class="bg-white mb-4 p-3">
+
+                <div class="row">
+                    <div class="col-md-12 col-lg-6 order-lg-1 order-2">
+                        <div class="form-group">
+                            <h5 class="txt-orange">Submit Meter Reading & Generate Self Bill</h5>
+                            @if (Model.IsSuccessful && Model.MsgFlag.ToLower() == "r")
+                            {
+                                @Html.HiddenFor(m => m.CustomerID)
+                                @Html.HiddenFor(m => m.MeterReading)
+                                @Html.HiddenFor(m => m.MRIDNUMBER)
+                                if (string.IsNullOrEmpty(Model.Message))
+                                {
+                                    <p class="mt-4">
+                                        Reading is not in any validity interval, please Press "Ok" to release or "Cancel" to change the reading.
+                                    </p>
+                                }
+                                else
+                                {
+                                    <p class="mt-4">
+                                        @Model.Message
+                                    </p>
+                                }
+                                <div class="">
+                                    <div class="btn-group pt-3" role="group">
+                                        <input type="submit" id="okbutton" name="okbutton" value="@Html.Sitecore().Dictionary("/Accounts/Self Billing/Button Submit", "Ok")" class="btn btn-primary mr-2" />
+                                        <input type="submit" id="cancelbutton" name="cancelbutton" value="@Html.Sitecore().Dictionary("/Accounts/Self Billing/Button Cancel", "Cancel")" class="btn btn-secondary" />
+                                    </div>
+                                </div>
+                            }
+                            else if (Model.IsSuccessful && Model.MsgFlag.ToLower() == "e")
+                            {
+                                @Html.HiddenFor(m => m.CustomerID)
+                                <p class="mt-4">
+                                    @if (string.IsNullOrEmpty(Model.ExternalMessage))
+                                    {
+                                        <span>Error in Self-Billing. Please contact our customer care. Sorry for inconvenience caused.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.ExternalMessage</span>
+                                    }
+                                </p>
+                            }
+                            else if (Model.IsSuccessful && Model.MsgFlag.ToLower() == "s")
+                            {
+                                @Html.HiddenFor(m => m.CustomerID)
+                                <div class="mt-4">
+                                    @if (!string.IsNullOrEmpty(Model.ExternalMessage))
+                                    {
+                                        <p>@Model.ExternalMessage</p>
+                                    }
+                                    else
+                                    {
+                                        <p>Self Bill generated successfully. Press "Download Invoice" to download the bill PDF file</p>
+                                    }
+                                    <a target="_blank" class="btn btn-secondary mt-3" href="@Model.FilePath" download="invoice">Download Invoice</a>
+                                </div>
+                            }
+                            else if (!string.IsNullOrEmpty(Model.MeterNumber))
+                            {
+                                @Html.HiddenFor(m => m.CustomerID)
+                                <div class="mt-3">
+                                    <div class="">
+                                        <div class="">
+                                            <b>@Html.Sitecore().Dictionary("/Accounts/Self Billing/CustomerID", "Customer ID"):</b>
+                                            @Model.CustomerID.TrimStart(new Char[] { '0' })
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="">
+                                            <b>@Html.Sitecore().Dictionary("/Accounts/Self Billing/Customer Name", "Customer Name"):</b>
+                                            @Model.CustomerName
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="">
+                                            <b>@Html.Sitecore().Dictionary("/Accounts/Self Billing/Meter Number", "Meter Number"):</b>
+                                            @Model.MeterNumber.TrimStart(new Char[] { '0' })
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="">
+                                            <b>@Html.Sitecore().Dictionary("/Accounts/Self Billing/Address", "Address"):</b>
+                                            @Model.CustomerAddress
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <div class="">
+                                            <b>@Html.Sitecore().Dictionary("/Accounts/Self Billing/Previous Meter Reading", "Previous Meter Reading"):</b>
+                                            @Model.PreviousMeterReading
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="">
+                                            <b>@Html.Sitecore().Dictionary("/Accounts/Self Billing/Previous Meter Reading Date and Time", "Previous Meter Reading Date"):</b>
+
+                                            @if (Model.PreviousMeterReadingDateandTime != null)
+                                            {
+                                                var pReadingDate1 = "-";
+                                                DateTime pReadingDate = DateTime.ParseExact(Model.PreviousMeterReadingDateandTime.ToString(), "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture);
+                                                pReadingDate1 = pReadingDate.ToString("dd.MM.yyyy");
+                                                <span>@pReadingDate1</span>
+                                            }
+                                            else
+                                            {
+                                                <span>-</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="">
+                                            <b>@Html.Sitecore().Dictionary("/Accounts/Self Billing/Next Meter Reading Date and Time", "Next Meter Reading Date"):</b>
+                                            @if (Model.NextMeterReadingDateandTime != null)
+                                            {
+                                                var nReadingDate1 = "-";
+                                                DateTime nReadingDate = DateTime.ParseExact(Model.NextMeterReadingDateandTime.ToString(), "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture);
+                                                nReadingDate1 = nReadingDate.ToString("dd.MM.yyyy");
+                                                <span>@nReadingDate1</span>
+                                            }
+                                            else
+                                            {
+                                                <span>-</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        @*<div class="">
+                        <b class="d-block mt-2">@Html.Sitecore().Dictionary("/Accounts/Self Billing/Meter Reading", "Meter Reading")<span class="txt-red">*</span></b>
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.TextBoxFor(x => x.MeterReading, new { @class = "max-length-40px", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                        @Html.ValidationMessageFor(x => x.MeterReading, "", new { @class = "help-block" }, "p")
+                    </div>*@
+
+                                        <div class="">
+                                            <b class="d-block mt-2">@Html.Sitecore().Dictionary("/Accounts/Self Billing/Meter Reading", "Meter Reading")<span class="txt-red">*</span></b>
+
+                                            <div class="d-flex">
+                                                @Html.TextBoxFor(x => x.MeterReading1, new { @class = "meter-reading-input valid", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                                                @Html.TextBoxFor(x => x.MeterReading2, new { @class = "meter-reading-input valid", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                                                @Html.TextBoxFor(x => x.MeterReading3, new { @class = "meter-reading-input valid", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                                                @Html.TextBoxFor(x => x.MeterReading4, new { @class = "meter-reading-input valid", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                                                @Html.TextBoxFor(x => x.MeterReading5, new { @class = "meter-reading-input valid", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+
+                                                @Html.TextBoxFor(x => x.MeterReading6, new { @class = "meter-reading-input valid bg-red", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                                                @Html.TextBoxFor(x => x.MeterReading7, new { @class = "meter-reading-input valid bg-red", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+                                                @Html.TextBoxFor(x => x.MeterReading8, new { @class = "meter-reading-input valid bg-red", @maxlength = "1", @type = "number", min = "0", max = "9", step = "1", required = "required" })
+
+
+                                            </div>
+                                            <span class="txt-xs">
+                                                (Please enter 3 digits after decimal in red boxes)
+                                            </span>
+                                            @Html.ValidationMessageFor(x => x.MeterReading, "", new { @class = "help-block" }, "p")
+
+                                        </div>
+                                    </div>
+                                    <div class="">
+                                        <div class="">
+                                            <b class="d-block mt-2">@Html.Sitecore().Dictionary("/Accounts/Self Billing/Reading Image", "Reading Image")<span class="txt-red">*</span></b>
+                                            @Html.TextBoxFor(model => model.MeterReadingImage, "", new { @type = "file", @class = "w-auto bg-white p-1", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png" })
+                                        </div>
+                                        <div>
+                                            <img src="" class="w-100 mb-3" id="userPic" />
+                                            <input type="button" class="btn btn-dark d-lg-none d-block" id="btnOpenCamera" value="Capture" />
+
+                                        </div>
+                                        <div class="position-relative mt-3" id="divLiveCapture" style="display:none;">
+                                            <p>Live Camera</p>
+                                            <div class="liveCapture">
+                                                <div id="webcam">
+                                                    <video id="player" controls autoplay playsInline class="w-100"></video>
+                                                    <canvas id="snapshot" width="300" height="300" class="d-none"></canvas>
+                                                </div>
+                                            </div>
+                                            <div class="liveCapture liveCapture-btn" align="center">
+                                                <!--<input type="button" class="btn btn-primary d-lg-none d-block" id="btnFlip" value="Flip Camera" />-->
+                                                <button class="btn-primary" type="button" id="btn-front"><span class="fa fa-sync-alt"></span></button>
+                                                <button class="btn-primary" type="button" id="btn-back"><span class="fa fa-sync-alt"></span></button>
+                                                <input type="button" class="btn btn-dark" id="capture" value="Capture" />
+                                            </div>
+
+                                        </div>
+                                        @if (Model.IsRelease)
+                                        {
+                                            <a target="_blank" class="btn btn-secondary mt-3" href="@Model.MeterReadingImagePath" download="uploadedimage">Download Image</a>
+                                        }
+                                        else
+                                        {
+                                            @Html.ValidationMessageFor(model => model.MeterReadingImage, "", new { @class = "text-danger" })
+                                        }
+                                    </div>
+                                    <div class="">
+                                        <div class="btn-group pt-3" role="group">
+                                            <input type="submit" id="submitbutton" name="submitbutton" value="@Html.Sitecore().Dictionary("/Accounts/Self Billing/Button Submit", "Submit")" class="btn btn-primary mr-2" />
+                                            <input type="submit" id="cancelReloadbutton" name="cancelReloadbutton" value="@Html.Sitecore().Dictionary("/Accounts/Self Billing/Button Cancel", "Cancel")" class="btn btn-secondary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                if (!Model.IsOTPSent)
+                                {
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="" class="col-form-label ">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Customer Id", "Customer id*")</label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control", id = "CustomerID", required = "required", maxlength = "10" })
+                                                @Html.ValidationMessageFor(x => x.CustomerID, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group @Html.ValidationErrorFor(x => x.Captcha, " has-error")">
+                                            <label for="" class="">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                                            <div class="">
+                                                @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="">
+                                            <input type="submit" class="w-100 btn btn-primary btn-sm" name="GetCustomerDetails" value="@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Go", "Go")" id="btnsubmit" />
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.IsOTPSent)
+                                {
+                                    @Html.HiddenFor(m => m.CustomerID)
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="" class="col-form-label ">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Customer Id", "Customer id*")</label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control", id = "CustomerID", required = "required", maxlength = "10", @readonly = "readonly" })
+                                                @Html.ValidationMessageFor(x => x.CustomerID, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="" class="col-form-label ">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/OTPNumber", "Enter Valid OTP")</label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control", id = "OTPNumber", required = "required", maxlength = "10" })
+                                                @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                                <span style="font-size: 12px;">@Model.Message</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    if (Model.ResendDisable == null)
+                                    {
+                                        <div class="col-12">
+                                            <div class="d-flex">
+                                                <div id="OTPtimer" class="field-validation-error">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-12 mt-2">
+                                        <div class="d-flex">
+                                            <input type="submit" class="btn btn-secondary d-none" id="Resend" name="ResendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Resend", "Resend")" />
+                                            <input type="submit" class="btn btn-primary btn-sm ml-2" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Go", "Submit")" id="btnsubmit" />
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>@if (Model.IsSuccessful && Model.MsgFlag.ToLower() == "s")
+                    {
+                        <div class="col-lg-6  order-lg-2 order-1  mb-lg-0 mb-4">
+                            <div class="sidebar_thumb"><img src="-/media/0545153397214C8B82BF638DE7931C92.ashx" alt="Meter Image" class="img-fluid"></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-lg-6  order-lg-2 order-1  mb-lg-0 mb-4 text-center">
+                            <div class="">
+                                <img alt="Meter Invoice" src="/-/media/0EC23BD00A224115AE99C8B2A5672527.JPG?la=en&amp;hash=2CDBF26EDEECD6974D0AA9C89A047DE1" class="img-fluid mb-3">&nbsp;
+                                <p><strong>Look for 5 black digit on counter, please provide these digit as reading. Enter 3 red digits after decimal in red boxes.</strong></p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>

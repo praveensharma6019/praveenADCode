@@ -1,0 +1,169 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var SocialMenu = "/sitecore/content/AdaniSolar/Global/Links/Social Menu";
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<div class="container">
+    <div class="row footerPanel2">
+        <div class="col-md-3 ft-submenu col-6 d-md-block d-none">
+            @foreach (var busItem in model.Axes.GetDescendants().Take(2).ToList())
+            {
+                Sitecore.Data.Fields.LinkField lk = busItem.Fields["Link"];
+                var f3 = lk.GetFriendlyUrl();
+                var innerItem = busItem.Axes.GetDescendants();
+                if (!string.IsNullOrEmpty(f3))
+                {
+                    <h5><a href="@f3">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, busItem)</a></h5>
+                }
+                else
+                {
+                    <h5><a>@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, busItem)</a></h5>
+                }
+
+                if (innerItem != null && innerItem.Count() > 0)
+                {
+                    <ul class="ft-business">
+                        @foreach (var innerBusChild in innerItem)
+                        {
+                            Sitecore.Data.Fields.LinkField link = innerBusChild.Fields["Link"];
+                            var lnk = link.GetFriendlyUrl();
+                            if (!string.IsNullOrEmpty(lnk))
+                            {
+                                <li><a href="@lnk">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, innerBusChild)</a> </li>
+                            }
+                            else
+                            {
+                                <li><a>@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, innerBusChild)</a> </li>
+                            }
+                        }
+                    </ul>
+                }
+
+            }
+        </div>
+        <div class="col-md-3 col-6 d-md-block d-none">
+            @foreach (var item in model.Axes.GetDescendants().Skip(2).ToList())
+            {
+                var data = item.Axes.GetDescendants();
+                if (item.Fields[Templates.Navigable.Fields.IsVisible].IsChecked())
+                {
+                    Sitecore.Data.Fields.LinkField tm = item.Fields["Link"];
+                    var aa = tm.GetFriendlyUrl();
+                    if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+                    {
+                        <h5><a href="@aa" target="_blank">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(aa))
+                        {
+                            <h5><a href="@aa">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+                        }
+                        else
+                        {
+                            <h5><a>@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+                        }
+                    }
+
+                    <ul>
+                        @foreach (var inner in data)
+                        {
+                            Sitecore.Data.Fields.LinkField link = inner.Fields["Link"];
+                            var lnk = link.GetFriendlyUrl();
+                            if (!string.IsNullOrEmpty(lnk))
+                            {
+                                <li><a href="@lnk">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, inner)</a></li>
+                            }
+                            else
+                            {
+                                <li><a>@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, inner)</a></li>
+                            }
+                        }
+                    </ul>
+                }
+            }
+        </div>
+        <div class="col-md-2 col-6 d-md-block d-none">
+            <div>
+                @foreach (var item in model.Axes.GetDescendants().ToList())
+                {
+                    if (item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+                    {
+                        Sitecore.Data.Fields.LinkField link = item.Fields["Link"];
+                        var lnk = link.GetFriendlyUrl();
+
+                        if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+                        {
+                            <h5><a href="@lnk" target="_blank">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+                        }
+                        else
+                        {
+                            <h5><a href="@lnk">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+                        }
+
+                    }
+                }
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row border-left ft-logo">
+                <div class="col-sm-12 mb-3 text-center">
+                    @if (!string.IsNullOrEmpty(SocialMenu))
+                    {
+                        var SocialMenuitem = Sitecore.Context.Database.GetItem(SocialMenu);
+                        var socialList = SocialMenuitem.Axes.GetDescendants();
+                        if (socialList != null && socialList.Count() > 0)
+                        {
+                            <ul class="ft-social">
+                                @foreach (var item in socialList)
+                                {
+                                    Sitecore.Data.Fields.LinkField link = item.Fields["Link"];
+                                    var lnk = link.GetFriendlyUrl();
+                                    <li><a href="@lnk" target="_blank"><i class="@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.Icon, item)"></i></a></li>
+                                }
+                            </ul>
+                        }
+                    }
+                </div>
+                <div class="col-sm-12 text-center">
+                    <ul class="terms-link d-md-none">
+                        <li class="d-inline-block"><a href="/sitemap" class="txt-blue">SiteMap</a></li>
+                        <li class="d-inline-block"><a href="/privacy-policy" class="txt-blue">Privacy Policy</a></li>
+                        <li class="d-inline-block"><a href="/disclaimer" class="txt-blue">Legal Disclaimer</a></li>
+                        <li class="d-inline-block"><a href="/terms-and-conditions" class="txt-blue">Terms &amp; Conditions</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-12 p-4">
+                    <img alt="Logo" src="-/media/319902231D46430295F01CB4C323DBBA.ashx" class="img-fluid" />
+                </div>
+                <div class="col-sm-12 d-md-none mb-3">
+                    <p class="sitemap-link bg-gradient d-block p-2">Sitemap<i class="fa fa-angle-down"></i></p>
+                </div>
+                <div class="col-sm-12 d-none ft-mobilemenu">
+                    <div class="row">
+                        @{
+                            var perent = model.Children.InnerChildren;
+                        }
+                        @if (perent != null)
+                        {
+                            foreach (var item in perent)
+                            {
+                                Sitecore.Data.Fields.LinkField link = item.Fields["Link"];
+                                var lnk = link.GetFriendlyUrl();
+                                <div class="col-sm-6">
+                                    <h5 class="text-center"><a href="@lnk">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a> </h5>
+                                </div>
+                            }
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

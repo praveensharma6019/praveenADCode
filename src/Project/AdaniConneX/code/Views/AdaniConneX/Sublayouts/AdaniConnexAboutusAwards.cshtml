@@ -1,0 +1,208 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+
+
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string imgThumbUrl = "";
+string imgurl = "";
+string altText = "";
+string modelClass = "";
+string itemClass = "";
+var btnUrl = "";
+var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+var sectionClass1 = paramid["sectionClass1"] != null ? paramid["sectionClass1"] : null;
+}
+
+
+
+
+@if (model != null)
+{
+
+
+
+if (!String.IsNullOrEmpty(@Html.Sitecore().Field("cssClass", model).ToString()))
+{
+modelClass = model.Fields["cssClass"].ToString();
+}
+<div class="award-warpper section-holder custom-color-certification @sectionClass1 aboutus-awards">
+<div class="content-wrapper">
+<p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</p>
+
+
+
+@if (model.HasChildren)
+{
+
+
+
+if(model.GetChildren().Count > 3)
+{
+<ul class="full award-section flx-sb">
+<li class="rightt">
+<div class="full awards-list owl-carousel dot-bc brand-dots @modelClass" id="awardsList3">
+@foreach (Item item in model.GetChildren())
+{
+if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", item).ToString()))
+{
+itemClass = item.Fields["Class"].ToString();
+}
+
+
+
+Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+if (imgField != null && imgField.MediaItem != null)
+{
+imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+altText = imgField.Alt;
+}
+
+Sitecore.Data.Fields.LinkField linkField = item.Fields["ButtonLink"];
+btnUrl = linkField.GetFriendlyUrl();
+<div>
+<div class="award-item">
+<div class="card-box card-media-top small-card">
+@if (imgurl != "")
+{
+<div class="card-media">
+<img src="@imgurl" alt="@altText" class="" />
+</div>
+}
+<div class="card-content">
+
+<p class="full fs-16">@Html.Sitecore().Field("SubTitle", item)</p>
+<p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+<p class="full @itemClass">@Html.Sitecore().Field("MediaDescription", item)</p>
+
+
+
+
+
+@if (imgurl != "")
+{
+if (imgField.LinkType == "internal")
+{
+<a href="@imgurl" class="d-txt card-link">@Html.Sitecore().Field("ButtonTitle", item)</a>
+
+
+
+}
+else
+{
+<a href="@imgurl" target="_blank" class="d-txt card-link">@Html.Sitecore().Field("ButtonTitle", item)</a>
+
+
+
+}
+}
+else
+{
+<a href="#" class="d-txt card-link">@Html.Sitecore().Field("ButtonTitle", item)</a>
+}
+
+
+
+</div>
+</div>
+</div>
+</div>
+}
+</div>
+</li>
+</ul>
+}
+else
+{
+<ul class="full award-section flx-sb">
+<li class="rightt">
+<div class="full awards-list owl-carousel dot-bc @modelClass" id="awardsList3">
+@foreach (Item item in model.GetChildren())
+{
+if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", item).ToString()))
+{
+itemClass = item.Fields["Class"].ToString();
+}
+
+
+
+Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+if (imgField != null && imgField.MediaItem != null)
+{
+imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+altText = imgField.Alt;
+}
+
+Sitecore.Data.Fields.LinkField linkField = item.Fields["ButtonLink"];
+btnUrl = linkField.GetFriendlyUrl();
+<div>
+<div class="award-item">
+<div class="card-box card-media-top small-card">
+@if (imgurl != "")
+{
+<div class="card-media">
+<img src="@imgurl" alt="@altText" class="" />
+</div>
+}
+<div class="card-content">
+
+<p class="full fs-16">@Html.Sitecore().Field("SubTitle", item)</p>
+<p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+<p class="full @itemClass">@Html.Sitecore().Field("MediaDescription", item)</p>
+
+
+
+@if (imgurl != "")
+{
+if (imgField.LinkType == "internal")
+{
+<a href="@imgurl" class="d-txt card-link">@Html.Sitecore().Field("ButtonTitle", item)</a>
+
+
+
+}
+else
+{
+<a href="@imgurl" target="_blank" class="d-txt card-link">@Html.Sitecore().Field("ButtonTitle", item)</a>
+
+
+
+}
+}
+else
+{
+<a href="#" class="d-txt card-link">@Html.Sitecore().Field("ButtonTitle", item)</a>
+}
+
+
+
+</div>
+</div>
+</div>
+</div>
+}
+</div>
+</li>
+</ul>
+}
+
+
+
+}
+</div>
+</div>
+}

@@ -1,0 +1,362 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.PANUpdateModel
+@{
+    var LECLoginPage = (Sitecore.Context.Database.GetItem(Templates.LECPortal.LECUserLoginPage)).Url();
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmPanUpdate", @class = "form-signin", @enctype = "multipart/form-data" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    <div class="pageContent position-relative myAccountBanner changeofnameregistration" style="margin-top: -2rem;margin-bottom: -2rem;background: #e1e5e8;">
+        <div class="bannerImg" style="z-index: 0;"></div>
+        <div class="container LEC_reg">
+            <div class="row">
+                <div class="col-lg-12 mr-auto mt-2">
+                    @{
+                        var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                        if (info != null)
+                        {
+                            Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                        }
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8 mr-auto pt-3 mb-4 mt-2">
+                    <div class="card card-outline-secondary p-3">
+                        <h4 class="txt-orange mb-3">Get your PAN details</h4>
+                        <p class="pb-md-3 float-sm-right small text-right">fields marked <span class="required">*</span> are mandatory</p>
+                        <div class="clearfix"></div>
+                        <!-- Sign up Form -->
+                        <form class="pt-3" id="frmMeterSubmit" method="post" action="/PANUpdate">
+                            @if (!Model.IsAccountNumberValidated && !Model.IsValidatedOTP)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group pt-md-2  pr-lg-2 @Html.ValidationErrorFor(x => x.AccountNumber, "has-error")">
+                                            <label for="" class="form-label mb-2">
+                                                @Html.Sitecore().Dictionary("/Account/PANUpdate/CA Number", "Enter 9 digit Consumer Account Number")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="row">
+                                                <div class="col-lg-10">
+                                                    @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control reset-control", id = "AccountNumber", @autocomplete = "off", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.AccountNumber, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 captcha_box">
+                                        <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                            <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                            <div class="row captcha_box">
+                                                <div class="col-lg-6">
+                                                    <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                    @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row pt-md-3 mb-0">
+                                    <div class="col-12">
+                                        <div class="ml-auto text-right">
+                                            <input type="submit" class="btn btn-primary" name="ValidateCA" value="@Html.Sitecore().Dictionary("/Account/PANUpdate/Button/Validate CA", "Validate")" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if (!Model.IsPANToBeUpdated && !Model.IsGSTToBeUpdated)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="" class="form-label">@Html.Sitecore().Dictionary("/Account/PANUpdate/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                            @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Name", "Registered Customer Name")</label>
+                                            @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.ConsumerName, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Mobile Number", "Mobile Number")</label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Email Id", "Email Id")</label>
+                                            @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.EmailId, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Number", "PAN Number")</label>
+                                            @Html.TextBoxFor(x => x.PANNumberDisplay, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group mt-4">
+                                            <input type="submit" class="btn btn-secondary" name="UpdatePAN" value="@Html.Sitecore().Dictionary("/Account/PANUpdate/Button/UpdatePAN", "Update")" />
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer GST Number", "GST Number")</label>
+                                            @Html.TextBoxFor(x => x.GSTNumberDisplay, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group mt-4">
+                                            <input type="submit" class="btn btn-secondary" name="UpdateGST" value="@Html.Sitecore().Dictionary("/Account/PANUpdate/Button/UpdatePAN", "Update")" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else if (Model.IsPANToBeUpdated && !Model.IsValidatedOTP)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="" class="form-label">@Html.Sitecore().Dictionary("/Account/PANUpdate/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                            @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Name", "Registered Customer Name")</label>
+                                            @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.ConsumerName, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Mobile Number", "Mobile Number")</label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Email Id", "Email Id")</label>
+                                            @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.EmailId, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <disv class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer GST Number", "GST Number")</label>
+                                            @Html.TextBoxFor(x => x.GSTNumberDisplay, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                        </disv>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Number", "PAN Number")</label>
+                                            @Html.TextBoxFor(x => x.PANNumberDisplay, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer OTP Number", "Enter OTP Number")</label>
+                                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber" })
+                                            @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group mt-4">
+                                            <input type="submit" class="btn btn-secondary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/Account/PANUpdate/Button/ValidateOTP", "Validate")" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            }
+                            else if (Model.IsGSTToBeUpdated && !Model.IsValidatedOTP)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="" class="form-label">@Html.Sitecore().Dictionary("/Account/PANUpdate/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                            @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Name", "Registered Customer Name")</label>
+                                            @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.ConsumerName, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Mobile Number", "Mobile Number")</label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Email Id", "Email Id")</label>
+                                            @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.EmailId, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Number", "PAN Number")</label>
+                                            @Html.TextBoxFor(x => x.PANNumberDisplay, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer GST Number", "GST Number")</label>
+                                            @Html.TextBoxFor(x => x.GSTNumberDisplay, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer OTP Number", "Enter OTP Number")</label>
+                                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber" })
+                                            @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group mt-4">
+                                            <input type="submit" class="btn btn-secondary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/Account/PANUpdate/Button/ValidateOTP", "Validate")" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                            }
+                            else if (Model.IsValidatedOTP)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="" class="form-label">@Html.Sitecore().Dictionary("/Account/PANUpdate/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                            @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Name", "Registered Customer Name")</label>
+                                            @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.ConsumerName, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Mobile Number", "Mobile Number")</label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer Email Id", "Email Id")</label>
+                                            @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                            @Html.ValidationMessageFor(x => x.EmailId, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    @if (Model.IsGSTToBeUpdated)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Number", "PAN Number")</label>
+                                                @Html.TextBoxFor(x => x.PANNumberDisplay, new { @class = "form-control reset-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Number", "Existing GST Number")</label>
+                                                @Html.TextBoxFor(x => x.GSTNumberDisplay, new { @class = "form-control reset-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer GST Number", "GST Number")</label>
+                                                @Html.TextBoxFor(x => x.GSTNumber, new { @class = "form-control reset-control", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.GSTNumber, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer GST Upload", "GST Upload")</label>
+                                                @*@Html.TextBoxFor(x => x.GSTFile, "", new { @type = "file", @onchange = "Validate(this);", @accept = ".jpg,.jpeg,.png", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.GSTFile, "", new { @class = "help-block" }, "p")*@
+                                                <input type="file" id="fileGSTNumber" required onchange="ValidateFile(this);" name="fileGSTNumber" class="help-block w-100" />
+                                                <p style="font-size:12px;">(Please upload file in jpg format only)</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (Model.IsPANToBeUpdated)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer GST Number", "GST Number")</label>
+                                                @Html.TextBoxFor(x => x.GSTNumberDisplay, new { @class = "form-control reset-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Number", "PAN Number")</label>
+                                                @Html.TextBoxFor(x => x.PANNumberDisplay, new { @class = "form-control reset-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Number", "PAN Number")</label>
+                                                @Html.TextBoxFor(x => x.PANNumber, new { @class = "form-control reset-control", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.PANNumber, "", new { @class = "help-block" }, "p")
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Account/PANUpdate/Registered Customer PAN Upload", "PAN Upload")</label>
+                                                @*@Html.TextBoxFor(x => x.PANFile, "", new { @type = "file", @onchange = "Validate(this);", @accept = ".jpg,.jpeg,.png", required = "required" })
+        @Html.ValidationMessageFor(x => x.PANFile, "", new { @class = "help-block" }, "p")*@
+                                                <input type="file" id="filePANNumber" required onchange="ValidateFile(this);" name="filePANNumber" class="help-block w-100" />
+                                                <p style="font-size:12px;">(Please upload file in jpg format only)</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-lg-6">
+                                        <div class="form-group mt-4">
+                                            <input type="submit" id="PANUpdateSubmit" class="btn btn-secondary" name="Submit" value="@Html.Sitecore().Dictionary("/Account/PANUpdate/Button/Submit", "Submit")" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Content -->
+    </div>
+}
+    <div id="loader-wrapper" style="display:none">
+        <div id="loader"></div>
+        <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+        <div class="loader-section section-left"></div>
+        <div class="loader-section section-right"></div>
+    </div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

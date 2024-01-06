@@ -1,0 +1,1436 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts;
+@model Sitecore.Feature.Accounts.Models.ByCustomerId
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+
+@if (Model.PreStatus == "Submitted" && Request.QueryString["id"] != null)
+{
+    <section class="name-transfer submit_request">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    @*<h2><b>Submit Request</b></h2>*@
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="Connection-tab" data-toggle="tab" href="#Connection" role="tab" aria-controls="Connection" aria-selected="true">1. Connection Type</a>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="Details-tab" data-toggle="tab" href="#Details" role="tab" aria-controls="Details" aria-selected="false">2. Details</a>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="Documents-tab" data-toggle="tab" href="#Documents" role="tab" aria-controls="Documents" aria-selected="false">
+                                3.
+                                Documents
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade active show" id="Connection" role="tabpanel" aria-labelledby="Connection-tab">
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+                                        <label for="">Select Connection Type <span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.ConnectionType, new { @class = "form-control reset-control", id = "ConnectionType", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                        @Html.ValidationMessageFor(x => x.ConnectionType, "", new { @class = "help-block" }, "p")
+                                        @Html.HiddenFor(x => x.ConnectionType)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 text-right">
+                                    <a href="#" id="Continuestep2" value="Continue" class="btn btn-primary">Continue</a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="tab-pane fade" id="Details" role="tabpanel" aria-labelledby="Details-tab">
+
+                            <label for="">APPLICANT TYPE<span class="required"></span></label>
+                            <div class="row mt-2">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+
+                                        @Html.RadioButtonFor(x => x.ApplicationType, "Builder_Case", new { id = "Builder_Case", @onchange = "showinformationPopup(this.id)" }) Builder Case
+                                        @Html.RadioButtonFor(x => x.ApplicationType, "Property_ReSale", new { id = "Property_ReSale", @onchange = "showinformationPopup(this.id)" }) Property Re-Sale/Internal Transfer
+                                        @Html.RadioButtonFor(x => x.ApplicationType, "Demise", new { id = "Demise", @onchange = "showinformationPopup(this.id)" }) Demise
+                                        @Html.ValidationMessageFor(x => x.ApplicationType, "", new { @class = "help-block" }, "p")
+                                        @Html.HiddenFor(x => x.ApplicationType)
+                                        <label class="text-danger" id="ApplicationTypeCheckError" style="display:none">This Field is required.</label>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3" id="housing-society" style="display:none">
+                                <label for="">SELECT SOCIETY TYPE<span class="required"></span></label>
+                                <div class="row mt-2">
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+
+                                            @Html.RadioButtonFor(x => x.SocietyType, "Registered Housing Society", new { id = "Registered_Housing_Society" }) Registered Housing Society
+                                            @Html.RadioButtonFor(x => x.SocietyType, "Unregistered Housing Society", new { id = "Unregistered_Housing_Society" }) Unregistered Housing Society
+                                            @Html.ValidationMessageFor(x => x.SocietyType, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.SocietyType)
+                                            <label class="text-danger" id="SocietyTypeCheckError" style="display:none">This Field is required.</label>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for="">APPLICANT DETAILS<span class="required"></span></label>
+                                <div class="row mt-2">
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+
+                                            <label for="">First Name <span class="required">*</span></label>
+                                            @Html.TextBoxFor(x => x.FirstName, new { @class = "form-control reset-control", id = "FirstName", required = "required", maxlength = "25", autocomplete="off" })
+                                            @Html.ValidationMessageFor(x => x.FirstName, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.FirstName)
+                                            <label class="text-danger" id="FirstNameCheckError" style="display:none">This Field is required.</label>
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+
+                                            <label for="">Middle Name </label>
+                                            @Html.TextBoxFor(x => x.MiddleName, new { @class = "form-control reset-control", autocomplete="off", id = "MiddleName" })
+                                            @Html.ValidationMessageFor(x => x.MiddleName, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.MiddleName)
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+
+                                            <label for="">Last Name <span class="required">*</span></label>
+                                            @Html.TextBoxFor(x => x.LastName, new { @class = "form-control reset-control", autocomplete="off", id = "LastName", maxlength = "25", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.LastName, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.LastName)
+                                            <label class="text-danger" id="LastNameCheckError" style="display:none">This Field is required.</label>
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+
+                                            <label for="">Mobile Number <span class="required">*</span></label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "LastName", disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.MobileNumber)
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="">Email Address </label>
+                                            @Html.TextBoxFor(x => x.CustomerEmailId, new { @class = "form-control reset-control", id = "CustomerEmailIdFordisabled", disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => x.CustomerEmailId, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.CustomerEmailId)
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <label for="">Comment</label>
+                                            @Html.TextAreaFor(x => x.Comment, new { @class = "form-control reset-control", id = "Comment", @autocomplete = "off", })
+                                            @Html.ValidationMessageFor(x => x.Comment, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.Comment)
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 text-right">
+                                    <u><a href="#" id="backid1" style="margin-right:30px;">Back</a></u>
+                                    <a href="#" id="continuestep3" value="Continue" class="btn btn-primary">Continue</a>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane fade" id="Documents" role="tabpanel" aria-labelledby="Documents-tab">
+
+                            <label for="">
+                                DOCUMENT TYPE<span class="required"></span>
+                                <h6 style="color:grey;">
+                                    Upload a pdf or jpg file with a max size of 5 MB
+                                </h6>
+                            </label>
+
+
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Index (or) Sales Deed" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+
+                                        <input type="file" name="IndexBuilder" class="form-control" style="color: orange;" id="Builder1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Possession Letter from Builder" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="PossessionletterBuilder" class="form-control" style="color: orange;" id="Builder2">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Photo ID Proof of Owner" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="PhotoIDBuilder" class="form-control" style="color: orange;" id="Builder3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Co-owner consent with signed photo ID" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="CoownerBuilder" class="form-control" style="color: orange;" id="Builder4">
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row demise" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Death Certificate of Registered customer" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="DeathCertificateDemise" class="form-control" style="color: orange;" id="Demise1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demise" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="DocumentaryDemise" class="form-control" style="color: orange;" id="Demise2">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row RegisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Agreement / Purchase / Sale deed with the present registered customers (or) Share certificate of Registered Society" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="FirstRegisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Registered_Housing1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row RegisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Latest Municipal tax bill in applicant's name. (or) NOC (Duly stamped - No Objection Certificate) from the registered housing society" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="SecondRegisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Registered_Housing2">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row UnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Agreement / Purchase / Sale deed with the present registered customer" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="FirstUnregisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Unregistered_Housing1">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row UnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Select Document<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="No Objection Certificate (NOC) from the present registered customer (or) Latest Municipal tax bill." readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="SecondUnregisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Unregistered_Housing2">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tacbox">
+                                <input id="checkbox" type="checkbox" name="agree" value="yes">
+                                <label for="checkbox">
+                                    I agree to the
+                                    <a href="#termsandconditions" class="mt-3 txt-orange" data-toggle="modal" data-target="#termsandconditions" style="text-decoration: underline;font-size: 13px;">Terms &amp; Conditions.</a>
+                                </label>
+                                <div style="display:none; color:red" id="agree_chk_error">
+                                    Please agree to the terms and conditions to proceed!
+                                </div>
+                            </div>
+
+                            <div class="row required" required>
+                                <div class="col-lg-12 text-right">
+                                    <u><a href="#" id="backid2" style="margin-right:30px;">Back</a></u>
+                                    @*<a href="#" class="btn btn-primary" style="color: white; background-color: black; border-color: black;">Proceed for Payment</a>*@
+                                    <input type="submit" name="proceedforpayment" id="proceedforpayment" onclick="return nametransfersubmit();" value="Proceed for Payment" class="btn btn-primary" style="background-color: orangered; color: white; border-color: black;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else if (Model.PreStatus == "Submitted")
+{
+    <div class="row mt-2">
+        @Html.Partial("~/Views/AdaniGas/Partial/_QuickPayAdaniGasNameTransfer.cshtml", Model)
+    </div>
+}
+else
+{
+    <section class="name-transfer submit_request">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    @*<h2><b>Submit Request</b></h2>*@
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class=" nav-link active" id="Connection-tab" data-toggle="tab" href="#Connection" role="tab" aria-controls="Connection" aria-selected="true">1. Connection Type</a>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="Details-tab" data-toggle="tab" href="#Details" role="tab" aria-controls="Details" aria-selected="false">2. Details</a>
+                        </li>
+
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="Documents-tab" data-toggle="tab" href="#Documents" role="tab" aria-controls="Documents" aria-selected="false">
+                                3.
+                                Documents
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade active show" id="Connection" role="tabpanel" aria-labelledby="Connection-tab">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+                                        <label for="">Select Connection Type <span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.ConnectionType, new { @class = "form-control reset-control", id = "ConnectionType", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                        @Html.ValidationMessageFor(x => x.ConnectionType, "", new { @class = "help-block" }, "p")
+                                        @Html.HiddenFor(x => x.ConnectionType)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 text-right">
+                                    <a href="#" id="Continuestep2" value="Continue" class="btn btn-primary">Continue</a>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="Details" role="tabpanel" aria-labelledby="Details-tab">
+
+                            <label for="" style="color: #000; font-weight: 800">APPLICANT TYPE<span class="required"></span></label>
+                            <div class="row mt-2">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+
+                                        @Html.RadioButtonFor(x => x.ApplicationType, "Builder_Case", new { id = "Builder_Case", @onchange = "showinformationPopup(this.id)" }) Builder Case
+                                        @Html.RadioButtonFor(x => x.ApplicationType, "Property_ReSale", new { id = "Property_ReSale", @onchange = "showinformationPopup(this.id)" })  Property Re-Sale/Internal Transfer
+                                        @Html.RadioButtonFor(x => x.ApplicationType, "Demise", new { id = "Demise", @onchange = "showinformationPopup(this.id)" }) Demise
+                                        @Html.ValidationMessageFor(x => x.ApplicationType, "", new { @class = "help-block" }, "p")
+                                        @Html.HiddenFor(x => x.ApplicationType)
+                                        <label class="text-danger" id="ApplicationTypeCheckError" style="display:none">This Field is required.</label>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3" id="housing-society" style="display:none">
+                                <label for="" style="color: #000; font-weight: 800">SELECT SOCIETY TYPE<span class="required"></span></label>
+                                <div class="row mt-2">
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            @Html.RadioButtonFor(x => x.SocietyType, "Registered Housing Society", new { id = "Registered_Housing_Society" }) Registered Housing Society
+                                            @Html.RadioButtonFor(x => x.SocietyType, "Unregistered Housing Society", new { id = "Unregistered_Housing_Society" }) Unregistered Housing Society
+                                            @Html.ValidationMessageFor(x => x.SocietyType, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.SocietyType)
+                                            <label class="text-danger" id="SocietyTypeCheckError" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3" id="GasSupply" style="display:none">
+                                <label for=""><b>Do you want to start the gas supply?<span class="required">*</span></b></label>
+                                <div class="row mt-2">
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            @Html.RadioButtonFor(x => x.GasSupply, "Yes", new { id = "GasSupplyYes" }) Yes
+                                            @Html.RadioButtonFor(x => x.GasSupply, "No", new { id = "GasSupplyNO" }) No
+                                            @Html.HiddenFor(x => x.GasSupply)
+
+                                        </div>
+                                        <label class="text-danger" id="GasSupplyCheckError" style="display:none">This Field is required.</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <label for=""><b>APPLICANT DETAILS</b><span class="required"></span></label>
+                                <div class="row mt-2">
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+
+                                            <label for="">First Name <span class="required">*</span></label>
+                                            @Html.TextBoxFor(x => x.FirstName, new { @class = "form-control reset-control", id = "FirstName", required = "required", @autocomplete = "off", maxlength = "25", @pattern = "[a-zA-Z0-9]+", @type = "text" })
+                                            @Html.ValidationMessageFor(x => x.FirstName, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.FirstName)
+                                            <label class="text-danger" id="FirstNameCheckError" style="display:none">This Field is required.</label>
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+
+                                            <label for="">Middle Name </label>
+                                            @Html.TextBoxFor(x => x.MiddleName, new { @class = "form-control reset-control", id = "MiddleName", @autocomplete = "off", @type = "text", maxlength = "25" })
+                                            @Html.ValidationMessageFor(x => x.MiddleName, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.MiddleName)
+                                            <label class="text-danger" id="MiddleNameCheckError" style="display:none"></label>
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+
+                                            <label for="">Last Name <span class="required">*</span></label>
+                                            @Html.TextBoxFor(x => x.LastName, new { @class = "form-control reset-control", id = "LastName", required = "required", @autocomplete = "off", maxlength = "25", @type = "text" })
+                                            @Html.ValidationMessageFor(x => x.LastName, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.LastName)
+                                            <label class="text-danger" id="LastNameCheckError" style="display:none">This Field is required.</label>
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+
+                                            <label for="">Mobile Number <span class="required">*</span></label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "LastName", disabled = "disabled" })
+                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.MobileNumber)
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for="">Email Address </label>
+                                            @Html.TextBoxFor(x => x.CustomerEmailId, new { @class = "form-control reset-control", id = "CustomerEmailId", @autocomplete = "off", pattern = @"[^@]+@[^@]+\.[a-zA-Z]{2,6}" })
+                                            @Html.ValidationMessageFor(x => x.CustomerEmailId, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.CustomerEmailId)
+                                            <span id="emailValidator" class="error" style='display:none'>Enter a valid email address.</span>
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <label for="">Comment</label>
+                                            @Html.TextAreaFor(x => x.Comment, new { @class = "form-control reset-control", id = "Comment", @autocomplete = "off", })
+                                            @Html.ValidationMessageFor(x => x.Comment, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.Comment)
+                                            <label class="text-danger" id="CommentCheckError" style="display:none"></label>
+                                            <small id="" class="form-text text-muted"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12 text-right">
+                                    <u><a href="#" id="backid1" style="margin-right:30px;">Back</a></u>
+                                    <a href="#" id="continuestep3" value="Continue" class="btn btn-primary">Continue</a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="tab-pane fade" id="Documents" role="tabpanel" aria-labelledby="Documents-tab">
+
+                            <label for="">
+                                DOCUMENT TYPE<span class="required"></span>
+                                <h6 style="color:grey;">
+                                    Upload a pdf or jpg file with a max size of 5 MB
+                                </h6>
+                            </label>
+                            <br>
+                            <br>
+
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Proof of Ownership<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Index (or) Sales Deed" readonly="">*@
+                                            <select id="buildercaseSelect1" name="IndexBuilder_content_type" class="buildercaseSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Index 2">Index 2</option>
+                                                <option value="Sale deed">Sale deed</option>
+                                                <option value="Redevelopment Agreement">Redevelopment Agreement</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+
+                                        <input type="file" name="IndexBuilder" class="form-control" style="color: orange;" id="Builder1" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                                @*<div class="col-lg-6 col-md-6" >
+                <div class="form-group">
+                    <input type="button" value="Preview" onclick="onfileselection('Builder1');" />
+                </div>
+            </div>*@
+                            </div>
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">ID Proof<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Photo ID Proof of Owner" readonly="">*@
+                                            <select id="buildercaseSelect3" name="PhotoIDBuilder_content_type" class="buildercaseSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Aadhar Card">Aadhar Card</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Voter ID">Voter ID</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="PhotoIDBuilder" class="form-control" style="color: orange;" id="Builder3" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">NOC (Note: In case of joint property, NOC of 1st owner is required)</label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Co-owner consent with signed photo ID" readonly="">*@
+                                            <select id="buildercaseSelect4" name="CoownerBuilder_content_type" class="buildercaseSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="NOC">NOC</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="CoownerBuilder" class="form-control" style="color: orange;" id="Builder4" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row buildercase" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Attested ID Proof of 1st Owner<span class="required"></span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Co-owner consent with signed photo ID" readonly="">*@
+                                            <select id="buildercaseSelect5" name="SignedIDproof_content_type" class="buildercaseSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="SignedIDproof" class="form-control" style="color: orange;" id="Builder5" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row demise" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Death Certificate<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Death Certificate of Registered customer" readonly="">*@
+                                            <select id="demisecaseSelect1" name="DeathCertificateDemise_content_type" class="demisecaseSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Death Certificate">Death Certificate</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="DeathCertificateDemise" class="form-control" style="color: orange;" id="Demise1" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demise" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Proof of Ownership<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">*@
+                                            <select id="demisecaseSelect2" name="DocumentaryDemise_content_type" class="demisecaseSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Society Share Certificate">Society Share Certificate</option>
+                                                <option value="Municipal corporation tax bill">Municipal corporation tax bill</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="DocumentaryDemise" class="form-control" style="color: orange;" id="Demise2" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demise" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">ID Proof<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">*@
+                                            <select id="demisecaseSelect3" name="IDProofDemise_content_type" class="demisecaseSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Aadhar Card">Aadhar Card</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Voter ID">Voter ID</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="IDProofDemise" class="form-control" style="color: orange;" id="Demise3" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demise" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">NOC (Note: In case of joint property, NOC of 1st owner is required)</label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">*@
+                                            <select id="demisecaseSelect4" name="NOCDemise_content_type" class="demisecaseSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="NOC">NOC</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="NOCDemise" class="form-control" style="color: orange;" id="Demise4" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demise" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Signed ID proof of 1st owner</label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">*@
+                                            <select id="demisecaseSelect5" name="SignedIDproofDemise_content_type" class="demisecaseSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="SignedIDproofDemise" class="form-control" style="color: orange;" id="Demise5" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row demiseUnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Death Certificate<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Death Certificate of Registered customer" readonly="">*@
+                                            <select id="demiseUnregisteredHousingSelect1" name="DeathCertificateDemiseUnregisteredHousing_content_type" class="demiseUnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Death Certificate">Death Certificate</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="DeathCertificateDemiseUnregisteredHousing" class="form-control" style="color: orange;" id="FiledemiseUnregisteredHousing1" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            @*//new*@
+                            <div class="row demiseUnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Municipal corporation tax bill<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Death Certificate of Registered customer" readonly="">*@
+                                            <select id="demiseUnregisteredHousingSelect2" name="MunicipalCorporationTaxBillDemiseUnregisteredHousing_content_type" class="demiseUnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Municipal corporation tax bill">Municipal corporation tax bill</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="MunicipalCorporationTaxBillDemiseUnregisteredHousing" class="form-control" style="color: orange;" id="FiledemiseUnregisteredHousing2" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            @*//new*@
+                            <div class="row demiseUnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Electricity Bill (Updated with new owner name)<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Death Certificate of Registered customer" readonly="">*@
+                                            <select id="demiseUnregisteredHousing3" name="ElectricityBillDemiseUnregisteredHousing_content_type" class="demiseUnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Electricity Bill">Electricity Bill (updated with new owner name)</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="ElectricityBillDemiseUnregisteredHousing" class="form-control" style="color: orange;" id="FiledemiseUnregisteredHousing3" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            @*//new*@
+                            <div class="row demiseUnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Other<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Death Certificate of Registered customer" readonly="">*@
+                                            <select id="demiseUnregisteredHousing4" name="OtherDemiseUnregisteredHousing_content_type" class="demiseUnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Society Letter head mentioning details of new owner">Society Letter head mentioning details of new owner</option>
+                                                <option value="Declaration of ownership on Stamp paper of Rs 300.">Declaration of ownership on Stamp paper of Rs 300.</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="OtherDemiseUnregisteredHousing" class="form-control" style="color: orange;" id="FiledemiseUnregisteredHousing4" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demiseUnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">ID Proof<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">*@
+                                            <select id="demiseUnregisteredHousing5" name="IDProofDemiseUnregisteredHousing_content_type" class="demiseUnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Aadhar Card">Aadhar Card</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Voter ID">Voter ID</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="IDProofDemiseUnregisteredHousing" class="form-control" style="color: orange;" id="FiledemiseUnregisteredHousing5" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demiseUnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">NOC (Note: In case of joint property, NOC of 1st owner is required)</label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">*@
+                                            <select id="demiseUnregisteredHousing6" name="NOCDemiseUnregisteredHousing_content_type" class="demiseUnregisteredHousingSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="NOC">NOC</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="NOCDemiseUnregisteredHousing" class="form-control" style="color: orange;" id="FiledemiseUnregisteredHousing6" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row demiseUnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Signed ID proof of 1st owner</label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">*@
+                                            <select id="demiseUnregisteredHousing7" name="SignedIDproofDemiseUnregisteredHousing_content_type" class="demiseUnregisteredHousingSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="SignedIDprooDemiseUnregisteredHousing" class="form-control" style="color: orange;" id="FiledemiseUnregisteredHousing7" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row RegisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Proof of Ownership<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Agreement / Purchase / Sale deed with the present registered customers (or) Share certificate of Registered Society" readonly="">*@
+                                            <select id="RegisteredHousingSelect1" name="FirstRegisteredHousingSocietypropertyresale_content_type" class="RegisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Index 2">Index 2</option>
+                                                <option value="Sale deed">Sale deed</option>
+                                                <option value="Society Share Certificate">Society Share Certificate</option>
+                                                <option value="AMC Tax Bill">AMC Tax Bill</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="FirstRegisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Registered_Housing1" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row RegisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">ID Proof<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Latest Municipal tax bill in applicant's name. (or) NOC (Duly stamped - No Objection Certificate) from the registered housing society" readonly="">*@
+                                            <select id="RegisteredHousingSelect2" name="SecondRegisteredHousingSocietypropertyresale_content_type" class="RegisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Aadhar Card">Aadhar Card</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Voter ID">Voter ID</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="SecondRegisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Registered_Housing2" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row RegisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">
+                                            NOC (Note: In case of joint property, NOC of 1st owner is required)
+                                        </label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Latest Municipal tax bill in applicant's name. (or) NOC (Duly stamped - No Objection Certificate) from the registered housing society" readonly="">*@
+                                            <select id="RegisteredHousingSelect3" name="NOCRegisteredHousingSocietypropertyresale_content_type" class="RegisteredHousingSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="NOC">NOC</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="NOCRegisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Registered_Housing3" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row RegisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">
+                                            Attested ID Proof of 1st Owner
+                                        </label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Latest Municipal tax bill in applicant's name. (or) NOC (Duly stamped - No Objection Certificate) from the registered housing society" readonly="">*@
+                                            <select id="RegisteredHousingSelect4" name="SignedIDproofRegisteredHousingSocietypropertyresale_content_type" class="RegisteredHousingSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="SignedIDproofRegisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Registered_Housing4" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row UnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Sales Agreement<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="Agreement / Purchase / Sale deed with the present registered customer" readonly="">*@
+                                            <select id="UnregisteredHousingSelect1" name="FirstUnregisteredHousingSocietypropertyresale_content_type" class="UnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Sales Agreement">Sales Agreement</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="FirstUnregisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Unregistered_Housing1" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row UnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Power Of Attorney<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="No Objection Certificate (NOC) from the present registered customer (or) Latest Municipal tax bill." readonly="">*@
+                                            <select id="UnregisteredHousingSelect2" name="SecondUnregisteredHousingSocietypropertyresale_content_type" class="UnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Power Of Attorney">Power Of Attorney</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="SecondUnregisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Unregistered_Housing2" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row UnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">ID Proof<span class="required">*</span></label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="No Objection Certificate (NOC) from the present registered customer (or) Latest Municipal tax bill." readonly="">*@
+                                            <select id="UnregisteredHousingSelect3" name="IDProofUnregisteredHousingSocietypropertyresale_content_type" class="UnregisteredHousingSelect" required>
+                                                <option value="">Select Type</option>
+                                                <option value="Aadhar Card">Aadhar Card</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Voter ID">Voter ID</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document<span class="required">*</span></label>
+                                        <input type="file" name="IDProofUnregisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Unregistered_Housing3" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row UnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">NOC (Note: In case of joint property, NOC of 1st owner is required)</label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="No Objection Certificate (NOC) from the present registered customer (or) Latest Municipal tax bill." readonly="">*@
+                                            <select id="UnregisteredHousingSelect4" name="NOCUnregisteredHousingSocietypropertyresale_content_type" class="UnregisteredHousingSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="NOC">NOC</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="NOCUnregisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Unregistered_Housing4" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row UnregisteredHousing" style="display: none;">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for="">Attested ID Proof of 1st Owner</label>
+                                        <div class="mt-2">
+                                            @*<input type="text" class="form-control" value="No Objection Certificate (NOC) from the present registered customer (or) Latest Municipal tax bill." readonly="">*@
+                                            <select id="UnregisteredHousingSelect5" name="SignedIDproofUnregisteredHousingSocietypropertyresale_content_type" class="UnregisteredHousingSelect">
+                                                <option value="">Select Type</option>
+                                                <option value="Pan Card">Pan Card</option>
+                                                <option value="Driving License">Driving License</option>
+                                                <option value="Passport">Passport</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label class="text-danger checkdropvalue" id="buildercase1" style="display:none">This Field is required.</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="customFile">Upload Document</label>
+                                        <input type="file" name="SignedIDproofUnregisteredHousingSocietypropertyresale" class="form-control" style="color: orange;" id="Unregistered_Housing5" accept="application/pdf, image/jpg, image/jpeg">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tacbox">
+                                <input id="checkbox" type="checkbox" name="agree" value="yes">
+                                <label for="checkbox">
+                                    I agree to the
+                                    <!--data-toggle="modal" data-target="#termsandconditions"-->
+                                    <a class="mt-3 txt-orange" target="_blank" href="/-/media/8388422011B643DE955846E06A8BA774.ashx" style="text-decoration: underline;font-size: 13px;">Terms &amp; Conditions.</a>
+                                </label>
+                                <div style="display:none; color:red" id="agree_chk_error">
+                                    Please agree to the terms and conditions to proceed!
+                                </div>
+                            </div>
+
+                            <div class="row required" required>
+                                <div class="col-lg-12 text-right">
+                                    <u><a href="#" id="backid2" style="margin-right:30px;">Back</a></u>
+                                    @*<a href="#" class="btn btn-primary" style="color: white; background-color: black; border-color: black;">Proceed for Payment</a>*@
+                                    <input type="submit" name="proceedforpayment" id="proceedforpayment" value="Proceed for Payment" onclick="return nametransfersubmit();" class="btn btn-primary" style="background-color: orangered; color: white; border-color: black;">
+                                    @*<input type="button" name="validatecondition" id="validatecondition" value="Proceed for Payment" onclick="return nametransfersubmit();" />*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<div class="modal fade modal-popup" id="termsandconditions" tabindex="-1" role="dialog" aria-labelledby="termsandconditions" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>Terms and Conditions</h5>
+                <div class="modal-popup__content">
+                    <p class="mb-3">I /we agree to the abide with the Terms and Conditions mentioned herein below and which are in accordance with provisions of The Electricity Act 2003 hereinafter referred as ‘the Act’ and Maharashtra Electricity Regulatory Commission (Electricity Supply Code and Other Conditions of Supply) Regulations, 2005, hereinafter referred as “the Supply Code’’ and undertake as under:</p>
+                    <ul class="txt-sm" style="
+">
+                        <li class="mb-2">
+                            DEFINITIONS:
+                            "Application" means the request for a PNG connection in the format/ form designed by Seller and duly filled andsigned by the Buyer.
+                            "Buyer" means the applicant who has been provided PNG connection by the Seller as per
+                            the terms and conditions mentioned herein.
+                            "Connection" means installation of combination of one or more pipelines, related fittings, valves. regulator. meter. rubber tubing and any other associated equipment provided by Seller in Buyer's premises in order to supply PNG to the Buyer.
+                            "Invoice" means a periodic statement generated by Seller showing details of various charges applicable for consumption of Natural Gas. minimum usage charges, non refundable charges for extra connection or work undertaken (if any) by the Seller at the Buyer premises and the total amount including taxes and levies payable by Buyer to the Seller for use of gas for a particular period.
+                            "Last Mile Connectivity" means connectivity between the Riser Isolation Valve (RIV) before the metering unit and the safety hose pipe connecting the burner in the Buyer's premises.
+                            "Measurement Equipment" means such main and subsidiary meters, including apparatus, regulators, guages. valves. pipes and other related accessories and fittings, installed at Buyers premise as the Seller considers necessary for the measurement and recording of the volume of natural gas in Cubic Meters or Standard Cubic Meters and Pressure in Kg/cm2 or Bar or mBar or any other unit at the Delivery Point for the safe operation of the Seller's 8 Buyer's Facilities.
+                            "MMBTU" means One million British Thermal units. A British Thermal unit (BTU) is defined as the amount of heat required to raise the temperature of one pound of liquid water by one degree from 60° to 61°Fahrenheit at a constant pressure of one atmosphere.
+                            "Network Tariff" means the unit rate of tariff ( excluding statutory taxes and levies) in Rs/SCM or Rs./ MMBTU or any other such unit prescribed by PNGRB. chargeable by the Seller for the infrastructure installed by the Seller for providing PNG to the Buyer.
+                            "Planned Works" shall mean works conducted over a period of hours or days identified in advance on the Seller's Facilities by the Seller. which may temporarily restrict the Seller's Facilities and shall include modifications to, enlargement of, repairs to or maintenance of the (a) Seller's Facilities and (b) upstream of the Seller's Facilities which may result in temporary reduction/ stoppage of PNG to the Buyer.
+                            "PNG" means natural gassupplied by pipelines for domestic/commercial /industrial use "Gas Price/ PNG Price" means unit price of PNG in Rs/SCM or Rs/MMBTU or any other such unit prescribed by PNGRB.
+                            "PNGRB" means Petroleum and Natural Gas Regulatory Board established under sub­ section 3 of the PNGRB Act.
+                            "PNGRB Act" means Petroleum and Natural Gas Regulatory Act. 2006 of 2006.
+                            "Premises" or "Site" or "Property" means the property owned or occupied by the Buyer in which the Buyer has got PNG connection from the Seller or is desirous of getting a PNG connection.
+                            "Seller" means Adani Total Gas Ltd.. a company incorporated under the companies act, 1956 and having its registered offlce at "Adani House", Mithakhali Slx Roads, Navrangpura, and Ahmedabad-3BOOO
+                            "Seller's Facilities" means the Seller's pipelines. gas plants. machinery. measurement equipment, metering facilities, pressure regulating stations, and other equipments necessary for flow control and processing, compression. measuring and testing of Gas to enable delivery of Gas to the Buyer.
+                            "Standard Cubic Meter" or "SCM" shall mean the quantity of Gas that occupies a volume of one (1) cubic meter at a temperature of fifteen degrees Celcius (15°C) under absolute pressure of one decimal zero one three two five bar (1.01325 Bar).
+
+
+
+
+                            One Wire Braided Flexible Hose (Suraksha Hose pipe) of standard size connecting the domestic PNG burner.
+                            Conversion of two burners in Single Gas stove.
+                            In case of requirement of any additional equipment / pipeline for providing PNG Connection (other than mentioned in Clause 3.1) and/or for connecting appliances other than two domestic PNG burner in the Buyer's premises. the charges shall be payable by the Buyer to the Seller as per Schedule of Charges/Tariff Card.
+                            The Seller shall convert the existing LPG burner stove to make it compatible for use on PNG. Subsequent and additional conversion (if any) shall be carried out on chargeable basis that maybeprevalent at that time. in addition to the taxes as applicable.
+                            Interest free security deposit as mentioned in clause 2.1 shall be refunded only upon termination of the agreement after clearing all the dues.
+                            The Seller may at its sole discretion revise/ change the PNG price. network tariff and any other charges as mentioned in the Tariff card periodically, as per provisions of PNGRB regulation.
+                            All cesses, taxes, duties. assessments and any other levies imposed or to be imposed in future by Central / State Government. Statutory and or local bodies. in relation to the connection and supply of PNG shall be passed on to and paid by the Buyer. The Seller shall invoice the same to the Buyer and Buyer shall be liable to pay such taxes, duties levies etc. as may be applicable.
+                            For any extension/ modification, relocation/ alteration of the pipeline/ meter/ regulator or any part of the connection. Buyer shall request Seller in the format prescribed by Seller. Seller upon receiving such request shall promptly carry out the requested modification. Buyer shall pay charges to the Seller as applicable at the time of execution of work as mentioned in the 'Tariff card'. In no case. the Buyer shall have any right to modify/ alter the connection. If. it is found that. the connection has been modified/ altered/ tampered in part or whole by the Buyer, Seller at its sole discretion may discontinue the supply of PNG, levy penalty or forfeit the security deposit. Seller's decision in all such matters shall be final. Any modification/ alteration required in the gas connection shall be carried out by the Seller only and it would be charged additionally as per Tariff card prevailing at the time of execution of the work.
+                            Advance payment if any, made by the Buyer to the Seller at the time of registration. other than Refundable Interest Free Security Deposit. will beadjusted against charges for "Extra Work/ Services·. Additional payment if any to be made by the Buyer will be added in the gas invoice. No interest would be paid to Buyer on advanced amount. If the total charges of Extra Work/ Services done by the Seller are less than advance payment made by the Buyer. necessary credit will be given in the gas bill. All charges paid by the Buyer for extra work/ services other than refundable Interest free security deposit mentioned in clause 2.1 will benon refundable.
+                            Tariff Card' then prevailing at the time of ·execution of work' shall be applicable & binding to the Buyer. Revision in 'Tariff Card' is at sole discretion of the seller and may be changed without notice to the Buyer.
+                            INVOICING:
+                            The quantity of PNG supplied to the Buyer shall be measured through a meter installed and maintained by Seller at the Buyer's premises. Immediately upon commissioning of the meter and commencement of the PNG supply, Seller shall deliver to the Buyer the first invoice mentioning details of all the pending payments related to the connection. Buyer shall pay all the pending payments by due date mentioned on the invoice.
+                            The meter installed by the Seller measures the gas in Cubic Meter. The reading (in Cubic Meter) of the meter can be converted into Standard Cubic Meter (SCM) and MMBTU by applying factors which depend on delivered pressure of gas. temperature of gas. composition of gas, etc. These parameters are averaged over the billing period to determine the average correction factor for the period. The Seller reserves the right to determine and apply the correction factor from any date without giving any notice to the
+
+                            (xviii) "Tariff Card" means a document prepared by Seller and revised from time to time
+                            indicating various charges which include Refundable Interest Free Security deposit, PNG Sales Price, Network Tariff. other charges and charges for any extra connection or work undertaken (if any) by the Seller at the Buyer premises.
+                            Words imparting the masculine gender shall, where the context so admits, include the feminine gender and neutral gender. Words Imparting the singular number shall where the context so admits, include the plural number.
+
+
+
+                            4.3
+
+                            Buyer. The Seller also reserves the right to break the current gas price into various components as may be required.
+                            Invoice shall be sent to the Buyer at the end of every invoice period in Rs/MMBTU or any other unit prescribed by PNGRB with detailed break up of various components like Gas pric , network tariff, last mile connectivity charge , ta_xes, duties and levies etc. s applicable and payable for the relevant period. Every InvoIce shall be paid by the Buyer ,n full byCheque/ DD/ Pay order/ Cash by the due date mentioned on the invoice.
+
+
+                            CONNECTION:
+                            By execution 2, submission of the Application along with the refundable interest-free security deposit as mentioned in the tariff card. Buyer shall be deemed to have unconditionally agreed to and accepted connection and supply of PNG on the Terms & Conditions herein contained, and these Terms and Conditions shall constitute a binding agreement between the Seller and the Buyer.
+                            Application received without the refundable interest free connection security deposit shall not be considered as a valid application for PNG connection.
+                            On submission of the application along with the refundable interest free connection security deposit by the Buyer to the Seller. the Seller shall commence the process to provide PNG connection to the Buyer. The Seller will carry out a technical survey of the Buyer's Premises and shall determine the location and manner of laying pipeline and installation of meter and other equipments for supply of PNG. The installation activity shall be carried out by the Seller/ its authorized Vendor or Contractor.
+                            The seller reserves the right to cancel without prejudice the Application on the grounds of technical non-feasibility, non availability of permissions from the authorities, safety or hazard concerns or any other grounds which the Seller deems fit. Seller can refuse the gas connection and/ or cancel registration without giving any notice to the Buyer. The Seller shall refund the interest free refundable security deposit submitted by the Buyer in full in case of refusal of Application or cancellation of registration. In all such cases the decision of the Seller shall be final.
+                            A single connection means provision of PNG for use in one kitchen per premise. However, extension from the kitchen can be provided to connect maximum two appliances. such as, geyser. etc. in the same floor at additional charges as determined by the Seller from time to time. Two separate kitchens on same/ different floors in the premise shall be treated as two PNG connections and separate meter shall be installed. Extension from one floor to another shall also be treated as new connection. All charges will bepayable by the Buyer to the Seller for such extension activity as per 'Tariff Card'.
+                            The supply of PNG shall be commenced after necessary testing by the Seller and necessary approvals and permissions, if any required, being received.
+                            The Seller reserves the right to supply PNG to other Buyers. through the same pipelines. at any point before inlet of the meter installed at the Buyer's premises.
+                            All above ground pipelines shall be exposed and painted with GOLDEN YELLOW colour by the Seller. In no case Buyer shall tamper with orchange the colour of the pipeline.
+                            Quantity of pipeline and other fittings materials specified for Single Domestic PNG connection is only for that particular connection and cannot be adjusted/ clubbed with thequantity of Pipelines and other fittings materials for the other points/connection.
+                            Under no circumstances.G.I or Copper pipelines shall be concealed in wall or furniture. Maximum flow of Natural Gas in Buyers premises is limited to 2M3/hour. Hence provision for consumption points will depend on the site situation and professional judgment of the site engineer. which shall be final andbinding to the Buyer.
+                            Only One number of Wire Braided Flexible Hose provided by the Seller should be used for connecting Gas Tap. Use of additional 'Hose· should be strictly for bidden.
+                            Wire Braided Flexible Hose must be installed in the same room where the appliance is installed, and it shall not pass through walls, floors, cabinets or other partitions.
+                            CHARGES:
+                            The refundable interest-free security deposit as mentioned in clause 2.1 shall be towards security of the following equipments and facilities (including the labour cost of installation) towards last mile connectivity for a single connection:
+                            One Point (Gas Tap) in One Kitchen.
+                            One Riser isolation valve (RIV) 2, Meter Isolation Valve (MIV) before the metering unit (onneed basis).
+                            Ten meters of pipe up to the metering unit.
+                            Metering unit,(One Domestic Meter, One Regulator and fitting accessories). Five meters of G.I. / Copper pipe from the metering unit up to theGas Tap.
+
+
+
+                            Cheque/ DD/ Pay order for the invoice amount should be made by the Buyer in the name of
+                            ..ADANI TOTAL GAS LTD... and deposited at the payment collection centers indicated by the Seller.
+                            In the event of failure of the meter to record correct consumption. the quantity of PNG consumed by the Buyer shall be determined on the basis of the average consumption of last two months or on any other basis as determined by Seller. The decision of Seller in such a case shall be final.
+                            Non receipt of invoice shall not be sufficient ground for non-payment of outstanding amount. In case Buyer does not receive the invoice he/she is under obligation to obtain a duplicate copy of the same from the supplier. The Buyer shall pay to the Seller late payment charges as mentioned in the schedule of charges on all the delayed payments from the due date until payment and/ orrealization.
+                            In case of any dispute the Buyer shall pay the invoice amount in total by the due date and then lodge a complaint with theSeller. All complaints shall be dealt with within a stipulated time frame and if the claims made by the Buyer are found to be correct same shall be adjusted in the next invoice by the Seller.
+                            OBLIGATION AND UNDERTAKING OF THE BUYER:
+                            The Buyer shall:
+                            Prior to the commencement of PNG supply, at its own cost obtain all necessary consents, approvals and permits from all relevant authorities including RWA, society administration, housing society/ association, joint owners, landlord as the case may be, required to obtain the PNG connection. The Buyer shall. also be responsible at its own cost for obtaining all easements or rights of way through any private property of any other person inside the society/ colony/ sector or RWA. society administration, landlord. etc. for laying of pipeline for supply of PNG.
+                            Use the PNG only for domestic or household purpose. such as cooking and water heating at the premise mentioned in the application form and shall not use/ permit/ allow the usage of PNG for any other purpose.
+                            Take adequate precautions and all safety measures in connection with the supply to and use of PNG and shall also ensure safety of the equipments and facilities provided by the Seller within the premises.
+                            Inform and thereby take permission of the Seller in case of any construction/ renovation/ changes are required to be done in the premises having the installation.
+                            Be responsible for any civil work required for the safety of the pipelines. piping or other facilities and equipments installed by the Seller within the Buyer's premises and not tamper with thesame.
+                            Obtain the specific prior written permission of the Seller for change in usage and/ or for installing any equipment such as PNG geyser or any other equipment in the format prescribed by the Seller.
+                            Permit the Seller/ its authorized representative access to the premises for the purpose of meter reading, laylng pipelines, to alter or replace any pipeline, Inspection, maintenance check up, installation of equipment, if the Seller in its discretion determines the same to be necessary or expedient by verifying the identification of such authorized representative. The Seller shall not be liable/ responsible for the entry by any unidentified person or any imposter or person claiming to represent or act on behalf of Seller.
+                            Be responsible to obtain No Objection Certificate of the landlord / Society, where the Premises is tenanted property or is situated in a building belonging to a Society if required by the Seller. The Seller reserves the right to discontinue the PNG supply in the event of any dispute between the Buyer and the Landlord/ Society.
+                            Before going out of station for a period of one month or more inform the Seller of the same so as to enable the Seller to disconnect the PNG supply at the Buyer's premises for safety reasons. Not adjust. clean. repair. replace or otherwise handle any of the pipes. equipment and other installation (including burners 2, meters) and other equipment. Any damage or breakdown in the pipes. installations & equipment shall be immediately intimated by the Buyer to the Seller.
+
+                            5.11	Be liable to report about any damage to meter, piping, equipment or facility or non reading of meter to the Seller immediately and shall also inform the Seller for any leakages, broken pipes etc. at the earliest.
+                            5.12	Inform the Seller of occurrence of any emergency situation or any potentially hazardous situation at the earliest by calling on the emergency contact numbers mentioned on the invoice and shall cooperate with the Seller's personnel to contain the emergency situation, as and when required.
+                            5.13	Follow safety instructions prescribed by Seller from time to time.
+                            5.14	Ensure payment of dues within the specified time, failing which Seller may impose penalty, charge interest and/ orresort to discontinuance of supply of PNG without notice.
+                            5.15	Understand that the wire braided flexible hose has fixed life and the Buyer is under obligation to have it replaced annually by payment of applicable charges. No request for compensation/ adjustment in the invoice on account of leakage of PNG caused due to damage of safety hose pipe (rubber tube) shall be entertained.
+                            5.16	Pay charges for Temporary Disconnection and Reconnection in advance along with the
+                            request.
+                            5.17	Provide authorized documents for ownership of the premises along with the application form as PNG connection will begiven only in the name of Owner of the premises.
+                            5.18	Ensure that the Gas operated appliance should be in optimum working condition and installed in such a way that it iseasily accessible.
+                            5.19	Inform about concealed pipeline or cables if any, at the time of survey conducted by the Seller. Seller shall not be held responsible for any damage to any such concealed pipelines or cables.
+                            5.20	Ensure that nothing is tied or hanging on gas pipeline. Buyer shall take appropriate measures to protect gas pipelines.
+                            5.21	Not install electric/ telephone or any type of wires or cables very close to gas pipeline.
+                            5.22	Not conceal GI /Copper pipeline in wall or furniture.
+                            5.23	Buyer hereby undertake to surrender/place under ·safe custody' the Liquefied Petroleum Gas ("LPG") connection obtained from Public Sector Oil Marketing Company (PSOMC) under public distribution system used at his Household ['Household' means a family consisting of husband, wife, unmarried children and dependent parents living together in a dwelling unit having common kitchen] within a period of 60(sixty) days from the date of obtaining the PNG connection, in compliance with the The Liquefied Petroleum Gas' (Regulation of Supply and Distribution) order 2000 as amended video notification dated September, 10, 2009. In case Buyer fails to surrender/ place under 'safe custody' the LPG connection as aforesaid, Buyer hereby gives absolute right to Seller to disconnect/ terminate PNG connection as its sole risk without giving any Notice.
+                            6,	OBLIGATIONS OF THE SELLER:
+                            The Seller shall:
+                            6.1	Endeavour to provide the PNG connection at the earliest (depending on the distance of the main pipeline from the customer premises).
+                            6.2	Endeavour to provide a consistent and regular supply of Natural Gas to the Buyer and ensure correct invoicing.
+                            6.3	Endeavour to maintain the adequate delivery pressure at the regulator outlet to enable usage of PNG by the Buyer.
+                            6.4	At all points of time, as a reasonable and prudent operator, ensure upkeep of the system and maintain safe operations in the network following technical standards and safety standards specified by the PNGRB.
+                            6.5	Install the metering equipment at a location which is easily accessible for the purpose of operation, meter reading, maintenance, inspection, calibration, checking and replacement or removal of the metering equipment.
+                            6.6	Give due notice to the Buyer for planned maintenance e,. ensure earliest possible supply
+                            resumption after interruption 8 ensure prompt recovery from unplanned network interruptions if any.
+                            6.7	Not use information of the Buyer obtained for purposes other than for which it was obtained. The seller shall also not disclose Buyer related information to any person other than PNGRB without the consent of the Buyer in writing except when the information has been sufficiently aggregated such that an individual Buyer's Information cannot be separately identified or where the Buyer information is required to be disclosed:
+                            I)	For invoicing and operation purposes;
+                            ii)	For law enforcement purposes: and
+                            iii)	When past due accounts of the customer have been transferred to a debt collection agency.
+                            6.8	Make all reasonable efforts in resolving the complaints received in a time bound manner. The Seller shall maintain a recording system of registering complaints received with details of the actions taken on the same.
+                            7,	OWNERSHIP:
+                            The pipes, all equipments, other installations and facilities provided for the purpose of supplying PNG, up to the inlet of the stove including the wire braided flexible hose shall be and remain the property of the Seller at all times and the Buyer shall not have or claim any right. title or interest therein. All the pipes. equipments and installations provided for the purpose of supplying PNG shall be removed in case of termination of this Agreement and/or discontinuation of PNG Supply.
+                            8.	TERMINATION:
+                            8.1	Without prejudice to the other rights of the Seller, the Seller may by giving 15 days notice terminate the agreement with the Buyer, if:
+                            I)	The Buyer fails to pay the seller any sum due to the Seller under these Terms and Conditions and/ orotherwise within 30 days from the due date for payment thereof.
+                            ii)	Buyer fails to comply with anyof its obligations and/or commits anybreach of the covenant or conditions on his part to be observed, performed or fulfilled,
+                            iii)	Particulars as furnished by the Buyer in the Application are found to be false or incorrect.
+                            iv)	PNG is not consumed by the Buyer for a continuous period of 26 weeks without informing the Seller.
+                            v)	Buyer tempers/ modifies/ alters the connection without the consent of the Seller.
+                            vi)	Buyer uses PNG for activities other than mentioned in clause 5.2
+                            vii)	Buyer dies and the legal heirs, and/ or successors and/ or assigns do not submit to the SELLER the necessary documents as required by the SELLER on happening of such an event.
+                            viii)	BUYER becomes insane or insolvent.
+                            ix)	BUYER fails to surrender/ place under safe custody the LPG connection obtained from Public Sector Oil Marketing Company (PSOMC) under public distribution as per clause 5.23.
+                            8.2	Buyer may request for termination of PNG supply/ connection, by giving written notice of 01(One) month to the Seller.
+                            8.3	In the event of termination of the PNG supply, without prejudice to the other rights of the Seller, i) The Seller will remove all pipelines, installations and equipment installed by the Seller for the supply of PNG at the cost of Buyer. ii) The Buyer shall be liable to pay to the Seller all amounts due and payable by the Buyer to the Seller upto the date of termination of the agreement. After all dues are cleared &the meter and allied equipment have been
+                            removed in proper e,. undamaged working condition, the security deposit shall be refunded
+                            to the Buyer.
+                            9,	DISCONNECTION:
+                            9.1 The Buyer may request for temporary disconnection of PNG supply for a period of one month or more by applying in the prescribed format to the Seller along with disconnection charges. After receipt of the request the Seller will arrange to temporarily disconnect the PNG supply and record the meter reading and accordingly raise invoice for PNG usage and related charges.. After receiving the total payment against the invoice as per the meter reading taken, the Seller will proceed for disconnection.. During the disconnection period
+
+                            invoicing will not bedone for the Buyer. 9.2 Seller may disconnect PNG supply/ connection to any premise for safety reasons. In such cases, Seller shall, as soon as possible, intimate the Buyer for such disconnection and provide schedule/ time of reconnection.
+                            9.3 In case the Buyer fails to pay the invoice sent by the Seller for two consecutive times. supply of PNG shall be stopped immediately. The Buyer shall be liable to pay charges for such disconnection and reconnection as per Tariff Card'.
+                            10,	RECONNECTION:
+                            10.1	In case the Buyer applies for reconnection of PNG supply, after termination/ temporary disconnection, all the reconnection/ re-commissioning charges (as determined by the Seller) and outstanding dues shall be paid by the Buyer by demand draft, except in case of disconnection carried out because of reasons mentioned in clause 9.2. Only after full payment of all dues reconnection will beconsidered.
+                            10.2	Reconnection of PNG supply will be at the sole discretion of the Seller and the Seller may refuse the same, by giving valid reason.
+                            11.	SHIFTING OF RESIDENCE:
+                            In case, a Buyer desires to shift from the present premises having PNG connection to new premises, Buyer will have to surrender the present connection and settle all dues and re­ apply for a fresh PNG connection at the new address. In no case, Buyer shall on his own, remove, shift, dismantle, modify, alter the meter, pipeline and / or any other pipeline installations.
+                            12.	TRANSFER OF OWNERSHIP OF THE CONNECTION:
+                            Seller permits transfer of the PNG connection from one name to another name in the event of sale/ purchase of the property, demise of the registered Buyer, etc. Such transfer is permitted subject to the payment of administrative charges as may be applicable, from time to time by the Buyer to Seller as indicated in the Tariff Card in all cases, except in case of transfer of PNG connection to the legal heir of the Buyer upon demise of the Buyer where no administrative charges are applicable. The transfer of PNG connection from one name to another name is subject to submission of necessary documents, as may be required by the Seller and will be effective only upon full satisfaction by Seller.
+                            13,	LIABILITY:
+                            13.1	The Buyer shall not use the PNG for any illegal or unlawful activity or for purpose other than mentioned in clause 5.2. In case of any offense under or violation of any law, statute or regulation by the Buyer, the Buyer alone shall be responsible and liable for the said offense or violation and the Buyer agrees to indemnify and keep indemnified the Seller from and against any loss, claim, action or proceeding that maybe suffered or incurred by the Seller as a result of any such offense or violation by the Buyer.
+                            13.2	The Buyer shall be liable for any loss or damage caused to pipes, equipment, meter or installations whether caused on account of negligence by the Buyer or its associates or agents, theft, sabotage or otherwise howsoever.
+                            13.3	The Buyer shall be deemed to be in exclusive possession and control of the PNG once PNG passes the meter outlet, and thereupon the Buyer shall be liable for any leakage or for any damage caused to any person or property as a result thereof. Accordingly the Buyer shall protect, indemnify and hold the Seller harmless against all claims, demands action. suits, proceedings, judgments and all liabilities costs, expenses, damages or losses arising out of or resulting from or incidental to or in connection with thesupply and usage of PNG.
+                            13.4	The provisions as mentioned in this clause 13 of this agreement will be enforceable notwithstanding termination of PNG supply.
+                            13.5	The Seller will put in his best endeavor to cause minimum damage to Garden. Lawn, Plants. Decorations. Tiles and any other decorative surfaces within the society or Buyer premises both on the ground and on the walls while installing pipeline, meter and associated equipment. Whilst the Seller will ensure that any disrupted areas are left in backfilled condition. Final reinstatement of surface and decorative areas will be responsibility of the Buyer. Accordingly the Buyer shall protect, indemnify and hold the Seller harmless against all claims, demands. action, suits. proceedings, judgments and all liabilities. costs. expenses, damages or losses arising out of or resulting from or incidental to or in connection with thesupply of PNG / provision of PNG connection.
+                            13.6	The Seller shall not be liable for any injury caused to any person/ animal or anyone inside or outside the residence at the time of installing gaspipeline.
+                            13.7	The Seller cannot be held liable for any delay in installing any associated equipments or services.
+                            13.8	In case of any discrepancy or disagreement with Vendor/ Contractor or plumber Buyer should contact the Seller's Customer Care office. TheSeller shall not be responsible for any direct dealing that Buyer has with anyVendor/ Contractor or plumber.
+                            13.9	The Seller is not responsible for any monetary transaction done by the Buyer with any worker/ any other person without the consent of the Seller's customer care office.
+                            14,  DISCLAIMER:
+                            The Seller shall not be liable for any loss, damage, costs, charges or expenses whatsoever that may be caused to or occasioned by the Buyer or another person on account of failure to perform or for the delay in performing any provisions of the Terms and Conditions mentioned herein if the same is caused or results due to acts of God, War. Revolt, Fire, Tempest, Flood, Earthquake, Lightning, direct or indirect consequences of God (declared/ undeclared) sabotage, hostilities, National emergencies, civil disturbances, acts of terrorism, commotion. embargo or any other law promulgation, regulation or ordinance whether Central or State or Municipal, breakage bursting or freezing of pipeline or occurrence of any event beyond the control of the Seller. Provided further that the Seller shall not be responsible and/ or liable for any losses direct or consequential caused to the Buyer if the same is caused due to the reasons stated herein above.
+                            15,	ASSIGNMENT:
+                            The Seller reserves the right to assign or transfer all or any of its rights and obligations under this Agreement to any another body corporate or third party by giving public notice to the Buyer.
+                            16,  AMENDMENT:
+                            The Seller reserves its right to amend, add, discontinue or delete all or any of these terms and conditions at any time without prior notice to the Buyer and in such case the amended terms and conditions shall be binding on the Buyer with immediate effect. In such an event it shall at all times be the responsibility of the Buyer to obtain a copy of the amended terms and conditions from the Seller.
+                            17.	TERMS BINDING ON SUCCESSORS:
+                            17.1	These terms and conditions shall be binding on the heirs, administrator and assigns of both the Buyer and the Seller.
+                            17.2	Both the Buyer and the Seller shall under all circumstances follow the various regulations issued by PNGRB relevant for City Gas Distribution Network.
+                            18.	ADDRESS FOR COMMUNICATION:
+                            Any communication shall be sent to the Buyer at the address of the Buyer stated in his/ her Application unless otherwise intimated by the Buyer in writing to the Seller. Any communication to the Seller will besent at the following address-
+                            ADANI TOTAL GAS LTD,· PO Box no 4114, Navrangpura Post Office, Ahmedabad 8.
+                            19,  JURISDICTION:
+                            The Buyer and the Seller agree that all disputes and all other matters arising out of this agreement shall be subject to exclusive jurisdiction of the courts at Ahmedabad / Faridabad alone.
+                            In case of dispute the Seller and Buyer shall first try to resolve the same by mutual consultation. In event the dispute remains unresolved despite the said consultations: the Parties agree to refer the dispute to a sole arbitrator who shall be appointed by the Seller. The proceedings shall be held as per the provisions of the Indian Arbitration and Conciliation Act 1996. Thevenue of the arbitration isat Ahmedabad / Faridabad.
+                        </li>
+                    </ul>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

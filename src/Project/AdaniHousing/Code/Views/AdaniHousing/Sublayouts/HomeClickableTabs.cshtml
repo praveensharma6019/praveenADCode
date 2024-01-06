@@ -1,0 +1,43 @@
+﻿@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (element != null)
+{
+    <section class="cta-section">
+        <div class="container">
+            <div class="row">
+                @if (element.HasChildren)
+                {
+                    foreach (Item item in element.GetChildren())
+                    {
+                        <div class="@Html.Sitecore().Field("class", item)">
+                            <div class="qlinks_section qlinks_section-blue">
+                                @if (!String.IsNullOrWhiteSpace(item.Fields["Link"].Value))
+                                {
+                                    LinkField lf = item.Fields["Link"];
+                                    var url = Helper.LinkUrl(item.Fields["Link"]);
+                                    var BGImageTag = Helper.ImageTagUrl("BackgroundImage", item);
+                                    var IconImageTag = Helper.ImageTagUrl("ForegraoundImage", item);
+                                    <a href="@url" target="@lf.Target">
+                                        <div class="qlinks_section-thumb">
+                                            @Html.Raw(BGImageTag)
+                                        </div>
+                                        <div class="qlinks_section-desc">
+                                            <h3><span>@Html.Raw(IconImageTag)</span> @Html.Sitecore().Field("Title", item)</h3>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}
+

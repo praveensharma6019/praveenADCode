@@ -1,0 +1,138 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+    //var Arrival = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Arrival").FirstOrDefault().Value;
+    //var Departure = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Departure").FirstOrDefault().Value;
+    //var Transit = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Transit").FirstOrDefault().Value;
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var Arrival = paramid["Arrival"] != null ? Sitecore.Context.Database.GetItem(paramid["Arrival"]) : null;
+    var Departure = paramid["Departure"] != null ? Sitecore.Context.Database.GetItem(paramid["Departure"]) : null;
+    var Transit = paramid["Transit"] != null ? Sitecore.Context.Database.GetItem(paramid["Transit"]) : null;
+    var ArrivalContent = paramid["ArrivalContent"] != null ? Sitecore.Context.Database.GetItem(paramid["ArrivalContent"]) : null;
+    var DepartureContent = paramid["DepartureContent"] != null ? Sitecore.Context.Database.GetItem(paramid["DepartureContent"]) : null;
+    var TransitContent = paramid["TransitContent"] != null ? Sitecore.Context.Database.GetItem(paramid["TransitContent"]) : null;
+
+
+}
+
+
+    <section class="bg-white pt-lg-5 pt-5 airport-section position-relative" id="first-section">
+        <div class="bg-images"><img src="-/media/B0C8C9F5E66D478E88A08D5D2619EEA0.ashx" ></div>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-4" data-aos="fade-up">
+                    <div id="quick-links-tabs">
+                        @if (Arrival != null)
+                        {<button class="quick-links-tabs__btn active" id="arrival"> @Html.Sitecore().Field("Title", Arrival)</button>}
+                        @if (Departure != null)
+                        {<button class="quick-links-tabs__btn" id="departure"> @Html.Sitecore().Field("Title", Departure)</button>}
+                        @if (Transit != null)
+                        { <button class="quick-links-tabs__btn" id="transit"> @Html.Sitecore().Field("Title", Transit)</button>}
+                        </div>
+                    <!-- Filter Grid -->
+                    <div class="quick-links-tabs__parent d-lg-block d-none">
+                        @if (Arrival != null)
+                        {
+                            <div class="arrival active  animate__animated animate__fadeIn">
+                                <div class="quick-links-tabs__thumb">
+                                    @Html.Sitecore().ImageField("Image", Arrival, 0, 0, "img-fluid")
+                                    <div class="quick-links-tabs__thumb__inner">
+                                        <h3>@Html.Sitecore().Field("Title", Arrival)</h3>
+                                          <!-- @Html.Sitecore().ImageField("Icon", Arrival, 0, 0, "") -->
+                                    </div>
+                                </div>
+                            </div>}
+                        @if (Departure != null)
+                        {
+                            <div class="departure  animate__animated animate__fadeIn">
+                                <div class="quick-links-tabs__thumb">
+                                    @Html.Sitecore().ImageField("Image", Departure, 0, 0, "img-fluid")
+                                    <div class="quick-links-tabs__thumb__inner">
+                                        <h3>@Html.Sitecore().Field("Title", Departure)</h3>
+                                        <!-- @Html.Sitecore().ImageField("Icon", Departure, 0, 0, "") -->
+                                    </div>
+                                </div>
+                            </div>}
+                        @if (Transit != null)
+                        {
+                    <div class="transit  animate__animated animate__fadeIn">
+                        <div class="quick-links-tabs__thumb">
+                            @Html.Sitecore().ImageField("Image", Transit, 0, 0, "img-fluid")
+                            <div class="quick-links-tabs__thumb__inner">
+                                <h3>@Html.Sitecore().Field("Title", Transit)</h3>
+                                @Html.Sitecore().ImageField("Icon", Transit, 0, 0, "")
+                            </div>
+                        </div>
+                    </div>
+                        }
+                        <!-- /Filter Grid -->
+                    </div>
+                </div>
+                <div class="col-lg-8 pl-lg-5" data-aos="fade-left">
+                    <div class="quick-links-tabs__parent py-lg-5 pt-4">
+                        @if (ArrivalContent != null)
+                        {
+                            <div class="arrival active animate__animated animate__fadeIn">
+                                <h2>@Html.Sitecore().Field("Title", Arrival)</h2>
+                                <p>@Html.Sitecore().Field("Body", Arrival)</p>
+                                <div class="row">
+                                    @foreach (var element in ArrivalContent.GetChildren().ToList())
+                                    {
+                                        Sitecore.Data.Fields.LinkField linkfld = element.Fields["Link"];
+                                        var Link = linkfld.GetFriendlyUrl();
+                                        <div class="col-lg-6 col-md-6">
+                                            <ul><li><a href="@Link">@Html.Sitecore().Field("Title", element)</a></li></ul>
+                                        </div>
+                                    }
+
+                                </div>
+                            </div>
+                        }
+                        @if (DepartureContent != null)
+                        {
+                            <div class="departure animate__animated animate__fadeIn">
+                                <h2>@Html.Sitecore().Field("Title", Departure)</h2>
+                                <p>@Html.Sitecore().Field("Body", Departure)</p>
+                                <div class="row">
+                                    @foreach (var element in DepartureContent.GetChildren().ToList())
+                                    {
+                                        Sitecore.Data.Fields.LinkField linkfld = element.Fields["Link"];
+                                        var Link = linkfld.GetFriendlyUrl();
+                                        <div class="col-lg-6 col-md-6">
+                                            <ul><li><a href="@Link">@Html.Sitecore().Field("Title", element)</a></li></ul>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        @if (TransitContent != null)
+                        {
+                            <div class="transit animate__animated animate__fadeIn">
+                                <h2>@Html.Sitecore().Field("Title", Transit)</h2>
+                                <p>@Html.Sitecore().Field("Body", Transit)</p>
+                                <div class="row">
+                                    @foreach (var element in TransitContent.GetChildren().ToList())
+                                    {
+                                        Sitecore.Data.Fields.LinkField linkfld = element.Fields["Link"];
+                                        var Link = linkfld.GetFriendlyUrl();
+                                        <div class="col-lg-6 col-md-6">
+                                            <ul><li><a href="@Link">@Html.Sitecore().Field("Title", element)</a></li></ul>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+

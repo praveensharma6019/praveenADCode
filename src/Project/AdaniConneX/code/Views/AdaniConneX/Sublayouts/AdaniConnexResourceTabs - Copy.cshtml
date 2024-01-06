@@ -1,0 +1,921 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+
+    var Blog = paramid["Blog"] != null ? Sitecore.Context.Database.GetItem(paramid["Blog"]) : null;
+    var sortedBlog = Blog.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+    var Brochure = paramid["Brochure"] != null ? Sitecore.Context.Database.GetItem(paramid["Brochure"]) : null;
+    var sortedBrochure = Brochure.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+    var DataSheet = paramid["DataSheet"] != null ? Sitecore.Context.Database.GetItem(paramid["DataSheet"]) : null;
+    var sortedDataSheet = DataSheet.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+    //var eBook = paramid["eBook"] != null ? Sitecore.Context.Database.GetItem(paramid["eBook"]) : null;
+    //var sortedeBook = eBook.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+    var PressRelease = paramid["PressRelease"] != null ? Sitecore.Context.Database.GetItem(paramid["PressRelease"]) : null;
+    var sortedPressRelease = PressRelease.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+    var Webinar = paramid["Webinar"] != null ? Sitecore.Context.Database.GetItem(paramid["Webinar"]) : null;
+    var sortedWebinar = Webinar.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+
+
+    /*
+     *
+     * Records of Webinar, PressRelease and Blog are sorted in Descending order of DATE field of record
+     * Note: Records are only visible when it's ISVISIBLE field is checked/marked/ticked
+     *
+    */
+    @*
+
+        List<Item> sortedWebinar = Webinar.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList() ;
+        List<Item> sortedPressRelease = PressRelease.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList();
+        List<Item> sortedBlog = Blog.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList();
+        var len = sortedWebinar.Count;
+        if (len < sortedPressRelease.Count)
+        {
+            len = sortedPressRelease.Count;
+        }
+
+        if (len < sortedBlog.Count)
+        {
+            len = sortedBlog.Count;
+        }
+    *@
+    var imgurl = "";
+    var btnurl = "";
+    var altText = "";
+    string title = "";
+    var i = 1;
+    var modelClass = "";
+    var thumburl = "";
+}
+
+@if (model != null)
+{
+
+    <div class="section-holder edge-connex-hoder">
+        <div class="content-wrapper">
+            <div class="full">
+                <h2 class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</h2>
+                <p class="full d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</p>
+            </div>
+
+
+            <div class="tab-accordion-wrapper">
+                @if (model.HasChildren)
+                {
+                    <div class="tab-title-wrp hidden-phone">
+                        <ul>
+                            <li><a title="all_resources" class="active">All Resources</a></li>
+                            @foreach (Item item in model.GetChildren())
+                            {
+                                title = item.Fields["MediaTitle"].ToString();
+                                <li><a title="@title.Replace(" ", "_")">@Html.Sitecore().Field("MediaTitle", item)</a></li>
+
+                            }
+
+
+                        </ul>
+                    </div>
+                }
+
+                @*All resource*@
+                @{
+                    var allresource = sortedBlog.Union(sortedBrochure);
+                    allresource = allresource.Union(sortedDataSheet);
+                    //allresource = allresource.Union(sortedeBook);
+                    allresource = allresource.Union(sortedPressRelease);
+                    allresource = allresource.Union(sortedWebinar);
+                    var sortedResource = allresource.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList();
+                    if (sortedResource.Count() > 0)
+                    {
+
+                        <div class="acc-wrp active">
+                            <div title="all_resources" class="acc-title hidden-desktop active">All Resources</div><!-- Acc title -->
+                            <div tab-content="all_resources" class="tab-acc-content" style="display: block;">
+                                <!-- Tab Content -->
+                                <div class="section-holder sustainability-wrapper">
+                                    <div class="full">
+                                        <ul class="full resource-list grid-wrapper gird-layout-3">
+                                            @foreach (Item item in sortedResource)
+                                            {
+                                                Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+                                                btnurl = linkField.GetFriendlyUrl();
+
+                                                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                                Sitecore.Data.Fields.ImageField ParentThumbimg = ((Sitecore.Data.Fields.ImageField)item.Parent.Fields["MediaThumbnail"]);
+                                                if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", item.Parent).ToString()))
+                                                {
+                                                    modelClass = item.Parent.Fields["Class"].ToString();
+                                                }
+
+                                                <li class="grid">
+                                                    <div class="card-box card-media-top small-card">
+                                                        @if (imgField != null && imgField.MediaItem != null)
+                                                        {
+                                                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                            altText = imgField.Alt;
+                                                            <div class="card-media">
+                                                                <img src="@imgurl" alt="@altText" class="">
+                                                            </div>
+                                                        }
+                                                        <div class="card-content">
+                                                            @if (modelClass != "")
+                                                            {
+                                                                <div class="feature-icon">
+                                                                    <i class="@modelClass i-20"></i>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                if (ParentThumbimg != null && ParentThumbimg.MediaItem != null)
+                                                                {
+                                                                    thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ParentThumbimg.MediaItem);
+                                                                    altText = ParentThumbimg.Alt;
+                                                                    <div class="feature-icon">
+                                                                        <img src="@thumburl" />
+                                                                    </div>
+                                                                }
+                                                            }
+
+
+                                                            @if (item.Parent.Name == "Blog")
+                                                            {
+                                                                <p class="full fs-16">Blog | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="full fs-16">@Html.Sitecore().Field("MediaTitle", item.Parent) | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                                            }
+                                                            <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+                                                            @if (btnurl != "")
+                                                            {
+                                                                if (linkField.LinkType == "internal")
+                                                                {
+                                                                    var itemUrl = Sitecore.Context.Database.GetItem(item.ID);
+
+
+                                                                    var request = HttpContext.Current.Request;
+
+                                                                    //request.Url.Scheme gives output as https/http
+                                                                    //while request.Url.Authority give us Domain name
+                                                                    var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                    var webUrl = baseUrl + btnurl;
+                                                                    <a href="@btnurl" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", item.Parent)</a>
+                                                                    <div class="share-icon">
+                                                                        <i class="i-share i-20"></i>
+                                                                        <ul class="share-option">
+                                                                            <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl"><i class="i-email i-14"></i></a></li>
+                                                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                                        </ul>
+                                                                    </div>
+                                                                }
+                                                                else if (linkField.IsMediaLink)
+                                                                {
+                                                                    var itemUrl = Sitecore.Context.Database.GetItem(item.ID);
+
+
+                                                                    var request = HttpContext.Current.Request;
+
+                                                                    //request.Url.Scheme gives output as https/http
+                                                                    //while request.Url.Authority give us Domain name
+                                                                    var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                    var webUrl = baseUrl + btnurl;
+
+
+                                                                    <a href="#whitePaperPopup" doc-name="@Html.Sitecore().Field("Title", item)" data-type="@Html.Sitecore().Field("MediaTitle", item.Parent)" data-url="@btnurl" class="link h-underline tx-008 whitePaperActionnew">@Html.Sitecore().Field("ButtonTitle", item.Parent)</a>
+                                                                    @*
+                                                                        <div class="share-icon">
+                                                                            <i class="i-share i-20"></i>
+                                                                            <ul class="share-option">
+                                                                                <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl"><i class="i-email i-14"></i></a></li>
+                                                                                <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    *@
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a href="@btnurl" target="_blank" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", item.Parent)</a>
+                                                                    <div class="share-icon">
+                                                                        <i class="i-share i-20"></i>
+                                                                        <ul class="share-option">
+                                                                            <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                        </ul>
+                                                                    </div>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="#" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", item.Parent)</a>
+                                                                <div class="share-icon">
+                                                                    <i class="i-share i-20"></i>
+                                                                    <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            }
+
+
+
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            }
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+
+                }
+
+                @*Blog*@
+
+                @if (sortedBlog.Count() > 0)
+                {
+
+                    title = Blog.Fields["MediaTitle"].ToString();
+                    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", Blog).ToString()))
+                    {
+                        modelClass = Blog.Fields["Class"].ToString();
+                    }
+                    <div class="acc-wrp">
+                        <div title="@title.Replace(" ", "_")" class="acc-title hidden-desktop">@Html.Sitecore().Field("MediaTitle", Blog)</div><!-- Acc title -->
+                        <div tab-content="@title.Replace(" ", "_")" class="tab-acc-content">
+                            <!-- Tab Content -->
+                            <div class="section-holder sustainability-wrapper">
+                                <div class="full">
+                                    <ul class="full resource-list grid-wrapper gird-layout-3">
+                                        @foreach (Item item in sortedBlog)
+                                        {
+                                            Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+                                            btnurl = linkField.GetFriendlyUrl();
+
+                                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                            title = item.Fields["Title"].ToString();
+                                            Sitecore.Data.Fields.ImageField ParentThumbimg = ((Sitecore.Data.Fields.ImageField)item.Parent.Fields["MediaThumbnail"]);
+
+                                            <li class="grid">
+                                                <div class="card-box card-media-top small-card">
+                                                    @if (imgField != null && imgField.MediaItem != null)
+                                                    {
+                                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                        altText = imgField.Alt;
+                                                        <div class="card-media">
+                                                            <img src="@imgurl" alt="@altText" class="">
+                                                        </div>
+                                                    }
+
+                                                    <div class="card-content">
+                                                        @if (modelClass != "")
+                                                        {
+                                                            <div class="feature-icon">
+                                                                <i class="@modelClass i-20"></i>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            if (ParentThumbimg != null && ParentThumbimg.MediaItem != null)
+                                                            {
+                                                                thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ParentThumbimg.MediaItem);
+                                                                altText = ParentThumbimg.Alt;
+                                                                <div class="feature-icon">
+                                                                    <img src="@thumburl" />
+                                                                </div>
+                                                            }
+                                                        }
+                                                        <p class="full  fs-16">@Blog.Name | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+
+                                                        <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+
+                                                        @if (btnurl != "")
+                                                        {
+                                                            if (linkField.LinkType == "internal")
+                                                            {
+                                                                var itemUrl = Sitecore.Context.Database.GetItem(item.ID);
+
+
+                                                                var request = HttpContext.Current.Request;
+
+                                                                //request.Url.Scheme gives output as https/http
+                                                                //while request.Url.Authority give us Domain name
+                                                                var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                var webUrl = baseUrl + btnurl;
+                                                                <a href="@btnurl" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", Blog)</a>
+                                                                <div class="share-icon">
+                                                                    <i class="i-share i-20"></i>
+                                                                    <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl"><i class="i-email i-14"></i></a></li>
+                                                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="@btnurl" target="_blank" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", Blog)</a>
+                                                                <div class="share-icon">
+                                                                    <i class="i-share i-20"></i>
+                                                                    <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="#" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", Blog)</a>
+                                                            <div class="share-icon">
+                                                                <i class="i-share i-20"></i>
+                                                                <ul class="share-option">
+                                                                    <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                    <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                </ul>
+                                                            </div>
+                                                        }
+
+
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+
+                @*Corporate Brochure*@
+                @if (sortedBrochure.Count() > 0)
+                {
+                    title = Brochure.Fields["MediaTitle"].ToString();
+                    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", Brochure).ToString()))
+                    {
+                        modelClass = Brochure.Fields["Class"].ToString();
+                    }
+                    <div class="acc-wrp">
+                        <div title="@title.Replace(" ", "_")" class="acc-title hidden-desktop">@Html.Sitecore().Field("MediaTitle", Brochure)</div><!-- Acc title -->
+                        <div tab-content="@title.Replace(" ", "_")" class="tab-acc-content">
+                            <!-- Tab Content -->
+                            <div class="section-holder sustainability-wrapper">
+                                <div class="full">
+                                    <ul class="full resource-list grid-wrapper gird-layout-3">
+                                        @foreach (Item item in sortedBrochure)
+                                        {
+                                            Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+                                            btnurl = linkField.GetFriendlyUrl();
+
+                                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                            title = item.Fields["Title"].ToString();
+                                            Sitecore.Data.Fields.ImageField ParentThumbimg = ((Sitecore.Data.Fields.ImageField)item.Parent.Fields["MediaThumbnail"]);
+
+                                            <li class="grid">
+                                                <div class="card-box card-media-top small-card">
+                                                    @if (imgField != null && imgField.MediaItem != null)
+                                                    {
+                                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                        altText = imgField.Alt;
+                                                        <div class="card-media">
+                                                            <img src="@imgurl" alt="@altText" class="">
+                                                        </div>
+                                                    }
+
+                                                    <div class="card-content">
+                                                        @if (modelClass != "")
+                                                        {
+                                                            <div class="feature-icon">
+                                                                <i class="@modelClass i-20"></i>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            if (ParentThumbimg != null && ParentThumbimg.MediaItem != null)
+                                                            {
+                                                                thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ParentThumbimg.MediaItem);
+                                                                altText = ParentThumbimg.Alt;
+                                                                <div class="feature-icon">
+                                                                    <img src="@thumburl" />
+                                                                </div>
+                                                            }
+                                                        }
+                                                        <p class="full  fs-16">@Html.Sitecore().Field("MediaTitle", Brochure) | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+
+                                                        <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+
+                                                        @if (btnurl != "")
+                                                        {
+                                                            if (linkField.LinkType == "internal")
+                                                            {
+
+                                                                <a href="#whitePaperPopup" doc-name="@Html.Sitecore().Field("Title", item)" data-url="@btnurl" class="link h-underline tx-008 whitePaperActionnew">@Html.Sitecore().Field("ButtonTitle", DataSheet)</a>
+
+                                                            }
+                                                            else
+                                                            {
+                                                                var itemUrl = Sitecore.Context.Database.GetItem(item.ID);
+
+
+                                                                var request = HttpContext.Current.Request;
+
+                                                                //request.Url.Scheme gives output as https/http
+                                                                //while request.Url.Authority give us Domain name
+                                                                var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                var webUrl = baseUrl + btnurl;
+                                                                <a href="#whitePaperPopup" doc-name="@Html.Sitecore().Field("Title", item)" data-type="@Html.Sitecore().Field("MediaTitle", Brochure)" data-url="@btnurl" class="link h-underline tx-008 whitePaperActionnew">@Html.Sitecore().Field("ButtonTitle", DataSheet)</a>
+                                                                @*
+                                                                                                                                        <div class="share-icon">
+                                                                        <i class="i-share i-20"></i>
+                                                                        <ul class="share-option">
+                                                                            <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl"><i class="i-email i-14"></i></a></li>
+                                                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                                        </ul>
+                                                                    </div>
+                                                                *@
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="#" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", DataSheet)</a>
+                                                            @*
+                                                                <div class="share-icon">
+                                                                    <i class="i-share i-20"></i>
+                                                                    <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            *@
+                                                        }
+
+
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @*Data Sheet*@
+                @if (sortedDataSheet.Count() > 0)
+                {
+                    title = DataSheet.Fields["MediaTitle"].ToString();
+                    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", DataSheet).ToString()))
+                    {
+                        modelClass = DataSheet.Fields["Class"].ToString();
+                    }
+                    <div class="acc-wrp">
+                        <div title="@title.Replace(" ", "_")" class="acc-title hidden-desktop">@Html.Sitecore().Field("MediaTitle", DataSheet)</div><!-- Acc title -->
+                        <div tab-content="@title.Replace(" ", "_")" class="tab-acc-content">
+                            <!-- Tab Content -->
+                            <div class="section-holder sustainability-wrapper">
+                                <div class="full">
+                                    <ul class="full resource-list grid-wrapper gird-layout-3">
+                                        @foreach (Item item in sortedDataSheet)
+                                        {
+                                            Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+                                            btnurl = linkField.GetFriendlyUrl();
+
+                                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                            title = item.Fields["Title"].ToString();
+                                            Sitecore.Data.Fields.ImageField ParentThumbimg = ((Sitecore.Data.Fields.ImageField)item.Parent.Fields["MediaThumbnail"]);
+
+                                            <li class="grid">
+                                                <div class="card-box card-media-top small-card">
+                                                    @if (imgField != null && imgField.MediaItem != null)
+                                                    {
+                                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                        altText = imgField.Alt;
+                                                        <div class="card-media">
+                                                            <img src="@imgurl" alt="@altText" class="">
+                                                        </div>
+                                                    }
+
+                                                    <div class="card-content">
+                                                        @if (modelClass != "")
+                                                        {
+                                                            <div class="feature-icon">
+                                                                <i class="@modelClass i-20"></i>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            if (ParentThumbimg != null && ParentThumbimg.MediaItem != null)
+                                                            {
+                                                                thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ParentThumbimg.MediaItem);
+                                                                altText = ParentThumbimg.Alt;
+                                                                <div class="feature-icon">
+                                                                    <img src="@thumburl" />
+                                                                </div>
+                                                            }
+                                                        }
+                                                        <p class="full  fs-16">@Html.Sitecore().Field("MediaTitle", DataSheet) | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+
+                                                        <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+
+                                                        @if (btnurl != "")
+                                                        {
+                                                            if (linkField.LinkType == "internal")
+                                                            {
+                                                                var itemUrl = Sitecore.Context.Database.GetItem(item.ID);
+
+
+                                                                var request = HttpContext.Current.Request;
+
+                                                                //request.Url.Scheme gives output as https/http
+                                                                //while request.Url.Authority give us Domain name
+                                                                var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                var webUrl = baseUrl + btnurl;
+
+                                                                <a href="#whitePaperPopup" doc-name="@Html.Sitecore().Field("Title", item)" data-type="@Html.Sitecore().Field("MediaTitle", DataSheet)" data-url="@btnurl" class="link h-underline tx-008 whitePaperActionnew">@Html.Sitecore().Field("ButtonTitle", DataSheet)</a>
+                                                                @*
+                                                                    <div class="share-icon">
+                                                                        <i class="i-share i-20"></i>
+                                                                        <ul class="share-option">
+                                                                            <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl"><i class="i-email i-14"></i></a></li>
+                                                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                                        </ul>
+                                                                    </div>
+                                                                *@
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="#whitePaperPopup" doc-name="@Html.Sitecore().Field("Title", item)" data-type="@Html.Sitecore().Field("MediaTitle", DataSheet)" data-url="@btnurl" class="link h-underline tx-008 whitePaperActionnew">@Html.Sitecore().Field("ButtonTitle", DataSheet)</a>
+                                                                @*
+                                                                    <div class="share-icon">
+                                                                        <i class="i-share i-20"></i>
+                                                                        <ul class="share-option">
+                                                                            <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                        </ul>
+                                                                    </div>
+                                                                *@
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="#" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", DataSheet)</a>
+                                                            @*
+                                                                <div class="share-icon">
+                                                                    <i class="i-share i-20"></i>
+                                                                    <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            *@
+                                                        }
+
+
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @*eBook*@
+                @*
+                    @if (sortedeBook.Count() > 0)
+                    {
+                        title = eBook.Fields["MediaTitle"].ToString();
+                        if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", eBook).ToString()))
+                        {
+                            modelClass = eBook.Fields["Class"].ToString();
+                        }
+                        <div class="acc-wrp">
+                            <div title="@title.Replace(" ", "_")" class="acc-title hidden-desktop">@Html.Sitecore().Field("MediaTitle", eBook)</div><!-- Acc title -->
+                            <div tab-content="@title.Replace(" ", "_")" class="tab-acc-content">
+                                <!-- Tab Content -->
+                                <div class="section-holder sustainability-wrapper">
+                                    <div class="full">
+                                        <ul class="full resource-list grid-wrapper gird-layout-3">
+                                            @foreach (Item item in sortedeBook)
+                                            {
+                                                Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+                                                btnurl = linkField.GetFriendlyUrl();
+
+                                                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                                title = item.Fields["Title"].ToString();
+                                                Sitecore.Data.Fields.ImageField ParentThumbimg = ((Sitecore.Data.Fields.ImageField)item.Parent.Fields["MediaThumbnail"]);
+
+                                                <li class="grid">
+                                                    <div class="card-box card-media-top small-card">
+                                                        @if (imgField != null && imgField.MediaItem != null)
+                                                        {
+                                                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                            altText = imgField.Alt;
+                                                            <div class="card-media">
+                                                                <img src="@imgurl" alt="@altText" class="">
+                                                            </div>
+                                                        }
+
+                                                            <div class="card-content">
+                                                                @if (modelClass != "")
+                                                                {
+                                                                    <div class="feature-icon">
+                                                                        <i class="@modelClass i-20"></i>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    if (ParentThumbimg != null && ParentThumbimg.MediaItem != null)
+                                                                    {
+                                                                        thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ParentThumbimg.MediaItem);
+                                                                        altText = ParentThumbimg.Alt;
+                                                                        <div class="feature-icon">
+                                                                            <img src="@thumburl" />
+                                                                        </div>
+                                                                    }
+                                                                }
+                                                                <p class="full  fs-16">@Html.Sitecore().Field("MediaTitle", eBook) | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+
+                                                                <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+
+                                                                @if (btnurl != "")
+                                                                {
+                                                                    if (linkField.LinkType == "internal")
+                                                                    {
+                                                                        <a href="@btnurl" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", eBook)</a>
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <a href="@btnurl" target="_blank" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", eBook)</a>
+
+                                                                    }
+                                                                }
+                                                                else
+                                                                {
+                                                                    <a href="#" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", eBook)</a>
+                                                                }
+
+                                                                 <div class="share-icon">
+                                                                        <i class="i-share i-20"></i>
+                                                                        <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                           <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                        </ul>
+                                                                    </div>
+                                                            </div>
+                                                    </div>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                *@
+                @*Press Relase*@
+                @if (sortedPressRelease.Count() > 0)
+                {
+                    title = PressRelease.Fields["MediaTitle"].ToString();
+                    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", PressRelease).ToString()))
+                    {
+                        modelClass = PressRelease.Fields["Class"].ToString();
+                    }
+                    <div class="acc-wrp">
+                        <div title="@title.Replace(" ", "_")" class="acc-title hidden-desktop">@Html.Sitecore().Field("MediaTitle", PressRelease)</div><!-- Acc title -->
+                        <div tab-content="@title.Replace(" ", "_")" class="tab-acc-content">
+                            <!-- Tab Content -->
+                            <div class="section-holder sustainability-wrapper">
+                                <div class="full">
+                                    <ul class="full resource-list grid-wrapper gird-layout-3">
+                                        @foreach (Item item in sortedPressRelease)
+                                        {
+                                            Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+                                            btnurl = linkField.GetFriendlyUrl();
+
+                                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                            title = item.Fields["Title"].ToString();
+                                            Sitecore.Data.Fields.ImageField ParentThumbimg = ((Sitecore.Data.Fields.ImageField)item.Parent.Fields["MediaThumbnail"]);
+
+                                            <li class="grid">
+                                                <div class="card-box card-media-top small-card">
+                                                    @if (imgField != null && imgField.MediaItem != null)
+                                                    {
+                                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                        altText = imgField.Alt;
+                                                        <div class="card-media">
+                                                            <img src="@imgurl" alt="@altText" class="">
+                                                        </div>
+                                                    }
+
+                                                    <div class="card-content">
+                                                        @if (modelClass != "")
+                                                        {
+                                                            <div class="feature-icon">
+                                                                <i class="@modelClass i-20"></i>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            if (ParentThumbimg != null && ParentThumbimg.MediaItem != null)
+                                                            {
+                                                                thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ParentThumbimg.MediaItem);
+                                                                altText = ParentThumbimg.Alt;
+                                                                <div class="feature-icon">
+                                                                    <img src="@thumburl" />
+                                                                </div>
+                                                            }
+                                                        }
+                                                        <p class="full  fs-16">@Html.Sitecore().Field("MediaTitle", PressRelease) | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+
+                                                        <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+
+                                                        @if (btnurl != "")
+                                                        {
+                                                            if (linkField.LinkType == "internal")
+                                                            {
+
+                                                                var itemUrl = Sitecore.Context.Database.GetItem(item.ID);
+
+
+                                                                var request = HttpContext.Current.Request;
+
+                                                                //request.Url.Scheme gives output as https/http
+                                                                //while request.Url.Authority give us Domain name
+                                                                var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                var webUrl = baseUrl + btnurl;
+
+
+                                                                <a href="@btnurl" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", PressRelease)</a>
+                                                                <div class="share-icon">
+                                                                    <i class="i-share i-20"></i>
+                                                                    <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl;"><i class="i-email i-14"></i></a></li>
+                                                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                                    </ul>
+                                                                </div>
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="@btnurl" target="_blank" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", PressRelease)</a>
+                                                                <div class="share-icon">
+                                                                    <i class="i-share i-20"></i>
+                                                                    <ul class="share-option">
+                                                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                    </ul>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="#" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", PressRelease)</a>
+                                                            <div class="share-icon">
+                                                                <i class="i-share i-20"></i>
+                                                                <ul class="share-option">
+                                                                    <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                    <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                                </ul>
+                                                            </div>
+                                                        }
+
+
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @*Webinar*@
+                @if (sortedWebinar.Count() > 0)
+                {
+                    title = Webinar.Fields["MediaTitle"].ToString();
+                    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", Webinar).ToString()))
+                    {
+                        modelClass = Webinar.Fields["Class"].ToString();
+                    }
+                    <div class="acc-wrp">
+                        <div title="@title.Replace(" ", "_")" class="acc-title hidden-desktop">@Html.Sitecore().Field("MediaTitle", Webinar)</div><!-- Acc title -->
+                        <div tab-content="@title.Replace(" ", "_")" class="tab-acc-content">
+                            <!-- Tab Content -->
+                            <div class="section-holder sustainability-wrapper">
+                                <div class="full">
+                                    <ul class="full resource-list grid-wrapper gird-layout-3">
+                                        @foreach (Item item in sortedWebinar)
+                                        {
+                                            Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+                                            btnurl = linkField.GetFriendlyUrl();
+
+                                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                            title = item.Fields["Title"].ToString();
+                                            Sitecore.Data.Fields.ImageField ParentThumbimg = ((Sitecore.Data.Fields.ImageField)item.Parent.Fields["MediaThumbnail"]);
+
+                                            <li class="grid">
+                                                <div class="card-box card-media-top small-card">
+                                                    @if (imgField != null && imgField.MediaItem != null)
+                                                    {
+                                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                        altText = imgField.Alt;
+                                                        <div class="card-media">
+                                                            <img src="@imgurl" alt="@altText" class="">
+                                                        </div>
+                                                    }
+
+                                                    <div class="card-content">
+
+                                                        @if (modelClass != "")
+                                                        {
+
+                                                            <div class="feature-icon">
+                                                                <i class="@modelClass i-20"></i>
+                                                            </div>
+
+                                                        }
+                                                        else
+                                                        {
+                                                            if (ParentThumbimg != null && ParentThumbimg.MediaItem != null)
+                                                            {
+                                                                thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ParentThumbimg.MediaItem);
+                                                                altText = ParentThumbimg.Alt;
+
+                                                                <div class="feature-icon">
+                                                                    <img src="@thumburl" />
+                                                                </div>
+
+                                                            }
+                                                        }
+
+                                                        <p class="full  fs-16">@Html.Sitecore().Field("MediaTitle", Webinar) | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+
+                                                        <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+
+                                                        @if (btnurl != "")
+                                                        {
+                                                            if (linkField.LinkType == "internal")
+                                                            {
+                                                                <a href="@btnurl" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", Webinar)</a>
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <a href="@btnurl" target="_blank" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", Webinar)</a>
+
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="#" class="link h-underline tx-008">@Html.Sitecore().Field("ButtonTitle", Webinar)</a>
+                                                        }
+
+                                                        <div class="share-icon">
+                                                            <i class="i-share i-20"></i>
+                                                            <ul class="share-option">
+                                                                <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @btnurl"><i class="i-email i-14"></i></a></li>
+                                                                <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@btnurl"><i class="i-linkdin i-20"></i></a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+
+            </div>
+
+        </div>
+    </div>
+}
+

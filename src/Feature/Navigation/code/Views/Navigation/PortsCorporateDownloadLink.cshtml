@@ -1,0 +1,59 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+
+
+@{
+   
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "divclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(divclass))
+    {
+        divclass = "box-block p-4 w-100 h-100";
+    }
+	 var sortedItem = element.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+	  var i = 0;
+}
+
+
+
+
+<div class="@divclass">
+    <h3 class="section-heading mb-4">@Html.Sitecore().Field("Title", element)</h3>
+    <ul class="@paramid">
+       
+ @foreach (var item in sortedItem)
+        {
+            string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+			  Sitecore.Data.Fields.LinkField imageLink = item.Fields["LinkUrl"];
+            var imageLinkUrl = imageLink.GetFriendlyUrl();
+            if (string.IsNullOrEmpty(imageLinkUrl))
+            {
+                <li>
+                    <a href="@linkUrl" >@Html.Sitecore().Field("Title", item)</a>
+                </li>
+            }
+            else
+            {
+                <li>
+                    <a href="@imageLinkUrl" target="_blank">@Html.Sitecore().Field("Title", item)</a>
+                </li>
+            }
+            if (i == 3)
+            {
+                break;
+            }
+            i++;
+        }
+    </ul>
+    @{
+
+        string parentUrl = Sitecore.Links.LinkManager.GetItemUrl(element);
+    }
+    <!-- <p class="text-right"><a href="@parentUrl">Read more</a></p> -->
+	 <p class="text-right"><a href="@parentUrl">Read more</a></p>
+</div>

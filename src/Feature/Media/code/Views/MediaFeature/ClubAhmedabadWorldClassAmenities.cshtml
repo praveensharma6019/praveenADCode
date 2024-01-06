@@ -1,0 +1,45 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var bgimg = Sitecore.Context.Database.GetItem(paramid["background-image"]);
+}
+
+
+
+
+
+<section class="section-container section " data-hash="d">
+    <div class="bg-images">
+        @Html.Sitecore().ImageField(Templates.HasBannerSelectorclubahmd.Fields.Image, bgimg)
+
+    </div>
+    <div class="container vertical-middle">
+        <h2 class="d-block position-relative txt-white txt-center txt-lg"><b>World-class amenities to</b></h2>
+        <h3 class="d-block position-relative txt-white mb-5 txt-center txt-lg">entertain yourself</h3>
+
+      
+        <div class="owl-carousel owl-theme" id="amenities">
+
+            @foreach (var img in elements.ToList())
+            {
+                var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                var style = img.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+
+                <div class="item"><img alt="The Belvedere Golf & Country Club" src="@style"><i class="txt-overlay">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, img)</i></div>
+
+
+            }
+        </div><div class="txt-center"><div class="btn-eff mx-auto mt-5"><div class="eff-4"></div><a href="gallery">Know more</a></div></div>
+    </div>
+</section>

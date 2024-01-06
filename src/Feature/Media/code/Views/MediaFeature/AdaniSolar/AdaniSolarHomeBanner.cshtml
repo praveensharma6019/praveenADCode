@@ -1,0 +1,75 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants();
+
+    <div class="mainSlider z-index bg-gray">
+        @if (itemList != null)
+        {
+
+            var mobile = Sitecore.Context.Database.GetItem("{13C99B3C-B90A-4D09-B49E-C97F934E0939}");
+            var list = mobile.Axes.GetDescendants();
+            <div class="owl-carousel owl-theme homeslider mobileslider" data-click-state="0">
+                @foreach (var item in list)
+                {
+                    if (item.Fields["SubTitle"].Value == "videosrc")
+                    {
+                        <div class="item" data-videosrc="@item.LinkFieldUrl(Templates.HasMedia.Fields.Link)">
+                            @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)
+                            @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item)
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="item">
+                            @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)
+                            @if (item.Fields["SubTitle"].Value == "onlybanner")
+                            {
+                                <div class="bg-images">
+                                    @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item)
+                                </div>
+                            }
+                        </div>
+                    }
+
+                }
+            </div>
+
+
+            <div class="owl-carousel owl-theme homeslider desktopslider">
+                @foreach (var item in itemList)
+                {
+                    if (item.Fields["SubTitle"].Value == "videosrc")
+                    {
+
+                        <div class="item" data-videosrc="@item.LinkFieldUrl(Templates.HasMedia.Fields.Link)">
+                            @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)
+                            @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item)
+                        </div>
+                    }
+                }
+            </div>
+
+        }
+        <div class="container position-relative">
+            <div class="scroll-down">
+                <a href="#business-stats">
+                    <span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+}

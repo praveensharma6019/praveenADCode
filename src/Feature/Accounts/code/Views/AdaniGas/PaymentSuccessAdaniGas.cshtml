@@ -1,0 +1,242 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model  Sitecore.Feature.Accounts.Models.PayOnline
+
+@if (Model != null && !string.IsNullOrEmpty(Model.TransactionId))
+{
+
+    if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+    {
+        <div class="form-group row">
+            <input id="submit_message" type="hidden" value="@Session["Message"].ToString()" />
+        </div>
+    }
+    <div class="pageContent">
+        <div class="container">
+            <div class="panel dvContents" id="dvContents">
+                <div class="payLogoBox"><img src="/-/media/Project/AdaniGas/Logos/AdaniGaslogo.png?h=42&amp;la=en&amp;w=188&amp;hash=792BCB4E17A1624535B214D0F092E7A3"></div>
+                @if (!string.IsNullOrEmpty(Model.ResponseStatus) && Model.ResponseStatus == "Failure")
+                {
+                    <h5 class="pt-3">Your payment has failed</h5>
+                }
+                else
+                {
+                    <h5 class="pt-3">Thanks for your payment</h5>
+                }
+                <p>Please find below details for your payment reference</p>
+                <br />
+                <h5 class="txt-orange">Your Billing Details</h5>
+                <div class="py-3"></div>
+                @if (Model.PaymentType == "Name Transfer")
+                {
+                    if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                    {
+                        <div class="form-group row">
+                            <label style="font-weight: bold;">@Session["Message"].ToString()</label>
+                            @*<input id="submit_message_Name_Transfer" type="hidden" value="@Session["Message"].ToString()" />*@
+                        </div>
+                    }
+                    <div class="form-group row">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/RequestNumber", "Request Number")</label>
+                        <div class="col-sm-8 col-lg-6">
+                            <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.NameTransferRequestNumber" style="font-weight: bold;">
+                        </div>
+                    </div>
+                }
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/TransactionNumber", "Transaction Number")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.TransactionId">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/OrderNumber", "Order Number")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.OrderId">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/AdaniGas/Global/Dictionary/PayOnline/Account/CustomerId", "Customer Id")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.CustomerID">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/AdaniGas/Global/Dictionary/PayOnline/Account/CustomerName", "Customer Name")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.CustomerName">
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/Amount", "Amount")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.Amount">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/Transaction Date Label", "Transaction Date")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.TransactionDate">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/PaymentStatus", "Payment Status")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        @if (!string.IsNullOrEmpty(Model.ResponseStatus) && Model.ResponseStatus == "Failure")
+                        {
+                            <input type="text" readonly="" class="form-control-plaintext" id="" value="@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/PaymentFailureText", "Failure")">
+                        }
+                        else
+                        {
+                            <input type="text" readonly="" class="form-control-plaintext" id="" value="@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/PaymentSuccessText", "SUCCESS")">
+                        }
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="">
+                @if (Model.PaymentType == "Name Transfer")
+                {
+                    if (ViewBag.IsUserLoggedIn != null && ViewBag.IsUserLoggedIn == true)
+                    {
+                        <div class="form-group row">
+                            @{
+                                var billingPaymentURL = Html.Sitecore().Dictionary("/sitecore/content/AdaniGas/Global/Dictionary/PayOnline/Account/Redirect URL", "/myaccount/billing-and-payment/pay-online");
+                                string currentURL = System.Web.HttpContext.Current.Request.Url.AbsolutePath.ToString().ToLower();
+                                var temp = currentURL.Replace(currentURL, billingPaymentURL);
+                            }
+                            <div class="col-sm-8 col-lg-6">
+                                @*<a class="btn btn-primary" href="@billingPaymentURL">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Another Payment")</a>*@
+                                <a href="/name-transfer-status-login" class="btn btn-primary">Check Status</a>
+                                <input type="button" class="btn btn-primary" value="@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/prin", "Print this page")" onclick="PrintDiv()" />
+                                <a class="btn btn-primary" href="/myaccount/png-dashboard">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Closebutton", "Close")</a>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group row">
+                            @{
+                                var billingPaymentURL = Html.Sitecore().Dictionary("/sitecore/content/AdaniGas/Global/Dictionary/PayOnline/Account/Quick Redirect URL", "/myaccount/quick-bill-pay");
+                                string currentURL = System.Web.HttpContext.Current.Request.Url.AbsolutePath.ToString().ToLower();
+                                var temp1 = currentURL.Replace(currentURL, billingPaymentURL);
+                            }
+                            <div class="col-sm-8 col-lg-6">
+                                @*<a class="btn btn-primary" href="@temp1">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Another Payment")</a>*@
+                                <a href="/name-transfer-status-login" class="btn btn-primary">Check Status</a>
+                                <input type="button" class="btn btn-primary" value="@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/prin", "Print this page")" onclick="PrintDiv()" />
+
+                            </div>
+                        </div>
+
+                    }
+                }
+                else
+                {
+                    if (ViewBag.IsUserLoggedIn != null && ViewBag.IsUserLoggedIn == true)
+                    {
+                        <div class="form-group row">
+                            @{
+                                var billingPaymentURL = Html.Sitecore().Dictionary("/sitecore/content/AdaniGas/Global/Dictionary/PayOnline/Account/Redirect URL", "/myaccount/billing-and-payment/pay-online");
+                                string currentURL = System.Web.HttpContext.Current.Request.Url.AbsolutePath.ToString().ToLower();
+                                var temp = currentURL.Replace(currentURL, billingPaymentURL);
+                            }
+                            <div class="col-sm-8 col-lg-6">
+                                <a class="btn btn-primary" href="@billingPaymentURL">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Another Payment")</a>
+                                <input type="button" class="btn btn-primary" value="@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/prin", "Print this page")" onclick="PrintDiv()" />
+                                <a class="btn btn-primary" href="/myaccount/png-dashboard">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Closebutton", "Close")</a>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group row">
+                            @{
+                                var billingPaymentURL = Html.Sitecore().Dictionary("/sitecore/content/AdaniGas/Global/Dictionary/PayOnline/Account/Quick Redirect URL", "/myaccount/quick-bill-pay");
+                                string currentURL = System.Web.HttpContext.Current.Request.Url.AbsolutePath.ToString().ToLower();
+                                var temp1 = currentURL.Replace(currentURL, billingPaymentURL);
+                            }
+                            <div class="col-sm-8 col-lg-6">
+                                <a class="btn btn-primary" href="@temp1">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Another Payment")</a>
+                                <input type="button" class="btn btn-primary" value="@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/prin", "Print this page")" onclick="PrintDiv()" />
+
+                            </div>
+                        </div>
+
+                    }
+                }
+
+            </div>
+
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="pageContent">
+        <div class="container">
+            <div class="panel">
+                <h5 class="pt-3">Thanks for your payment</h5>
+                <br />
+                <h5 class="txt-orange">There is some technically difficulty. Please contact customer care for more information</h5>
+            </div>
+        </div>
+    </div>
+}
+
+<div id="submit_message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                            <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    function PrintDiv() {
+        var divContents = document.getElementById("dvContents").innerHTML;
+        var printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<html><head><link href="/styles/Electricity/bootstrap.min.css" rel="stylesheet" /><link href="/styles/Electricity/adani-electricity.css" rel="stylesheet" /><title>Adani Gas Payment Receipt</title>');
+        printWindow.document.write('</head><body >');
+        printWindow.document.write(divContents);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(function () {
+            printWindow.print();
+            printWindow.close();
+        }, 2000);
+    }
+
+
+</script>

@@ -1,0 +1,74 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{
+    var documentList = new List<Sitecore.Feature.Accounts.NEWCON_DOCUMENTMASTER>
+    ();
+    if (Model.DocumentList != null && Model.DocumentList.Count > 0)
+    {
+    documentList = Model.DocumentList.FindAll(d => d.DOCTY.Trim() != "PH" && d.DOCTY.Trim() != "OD" && d.DOCTY.Trim() != "ID" && d.DOCTY.Trim() != "ID2");
+    documentList.Sort((cv1, cv2) => cv1.DESCRIPTION.CompareTo(cv2.DESCRIPTION));
+    Model.SNO = 1;
+    }
+    }
+    <div class="bg-white p-3">
+        <label>Other Documents<span class="required">*</span></label>
+    </div>
+    <input type="hidden" value="Any one Identity Document" id="manddocname_ID" />
+    <div class="table-responsive my-3">
+        <table class="table table-bordered mb-0 txt-sm">
+            <thead class="bg-white">
+                <tr>
+                    <th valign="middle" style="min-width: 80px;">Sr. No</th>
+                    <th valign="middle" style="min-width: 250px;">Document Type</th>
+                    <th valign="middle" style="min-width: 300px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Photo Document-->
+                @Html.Partial("~/Views/AEMLNewConnection/Partial/_PhotoDocument.cshtml", Model)
+                @if (documentList != null && documentList.Count > 0)
+                {
+                foreach (var doc in documentList)
+                {
+                var obj = Model.GetExistingDocuments.Find(cv => cv.DocumentTypeCode.Contains("OD".ToString()) && cv.DocumentType == doc.DOCID.ToString());
+                <tr>
+                    <td>
+                        @Model.SNO
+                        <input type="hidden" name="HDNOTHERDOCUMENTFILEID_@doc.DOCID" id="HDNOTHERDOCUMENTFILEID_@doc.DOCID" value="@(obj!=null?obj.Id.ToString():" ")" />
+                    </td>
+                    <td>
+                        <div class="row no-gutters">
+                            <div class="col-10">
+                                @doc.DESCRIPTION
+                            </div>
+                            <div class="col-2">
+                                <span class="required ml-2">*</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group mb-0">
+                            <input type="hidden" name="HDNOTHERDOCUMENTFILE_@doc.DOCID" id="HDNOTHERDOCUMENTFILE_@doc.DOCID" value="@(obj!=null?obj.DocumentType:" ")" />
+                            <input type="file" id="OTHERDOCUMENTFILE_@doc.DOCID" name="OTHERDOCUMENTFILE_@doc.DOCID" onchange="ValidateFile(this);" class="form-control cou" />
+                            @if (obj != null)
+                            {
+                            <div class="d-block mt-2">
+                                <a class="txt-orange otherdocumentfile_@doc.DOCID" href="@Url.Action(" DownloadFile", new { id=obj.Id })">
+                                    <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                </a>
+                            </div>
+                            }
+                        </div>
+                    </td>
+                </tr>
+                Model.SNO = Model.SNO + 1;
+                }
+                }
+            </tbody>
+        </table>
+    </div>

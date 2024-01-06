@@ -1,0 +1,89 @@
+﻿@using Sitecore.Feature.FAQ
+@using Sitecore.Feature.FAQ.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+@using Sitecore.Data.Items;
+
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+    //Cast to a Sitecore item
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)element;
+
+
+    //Read the Multifield List
+    Sitecore.Data.Fields.MultilistField Multiitemslist = myItem != null ? myItem.Fields["FAQList"] : null;
+
+    Sitecore.Data.Items.Item[] itemsList = Multiitemslist != null ? Multiitemslist.GetItems() : null;
+    var x = 0;
+}
+
+<div class="ev-pedia-outer">
+    <div class="ev-pedia">
+        <div class="container">
+            <div class="banner-content">
+                <figure>
+                    <img src="/electricity_assets/images/ev-pedia.svg" />
+                </figure>
+                <div class="content">
+                    <h5>#EVPedia</h5>
+                    <p>Don’t get confused with <br /> all kinds of answers</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (myItem != null)
+{
+    <div class="faq-outer">
+        <div class="container">
+            <div class="faq">
+                <div class="custom_accrdion single-item">
+                    <header class="section-header-main justify-item">
+                        <h2>FAQ</h2>
+                        @Html.Raw(Html.Sitecore().Field(Templates.FaqDetails.Fields.Title, myItem).ToString())
+                    </header>
+                    @if (Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString() != string.Empty)
+                    {
+                        @Html.Raw(Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString())
+                    }
+                    <div class="accordion">
+                        <ul class="collapsible collapsible-accordion">
+                            @if (itemsList != null)
+                            {
+                                foreach (var item in itemsList)
+                                {
+                                    <li>
+                                        <div class="collapsible-header">
+                                            @Html.Sitecore().Field(Templates.Faq.Fields.Question, item)
+                                        </div>
+                                        <div class="collapsible-body">
+                                            @Html.Sitecore().Field(Templates.Faq.Fields.Answer, item)
+                                        </div>
+                                    </li>
+
+                                }
+                            }
+                        </ul>
+                        @*@{
+                                Sitecore.Data.Items.Item home = Sitecore.Context.Database.GetItem("{1E9F3E3D-D6B0-4AE1-A7E6-D1BB2C619E71}");
+
+                                if (Sitecore.Context.Item.ID == home.ID)
+                                {
+                                    Sitecore.Data.Items.Item faqPageItem = Sitecore.Context.Database.GetItem("{47BF04C3-914E-440A-8969-2419001C6378}");
+                                    string faqsPageUrl = faqPageItem != null ? Sitecore.Links.LinkManager.GetItemUrl(faqPageItem) : "/HelpAndSupport/Faqs";
+                                    <a href="@faqsPageUrl" class="link-btn accordion-more">See All</a>
+                                }
+                            }*@
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

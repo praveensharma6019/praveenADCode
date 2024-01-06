@@ -1,0 +1,121 @@
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Website.Helper
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);<!--Map Section-->
+}
+
+
+<section class="map-section position-relative d-none d-lg-block" id="businesssection">
+    <div class="map-above-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-2">
+                        <h2 class="mb-1 border-l pl-4">Businesses</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 map-box-main">
+                    <div class="row">
+                        <div class="col-lg-6 mt-2"><h2 class="selectState mb-2"></h2></div>
+                        <div class="col-lg-6 text-right mt-2"><a onclick="filterMap('allplants')" class="btn mb-2 resetMap" style="display: none;">X</a></div>
+                        <div class="col-sm-12 map-box bg-light-b allplants d-none mb-2 py-2 d-block">
+                            <h3>@Html.Sitecore().Field("Plant Name 1",element)</h3>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <p>@Html.Sitecore().Field("Plant Value 1",element)<span>@Html.Sitecore().Field("Plant Text 1",element)</span></p>
+                                </div>
+                             
+                            </div>
+                        </div>
+                        @foreach (Item location in element.GetChildren())
+                        {
+                            var BusinessPlace = location.Fields["Text"].Value;
+
+
+                            if (location.HasChildren)
+                            {
+
+                                foreach (Item items in location.GetChildren())
+                                {
+                                    var PlantTypes = items.Fields["PlantType"].Value;
+                                    var PlantNames = items.Fields["InOperationText"].Value;
+                                    var PlantValues = items.Fields["InOperationValue"].Value;
+                                    var ReadMoreLinks = items.Fields["ReadMoreLink"].Value;
+                                    <div class="col-sm-12 map-box mb-2 py-2 bg-light-b d-none @BusinessPlace">
+                                        <h3>@PlantTypes</h3>
+
+                                        <!--calculate sum according to location-->
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p>@PlantValues<span>@PlantNames</span></p>
+                                            </div>
+                                        </div>
+                                        @if (ReadMoreLinks != null)
+                                        {
+                                            <p class="text-right homemapfilter "><a href="@ReadMoreLinks" class="SolarfilterReadMore d-none">Read More</a></p>
+                                        }
+
+                                    </div>
+                                }
+                            }
+                        }
+                        <div class="col-sm-12 map-box allplants d-none mb-2 py-2 bg-light-g d-block">
+                           <h3>@Html.Sitecore().Field("Plant Name 2",element)</h3>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <p>@Html.Sitecore().Field("Plant Value 2",element)<span>@Html.Sitecore().Field("Plant Text 3",element)</span></p>
+                                </div>
+                             
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-sm-12 p-0"><p class="position-relative z-index txt-xs">Click on the state to know more</p></div>
+            </div>
+        </div>
+    </div>
+    <div class="map">
+        <div class="bg-images">
+            <img alt="" src="-/media/BB6AD37E73F44813A2CF1295B140A07B.ashx" class="img-fluid w-100 h-100">
+        </div>
+        <ul class="map-markers solarproject map-dots" id="solarproject">
+            @foreach (Item locations in element.GetChildren())
+            {
+                var BusinessPlaces = locations.Fields["Text"].Value;
+
+                <li onclick="filterMap('@BusinessPlaces')" class="map-marker map-marker-@BusinessPlaces ports-terminal">
+                    <a onclick="filterMap('@BusinessPlaces')">@BusinessPlaces</a>
+                    <div class="map-marker-info">
+                        <div class="map-marker-info-inner animate-bounce-in">
+                            <header>
+                                <h2>@BusinessPlaces<span class="d-block"></span></h2>
+                            </header>
+                            <main>
+                                <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+                                <p>Module: Polycrystaline</p>
+                                <p>Inverter : String</p>
+                            </main>
+                        </div>
+                    </div>
+                </li>
+            }
+
+        </ul>
+        <ul class="map-markers windproject map-dots" id="windproject"></ul>
+        <ul class="map-markers solar&amp;windproject map-dots" id="solar&amp;windproject"></ul>
+    </div>
+
+</section>
+

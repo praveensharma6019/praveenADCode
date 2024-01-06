@@ -1,0 +1,83 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc.Presentation
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+
+    var currentPage = Sitecore.Context.Item;
+
+
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+
+    Sitecore.Data.Items.Item dataSource = Sitecore.Context.Database.GetItem(dataSourceId);
+
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectField = dataSource.Fields[Templates.AdaniServices.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+}
+@if (dataSource != null)
+{
+    <section class="section-container">
+        <header class="section-header-main">
+            <h2>@dataSource["Title"]</h2>
+			 <aside>
+             
+            <div class="carousel-nav hide-on-small-only"></div>
+        </aside>
+        </header>
+        <section class="services">
+            @foreach (var item in items)
+            {
+
+                var title = item.Fields["Title"].Value;
+                Sitecore.Data.Fields.LinkField linkfld = item.Fields["CTALink"];
+
+                Sitecore.Data.Fields.LinkField LoggedOutlinkfld = item.Fields["LoggedOutLink"];
+                if (Elemodel != null)
+                {
+                    linkfld = item.Fields["CTALink"];
+                }
+                else if (LoggedOutlinkfld != null && !string.IsNullOrEmpty(LoggedOutlinkfld.GetFriendlyUrl()))
+                {
+                    linkfld = item.Fields["LoggedOutLink"];
+                }
+                var url = linkfld.GetFriendlyUrl();
+                var icon = item.Fields["IconCss"].Value;
+                <a href="@url"
+                   data-gaevent="our_services"
+                   data-gaeventCategory="Home Page"
+                   data-gaeventAction="our_services"
+                   data-gaeventLabel="@title">
+                    @if (!string.IsNullOrEmpty(icon))
+                    {
+                        <figure> <div class="waves-effect"><i class="@icon"></i></div></figure>
+                    }
+                    @if (!string.IsNullOrEmpty(title))
+                    {
+                        <h3>@title</h3>
+                    }
+
+                </a>
+
+            }
+        </section>
+
+    </section>
+}
+
+
+@*<div class="alert">
+        @Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/TotalBills", "Total Bills")
+        <aside><i>icon</i> <label>Alerts</label></aside>
+        <p>For Electricity Duty exemption / refund Application, please check https://www.maharashtra.gov.in (Notification No 201906211139336010)</p>
+    </div>*@

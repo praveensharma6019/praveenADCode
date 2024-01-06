@@ -1,0 +1,91 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var models = Sitecore.Context.Item;
+    var childItems = models.Axes.GetDescendants().Where(x => x.TemplateID == Templates.CommercialProperty.ID);
+}
+@if (models != null)
+{
+    <!-- Top Property -->
+    <section class="bg-white top-property pt-4">
+        <div class="container">
+            <h3 class="text-center sectionHeading">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, models)</h3>
+            <p class="col-sm-9 txt-center mr-auto ml-auto">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Body, models)</p>
+        </div>
+    </section>
+}
+@if (childItems != null)
+{
+
+    int i = 1;
+
+    foreach (var item in childItems)
+    {
+        var URLLink = string.Empty;
+        var target = string.Empty;
+        target = item.Fields[Templates.Navigable.Fields.ShowInNewTab].IsChecked() ? "_blank" : "";
+        if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+        {
+            URLLink = item.LinkFieldUrl(Templates.Navigable.Fields.Link).ToString();
+        }
+        else
+        {
+            URLLink = item.Url();
+        }
+        if (i % 2 == 0)
+        {
+            <section class="bg-white top-property py-@i">
+                <div class="container">
+                    <p class="py-3 overlay-p"></p>
+                    <div class="row bg-gray">
+                        <div class="col-lg-6 p-0 txt-right commercialtile-@i order">
+                            <i> @Html.Sitecore().Field(Templates.CommercialProperty.Fields.SiteStatus, item)</i>
+                            @Html.Sitecore().Field(Templates.HasPageContent.Fields.Image, item, new { @class = "img-fluid fluid-img" })
+                        </div>
+                        <div class="col-lg-6 txt-center pt-4 pb-4">
+                            @Html.Sitecore().Field(Templates.CommercialProperty.Fields.Logo, item)
+                            <p class="txt-sm txt-left pl-1">
+                                @Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, item)
+                            </p>
+                            <ul class="txt-left py-4 txt-sm ul-bullets">
+                                @Html.Sitecore().Field(Templates.HasPageContent.Fields.Body, item)
+                            </ul>
+                            <p class="txt-left pt-2">
+                            <a href="@URLLink" target="@target" class="btn btn-contact">Explore more</a></p>
+                        </div>
+                    </div>
+                    <p class="py-3 overlay-p"></p>
+                </div>
+            </section>
+        }
+        else
+        {
+            <section class="bg-white top-property section">
+                <div class="container">
+                    <p class="py-3 overlay-p"></p>
+                    <div class="row bg-gray">
+                        <div class="col-lg-6 txt-center pt-4 pb-4">
+                            @Html.Sitecore().Field(Templates.CommercialProperty.Fields.Logo, item)
+                            <p class="txt-sm txt-left pl-1">
+                                @Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, item)
+                            </p>
+                            <ul class="txt-left py-4 txt-sm ul-bullets">
+                                @Html.Sitecore().Field(Templates.HasPageContent.Fields.Body, item)
+                            </ul>
+                            <p class="txt-left pt-2">
+                            <a href="@URLLink" target="@target" class="btn btn-contact">Explore more</a></p>
+                        </div>
+                        <div class="col-lg-6 p-0 txt-right commercialtile">
+                            <i> @Html.Sitecore().Field(Templates.CommercialProperty.Fields.SiteStatus, item)</i>
+                            @Html.Sitecore().Field(Templates.HasPageContent.Fields.Image, item, new { @class = "img-fluid fluid-img" })
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
+        i++;
+    }
+}
+<!-- /Top Property -->

@@ -1,0 +1,38 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants();
+    <section class="bg-gray py-4 z-index position-relative" data-aos="fade-up">
+        <div class="container">
+            <h3 class="text-center sectionHeading">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h3>
+            <div class="owl-carousel owl-theme" id="other-ventures">
+                @foreach (var item in itemList)
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = item.Fields["MediaLink"];
+                    var link = linkvalue.GetFriendlyUrl();
+
+                    <div class="item">
+                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMedia.Fields.Thumbnail, item, cssClass: "img-fluid")
+                        <h5>
+                            <a href="@link" target="_blank">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</a>
+                        </h5>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

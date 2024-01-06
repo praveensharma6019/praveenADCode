@@ -1,0 +1,36 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCare.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var NavigateUrl = "";
+    var NavigateUrls = "";
+}
+
+<section>
+    <div class="owl-carousel hero-banner">
+        @foreach (var item in elements.Children.ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkFields = item.Fields["MediaLink"];
+            NavigateUrls = linkFields.GetFriendlyUrl();
+            var field = Templates.HasMediaImage.Fields.Image;
+            var fieldMob = Templates.HasMedia.Fields.Thumbnail;
+            var style = item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+            var styleMob = item.ImageUrl(fieldMob, new MediaUrlOptions()).ToCssUrlValue();
+            <div class="item">
+                <picture>
+                    <source srcset="@style" media="(min-width:540px)">
+                    <source srcset="@styleMob" media="(min-width:0)">
+                    <img srcset="@style" src="images/AdaniCare/AEML-VDS-Banner.jpg" alt="">
+                </picture>
+            </div>
+        }
+    </div>
+</section>

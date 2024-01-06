@@ -1,0 +1,37 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates._HasMedia.FolderIdForComInnerFeatures) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates._HasMedia.FolderIdForComInnerFeatures), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var featurelist = models.Axes.GetDescendants().Where(x => x.TemplateID == Templates._HasMedia.ID).ToList();
+}
+
+<div class="overlaycontent mobile-none">
+    <div class="container">
+        @if (featurelist != null)
+        {
+            <div class="row">
+                @foreach (var item in featurelist)
+                {
+                    <div class="col-sm-3 txt-center">
+                        <div class="p-2">
+                            @Html.Sitecore().Field(Templates._HasMedia.Fields.Thumbnail, item)
+                            @Html.Sitecore().Field(Templates._HasMedia.Fields.Description, item)
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

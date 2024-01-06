@@ -1,0 +1,87 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.EMIProcess
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmeEMiProcess" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <div class="pageContent">
+        <div class="container">
+            <div class="">
+                <div class="row">
+                    @if (Model.IsEMIEligible)
+                    {
+                        <div class="col-lg-12 ml-auto">
+                            <div class="modal-popup__content">
+                                @*<p class="txt-orange mb-3 txt-md">Dear Customer</p>*@
+                                <p class="mb-2"><b>Dear Customer,</b>:</p>
+                                <p class="mb-2">With reference to Maharashtra Electricity Regulatory Commission's practice directions dated 29-Jun, you are eligible for paying your outstanding  bill amount via 3 EMIs.</p>
+                                <p class="mb-2">Please enrol by submitting the form below:</p>
+                                <p class="mb-2"><b>Note and Conditions:</b>:</p>
+                                <ul class="txt-sm ul-bullets pl-4" style="">
+                                    <li class="mb-3" style="list-style-type: disc;">This is a voluntary payment option.</li>
+                                    <li class="mb-3" style="list-style-type: disc;">Interest-free applicability is for timely instalment payments. Delayed instalment payments will invite applicable charges and interest.</li>
+                                    <li class="mb-3" style="list-style-type: disc;">EMI for current outstanding and subsequent current bill amounts will need to be cleared within due date of the upcoming billing cycle.</li>
+                                    <li class="mb-3" style="list-style-type: disc;">For detailed explanation on billing calculation, please refer your online bill copy via My Account or Elektra on adanielectricity.com.</li>
+                                </ul>
+
+                                <p class="mb-2"><b>Enrol for EMI:</b>:</p>
+                                <div class="form-group">
+                                    <label for="">@Html.Sitecore().Dictionary("/EMI/AccountNumber", "Your Account Number")</label>
+                                    @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "CANumber", @readonly = "readonly" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="">@Html.Sitecore().Dictionary("/EMI/Consumer Name", "Consumer Name")</label>
+                                    @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control reset-control", id = "ConsumerName", @readonly = "readonly" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="">@Html.Sitecore().Dictionary("/EMI/Outstanding Amount", "Outstanding Amount")</label>
+                                    @Html.TextBoxFor(x => x.OutstandingAmount, new { @class = "form-control reset-control", id = "OutstandingAmount", @readonly = "readonly" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="">@Html.Sitecore().Dictionary("/EMI/EMI Amount", "EMI Amount Rs.")</label>
+                                    @Html.TextBoxFor(x => x.EMIInstallmentAmount, new { @class = "form-control reset-control", id = "EMIInstallmentAmount", @readonly = "readonly" })
+                                </div>
+                                <div class="form-group text-left mb-0">
+                                    @Html.CheckBoxFor(x => x.ProceedWithEMI, new { @class = "form-check-input ml-0", required = "required" })
+                                    <label class="form-check-label ml-4 mb-3" for="gridCheck2">
+                                        @Html.Sitecore().Dictionary("/EMI/ProceedWithEMI", "I hereby agree to the above conditions and request to convert by current outstanding amount to 3 EMIs")
+                                    </label>
+                                </div>
+                                <div class="form-group text-right mb-0">
+                                    <input type="submit" class="btn btn-primary" name="Submit" value="@Html.Sitecore().Dictionary("/EMI/Submit", "Submit")" />
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @*<div class="col-lg-12 ml-auto">
+                            <div class="modal-popup__content">
+                                <p class="txt-orange mb-3 txt-md">@Model.Result</p>
+                            </div>
+                        </div>*@
+                        <div class="row align-items-center">
+                            <div class="col-md-6 col-lg-5 col-xl-6 order2">
+                                <div class="banner-404-txt">
+                                    <h2 class="txt-orange py-3">@Model.Result</h2>
+                                    <h3>For any further queries please write us at <a href="mailto:helpdesk.mumbaielectricity@adani.com">helpdesk.mumbaielectricity@adani.com</a></h3>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-5 col-xl-6"><img alt="" src="-/media/4A0CDF2170C044CEBCD946A9B1F6619B.ashx"></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+}

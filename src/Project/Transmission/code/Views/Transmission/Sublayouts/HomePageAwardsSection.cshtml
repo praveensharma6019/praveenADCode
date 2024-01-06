@@ -1,0 +1,43 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Links;
+@using Sitecore.Foundation.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Collections
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+}
+
+
+
+<div class="col-lg-6 my-2">
+
+    <div class="owl-carousel owl-theme case-study h-100">
+        @foreach (Item folders in element.GetChildren())
+        {
+            var imgurl = Helper.ImageUrl("Image", folders);
+            string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(folders);
+            <div class="item h-100">
+                <div class="blog-block h-100 p-4">
+                    <a href="@linkUrl">
+                        <div class="bg-images">
+                            <img src="@imgurl" class="img-fluid">
+                        </div>
+                        <div class="h-100">
+
+                            <h3>@folders.Fields["Title"]</h3>
+                            @if (element.GetChildren() != null)
+                            {
+                                var sortedItem = element.GetChildren().OrderByDescending(x => x.Fields["Date"].Value).ToList();
+
+                                <p>@sortedItem[0].Fields["Title"]</p>
+                            }
+                        </div>
+                    </a>
+                </div>
+            </div>
+        }
+
+    </div>

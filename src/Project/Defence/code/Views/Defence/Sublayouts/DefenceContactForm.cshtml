@@ -1,0 +1,93 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Defence.Website
+@model Sitecore.Defence.Website.Models.DefenceContactModel
+@{
+    // var id = Sitecore.Context.Database.GetItem("about-us").Url();
+    //  var id = "about-us";
+    //  string RedirectUrl = Request.Url.Scheme + "://" + Request.Url.Host;
+    //  var pagename = Sitecore.Links.LinkManager.GetItemUrl(Sitecore.Context.Item);
+    var msgTpye = Sitecore.Context.Database.GetItem("{DC57D9CE-13D1-4D9D-A5C8-F980B14ABEE9}");
+
+
+    string disp = "";
+    disp = "display: none;";
+
+
+}
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "contact_form", name = "contact_form", @class = "px-4 py-4", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+    @Html.HiddenFor(m => m.FormName, new { @Value = HttpContext.Current.Request.Url.AbsolutePath })
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="form-group">
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control", required = "required", placeholder = "Name", id = "cname" })
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "help-block" }, "p")
+
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="form-group">
+            @Html.TextBoxFor(model => model.EmailID, new { @class = "form-control", type = "email", required = "required", placeholder = "Email", id = "cmailid" })
+            @Html.ValidationMessageFor(model => model.EmailID, "", new { @class = "help-block" }, "p")
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="form-group">
+            <select class="form-control" id="cmessageType" name="MessageType">
+                <option value="">Subject of Message</option>
+                @foreach (var itemMessage in msgTpye.Children.ToArray())
+                {
+                    var getMessage = Html.Sitecore().Field("SubjectName", itemMessage);
+                    <option value="@getMessage">@getMessage</option>
+
+                }
+            </select>
+
+
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6" style="@disp" id="ResumeAttached">
+
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="ResumeAttachment" required="" name="ResumeAttachment">
+            <label class="custom-file-label" for="">Upload resume</label>
+            <div class="invalid-feedback">Example invalid custom file feedback</div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="form-group">
+            @Html.TextBoxFor(model => model.MobileNo, new { @class = "form-control", id = "ccontactno", type = "number", required = "required", placeholder = "Contact Number", maxlength = 10 })
+
+            @Html.ValidationMessageFor(model => model.MobileNo, "", new { @class = "help-block" }, "p")
+
+        </div>
+    </div>
+    <div class="col-md-12 mb-3">
+        <div class="form-group">
+            @Html.TextAreaFor(model => model.Message, new { @class = "form-control", id = "cmessage", rows = "3", required = "required", placeholder = "Message" })
+
+        </div>
+    </div>
+    <div class="form-group ml-4">
+        <p class="txt-orange" id="docErrorMessage">@ViewBag.Message</p>
+    </div>
+    <div class="col-md-4 mb-3">
+
+        <div id="recaptcha1">
+
+        </div>
+        @Html.HiddenFor(model => model.reResponse, new { id = "reResponse" })
+        @Html.ValidationMessageFor(model => model.reResponse, "", new { @class = "help-block" }, "p")
+
+    </div>
+    <div class="col-md-12 mb-3 text-right">
+        <p><button type="submit" id="btnsubmit" name="SubmitApplication" value="submit" class="btn btn-primary">Submit</button></p>
+    </div>
+</div>
+
+}

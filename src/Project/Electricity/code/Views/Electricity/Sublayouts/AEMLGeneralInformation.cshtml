@@ -1,0 +1,136 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields;
+@using Sitecore.Links;
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+<div class="contentSection myAccountPage" style="margin-bottom:-2rem;">
+    <!-- Banner -->
+    <div class="mainBanner myAccountBanner">
+        <div class=""></div>
+        <div class="">
+            <div class="container position-relative pt-5" style="z-index: 9;">
+                <div class="accServicesOuter">
+                    <h2 class="txt-orange">How to apply</h2>
+                </div>
+            </div>
+        </div>
+        <div class="bannerCnt d-lg-block d-none">
+            <div class="container">
+                <div class="row align-items-start">
+
+                    <div class="col-lg-9 col-xl-9 order-lg-1 order-2">
+                        <div class="accServicesOuter">
+                            <div class="accountServices ">
+                                <p>Information about everything you need to make an Application</p>
+                                <div class="row nohover general_info">
+                                    @foreach (Item linkitem in element.GetChildren())
+                                    {
+                                        <div class="col-4 accSerItem">
+                                            <div class="accSerTile">
+                                                <div class="iconBox">
+                                                    @Html.Sitecore().ImageFieldWithoutSize(Sitecore.Data.ID.Parse("{ECC76733-D0D9-48D6-B55E-293FE5B13EA6}"), linkitem, 0, 0, "")
+                                                </div>
+                                                @if (linkitem.Fields["{719E9180-72AB-4592-BE8B-B24A3F28554C}"] != null)
+                                                {
+                                                    LinkField lf = linkitem.Fields["{719E9180-72AB-4592-BE8B-B24A3F28554C}"];
+                                                    if (lf.LinkType == "internal")
+                                                    {
+                                                        var url = (lf.TargetItem != null ? LinkManager.GetItemUrl(lf.TargetItem) : string.Empty);
+                                                        <a href="@url" class="accService">@linkitem.Fields["ShortDescription"]</a>
+                                                    }
+                                                    else if (lf.LinkType == "media")
+                                                    {
+                                                        var url = (lf.TargetItem != null ? MediaManager.GetMediaUrl(lf.TargetItem) : string.Empty);
+                                                        <a href="@url" target="_blank" class="accService">@linkitem.Fields["ShortDescription"]</a>
+                                                    }
+                                                    else if (lf.LinkType == "external")
+                                                    {
+                                                        var url = lf.Url;
+                                                        <a href="@url" target="_blank" class="accService">@linkitem.Fields["ShortDescription"]</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        var url = (lf.LinkType == "javascript" ? lf.Url : lf.Url);
+                                                        <a href="@url" class="accService">@linkitem.Fields["ShortDescription"]</a>
+                                                    }
+                                                    @Html.Sitecore().Field("TagLine", linkitem)
+                                                }
+                                                else
+                                                {
+                                                    <a href="" target="_blank" style="cursor:pointer;" class="accService">@linkitem.Fields["ShortDescription"]</a>
+                                                    @Html.Sitecore().Field("TagLine", linkitem)
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+					<div class="col-lg-3 col-xl-3 order-lg-2 order-1">
+						<div class="bg-dgray new-con_box mt-3">
+                            <h2><span class="d-lg-block">Click here to</span>register and apply</h2>
+							<a href="/newconnection" class="btn btn-primary w-100">Apply Now</a>
+						</div>
+					</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- /Banner -->
+    <!-- Account Box for mobile users -->
+    <section class="section bg-pattern-light 1 d-block d-lg-none">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-sm-12">
+                    <div class="bannerCnt">
+                        <div class="container">
+                            <div class="row align-items-start">
+                                <div class="col-lg-6 col-xl-6 order-lg-1 order-2">
+                                    <div class="accServicesOuter">
+                                        <div class="accountServices">
+                                            <p>In the 'General Information & How to apply' section you can, get information about everything you need to make an application</p>
+                                            <div class="accountServices">
+                                                <div class="row nohover">
+                                                    @foreach (Item item in element.GetChildren())
+                                                    {
+                                                        <div class="col-4 accSerItem">
+                                                            <div class="accSerTile">
+                                                                <div class="iconBox">
+                                                                    @Html.Sitecore().ImageFieldWithoutSize(Sitecore.Data.ID.Parse("{ECC76733-D0D9-48D6-B55E-293FE5B13EA6}"), item, 0, 0, "")
+                                                                </div>
+                                                                @if (string.IsNullOrEmpty(Html.Sitecore().Field("{719E9180-72AB-4592-BE8B-B24A3F28554C}", item).ToString()))
+                                                                {
+                                                                    var url = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.LinkFieldUrl(item, Sitecore.Data.ID.Parse("{719E9180-72AB-4592-BE8B-B24A3F28554C}"));
+                                                                    <a href="@url" class="accService">@item.Fields["ShortDescription"]</a>
+                                                                    @Html.Sitecore().Field("TagLine", item)
+                                                                }
+                                                                else
+                                                                {
+                                                                    var url = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.LinkFieldUrl(item, Sitecore.Data.ID.Parse("{719E9180-72AB-4592-BE8B-B24A3F28554C}"));
+                                                                    <a href="@url" target="_blank" style="cursor:pointer;" class="accService">@item.Fields["ShortDescription"]</a>
+                                                                    @Html.Sitecore().Field("TagLine", item)
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /Account Box for mobile users -->
+</div>

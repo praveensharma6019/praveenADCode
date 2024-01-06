@@ -1,0 +1,61 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+                /**/
+
+
+                var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+                var model = Sitecore.Context.Database.GetItem(datasource);
+}
+
+
+<section id="intro" class="clearfix">
+    <div id="homebanner-slider" class="container-fluid d-flex">
+        @foreach (var item in model.GetChildren().ToList())
+        {
+            Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BannerImage"]);
+            string BannerImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+
+            Sitecore.Data.Fields.ImageField MobileImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["MobileImage"]);
+            string MobileImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MobileImageField.MediaItem);
+
+            Sitecore.Data.Fields.LinkField linkfld = item.Fields["ExploreLink"];
+            var url = linkfld.GetFriendlyUrl();
+
+            <div>
+                <picture>
+                    @if (!string.IsNullOrEmpty(BannerImageUrl))
+                    {
+                        <source srcset="@BannerImageUrl" media="(min-width: 960px)">
+                        <source srcset="@BannerImageUrl" media="(min-width: 767px)">
+                    }
+                    @if (!string.IsNullOrEmpty(MobileImageUrl))
+                    {
+
+                        <source srcset="@MobileImageUrl" media="(min-width: 0)">
+                        <source srcset="@MobileImageUrl" media="(min-width: 0)">
+                    }
+                    <img alt="" srcset="@BannerImageUrl" src="@BannerImageUrl">
+                </picture>
+                <div class="bannercontent">
+                    <div class="container-fluid">
+                        <div class="bannercontent_inner">
+
+                            <!--  <div><a href="@url" class="btn btn-gradient">EXPLORE</a></div>
+                        <div><a href="#">Know More <span class="fa fa-arrow-right"></span></a></div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+</section>

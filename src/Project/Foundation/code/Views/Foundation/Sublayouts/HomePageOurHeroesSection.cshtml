@@ -1,0 +1,73 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+<section>
+    <div class="container-fluid p-0">
+        <div class="owl-carousel heroesatwork">
+            @if (element != null)
+            {
+                if (element.GetChildren() != null)
+                {
+                    int i = 1;
+                    foreach (Item item in element.GetChildren())
+                    {                        
+                        <div class="item">
+                            <div class="row no-gutters">
+                                <div class="col-lg-8">
+                                    <div class="video-section h-100" data-aos="fade-right" data-toggle="modal" data-target="#exampleModal-@i">
+                                        @Html.Sitecore().ImageField("MediaThumbnail",item,0,0, "w-100 h-100")
+                                        
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">                                    
+                                    <div data-aos="fade-left" class="h-100">
+                                        <div class="bg-images">
+                                            @Html.Sitecore().ImageField("MediaImage", item)
+
+                                        </div>
+                                        <div class="heroes-content">
+                                            <div>
+                                                <h3>@Html.Sitecore().Field("MediaTitle", item)<span class="d-block">@Html.Sitecore().Field("SubTitle", item)</span></h3>
+                                                @Html.Sitecore().Field("MediaDescription", item)
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                </div>
+                            </div>
+                        </div>
+                        i++;
+                    }
+                }
+            }
+        </div>
+        <!-- Modal -->
+        @if (element.GetChildren() != null)
+        {
+            int j = 1;
+            foreach (Item item in element.GetChildren())
+            {
+                LinkField link = (LinkField)item.Fields["MediaLink"];
+                <div class="modal video fadeInUp" id="exampleModal-@j" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <div class="modal-body">
+                                <div class='embed-container'>
+                                    <iframe src='@link.GetFriendlyUrl()' frameborder='0' allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                j++;
+            }
+        }
+    </div>
+</section>

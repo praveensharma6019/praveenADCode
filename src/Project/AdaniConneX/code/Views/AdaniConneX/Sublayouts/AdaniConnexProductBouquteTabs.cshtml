@@ -1,0 +1,133 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+
+    string url = "";
+    string altText = "";
+    var i = 0;
+    var j = 0;
+    var divClass = "acc-wrp";
+    var titleClass = "acc-title hidden-desktop";
+    var tabstyle = "";
+    string sectionClass ="";
+
+    
+}
+
+@if (model != null)
+{
+    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("cssClass", model).ToString()))
+    {
+        sectionClass = model.Fields["cssClass"].ToString();
+    }
+    <div class="section-holder edge-connex-hoder @sectionClass">
+        <div class="content-wrapper">
+
+            <div class="full">
+                <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</p>
+                <p class="full d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</p>
+            </div>
+
+            @if (model.HasChildren)
+            {
+            <div class="tab-accordion-wrapper">
+                <div class="tab-title-wrp hidden-phone">
+                    <ul>
+                        @foreach (Item item in model.GetChildren())
+                        {
+                            string title = item.Fields["MediaTitle"].ToString();
+                            if (i >= 1)
+                            {
+                                <li><a title="@title.Replace(" ","_")">@Html.Sitecore().Field("MediaTitle", item)</a></li>
+                            }
+                            else
+                            {
+                                <li><a title="@title.Replace(" ","_")" class="active">@Html.Sitecore().Field("MediaTitle", item)</a></li>
+                            }
+                            i++;
+                        }
+
+                        <!-- <li><a title="dedicate_cage">Dedicated Cage</a></li> -->
+
+                    </ul>
+                </div>
+                @foreach (Item item in model.GetChildren())
+                {
+
+                    if (j >= 1)
+                    {
+                        divClass = "acc-wrp";
+                        titleClass = "acc-title hidden-desktop";
+                        tabstyle = "";
+                    }
+                    else
+                    {
+                        divClass = "acc-wrp active";
+                        titleClass = "acc-title hidden-desktop active";
+                        tabstyle = "display: block;";
+                    }
+
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                    string title = item.Fields["MediaTitle"].ToString();
+                    <div class="@divClass">
+                        <div title="@title.Replace(" ","_")" class="@titleClass">@Html.Sitecore().Field("MediaTitle", item)</div><!-- Acc title -->
+                        <div tab-content="@title.Replace(" ","_")" class="tab-acc-content" style="@tabstyle">
+                            <!-- Tab Content -->
+                            <div class="section-holder sustainability-wrapper">
+                                <div class="full">
+                                    <div class="full sustainability-content grid-wrapper">
+                                        <div class="right-col custom-col">
+                                            <div class="full movie-holder">
+                                                <div class="full image-wrapper" id="sustainabilityVideoHolder">
+                                                    <figure>
+
+                                                        @if (imgField != null && imgField.MediaItem != null)
+                                                        {
+                                                            url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                                            altText = imgField.Alt;
+                                                            <img src="@url" alt="@altText" />
+                                                        }
+
+                                                    </figure>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="left-col custom-col">
+                                            <p class="full h2 fm-asb tx-000 hidden-phone">@Html.Sitecore().Field("MediaTitle", item)</p>
+                                            <ul class="sustainability-bullet-points">
+                                                @Html.Sitecore().Field("MediaDescription", item)
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    j++;
+                }
+               
+            </div>
+
+            }
+
+           
+
+        </div>
+    </div>
+}

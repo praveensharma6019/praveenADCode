@@ -1,0 +1,66 @@
+﻿@using Sitecore
+@using Sitecore.Mvc
+@using Sitecore.Data.Fields;
+@using System.Globalization;
+@model Sitecore.Marathon.Website.Models.RegistrationModel
+@{
+    Boolean status;
+    var couponTitle = "";
+
+    if (string.IsNullOrEmpty(Model.ReferenceCode))
+    {
+        couponTitle = Model.ReferenceCode;
+        status = false;
+    }
+    else
+    {
+        status = true;
+        couponTitle = Model.ReferenceCode;
+    }
+}
+
+
+
+@if (status == false)
+{
+    <p>thank you for your application</p>
+}
+else
+{
+    var item = Sitecore.Context.Database.GetItem("{7B32142B-4907-4F15-B09C-43462B8A6C55}");
+    var filterdata = item.Children.Where(x => x.Fields["Coupon Title"].Value.ToLower() == (couponTitle.ToLower()));
+    if (filterdata.Count() > 0)
+    {
+
+
+
+        foreach (var element in filterdata.ToList())
+        {
+
+            //date validation
+            var currentdate = DateTime.Now.Date;
+            var startdate = (DateField)element.Fields["Start Date"];
+
+            var isoStartDate = Sitecore.DateUtil.IsoDateToServerTimeIsoDate(startdate.Value);
+
+            var serverTime = Sitecore.DateUtil.ToServerTime(startdate.DateTime);
+            var _xxx = Sitecore.DateUtil.FormatShortDateTime(serverTime);
+            var startdateformat = DateTimeOffset.ParseExact(startdate.Value, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+            var enddate = (DateField)element.Fields["End Date"];
+            var enddateformat = DateTimeOffset.ParseExact(enddate.Value, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+            var isoEndDate = Sitecore.DateUtil.IsoDateToServerTimeIsoDate(enddate.Value);
+
+            if (startdateformat.Date <= currentdate.Date && enddateformat.Date >= currentdate.Date)
+            // if(isoStartDate.AsDateTime().CompareTo(currentdate)<=0 && isoEndDate.AsDateTime().CompareTo(currentdate)>=0)
+            {
+
+                @Html.Sitecore().Field("Thank You Message-Coupon specific", element);
+
+
+
+            }
+
+        }
+    }
+}
+

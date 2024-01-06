@@ -1,0 +1,60 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Feature.PageContent
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var x = 0;
+}
+<div class="pageContent">
+    @if (datasource != null)
+    {
+        var prefix = parent.Name;
+        var i = 0;
+        <div class="container">
+            <div class="pb-3">
+                <div class="accordion pt-3" id="@prefix">
+                    @foreach (var child in parent.Children.ToList())
+                    {
+                        var collection = Array.Empty<string>();
+                        if (child.Fields["Document Collection"] != null)
+                        {
+                            collection = child.Fields["Document Collection"].Value.Split('|').ToArray();
+                        }
+                        <div class="faqItem">
+                            <div class="ques" id="Qus_@prefix@i" data-toggle="collapse" data-target="#@prefix@i" aria-expanded="false">
+                                @Html.Sitecore().Field("Title", child)
+                            </div>
+                            <div id="@prefix@i" class="ans collapse" data-parent="#@prefix">
+
+                                @foreach (var itemID in collection.ToList())
+                                {
+                                    var title = "";
+                                    try
+                                    {
+                                        var item = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(itemID));
+                                        var url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(item);
+                                        title = item.Fields["Title"].Value;
+                                        if (string.IsNullOrEmpty(title))
+                                        {
+                                            title = item.Name;
+                                        }
+                                        <div class="pb-1"><a href="@url" target="_blank"><i class="fas fa-download"></i>&nbsp;&nbsp;@title</a></div>
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                }
+                                @Html.Sitecore().Field("Body", child)
+                            </div>
+                        </div>
+                        i++;
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

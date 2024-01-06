@@ -1,0 +1,43 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var Linkurl = "#";
+    var i = 1;
+    var id = "";
+}
+<section class="videoSlider">
+    <div class="container">
+        <div class="row video-carousel">
+            <div class="col-sm-12 video-carousel-heading">
+                <h2 class="video-carousel-heading1 text-center">@Html.Sitecore().Field("Title", model)</h2>
+                <p class="video-carousel-details1 text-center">@Html.Sitecore().Field("Description", model)</p>
+            </div>
+        </div>
+        <div class="owl-carousel videocarousel video-section">
+            @foreach (var child in model.Children.ToList())
+            {
+                Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["VideoLink"]);
+                if (linkfield != null)
+                {
+                    Linkurl = linkfield.GetFriendlyUrl();
+                }
+                id = "myVideoHome" + i;
+                <div class="slide-container">
+                    <div>
+                        <video class="js-player TurbineVideo" id="@id">
+                            <source src="@Linkurl" type="video/mp4" size="720">
+                        </video>
+                        <button class="videoplayButtonHome TurbineVideoPause"><i class="fa fa-play"></i></button>
+                    </div>
+                </div>
+                i++;
+            }
+        </div>
+    </div>
+</section>

@@ -1,0 +1,33 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Buckets.Managers
+@using Sitecore.ContentSearch
+@using Sitecore.ContentSearch.SearchTypes
+@using Sitecore.Foundation.Dictionary.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+
+@if (datasource != null)
+{
+    // var itemBuckets = Sitecore.Context.Database.GetItem(parent.ID);
+    var itemURL = Sitecore.Links.LinkManager.GetItemUrl(parent);
+    var Items = parent.Children;<div class="col-lg-5 mb-3">
+        <div class="borderedBox p-4 h-100 bg-white">
+            <h3 class="section-heading text-left">@Html.Sitecore().Dictionary("/Home/NewsAndUpdates/Title", "News & Updates")</h3>
+            <ul class="news-updates mb-2">
+                @foreach (var child in Items.ToList().Take(4))
+                {
+                    var currentItemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+                    var title = @Html.Sitecore().Field("Title", child).ToString();
+                    var linkToOpen = currentItemURL;
+                    <li class="listItem"><a target="_blank" class="txt-black" href="@currentItemURL">@title</a></li>
+					//<li class="listItem">@title</li>
+                }
+            </ul>
+            <p class="text-left mt-2"><a href="@Html.Sitecore().Dictionary("/Home/NewsAndUpdates/ViewAllButtonURL", "/newsroom")" class="txt-orange">@Html.Sitecore().Dictionary("/Home/NewsAndUpdates/ViewAllButtonText", "+ View all")</a></p>
+        </div>
+    </div>
+}

@@ -1,0 +1,149 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.QuickAccessServices
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+<div class="col s12 m8 offset-m1 section-container">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+
+        <div class="submit-new-request">
+            <div class="card outlined section-inner-wrapper card-with-form">
+                <div class="input-field custom input-has-icon">
+                    <input class="form-control" id="ComplaintNumber" name="ComplaintNumber" value="" type="number" maxlength="10" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" onKeyPress="showCrossIcon(this)" onKeyUp="showCrossIcon(this)" />
+                    <label for="ComplaintNumber">Complaint Number</label>
+                    <div class="input-icon">
+                        <span style="display:none" class="icon-holder waves-effect waves-light"><i onclick="ElClickCross(this);" id="crossicon" class="i-cross"> </i></span>
+                    </div>
+                </div>
+                <p id="divor"><b>OR</b></p>
+                <div class="input-field custom input-has-icon">
+                    <input class="form-control" id="AccountNumber" name="AccountNumber" value="" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" onKeyPress="showCrossIcon(this)" onKeyUp="showCrossIcon(this)" />
+                    <label for="AccountNumber">Account Number</label>
+                    <div class="input-icon">
+                        <span style="display:none" class="icon-holder waves-effect waves-light"><i onclick="ElClickCross(this);" id="crossicon" class="i-cross"> </i></span>
+                    </div>
+                </div>
+                <p id="qacomplaintstatuserrormessage" class="field-validation-error" style="display:none;"></p>
+                <div class="input-field custom input-has-icon" style="padding-left: 12px;">
+                    <div class="form-group col-lg-3">
+                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                            <label for="" class="col-sm-5 col-md-5 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                            <div class="col-sm-12 col-md-12">
+                                <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block", @id = "CaptchaValidation" }, "p")
+                                <p id="qacomplaintstatuscaptchaerrormessage" class="field-validation-error" style="display:none;"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="no-reading">
+
+                    @if (!string.IsNullOrWhiteSpace(Model.ComplainCode))
+                    {
+                        <input type="hidden" value="@Model.ComplainCode" id="ComplainCode" />
+                        var code = "ComplaintStatus/" + Model.ComplainCode;
+                        <h5>@Html.Sitecore().DictionaryField(@code, "")</h5>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Model.AccountNumber) || !string.IsNullOrWhiteSpace(Model.ComplaintNumber))
+                    {
+                        <h5>No information available.</h5>
+                    }
+
+                </div>
+
+                <div class="h-right btn-group">
+                    <button type="button" id="btnReset"
+                            data-gaevent="check_complaint_status"
+                            data-gaeventCategory="Help & Support"
+                            data-gaeventAction="Check Complaint Status"
+                            data-gaeventLabel="Reset"
+                            onclick="ResetPage()" class="waves-effect btn-flat login-btn">
+                        @Html.Sitecore().Dictionary("/Accounts/Forgot Password/Button/Cancel", "Reset")
+                    </button>
+                    <input type="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Button Submit", "Submit")" class="btn btn-primary qacheckcomplaintstatus" />
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script type="text/javascript">
+    function ResetPage() {
+        $('.no-reading').remove();
+        $('#CaptchaValidation').remove();
+        $('#ComplaintNumber').val('');
+        $('#AccountNumber').val('');
+    }
+
+    function showCrossIcon(el) {
+        if ($(el).val().length == 0) {
+            $(el).closest('.input-field').find('.input-icon .icon-holder').hide();
+            ClickCross(el);
+        }
+        else {
+            $(el).closest('.input-field').find('.input-icon .icon-holder').show();
+
+        }
+    }
+
+    function ElClickCross(el) {
+        $(el).closest('.input-field').find('input').val('');
+        $(el).hide();
+    }
+
+    function ClickCross(el) {
+        $(el).val('');
+        $(el).closest('.input-field').find('.input-icon .icon-holder').hide();
+    }
+    $('input').click(function () {
+        dataLayer.push({
+            'event': $(this).attr('data-gaevent'),
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+
+    $('.qacheckcomplaintstatus').click(function () {
+        var isValid = true;
+
+        var accountNumber = $('#AccountNumber').val().trim();
+        var complaintNumber = $('#ComplaintNumber').val().trim();
+        var isValid = true;
+        if (accountNumber == '' && complaintNumber == '') {
+            isValid = false;
+            $('#qacomplaintstatuserrormessage').show().html('Please enter Account Number or Complaint Number').addClass('field-validation-error');
+        } else {
+            $('#qacomplaintstatuserrormessage').hide().html('');
+        }
+
+        var evcaptcharesponse = grecaptcha.getResponse(0);  //changePassWordCaptcha
+        if (!evcaptcharesponse) {
+            $('#qacomplaintstatuscaptchaerrormessage').show().html('Please validate captcha to continue').addClass('field-validation-error');
+            isValid = false;
+        }
+        else {
+            $('#qacomplaintstatuscaptchaerrormessage').hide().html('');
+        }
+
+        return isValid;
+    });
+</script>

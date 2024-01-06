@@ -1,0 +1,99 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website
+@using AdaniGreenTalks = Sitecore.AdaniGreenTalks.Website
+@using System.Linq;
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current?.Rendering?.DataSource;
+    Item model = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.getItem(datasource);
+    var contextItem = Sitecore.Context.Item;
+    string imgurl = "#";
+    string altText = string.Empty;
+    string iconimgurl = String.Empty;
+    string iconaltText = string.Empty;
+    var storytemplatedid = AdaniGreenTalks.Templates.StoryTemplate.ID;
+    var childlist = new List<Item>();
+    string linkurl = "javascript:void(0)";
+    InternalLinkField linkField = model.Fields[Constant.parentitem];
+    Item parentitem = linkField?.TargetItem;
+}
+@if (parentitem != null && contextItem != null)
+{
+    if (parentitem.HasChildren)
+    {
+        childlist = parentitem.GetChildren().Where(c => c.TemplateID == storytemplatedid).OrderByDescending(x => x.Fields["Date"].Value).ToList();
+        if (childlist != null)
+        {
+            <div class="green-stories-section">
+                <div class="container">
+                    <div class="top">
+                        <h2>@Html.Sitecore().Field(Constant.Title, model)</h2>
+                        <h3>@Html.Sitecore().Field(Constant.Description, model)</h3>
+                    </div>
+
+                    <div class="btm scrollable">
+                        @foreach (Item child in childlist)
+                        {
+                            if (child.TemplateID == storytemplatedid && child.ID != contextItem.ID)
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = child.Fields[Constant.LinkUrl];
+                                if (linkvalue != null)
+                                {
+                                    linkurl = linkvalue.GetFriendlyUrl();
+                                }
+                                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)child.Fields[Constant.thumbnail]);
+                                if (imgField != null && imgField.MediaItem != null)
+                                {
+                                    imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                    altText = imgField.Alt;
+                                }
+                                Sitecore.Data.Fields.ImageField iconimgField = ((Sitecore.Data.Fields.ImageField)model.Fields[Constant.IconImage]);
+                                if (iconimgField != null && iconimgField.MediaItem != null)
+                                {
+                                    iconimgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(iconimgField.MediaItem);
+                                    iconaltText = iconimgField.Alt;
+                                }
+
+                                <div class="item">
+                                    <a href="@linkurl">
+                                        <div class="inner">
+                                            <div class="img">
+                                                <img src="@imgurl" alt="@altText" />
+                                            </div>
+                                            <div class="desc">
+                                                <h3>@Html.Sitecore().Field(Constant.Title, child)</h3>
+                                                <div class="wrap">
+                                                    <div class="desc-left">
+                                                        <p>@Html.Sitecore().Field(Constant.Summary, child)</p>
+                                                        <span class="knw-btn">Know More</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="arrows">
+                        @Html.Sitecore().Field(Constant.SVGLeft, model)
+                        @Html.Sitecore().Field(Constant.SVGRight, model)
+                    </div>
+                </div>
+            </div>
+
+        }
+
+    }
+
+}

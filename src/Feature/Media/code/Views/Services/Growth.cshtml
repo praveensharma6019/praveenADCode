@@ -1,0 +1,82 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc.Presentation
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+
+    var currentPage = Sitecore.Context.Item;
+
+ 
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+
+    var dataSource = Sitecore.Context.Database.GetItem(dataSourceId); 
+
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectField = dataSource.Fields[Templates.Growth.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+}
+
+<div class="section-container carousel_wrapper">
+    <header class="section-header-main justify-item">
+
+        <h2>@Html.Sitecore().Field(Templates.Growth.Fields.Title)</h2>
+        <div class="carousel-nav hide-on-med-and-down"></div>
+    </header>
+    <div class="owl-carousel standard-card removeSliderMob image-height-auto" data-items-desktop="4" data-items-mobile="1.5">
+        @foreach (var item in items)
+        {
+            Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+            string ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+
+            Sitecore.Data.Fields.LinkField linkfld = item.Fields["CTALink"];
+            var url = linkfld.GetFriendlyUrl();
+
+            var title = item.Fields["Title"].Value;
+
+            var description = item.Fields["Description"].Value;
+
+            var ctaText = @item.Fields["CTAText"].Value;
+
+            <div class="card">
+                @{
+                    <div class="card-image">
+
+                        @if (!string.IsNullOrEmpty(ImageUrl))
+                        {
+                            <img src="@ImageUrl">
+                        }
+
+                    </div>
+                    <div class="card-content">
+                        @if (!string.IsNullOrEmpty(title.ToString()))
+                        {
+                            <h5>@title</h5>
+                        }
+                        @if (!string.IsNullOrEmpty(description))
+                        {
+                            <p>@description</p>
+                        }
+
+                        @if (!string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(ctaText))
+                        {
+                            <a href="@url">@ctaText </a>
+                        }
+
+                    </div>
+                }
+            </div>
+
+        }
+
+    </div>
+</div>

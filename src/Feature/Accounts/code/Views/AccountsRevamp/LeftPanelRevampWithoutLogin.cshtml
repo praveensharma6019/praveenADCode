@@ -1,0 +1,170 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Feature.Accounts.SessionHelper
+@{
+    Sitecore.Data.Items.Item LeftPanelFolderItem = Sitecore.Context.Database.GetItem("{E954284E-DC50-4F21-9550-DF364760084B}");
+    string[] loggedInSections = { "{0FC4B417-99EE-4A71-9262-22019F092A2D}", // MyAccount
+                                   "{1487286A-16E0-40E8-922B-5B0B1E09E7AE}", //NewConnection
+                                    "{5E2803EE-6029-49AC-BD21-BCAEBFFF7CFF}", //BillingAndPayments
+                                    "{176323A4-E2FC-4A85-8A81-B1BAB50798D7}" //Services
+                                                                             };
+
+    //Using below Array for inner page on ChangeNameOnBill
+    string[] innerPagesArray = { "{9CC42766-76BE-461E-AC99-BA1ECCDCCE18}", //changeofnameapplication
+                                 "{01C260FB-63F5-4EC7-9543-6463416C55B8}" //changeofnamesubmittedapplication
+    };
+
+
+    bool isLoggedInCase = false;
+
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+    IEnumerable<Sitecore.Data.Items.Item> loggedInItems = LeftPanelFolderItem.GetChildren().Where(p => !string.IsNullOrEmpty(p["Title"]) && loggedInSections.Contains(p.ID.ToString()));
+    IEnumerable<Sitecore.Data.Items.Item> childItems = null;
+    if (Elemodel != null && loggedInItems != null)
+    {
+        if (innerPagesArray.Contains(Sitecore.Context.Item.ID.ToString()))
+        {
+            childItems = LeftPanelFolderItem.GetChildren().Where(p => !string.IsNullOrEmpty(p["Title"]) && loggedInSections.Contains(p.ID.ToString()));
+            isLoggedInCase = true;
+        }
+        else
+        {
+            foreach (Sitecore.Data.Items.Item item in loggedInItems)
+            {
+                if (item.GetChildren().Any(x => x.Fields["LinkUrl"] != null && ((Sitecore.Data.Fields.LinkField)(x.Fields["LinkUrl"])).TargetID.ToString() == Sitecore.Context.Item.ID.ToString()))
+                {
+                    childItems = LeftPanelFolderItem.GetChildren().Where(p => !string.IsNullOrEmpty(p["Title"]) && loggedInSections.Contains(p.ID.ToString()));
+                    isLoggedInCase = true;
+                    break;
+                }
+                else
+                {
+                    childItems = LeftPanelFolderItem.GetChildren().Where(p => !string.IsNullOrEmpty(p["Title"]));
+                    isLoggedInCase = false;
+                }
+            }
+        }
+    }
+    else
+    {
+        childItems = LeftPanelFolderItem.GetChildren().Where(p => !string.IsNullOrEmpty(p["Title"]));
+    }
+}
+
+@if (LeftPanelFolderItem != null)
+{
+    <div class="col s12 m3 sticky-sidebar" id="leftPanel">
+        <div class="side-nav hide-on-med-and-down">
+            @if (LeftPanelFolderItem.HasChildren && childItems != null)
+            {
+                <ul class="collapsible expandable z-depth-0" id="leftPanelNav">
+                    @foreach (Sitecore.Data.Items.Item parentItem in childItems)
+                    {
+                        <li>
+                            @if (parentItem != null)
+                            {
+                                Sitecore.Data.Fields.LinkField parentlinkfld = parentItem.Fields["LinkUrl"];
+                                var parenturl = parentlinkfld != null && !string.IsNullOrEmpty(parentlinkfld.GetFriendlyUrl()) ? parentlinkfld.GetFriendlyUrl() : "javascript:void(0)";
+                                <div class="collapsible-header items brand-gradient-left brand-gradient-thin outlined">
+                                    <a href="@parenturl"><i class="@parentItem["Class"]"></i> @Html.Raw(parentItem["Title"])</a>
+                                </div>
+                                <div class="collapsible-body">
+                                    @if (parentItem.HasChildren)
+                                    {
+                                        <div class="submenu" id="leftPanelSubMenu">
+                                            @foreach (Sitecore.Data.Items.Item childItem in parentItem.GetChildren().Where(p => !string.IsNullOrEmpty(p["Title"])))
+                                            {
+                                                Sitecore.Data.Fields.LinkField childlinkfld = childItem.Fields["LinkUrl"];
+                                                Sitecore.Data.Fields.LinkField childLoggedOutlinkfld = childItem.Fields["LoggedOutLink"];
+                                                if (Elemodel != null)
+                                                {
+                                                    childlinkfld = childItem.Fields["LinkUrl"];
+                                                }
+                                                else if (childLoggedOutlinkfld != null && !string.IsNullOrEmpty(childLoggedOutlinkfld.GetFriendlyUrl()))
+                                                {
+                                                    childlinkfld = childLoggedOutlinkfld;
+                                                }
+                                                var childurl = childlinkfld != null && !string.IsNullOrEmpty(childlinkfld.GetFriendlyUrl()) ? childlinkfld.GetFriendlyUrl() : "#";
+                                                var childTarget = childlinkfld != null ? childlinkfld.Target : "";
+                                                <a href="@childurl" target="@childTarget" data-gaevent="side_pannel_interaction"
+                                                   data-gaeventCategory="User Interaction"
+                                                   data-gaeventAction="Side Pannel Interaction"
+                                                   data-gaeventLabel="@Html.Raw(parentItem["Title"])|  @Html.Raw(childItem["Title"])">
+                                                    @Html.Raw(childItem["Title"])
+                                                </a>
+                                            }
+                                        </div>
+                                    }
+
+                                </div>
+                            }
+
+                        </li>
+                    }
+
+                </ul>
+            }
+        </div>
+    </div>
+}
+
+@if (Elemodel != null && isLoggedInCase)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            //$('.main-header').removeAttr('id');
+
+            $('#leftPanelNav li').removeClass('active');
+
+            //last part of current url using regrex
+            //var currentUrl = location.pathname.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+            var currentUrl = location.pathname.split('/');
+            currentUrl = currentUrl[currentUrl.length - 1].toLowerCase();
+            $('#leftPanelSubMenu a').each(function () {
+                var elementUrl = $(this).attr('href').split('/');
+                elementUrl = elementUrl[elementUrl.length - 1].toLowerCase();
+                if (elementUrl != undefined) {
+                    elementUrl = elementUrl.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+                    if (elementUrl == currentUrl) {
+                        $(this).addClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+                        $(this).closest('li').addClass('active');
+                        //$(this).attr("href", "javascript:void(0)");
+                        $(this).attr("disabled", "disabled");
+                    }
+                }
+            })
+        })
+    </script>
+}
+else
+{
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //last part of current url using regrex
+            //var currentUrl = location.pathname.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+            var currentUrl = location.pathname.split('/');
+            currentUrl = currentUrl[currentUrl.length - 1].toLowerCase();
+            $('#leftPanelSubMenu a').each(function () {
+                var elementUrl = $(this).attr('href').split('/');
+                elementUrl = elementUrl[elementUrl.length - 1].toLowerCase();
+                if (elementUrl != undefined) {
+                    if (elementUrl === currentUrl) {
+                        $(this).closest('li').addClass('active');
+                        $(this).closest('li').show();
+                        $(this).closest('li').siblings().hide();
+                        $(this).addClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+                        $(this).attr("disabled", "disabled");
+                        return false; //breaks
+                    }
+                    else {
+                        $(this).closest('li').hide();
+                        $(this).closest('li').removeClass('active');
+                    }
+                }
+            })
+        })
+    </script>
+
+}
+

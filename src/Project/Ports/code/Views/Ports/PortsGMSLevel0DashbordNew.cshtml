@@ -1,0 +1,228 @@
+﻿
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Ports.Website.Models.PortsGmsLevel0Dashbord
+@using Sitecore.Ports.Website.Models
+@{
+
+    var currentDate = DateTime.Now;
+    var AddGrievance = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceBookingOnBehalf);
+    var Reply = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceLevel0Reply);
+    var BusinessGroup = Sitecore.Context.Database.GetItem("{7F330547-8B54-4343-93C0-D06F25394B81}");
+    var SiteHead = Sitecore.Context.Database.GetItem("{3C86DA42-7730-4AE8-9A9E-C72734D1990E}");
+    var HO = Sitecore.Context.Database.GetItem("{FCB0B564-E638-473D-9086-2514778FE099}");
+    var Team = Sitecore.Context.Database.GetItem("{48992B38-A3CE-4DEB-9131-35EEB86ED1FC}");
+    var item = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceLevel0Dashbord);
+    var Homelink = item.Url();
+}
+<section class="breadcrumb-sub-layout bg-white  pt-5 pb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul class="breadcrumb-sublayout-ul">
+                    @*<li>Home</li>*@
+                    <li>Level0 Dashboard</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 text-right">
+                <p class="user_logout"><a href="/Grievance/Logout"><span class="fa fa-sign-out mr-2"></span>Logout</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="pb-5 bg-white">
+    <div class="container">
+        @if (Session["SuccessMsg0"] != null)
+        {
+            <div class="alert-success mb-4 p-2">@Session["SuccessMsg0"]</div>
+            Session["SuccessMsg0"] = null;
+        }
+        @if (Session["ErrorMsg0"] != null)
+        {
+            <div class="alert-danger mb-4 p-2">@Session["ErrorMsg0"]</div>
+            Session["ErrorMsg0"] = null;
+        }
+            <div class="form_panel bg-l-gray p-4 box-shadow">
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-level1", id = "form-level1" }))
+                {
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>Grievance Status</label>
+                                @*<select class="form-control" name="Status" id="Status">
+                            <option value="@PortsGMSTemplates.GrievanceStatus.Level0">@PortsGMSTemplates.GrievanceStatus.Level0</option>
+                        </select>*@
+                                <select class="form-control" name="Status" id="Status">
+                                    <option value="">All</option>
+                                    <option value="@PortsGMSTemplates.GMSFlags.BookingOpen" @{string sel = Model.Status == PortsGMSTemplates.GMSFlags.BookingOpen ? "Selected" : "";} @sel>@PortsGMSTemplates.GMSFlags.BookingOpen</option>
+                                    <option value="@PortsGMSTemplates.GMSFlags.BookingClosed" @{string sel1 = Model.Status == PortsGMSTemplates.GMSFlags.BookingClosed ? "Selected" : "";} @sel1>@PortsGMSTemplates.GMSFlags.BookingClosed</option>
+                                    <option value="@PortsGMSTemplates.GMSFlags.Response" @{string sel2 = Model.Status == PortsGMSTemplates.GMSFlags.Response ? "Selected" : "";} @sel2>@PortsGMSTemplates.GMSFlags.Response</option>
+                                    <option value="@PortsGMSTemplates.GMSFlags.BookingOnBehalf" @{string sel3 = Model.Status == PortsGMSTemplates.GMSFlags.BookingOnBehalf ? "Selected" : "";} @sel3>@PortsGMSTemplates.GMSFlags.BookingOnBehalf</option>
+                                    <option value="@PortsGMSTemplates.GMSFlags.BookingReOpen" @{string sel4 = Model.Status == PortsGMSTemplates.GMSFlags.BookingReOpen ? "Selected" : "";} @sel4>@PortsGMSTemplates.GMSFlags.BookingReOpen</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>Business Group</label>
+                                <select name="BusinessGroup" class="form-control" id="BusinessGroup">
+                                    <option value="">All</option>
+                                    @foreach (var element in BusinessGroup.GetChildren().ToList())
+                                    {
+                                        var childCount = element.GetChildren().Count();
+                                        if (childCount != 0)
+                                        {
+                                            <option></option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@Html.Sitecore().Field("Value", element)" @{string bg = Model.BusinessGroup == element.Fields["Key"].Value ? "Selected" : "";} @bg>@Html.Sitecore().Field("Value", element)</option>
+
+                                        }
+
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>Site Head</label>
+                                <select name="SiteHead" class="form-control" id="SiteHead">
+                                    <option value="">All</option>
+                                    @foreach (var element in SiteHead.GetChildren().ToList())
+                                    {
+                                        var childCount = element.GetChildren().Count();
+                                        if (childCount != 0)
+                                        {
+                                            <option></option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@Html.Sitecore().Field("Value", element)" @{string sh = Model.SiteHead == element.Fields["Key"].Value ? "Selected" : "";} @sh>@Html.Sitecore().Field("Value", element)</option>
+
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label>Type of Stakeholder</label>
+                                <select name="HO" class="form-control" id="HO">
+                                    <option value="">All</option>
+                                    @foreach (var element in HO.GetChildren().ToList())
+                                    {
+                                        var childCount = element.GetChildren().Count();
+                                        if (childCount != 0)
+                                        {
+                                            <option></option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@Html.Sitecore().Field("Value", element)" @{string ho = Model.HO == element.Fields["Key"].Value ? "Selected" : "";} @ho>@Html.Sitecore().Field("Value", element)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Point Man</label>
+                                <select name="PointMan" class="form-control" id="PointMan">
+                                    <option value="">All</option>
+                                    @foreach (var element in Team.GetChildren().ToList())
+                                    {
+                                        var childCount = element.GetChildren().Count();
+                                        if (childCount != 0)
+                                        {
+                                            <option></option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@Html.Sitecore().Field("Value", element)" @{string pm = Model.PointMan == element.Fields["Key"].Value ? "Selected" : "";} @pm>@Html.Sitecore().Field("Value", element)</option>
+
+                                        }
+
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 mb-3 text-right">
+                            <button type="submit" class="btn btn-secondary">Search</button>
+                            @*<button type="button" class="btn btn-dark reset">Reset</button>*@
+                            <a href="@Homelink" class="btn btn-dark">Reset</a>
+                        </div>
+                    </div>
+                }
+                @if (Model.AllBookings.Count > 0)
+                {
+                    <div class="container">
+                        <div class="row adl-tab-row">
+                            <div class="col-sm-2 adl-tab">
+                                <p class="adl-tab-value">Total : @Model.TotalCount</p>
+                            </div>
+                            <div class="col-sm-2 adl-tab">
+                                <p class="adl-tab-value">Open : @Model.OpenCount</p>
+                            </div>
+                            <div class="col-sm-2 adl-tab">
+                                <p class="adl-tab-value">Response : @Model.ResponseCount</p>
+                            </div>
+                            <div class="col-sm-2 adl-tab">
+                                <p class="adl-tab-value">On-behalf : @Model.OnBehalfCount</p>
+                            </div>
+                            <div class="col-sm-2 adl-tab">
+                                <p class="adl-tab-value">Close : @Model.CloseCount</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="">
+                        <div class="">
+                            <table id="bookings" class="table table-bordered table-hover dt-responsive border">
+                                <thead>
+                                    <tr>
+                                        <th>Submit On</th>
+                                        <th>Grievance Status</th>
+                                        <th>Grievance No.</th>
+                                        <th>Company Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var bData in Model.AllBookings)
+                                    {
+
+                                        <tr>
+                                            <td>@bData.Created_Date</td>
+                                            <td>@bData.Status</td>
+                                            <td style="text-transform:uppercase;"><a href="@Reply.Url()?id=@bData.Id">@bData.Id</a></td>
+                                            <td>@bData.Company</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- <nav class="text-right mt-4" aria-label="Page navigation example">
+                <ul class="pagination justify-content-end">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>-->
+                    </div>
+                }
+                else
+                {
+                    <div class="alert-danger mb-4 p-2">No Grievance Found!</div>
+                }
+
+            </div>
+    </div>
+</section>

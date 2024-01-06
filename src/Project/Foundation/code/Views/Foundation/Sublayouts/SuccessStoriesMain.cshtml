@@ -1,0 +1,61 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var contextItem = Sitecore.Context.Item;
+}
+
+
+<section class="py-5">
+    <div class="container">
+        <ul class="stories-filter mb-5">
+            @if (element != null)
+            {
+                if (element.GetChildren() != null)
+                {
+                    foreach (Item item in element.GetChildren())
+                    {
+                        if (item.ID == element.GetChildren().ToArray()[0].ID)
+                        {
+                            <li class="btn-stories active" id="@item.Fields["ItemId"]">@item.Fields["Name"]</li>
+                        }
+                        else
+                        {
+                            <li class="btn-stories" id="@item.Fields["ItemId"]">@item.Fields["Name"]</li>
+                        }
+                    }
+                }
+            }            
+        </ul>
+        <div class="row" id="parent-stories">
+            @if (contextItem != null)
+            {
+                foreach (Item item in contextItem.GetChildren())
+                {
+                    string val = item.Fields["RelatedProject"].ToString();
+                    Item project = Sitecore.Context.Database.GetItem(val);
+                    var link = Sitecore.Links.LinkManager.GetItemUrl(item).ToLower();
+
+                    <div class="col-lg-4 col-md-6 all @project.Fields["ItemId"]">
+                        <a href="@link">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="card-thumb">
+                                        @Html.Sitecore().ImageField("Thumbnail", item, 0, 0, "img-fluid w-100 h-100")
+                                        @*<img src="https://via.placeholder.com/350x150" class="img-fluid w-100 h-100">*@
+                                    </div>
+                                    <div class="card-title">
+                                        <h3>@Html.Sitecore().Field("Title", item)</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>

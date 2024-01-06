@@ -1,0 +1,61 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var css = Html.Sitecore().Field("{523E9539-71B6-4739-BF8C-F275A13B2100}", Model);
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+
+    var img = paramid.Count() != 0 ? Sitecore.Context.Database.GetItem(paramid["background-image"]) : null;
+}
+
+<section class="@css aboutus-update nri-update">
+    @if (img != null)
+    {
+        <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, img)</div>
+    }
+    <div class="container">
+		<div class="section-header">
+			<h2>Latest Updates</h2>
+		</div>
+        <div class="round-nav multi-item-carousel owl-carousel owl-theme" id="latest-updates">
+            @foreach (var child in Model.NavItems.ToList())
+            {
+                var bgcss = Html.Sitecore().Field(Templates.LinkMenuItem.Fields.BGCSS, child);
+                string[] cls = bgcss.ToString().Split(';');
+                if (string.IsNullOrEmpty(cls[0]))
+                {
+                    <div class="item">
+						<a href="@child.Url">
+						   <div class="news-block">
+							  @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.VideoThumb, child.Item)
+							  <h3>@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, child)</h3>
+						   </div>
+						</a>
+                    </div>
+
+                }
+                else
+                {
+                    <div class="item">
+                        <!-- <div class="bg-images"></div> -->
+                        <a href="@child.Url">
+                            <div class="@cls[1]">
+                                @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.VideoThumb, child.Item)
+                                <h3>@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, child)</h3>
+                            </div>
+                        </a>
+                    </div>
+
+                }
+            }
+        </div>
+    </div>
+</section>

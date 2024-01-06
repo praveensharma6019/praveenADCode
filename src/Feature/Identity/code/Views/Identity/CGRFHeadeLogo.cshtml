@@ -1,0 +1,27 @@
+﻿@using Sitecore.Feature.Identity
+@using Sitecore.Feature.Identity.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Links
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+
+@{
+    var identity = IdentityRepository.Get(Model.Item);
+    if (identity == null)
+    {
+        return;
+    }
+    //TODO: Resolve context site from item (implement in Foundation.Multisite)
+    var homeUrl = Sitecore.Context.Site?.GetStartItem()?.Url() ?? "/";
+    var hasTagline = identity.FieldHasValue(Templates.Identity.Fields.LogoTagLine);
+}
+<a class="navbar-brand @(hasTagline ? "has-tagline" : "")" href="/cgrf/home">
+    @Html.Sitecore().ImageField(Templates.Identity.Fields.Logo, identity, 0, 0, "img-fluid")
+    @if (hasTagline)
+    {
+        <small class="tagline">@Html.Sitecore().Field(Templates.Identity.Fields.LogoTagLine, identity)</small>
+    }
+</a>
+<button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>

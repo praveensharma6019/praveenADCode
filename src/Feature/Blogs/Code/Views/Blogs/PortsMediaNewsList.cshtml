@@ -1,0 +1,117 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@using System.Text.RegularExpressions
+@using Sitecore.Data
+@using Sitecore.Data.Items
+@using Sitecore.Data.Fields
+
+
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "divclass").FirstOrDefault().Value;
+    var Title = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Title").FirstOrDefault().Value;
+    var col = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "rowcss").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(divclass))
+    {
+        divclass = "box-block p-4 w-100 h-100";
+    }
+
+
+
+    var NewsListdatasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["NewsList"];
+    var NewsList = Sitecore.Context.Database.GetItem(NewsListdatasource);
+    var news = NewsList.GetChildren().OrderByDescending(x => x[Sitecore.FieldIDs.Updated]).ToList();
+    var i = 0;
+    var count = 0;
+}
+
+<div class="@divclass">
+    <h3 class="section-heading">@Title</h3>
+    <div class="@col">
+        <ul class="@paramid">
+            @foreach (var child in news.ToList())
+            {
+                LinkField URL = child.Fields["Link"];
+
+
+                if (URL.TargetItem != null)
+                {
+                    var item = URL.TargetItem;
+
+                    count = item.Children.Count();
+                    var sortedItem = item.GetChildren().OrderByDescending(x => x.Fields["Date"]);
+                    foreach (var docs in sortedItem)
+                    {
+                        if (i == 5)
+                        {
+                            break;
+                        }
+                        i++;
+
+                        var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+                        var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+                        <li>
+                            <p><a target="_blank" href="@url">@docs.Name</a>
+                        </li>
+
+
+
+
+                    }
+
+                }
+            }
+        </ul>
+
+        @if (count > 5)
+        {
+            <ul class="@paramid">
+                @foreach (var child in news.ToList())
+                {
+                    LinkField URL = child.Fields["Link"];
+
+                    i = 0;
+                    if (URL.TargetItem != null)
+                    {
+                        var item = URL.TargetItem;
+
+                        count = item.Children.Count();
+                        foreach (var docs in item.GetChildren().OrderByDescending(x => x.Fields["Date"]).ToList())
+                        {
+                            if (i > 5)
+                            {
+
+
+
+
+
+                                var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+                                var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+                                <li>
+                                    <p><a target="_blank" href="@url">@docs.Name</a>
+                                </li>
+
+
+
+
+                            }
+                            i++;
+                        }
+                    }
+                }
+            </ul>
+
+        }
+    </div>
+    <p class="text-right d-none"><a href="">Read more</a></p>
+</div>
+
+
+
+

@@ -1,0 +1,80 @@
+﻿@using Sitecore
+@using System.Collections.Generic
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current?.Rendering?.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "#";
+    string altText = string.Empty;
+    string imgurl1 = "#";
+    string altText1 = string.Empty;
+    string imgurl2 = "#";
+    string altText2 = string.Empty;
+    string btnUrl = "javascript:void(0)";
+    string btnText = string.Empty;
+}
+
+@if (model != null)
+{
+    <div class="field-snapshot-section">
+        <div class="container">
+            <div class="top">
+                <h3>@Html.Sitecore().Field(Constant.Title, model)</h3>
+            </div>
+            <div class="row">
+                @if (model.HasChildren)
+                {
+                    Sitecore.Data.Fields.LinkField linkField = model.Fields["LinkUrl"];
+                    if (linkField != null)
+                    {
+                        btnUrl = linkField.GetFriendlyUrl();
+                        btnText = linkField.Text;
+                    }
+                    var itemlist = model.GetChildren();
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)itemlist[0].Fields[Constant.MediaImage]);
+                    if (imgField != null && imgField.MediaItem != null)
+                    {
+                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                        altText = imgField.Alt;
+                    }
+                    Sitecore.Data.Fields.ImageField imgField1 = ((Sitecore.Data.Fields.ImageField)itemlist[1].Fields[Constant.MediaImage]);
+                    if (imgField1 != null && imgField1.MediaItem != null)
+                    {
+                        imgurl1 = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField1.MediaItem);
+                        altText1 = imgField1.Alt;
+                    }
+                    Sitecore.Data.Fields.ImageField imgField2 = ((Sitecore.Data.Fields.ImageField)itemlist[2].Fields[Constant.MediaImage]);
+                    if (imgField2 != null && imgField2.MediaItem != null)
+                    {
+                        imgurl2 = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField2.MediaItem);
+                        altText2 = imgField2.Alt;
+                    }
+                    <div class="col-md-6 left-area">
+                        <img src="@imgurl" alt="@altText">
+                    </div>
+
+                    <div class="col-md-6 right-area">
+                        <img src="@imgurl1" alt="@altText1">
+                        <img src="@imgurl2" alt="@altText2">
+                    </div>
+
+                }
+
+            </div>
+            <div class="view-all" style="display:block">
+                <a href="@btnUrl" class="btn">@btnText</a>
+            </div>
+        </div>
+
+    </div>
+}

@@ -1,0 +1,39 @@
+﻿@*@using Sitecore.AdaniCapital.Website.Helper*@
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Feature.Accounts.Models
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+}
+
+
+@if (Sitecore.Context.User.IsAuthenticated && Elemodel != null)
+{
+    <div class="collapsible-body">
+        <ul class="submenu">
+            @if (element.HasChildren)
+            {
+
+                foreach (Item item in element.GetChildren())
+                {
+                    //var imgurls = Helper.ImageUrl("LinkImage", item);
+                    //var url = Helper.LinkUrl(item.Fields["LinkUrl"]);
+
+                                Sitecore.Data.Fields.LinkField itemLinkfld = item.Fields["LinkUrl"];
+                                var url = itemLinkfld != null && !string.IsNullOrEmpty(itemLinkfld.GetFriendlyUrl()) ? itemLinkfld.GetFriendlyUrl() : "#";
+                                var urlTarget = itemLinkfld != null ? itemLinkfld.Target : "";
+
+                    <li>
+                        <a href="@url" target="@urlTarget" class=" @Html.Sitecore().Field("Class", item)">
+                            @Html.Sitecore().Field("Title", item)
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+    </div>
+}

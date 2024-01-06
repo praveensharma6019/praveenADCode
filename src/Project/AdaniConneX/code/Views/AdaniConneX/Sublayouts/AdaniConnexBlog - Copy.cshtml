@@ -1,0 +1,236 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    List<Item> sortedBlogs = model.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList();
+    int a = 0;
+
+    string linkfieldUrl = "";
+    string imgurl = "";
+    string altText = "";
+    var currentUrl = "";
+
+
+}
+
+
+    <div class="section-holder">
+        @if (model != null)
+        {
+            <p class="full h1 fm-asb tx-000 content-wrapper custom-module-headng">@Html.Sitecore().Field("SubTitle", model)</p>
+        }
+
+        @if (sortedBlogs.Count > 0) {
+        <div class="blog-module hidden-phone">
+            <div class="content-wrapper" id="blogModule_desk">
+                <div class="blog-module-slide grid-wrapper owl-carousel dot-bc brand-dots" id="blogDesktop">
+                    @if (model.HasChildren)
+                    {
+                        for ( ; a < model.GetChildren().Count;)
+                        {
+                            
+                    <div class="full grid-wrapper">
+
+                        @for (int b = 1; b <= model.GetChildren().Count;)
+                        {
+                            <h1>@sortedBlogs.Count</h1>
+                            <h1>@sortedBlogs[0]</h1>
+                            <h1>@sortedBlogs[1]</h1>
+                            @*
+            //var blogitem = sortedBlogs[k];
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)sortedBlogs[a].Fields["Image"]);
+            if (imgField != null && imgField.MediaItem != null)
+            {
+                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                altText = imgField.Alt;
+            }
+
+            Sitecore.Data.Fields.LinkField linkfield = sortedBlogs[a].Fields["LinkUrl"];
+            linkfieldUrl = linkfield.GetFriendlyUrl();
+
+
+            if (b % 3 != 0)
+            {
+                <div class="item-group">
+                    @while (b < 3 && b <= model.GetChildren().Count)
+                    {
+                        <!--Double blog -->
+                        <div class="item">
+                            <div class="item-image">
+                                @if (imgurl != "")
+                                {
+                                    <img src="@imgurl" alt="@altText">
+                                }
+
+                            </div>
+                            <div class="item-content">
+                                <div class="date">@Html.Sitecore().Field("Date", sortedBlogs[a], new { format = "MMM dd, yyyy" })</div>
+                                <h4>@Html.Sitecore().Field("Title", sortedBlogs[a])</h4>
+
+
+                                <div class="item-footer">
+                                    @if (linkfieldUrl != "")
+                                    {
+                                        if (linkfield.LinkType == "internal")
+                                        {
+                                            <a href="@linkfieldUrl" class="h-underline">Read More</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@linkfieldUrl" target="_blank" class="h-underline">Read More</a>
+                                        }
+                                    }
+
+                                    else
+                                    {
+                                        <a href="#" class="h-underline">Read More</a>
+                                    }
+                                    <div class="share-icon">
+                                        <i class="i-share i-20"></i>
+                                        <ul class="share-option">
+                                            <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @linkfieldUrl"><i class="i-email i-14"></i></a></li>
+                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@linkfieldUrl"><i class="i-linkdin i-20"></i></a></li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        a++;
+                        b++;
+
+                    }
+                </div>
+            }
+            else
+            {
+                <!--Single blog -->
+                <div class="item-group">
+                    <div class="item">
+                        <div class="item-image">
+                            @if (imgurl != "")
+                            {
+                                <img src="@imgurl" alt="@altText">
+                            }
+                        </div>
+                        <div class="item-content">
+                            <div class="date">@Html.Sitecore().Field("Date", sortedBlogs[a], new { format = "MMM dd, yyyy" })</div>
+                            <h4>@Html.Sitecore().Field("Title", sortedBlogs[a])</h4>
+
+
+                            <div class="item-footer">
+                                @if (linkfieldUrl != "")
+                                {
+                                    if (linkfield.LinkType == "internal")
+                                    {
+                                        <a href="@linkfieldUrl" class="h-underline">Read More</a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@linkfieldUrl" target="_blank" class="h-underline">Read More</a>
+                                    }
+                                }
+
+                                else
+                                {
+                                    <a href="#" class="h-underline">Read More</a>
+                                }
+                                <div class="share-icon">
+                                    <i class="i-share i-20"></i>
+                                    <ul class="share-option">
+                                        <li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @linkfieldUrl"><i class="i-email i-14"></i></a></li>
+                                        <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@linkfieldUrl"><i class="i-linkdin i-20"></i></a></li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                break;
+            }
+                            *@
+                        }
+
+                    </div>
+                          
+                        }
+                        }
+
+
+                    </div>
+            </div>
+        </div>
+
+
+
+       <div class="blog-module hidden-desktop">
+            <div class="content-wrapper grid-wrapper owl-carousel dot-bc" id="blogModule_mob">
+                @if (model != null)
+                {
+                    foreach (Item item in model.GetChildren())
+                    {
+                        currentUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+
+                        Sitecore.Data.Fields.LinkField linkfield = item.Fields["LinkUrl"];
+                        linkfieldUrl = linkfield.GetFriendlyUrl();
+
+                        <div class="item">
+                            <div class="item-image">
+                                @if (imgurl != "")
+                                {
+                                    <img src="@imgurl" alt="@altText">
+                                }
+
+                            </div>
+                            <div class="item-content">
+                                <div class="date">@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</div>
+                                <h4>@Html.Sitecore().Field("Title", item)</h4>
+
+                                <p>@Html.Sitecore().Field("Summary", item)</p>
+                                <div class="item-footer">
+                                    <a href="@currentUrl" class="h-underline">Read More</a>
+                                    <div class="share-icon">
+                                        <i class="i-share i-20"></i>
+                                        <ul class="share-option">
+
+                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@currentUrl"><i class="i-linkdin i-20"></i></a></li>
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+
+
+
+            </div>
+        </div>
+
+        }
+    </div>
+
+

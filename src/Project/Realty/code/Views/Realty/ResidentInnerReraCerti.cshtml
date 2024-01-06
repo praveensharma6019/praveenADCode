@@ -1,0 +1,43 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.SingleText.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.SingleText.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<div class="col-lg-6 p-4 bg-yellow">
+    <h3 class="mb-3">@Html.Sitecore().Field(Templates.SingleText.Fields.Text, models)</h3>
+    <ul>
+        @foreach (var item in models.Axes.GetDescendants())
+        {
+            <li class="mb-4">
+                @*@{
+                    Sitecore.Data.Fields.LinkField lnk = (Sitecore.Data.Fields.LinkField)(item.Fields["LinkUrl"]);
+                    string url = "";
+                    if (lnk.IsMediaLink)
+                    {
+                        MediaItem target = new MediaItem(lnk.TargetItem);
+                        string mediaUrl = MediaManager.GetMediaUrl(target);
+                        url = Sitecore.StringUtil.EnsurePrefix('/', mediaUrl);
+                    }
+                }*@
+                <a href="@item.LinkFieldUrl(Templates.LinkDetail.Fields.LinkUrl)" target="_blank">@Html.Sitecore().Field(Templates.LinkDetail.Fields.Title, item)</a>
+            </li>
+        }
+
+    </ul>
+</div>

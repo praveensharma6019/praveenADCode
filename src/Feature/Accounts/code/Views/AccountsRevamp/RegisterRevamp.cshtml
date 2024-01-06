@@ -1,0 +1,196 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.RegistrationInfo
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+@if (contextItem != null)
+{
+    <div class="col l6 s12 offset-l3 section-container">
+        <div>
+            <div class="login-wrap">
+                <div class="step-2-form">
+                    <div class="card-with-form">
+                        <div class="row">
+                            <div class="col s12">
+                                <h1>@Html.Raw(contextItem["Title"])</h1>
+                            </div>
+                        </div>
+
+
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmRegister", @class = "" }))
+                        {
+                            <div class="row">
+                                @Html.AddUniqueFormId()
+                                @Html.AntiForgeryToken()
+                                @Html.HiddenFor(x => x.MeterNo)
+                                @Html.HiddenFor(x => x.AccountNo)
+                                <div class="input-field custom col s12 m6">
+                                    @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                    <label for="AccountNo">@Html.Sitecore().Dictionary("/Accounts/Register/AccountNumber", "Enter CA Number")</label>
+                                </div>
+                                <div class="input-field custom col s12 m6">
+                                    @Html.TextBoxFor(x => x.MeterNo, new { @class = "form-control reset-control", id = "MeterNo", @readonly = "readonly" })
+                                    <label for="MeterNo">@Html.Sitecore().Dictionary("/Accounts/Register/MeterNo", "Enter Meter Number")</label>
+                                </div>
+                                <div class="col s12">
+                                    <h2>@Html.Sitecore().Dictionary("/Accounts/Register/Enter Your Details", "Enter Your Details")</h2>
+                                </div>
+                                <div class="input-field custom col s12">
+                                    @Html.TextBoxFor(x => x.LoginName, new { @class = "form-control reset-control", id = "LoginName", @autocomplete = "off", required = "required" })
+                                    <label for="LoginName">@Html.Sitecore().Dictionary("/Accounts/Register/Choose Your User Name", "Choose Your User Name")</label>
+                                    @Html.ValidationMessageFor(x => x.LoginName, "", new { @class = "help-block" }, "p")
+                                </div>
+                                <div class="otp-wrapper col s12">
+                                    <p>@Html.Sitecore().Dictionary("/Accounts/Register/LoginNameGuide", "Login Name should contain minimum 6 characters and only alphanumeric characters are allowed.")</p>
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.Password, "has-error")">
+                                    @Html.PasswordFor(x => x.Password, new { @class = "form-control reset-control", id = "registerPassword", @autocomplete = "off", required = "required" })
+                                    <label for="registerPassword">@Html.Sitecore().Dictionary("/Accounts/Register/Enter Password", "Enter Password")</label>
+                                    @Html.ValidationMessageFor(x => x.Password, "", new { @class = "help-block" }, "p")
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.ConfirmPassword, "has-error")">
+                                    @Html.PasswordFor(x => x.ConfirmPassword, new { @class = "form-control reset-control", id = "registerConfirmPassword", @autocomplete = "off", required = "required" })
+                                    <label for="registerConfirmPassword">@Html.Sitecore().Dictionary("/Accounts/Register/Confirm Password", "ReType password")</label>
+                                    @Html.ValidationMessageFor(x => x.ConfirmPassword, "", new { @class = "help-block" }, "p")
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.SecretQuestion, "has-error")">
+                                    @Html.DropDownListFor(m => m.SecretQuestion, Model.QuestionList, "--Select--", new { @class = "form-control", required = "required" })
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Register/SecretQuestion", "Secret Question")</label>
+                                    @Html.ValidationMessageFor(x => x.SecretQuestion, "", new { @class = "help-block" }, "p")
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.Answer, "has-error")">
+                                    @Html.TextBoxFor(x => x.Answer, new { @class = "form-control reset-control", id = "Answer", required = "required" })
+                                    @Html.ValidationMessageFor(x => x.Answer, "", new { @class = "help-block" }, "p")
+                                    <label for="Answer">@Html.Sitecore().Dictionary("/Accounts/Register/Answer", "Type Answer")</label>
+                                </div>
+                                <div class="form-field col s12">
+                                    <h6>@Html.Sitecore().Dictionary("/Accounts/Register/Personal Detail", "Personal Detail")</h6>
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.FirstName, "has-error")">
+                                    @Html.TextBoxFor(x => x.FirstName, new { @class = "form-control reset-control", id = "FirstName", required = "required" })
+                                    <label for="FirstName">@Html.Sitecore().Dictionary("/Accounts/Register/FirstName", "Enter First Name")</label>
+                                    @Html.ValidationMessageFor(x => x.FirstName, "", new { @class = "help-block" }, "p")
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.LastName, "has-error")">
+                                    @Html.TextBoxFor(x => x.LastName, new { @class = "form-control reset-control", id = "LastName", required = "required" })
+                                    <label for="LastName">@Html.Sitecore().Dictionary("/Accounts/Register/LastName", "Enter Last Name")</label>
+                                    @Html.ValidationMessageFor(x => x.LastName, "", new { @class = "help-block" }, "p")
+                                </div>
+
+                                <div class="col s12"> <h2 style="font-size: 16px;">@Html.Sitecore().Dictionary("/Accounts/Register/Gender", "Select Gender")</h2></div>
+                                <div class="field-group col s12 m12 @Html.ValidationErrorFor(x => x.Gender, "has-error")">
+                                    <div class="radio-field">
+                                        <label>
+                                            @Html.RadioButtonFor(model => model.Gender, "Male", new { id = "rdbMale", required = "required", @class = "with-gap" })
+                                            @*<input class="with-gap" name="Applicant Type" type="radio" checked="" />*@
+                                            <span>@Html.Sitecore().Dictionary("/Accounts/Register/Male", "Male")</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            @Html.RadioButtonFor(model => model.Gender, "FeMale", new { id = "rdbfeMale", required = "required", @class = "with-gap" })
+                                            @*<input class="with-gap" name="Applicant Type" type="radio" />*@
+                                            <span>@Html.Sitecore().Dictionary("/Accounts/Register/Female", "Female")</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.Email, "has-error")">
+                                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control reset-control", id = "Email", required = "required" })
+                                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                                    <label for="Email">@Html.Sitecore().Dictionary("/Accounts/Register/Email", "Enter Email id")</label>
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.MobileNumber, "has-error")">
+                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", required = "required", @readonly = "readonly" })
+                                    @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                    <label for="MobileNumber">@Html.Sitecore().Dictionary("/Accounts/Register/MobileNumber", "Enter Mobile Number")</label>
+                                </div>
+                                <div class="input-field custom col s12 m6 @Html.ValidationErrorFor(x => x.LandlineNumber, "has-error")">
+                                    @Html.TextBoxFor(x => x.LandlineNumber, new { @class = "form-control reset-control", id = "LandlineNumber" })
+                                    @Html.ValidationMessageFor(x => x.LandlineNumber, "", new { @class = "help-block" }, "p")
+                                    <label for="LandlineNumber">@Html.Sitecore().Dictionary("/Accounts/Register/LandlineNumber", "Enter Landline no")</label>
+                                </div>
+                                <div class="input-field custom input-has-icon col s12 m6 @Html.ValidationErrorFor(x => x.DateofBirth, "has-error")">
+                                    @Html.TextBoxFor(x => x.DateofBirth, new { @class = "form-control reset-control RegisterDateofBirth", id = "txtRegDateofBirth", required = "required" })
+                                    @*<input id="departure" value="" type="text" class="datepicker" readonly="readonly">*@
+                                    <label for="DateofBirth">@Html.Sitecore().Dictionary("/Accounts/Register/DateofBirth", "Date of Birth")</label>
+                                    <div class="input-icon">
+                                        <i class="vi-calender i-24 RegisterDateofBirth"></i>
+                                    </div>
+                                    @Html.ValidationMessageFor(x => x.DateofBirth, "", new { @class = "help-block" }, "p")
+                                </div>
+
+                                <div class="input-field custom input-has-icon col s12 m6" style="padding-left: 26px;">
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-field col s12 " id="chkBoxField">
+                                    <div class="checkbox-field">
+                                        <label>
+                                            @Html.CheckBoxFor(x => x.EBill, new { @class = "form-check-input filled-in" })
+                                            @*<input type="checkbox" class="filled-in" checked="checked" />*@
+                                            <span>@Html.Sitecore().Dictionary("/Accounts/Register/EBill", "E-Bill (I want to received my electricity bill by email on above mentioned email id.)")</span>
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-field">
+                                        <label>
+                                            @Html.CheckBoxFor(x => x.RecieveNotification, new { @class = "form-check-input filled-in" })
+                                            @*<input type="checkbox" class="filled-in" checked="checked" />*@
+                                            <span>@Html.Sitecore().Dictionary("/Accounts/Register/RecieveNotification", "I want to receive information updates about Adani Electricity's new services and initiatives.")</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col s12">
+                                <div class="btn-group">
+                                    <button type="button" id="btnReset" onclick="ResetElement('frmRegister')" class="btn-flat waves-effect">@Html.Sitecore().Dictionary("/Accounts/Register/Button/Reset", "Reset")</button>
+                                    <button type="submit" class="waves-effect waves-light btn btn-continue">@Html.Sitecore().Dictionary("/Accounts/Register/Button/Submit", "Submit")</button>
+                                </div>
+                            </div>
+                        }
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+    <script type="text/javascript">
+        function ResetElement(formId) {
+            var FormIdWithPrefix = jQuery("#" + formId);
+            var resetInputField = FormIdWithPrefix.find(".reset-control");
+            resetInputField.val("");
+        }
+        $(document).ready(function () {
+            $('#txtRegDateofBirth').datepicker({
+                format: 'dd/mm/yyyy',
+                maxDate: new Date(),
+                yearRange: 40
+            });
+
+            $('.RegisterDateofBirth').click(function () {
+                $("#txtRegDateofBirth").datepicker("open");
+            });
+
+            $("input[name=EBill]:nth-child(2)").appendTo("#chkBoxField");
+            $("input[name=RecieveNotification]:nth-child(2)").appendTo("#chkBoxField");
+        });
+    </script>
+}

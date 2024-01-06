@@ -1,0 +1,387 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+<input type="hidden" id="hdnadhoccallurl" value="@Html.Sitecore().Dictionary("/Accounts/AEMLVirtualCustomerCare/AdhocCallUrl", "https://113.193.177.134:8443/visual-ivr/?intent=InboundAdhocCall&UCID=")" />
+<input type="hidden" id="hdnschedulecallurl" value="@Html.Sitecore().Dictionary("/Accounts/AEMLVirtualCustomerCare/ScheduleCallUrl", " https://113.193.177.134:8443/visual-ivr/?intent=ScheduleSlot&UCID=")" />
+<div class="col s12 m8 offset-m1 section-container">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    <div class="submit-new-request-VCC">
+        <div class="border-none-mobile card outlined section-inner-wrapper card-with-form" id="ValidateCAVCCForm">
+            <div class="input-field custom">
+                <input value="" id="CANumber" class="validate" name="CANumber" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                <label for="CANumber">CA Number<span class="required">*</span></label>
+                <p id="showCAmsg">@Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/ConsumerAccountnumberHelpText", "Please enter your 9 digit Consumer Account number")</p>
+            </div>
+            <div class="input-field custom" id="ValidateCAVCCFormMobileField" style="display:none">
+                <input value="" id="VCCMaskedMobileOTP" readonly="readonly" />
+                <label class="active" for="VCCMaskedMobileOTP">Mobile number<span class="required">*</span></label>
+            </div>
+            <div id="OTPDIV" style="display:none">
+                <div class="otp-wrapper col-s12">
+                    <label>@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP", "Enter OTP")</label>
+                    <p id="otpsendtext">@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP Help Text VCC", "We have sent you an OTP on your mobile number #. Please enter to verify")</p>
+                </div>
+                <div class="input-field custom">
+                    <input value="" id="VCCOTP" class="validate" name="VCCOTP" type="number" maxlength="5" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                    <label class="active" for="VCCOTP"> @Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP", "Enter OTP")</label>
+                    @*<p id="otpsendmsg">@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP Help Text VCC", "We have sent you an OTP on your mobile number #. Please enter to verify")</p>*@
+                    <p class="" id="lblVCCOTPerror" style="display:none"></p>
+                </div>
+            </div>
+
+            <div class="input-field custom">
+                <div class="captcha_box" id="vccCaptcha">
+                    <div class="form-group pt-md-2">
+                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                        <div class="row captcha_box" style="padding-left:10px;">
+                            <div class="col-lg-12">
+                                <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                <p class="field-validation-error" id="lblCaptchaerror" style="display:none"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-right btn-group">
+                <button type="submit" class="waves-effect btn btn-continue login-btn" id="submitCA" value="submitCA">Submit</button>
+            </div>
+        </div>
+        <div class="border-none-mobile card outlined section-inner-wrapper card-with-form" id="GenerateURLVCCForm" style="display:none">
+            <input type="hidden" value="" id="hdnvccEmailid" />
+            <input type="hidden" value="" id="hdnvccMobile" />
+            <input type="hidden" value="" id="hdnvccCaType" />
+            <div class="input-field custom">
+                <input value="" id="VCCAccountNumber" readonly="readonly" />
+                <label class="active" for="VCCAccountNumber">CA Number<span class="required">*</span></label>
+            </div>
+            <div class="input-field custom">
+                <input value="" id="VCCName" readonly="readonly" />
+                <label class="active" for="VCCName">Name</label>
+            </div>
+            <div class="input-field custom">
+                <input value="" id="VCCMaskedEmail" readonly="readonly" />
+                <label class="active" for="VCCMaskedEmail">Email<span class="required">*</span></label>
+            </div>
+            <div class="input-field custom">
+                <input value="" id="VCCMaskedMobile" readonly="readonly" />
+                <label class="active" for="VCCMaskedMobile">Mobile number<span class="required">*</span></label>
+            </div>
+            <div class="input-field custom" style="display:none">
+                <input value="" id="VCCAccountNumberType" readonly="readonly" />
+                <label class="active" for="VCCAccountNumberType">CA Type</label>
+            </div>
+            <div class="input-field custom">
+                <select onchange="ShowInteractionDropDown();" id="dllvccpriority" name="dllvccpriority">
+                    <option value="Emergency">Emergency</option>
+                    <option value="Normal">Normal</option>
+                </select>
+                <label for="dllvccpriority">Priority</label>
+                <p id="dllvccpriorityerror"></p>
+            </div>
+            <div class="input-field custom">
+                <select id="ddlvccinteractionEmergency" name="ddlvccinteractionEmergency">
+                    <option value="Supply: Fire & shock">Supply: Fire & shock</option>
+                    <option value="Supply: Lift">Supply: Lift</option>
+                </select>
+                <label for="ddlvccinteractionEmergency">Interaction</label>
+                <p id="ddlvccinteractionEmergency"></p>
+            </div>
+            <div class="input-field custom" style="display:none">
+                <select id="ddlvccinteractionNormal" name="ddlvccinteractionNormal">
+                    <option value="Billing (others)">Billing (others)</option>
+                    <option value="HCC">High Consumption complaint</option>
+                    <option value="No supply">No supply</option>
+                    <option value="Payment- related">Payment related</option>
+                </select>
+                <label for="ddlvccinteractionNormal">Interaction</label>
+                <p id="ddlvccinteractionNormal"></p>
+            </div>
+            <div class="input-field custom">
+                <select id="dllvcclanguage" name="dllvcclanguage">
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Marathi">Marathi</option>
+                </select>
+                <label for="dllvcclanguage">Language</label>
+                <p id="dllvcclanguageerror"></p>
+            </div>
+
+            <div class="input-field custom" id="GenerateURLVCCFormCaptcha">
+
+            </div>
+            <div class="btn-group section-spacer-small">
+                <button type="submit" onclick="location.reload()" class="btn-flat waves-effect" id="ResetVCC">Reset</button>
+                <button type="submit" class="waves-effect waves-light btn btn-tiny btn-width-auto outlined GenerateVCCUrl" value="AdhocVCC" id="AdhocVCC">Video Call Now</button>
+                <button type="submit" class="waves-effect waves-light btn btn-tiny outlined-black btn-width-auto GenerateVCCUrl" value="ScheduleVCC" id="ScheduleVCC">Schedule a Video Call</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script type="text/javascript">
+    var vccCaptcha;
+    var onloadCallback = function () {
+        vccCaptcha = grecaptcha.render('vccCaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+    window.ShowInteractionDropDown = ShowInteractionDropDown
+    function ShowInteractionDropDown() {
+        if ($('select#dllvccpriority option:selected').val() == 'Emergency') {
+            $('#ddlvccinteractionEmergency').closest('div.input-field').show();
+            $('#ddlvccinteractionNormal').closest('div.input-field').hide();
+        } else {
+            $('#ddlvccinteractionEmergency').closest('div.input-field').hide();
+            $('#ddlvccinteractionNormal').closest('div.input-field').show();
+        }
+    }
+
+    window.getEncriptedKey = getEncriptedKey
+    function getEncriptedKey(stringToEncrypt) {
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(stringToEncrypt), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }).toString();
+        return encrypted;
+    }
+
+    window.decrypt = decrypt
+    function decrypt(stringtoDescrypt) {
+        var key = CryptoJS.enc.Utf8.parse("8080808080808080");
+        var iv = CryptoJS.enc.Utf8.parse("8080808080808080");
+        var decryptedMessage = CryptoJS.AES.decrypt(stringtoDescrypt, key, {
+            iv: iv
+        });
+
+        return decryptedMessage.toString(CryptoJS.enc.Utf8);
+    }
+
+    $("#submitCA").click(function () {
+        //debugger;
+        var caNumber = $('#CANumber').val();
+        var CAcheck = new RegExp("^[0-9]{8,10}$");
+        var isValid = true;
+
+        if (caNumber == '') {
+            $('#showCAmsg').html("Please enter CA Number");
+            $('#showCAmsg').addClass('field-validation-error');
+            $('#CANumber').addClass('validate invalid');
+            isValid = false;
+        } else {
+            if (!CAcheck.test(caNumber)) {
+                // e.preventDefault();
+                $('#showCAmsg').html("Enter valid CA Number");
+                $('#showCAmsg').addClass('field-validation-error');
+                $('#CANumber').addClass('invalid');
+                isValid = false;
+            } else {
+                $('#showCAmsg').html("Please enter your 9 digit Consumer Account number");
+                $('#showCAmsg').removeClass('field-validation-error');
+                $('#CANumber').removeClass('invalid');
+            }
+        }
+
+        var vccCaptcharesponse = grecaptcha.getResponse(vccCaptcha);
+        if (!vccCaptcharesponse) {
+            $('#lblCaptchaerror').show().html('Please validate captcha to continue');
+            isValid = false;
+        }
+        else {
+            $('#lblCaptchaerror').hide().html('');
+        }
+        var Model = {};
+        if ($('#submitCA').val() == "submitCA") {
+            Model = {
+                CANumber: getEncriptedKey(caNumber),
+                Captcha: vccCaptcharesponse
+            }
+        } else if ($('#submitCA').val() == "validateotp") {
+            Model = {
+                CANumber: getEncriptedKey(caNumber),
+                Captcha: vccCaptcharesponse,
+                MobileNumber: $('#hdnvccMobile').val(),
+                VCCOTP: getEncriptedKey($('#VCCOTP').val())
+            }
+        }
+
+        if (isValid) {
+            $('#lblVCCOTPerror').hide()
+            $('.loader-wrap').show();
+            $.ajax({
+                url: apiSettings + "/ElectricityNew/AEMLVirtualCustomerCare",
+                type: 'POST',
+                data: { model: Model, btnName: $('#submitCA').val() },
+                success: function (data) {
+                    grecaptcha.reset(vccCaptcha);
+
+                    $('.loader-wrap').hide();
+
+                    if (data.Message == 'success') {
+
+                        $('#GenerateURLVCCFormCaptcha').append($('#vccCaptcha'));
+                        $('#ValidateCAVCCForm').hide();
+                        $('#GenerateURLVCCForm').show();
+
+                    } else if (data.Message == 'validateotp') {
+                        $('#submitCA').val(data.Message);
+
+                        $('#VCCAccountNumber').val(caNumber);
+                        $('#VCCName').val(decrypt(data.Name));
+                        $('#VCCAccountNumberType').val(data.CAType);
+
+                        $('#CANumber').attr("readonly", "readonly");
+                        $('#CANumber').addClass('ameldisabled');
+
+                        $('#hdnvccEmailid').val(data.EmailId);
+                        $('#hdnvccMobile').val(data.MobileNumber);
+                        $('#hdnvccCaType').val(data.CAType);
+
+                        var decryptedEmail = data.EmailId != undefined && data.EmailId != '' ? decrypt(data.EmailId) : '';
+                        var decryptedMobile = data.MobileNumber != undefined && data.MobileNumber != '' ? decrypt(data.MobileNumber) : '';
+
+                        var maskedEmail = decryptedEmail != '' ? decryptedEmail.substring(0, 2) + "xxxxxxxxxxx" + decryptedEmail.substring(decryptedEmail.indexOf('@@'), decryptedEmail.indexOf('@@') + 3) + 'xxxxxx' : '';
+                        var maskedMobile = decryptedMobile != '' ? decryptedMobile.substring(0, 2) + "xxxxxxx" + decryptedMobile.substring(9, 10) : '';
+
+
+                        $('#VCCMaskedMobileOTP').addClass('ameldisabled');
+                        $('#VCCMaskedMobileOTP').val(maskedMobile);
+                        $('#VCCMaskedMobile').val(maskedMobile);
+                        $('#VCCMaskedEmail').val(maskedEmail);
+
+                        $('#ValidateCAVCCFormMobileField').hide();
+                        // $('#ValidateCAVCCFormField').hide();
+                        $("#otpsendtext").text($("#otpsendtext").text().replace("#", maskedMobile));
+                        //$("#otpsendmsg").text($("#otpsendmsg").text().replace("#", maskedMobile));
+                        //$('#lblVCCOTPerror').show().html('OTP Sent!').removeClass('field-validation-error');
+                        $('#submitCA').val(data.Message);
+                        $('#OTPDIV').show();
+
+                    } else if (data.Message == 'otpnotmatched') {
+                        $('#lblVCCOTPerror').show().html('OTP Does not matched.').addClass('field-validation-error');
+
+                    }
+                    else if (data.Message == 'otpfailed') {
+                        $('#lblVCCOTPerror').show().html('Failed to Send OTP!').addClass('field-validation-error');
+
+                    } else if (data.Message == 'captchainvalid') {
+
+                        $('#lblCaptchaerror').show().html('Please validate captcha to continue');
+
+                    } else {
+                        $('#showCAmsg').show().html(data.Message).addClass('field-validation-error');
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation--' + errorThrown);
+                }
+            });
+        }
+    });
+
+    $('.GenerateVCCUrl').click(function () {
+        var vccBtnType = $(this).val();
+        var caNumber = $('#CANumber').val();
+        var adhocCallUrl = $('#hdnadhoccallurl').val();
+        var scheduleCallUrl = $('#hdnschedulecallurl').val();
+        var isValid = true;
+
+        var vccCaptcharesponse = grecaptcha.getResponse(vccCaptcha);
+        if (!vccCaptcharesponse) {
+            $('#lblCaptchaerror').show().html('Please validate captcha to continue');
+            isValid = false;
+        }
+        else {
+            $('#lblCaptchaerror').hide().html('');
+        }
+
+        var Model = {
+            CANumber: getEncriptedKey(caNumber),
+            Captcha: vccCaptcharesponse,
+            MobileNumber: $('#hdnvccMobile').val(),
+            EmailId: $('#hdnvccEmailid').val(),
+            CAType: $('#hdnvccCaType').val(),
+            Priority: getEncriptedKey($('select#dllvccpriority option:selected').val()),
+            Preferred_Language: getEncriptedKey($('select#dllvcclanguage option:selected').val()),
+            Interaction_Type: getEncriptedKey($('select#ddlvccinteraction' + $('select#dllvccpriority option:selected').val() + ' option:selected').val())
+        };
+
+        if (isValid) {
+            $.ajax({
+                url: apiSettings + "/ElectricityNew/CreateAEMLVCCUCID",
+                type: 'POST',
+                beforeSend: function () {
+                    $('.loader-wrap').show();
+                },
+                data: { model: Model, btnName: vccBtnType },
+                success: function (data) {
+                    if (data.Message == 'success') {
+                        if (data.UCID != undefined && data.UCID != '') {
+                            $('.loader-wrap').show();
+                            if (vccBtnType == "AdhocVCC") {
+                                openUrlInTab(adhocCallUrl + decrypt(data.UCID));
+                            } else if (vccBtnType == "ScheduleVCC") {
+                                openUrlInTab(scheduleCallUrl + decrypt(data.UCID));
+                            }
+                            setTimeout(
+                                function () {
+                                    location.reload();
+                                }, 3000);
+                        } else {
+                            $('.loader-wrap').hide();
+                            grecaptcha.reset(vccCaptcha);
+                            $('#lblCaptchaerror').show().html('Unable to Connect to server!');
+                        }
+
+                    } else if (data.Message == 'unabletoconnectServer') {
+                        $('.loader-wrap').hide();
+                        grecaptcha.reset(vccCaptcha);
+                        $('#lblCaptchaerror').show().html('Unable to Connect to server!');
+                    } else if (data.Message == 'expectedtimeisgreater') {
+                        $('.loader-wrap').hide();
+                        grecaptcha.reset(vccCaptcha);
+                        //$('#AdhocVCC').attr('disabled', 'disabled');
+                        $('#AdhocVCC').addClass('secondary-disabled');
+                        $('#lblCaptchaerror').show().html('All our Customer Care Representatives are busy attending to other calls. Please schedule your video call for another time.');
+                    } else if (data.Message == 'noagentavailable') {
+                        $('.loader-wrap').hide();
+                        grecaptcha.reset(vccCaptcha);
+                        //$('#AdhocVCC').attr('disabled', 'disabled');
+                        $('#AdhocVCC').addClass('secondary-disabled');
+                        $('#lblCaptchaerror').show().html('No Customer Care Representative is available right now. Please schedule your video call for another time.');
+                    }
+                    else {
+                        $('.loader-wrap').hide();
+                        grecaptcha.reset(vccCaptcha);
+                        $('#lblCaptchaerror').show().html('Something went wrong!');
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation--' + errorThrown);
+                }
+            });
+        }
+    });
+
+    window.openUrlInTab = openUrlInTab
+    function openUrlInTab(url) {
+        // Create link in memory
+        var a = window.document.createElement("a");
+        a.target = '_blank';
+        a.href = url;
+
+        // Dispatch fake click
+        var e = window.document.createEvent("MouseEvents");
+        e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
+    };
+</script>

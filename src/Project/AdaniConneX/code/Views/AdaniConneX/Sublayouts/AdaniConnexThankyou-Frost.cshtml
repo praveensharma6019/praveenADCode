@@ -1,0 +1,92 @@
+﻿
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string imgurl = "";
+string altText = "";
+string thumbimgurl = "";
+string thumbaltText = "";
+string srcImgurl = "";
+string srcImgaltText = "";
+string srcMobileImgurl = "";
+string srcMobileImgaltText = "";
+}
+@if(model != null)
+{
+Sitecore.Data.Fields.LinkField linkField = model.Fields["CTALink"];
+var btnUrl = linkField.GetFriendlyUrl();
+Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["Image"]);
+if (imgField != null && imgField.MediaItem != null)
+{
+imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+altText = imgField.Alt;
+}
+Sitecore.Data.Fields.ImageField thumbimgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MobileImage"]);
+if (thumbimgField != null && thumbimgField.MediaItem != null)
+{
+thumbimgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbimgField.MediaItem);
+thumbaltText = thumbimgField.Alt;
+}
+Sitecore.Data.Fields.ImageField srcimgField = ((Sitecore.Data.Fields.ImageField)model.Fields["SrcImage"]);
+if (srcimgField != null && srcimgField.MediaItem != null)
+{
+srcImgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(srcimgField.MediaItem);
+srcImgaltText = srcimgField.Alt;
+}
+Sitecore.Data.Fields.ImageField srcmobileimgField = ((Sitecore.Data.Fields.ImageField)model.Fields["SrcMobileImage"]);
+if (srcmobileimgField != null && srcmobileimgField.MediaItem != null)
+{
+srcMobileImgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(srcmobileimgField.MediaItem);
+srcMobileImgaltText = srcmobileimgField.Alt;
+}
+<div class="popup-box ac" id="pressPopup">
+   <div class="backdrop" id="pressPopupClose"></div>
+   <div class="popup-content">
+       <span class="close-modal" onclick="closeModal()">
+                      <i class="i-close i-20"></i>
+            </span>
+					<div class="position-relative">
+						<picture class="award_popup_bg_div">
+							<source media="(min-width: 768px)" srcset="@imgurl">
+							<source media="(min-width: 320px)" srcset="@thumbimgurl">
+							<img src="@imgurl" class="img-fluid" alt="banner_img" draggable="false">
+						</picture>
+						<div class="popup_content">
+									@Html.Sitecore().Field("Text",model)
+								<h4 class="text_gradient">
+									@Html.Sitecore().Field("Description",model)
+								</h4>
+							<picture>
+							<source media="(min-width: 768px)" srcset="@srcImgurl">
+							@* <source media="(min-width: 280px)" srcset="@srcMobileImgurl"> *@
+							<img src="@srcImgurl" class="golden-img" alt="@srcImgaltText">
+							</picture>
+							<h3>@Html.Sitecore().Field("SubTitle",model)</h3>							
+							<div class="center_btn">
+								@if (btnUrl != null)
+									{
+										CheckboxField checkbox = model.Fields["ExternalLink"];
+										if (checkbox != null && checkbox.Checked)
+										{
+											<a href="@btnUrl" target="_blank" class="btn">@Html.Sitecore().Field("CTAText", model)</a>
+										}
+										else
+										{
+											<a href="@btnUrl" class="btn">@Html.Sitecore().Field("CTAText", model)</a>
+										}
+									}
+									else
+									{
+										<a href="javascript:void(0)" class="btn">@Html.Sitecore().Field("CTAText", model)</a>
+									}					
+							</div>
+						</div>
+   				   </div>
+      
+   </div>
+</div>
+}

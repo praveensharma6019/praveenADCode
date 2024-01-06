@@ -1,0 +1,45 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Links
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var contextItem = Sitecore.Context.Item;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    MultilistField element = contextItem.Fields["CaseStudies"];
+}
+
+@if (contextItem != null)
+{
+    <div class="col-lg-4 my-4">
+        <h2 class="heading heading-centered">@Html.Sitecore().Field("CaseStudiesHeading", contextItem)</h2>
+        <div class="casestudy-sidebar">
+            <div class="row">
+                @if (!String.IsNullOrEmpty(element.Value))
+                {
+                    Item[] listItem = element.GetItems();
+                    foreach (Item item in listItem)
+                    {
+                        var link = LinkManager.GetItemUrl(item).ToLower();
+                        <div class="col-lg-12">
+                            <a href="@link">
+                                <div class="casestudy-sidebar-inner">
+                                    <div class="casestudy-sidebar-thumb">
+                                        @*@Html.Sitecore().ImageField("Thumbnail", item, 0, 0, "img-fluid")*@
+                                        <img src="https://via.placeholder.com/350x250" class="img-fluid">
+                                    </div>
+                                    <div class="casestudy-sidebar-content">
+                                        <p>@Html.Sitecore().Field("Title", item)</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+
+                }
+            </div>
+            @{var url = LinkManager.GetItemUrl(element.GetItems()[0].Parent);}
+            <p class="readmore-w text-right"><a href="@url">view all</a></p>
+        </div>
+    </div>
+
+}

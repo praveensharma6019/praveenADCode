@@ -1,0 +1,347 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+    var locations = Sitecore.Context.Database.GetItem(Templates.RealtyLocations.RootItem);
+    var residentailItem = Sitecore.Context.Database.GetItem(Templates.RealtyResidentailMenuRoot.ID);
+    var count = 0;
+    var MenuImageRootItem = Sitecore.Context.Database.GetItem(Templates.RealtyMenuMedia.RootMenu);
+    var clubLandigItem = Sitecore.Context.Database.GetItem(Templates.RealtyClub.ID);
+    var cluburl = "";
+    var url = string.Empty;
+    if (clubLandigItem != null)
+    {
+        cluburl = clubLandigItem.Url();
+        Sitecore.Data.Fields.LinkField linkfield = clubLandigItem.Fields["Link"];
+        url = linkfield.GetFriendlyUrl();
+    }
+    var commercial = Sitecore.Context.Database.GetItem(Templates.RealtyCommercialMenuRoot.ID);
+}
+
+<div class="collapse navbar-collapse asd" id="mainMenu">
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="@residentailItem.Url()" id="dropdown01" role="button" aria-expanded="false">@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/Property Type/Residential", "Residential")<span class="dropMenuIcon mobile-none"><i class="fas fa-angle-down fa-xs"></i></span></a>
+            <div class="dropdown-menu mobile-none navmenu py-0">
+                <div class="tab tabnav">
+                    <button class="tablinks btn fil-cat" data-rel="all">@Html.Sitecore().Dictionary("/All Property/All Property", "All Property")</button>
+                    <button class="tablinks btn fil-cat" data-rel="readytomove">@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/Property Status/Ready to move", "Ready to Move")</button>
+                    <button class="tablinks btn fil-cat" data-rel="underconstruction">@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/Property Status/Under Construction", "Under Construction")</button>
+                </div>
+
+                <div id="tabbedmenu" class="tabcontent tabsubmenu">
+                    <div class="row">
+                        <div class="col-sm-3 nav-menus px-2">
+                            @foreach (var location in locations.Children.ToList())
+                            {
+                                if (count == 2)
+                                {
+                                    @Html.Raw("</div>")
+                                    @Html.Raw("<div class=\"col-sm-3 nav-menus px-2\">")
+                                    count = 0;
+                                }
+
+                                var locationWiseTowship = Model.NavItems.Where(i => !string.IsNullOrEmpty(i.Item.Fields[Templates.RealtyResidentail.Fields.Location].Value) && new Sitecore.Data.ID(i.Item.Fields[Templates.RealtyResidentail.Fields.Location].Value) == location.ID && !string.IsNullOrEmpty(i.Item.Fields[Templates.RealtyResidentail.Fields.Township].Value)).ToList();
+                                var locationWiseResidentails = Model.NavItems.Where(i => !string.IsNullOrEmpty(i.Item.Fields[Templates.RealtyResidentail.Fields.Location].Value) && new Sitecore.Data.ID(i.Item.Fields[Templates.RealtyResidentail.Fields.Location].Value) == location.ID && string.IsNullOrEmpty(i.Item.Fields[Templates.RealtyResidentail.Fields.Township].Value)).ToList();
+
+                                if (locationWiseTowship != null && locationWiseTowship.Count() > 0)
+                                {
+                                    var tId = locationWiseTowship.FirstOrDefault().Item.Fields[Templates.RealtyResidentail.Fields.Township].Value;
+                                    var townshipItem = Sitecore.Context.Database.GetItem(new Sitecore.Data.ID(tId));
+                                    var projectStatus = "";
+                                    <ul>
+                                        @foreach (var t in locationWiseTowship)
+                                        {
+                                            var item = t.Item.GetMultiListValueItems(Templates.RealtyResidentail.Fields.ProjectStatus);
+                                            projectStatus += (item.Any() ? item.FirstOrDefault().Fields[Templates.RealtyProjectStatus.Fields.Style].Value : string.Empty) + " ";
+                                        }
+                                        <li class="scale-anm all @projectStatus">
+                                            <h4>
+                                                <a href="@townshipItem.Url()">
+                                                    @townshipItem.Fields[Templates.RealtyTownship.Fields.Title].Value , @location.Fields[Templates.RealtyLocations.Fields.Text].Value
+                                                </a>
+                                            </h4>
+                                        </li>
+
+                                        @foreach (var towship in locationWiseTowship)
+                                        {
+                                            var item = towship.Item.GetMultiListValueItems(Templates.RealtyResidentail.Fields.ProjectStatus);
+                                            projectStatus = (item.Any() ? item.FirstOrDefault().Fields[Templates.RealtyProjectStatus.Fields.Style].Value : string.Empty);
+
+
+                                            if (!towship.IsExternalLink)
+                                            {
+                                                if (!towship.IsNewTab)
+                                                {
+
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@towship.Url" target="@towship.Target">
+                                                            @towship.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value
+                                                        </a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, towship.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@towship.Url" target="_blank">@towship.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value</a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, towship.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (!towship.IsNewTab)
+                                                {
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@towship.Link" target="@towship.Target">@towship.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value</a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, towship.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@towship.Link" target="_blank">@towship.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value</a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, towship.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                            }
+
+                                        }
+                                    </ul>
+                                    count++;
+                                }
+
+                                if (count == 2)
+                                {
+                                    @Html.Raw("</div>")
+                                    @Html.Raw("<div class=\"col-sm-3 nav-menus px-2\">")
+                                    count = 0;
+                                }
+
+                                if (locationWiseResidentails != null && locationWiseResidentails.Count() > 0)
+                                {
+                                    var projectStatus = "";
+                                    <ul>
+                                        @foreach (var t in locationWiseResidentails)
+                                        {
+                                            var item = t.Item.GetMultiListValueItems(Templates.RealtyResidentail.Fields.ProjectStatus);
+                                            projectStatus += (item.Any() ? item.FirstOrDefault().Fields[Templates.RealtyProjectStatus.Fields.Style].Value : string.Empty) + " ";
+                                        }
+                                        <li class="scale-anm all @projectStatus"><h4>@location.Fields[Templates.RealtyLocations.Fields.Text].Value</h4></li>
+                                        @foreach (var residential in locationWiseResidentails)
+                                        {
+                                            var item = residential.Item.GetMultiListValueItems(Templates.RealtyResidentail.Fields.ProjectStatus);
+                                            projectStatus = (item.Any() ? item.FirstOrDefault().Fields[Templates.RealtyProjectStatus.Fields.Style].Value : string.Empty);
+
+
+                                            if (!residential.IsExternalLink)
+                                            {
+                                                if (!residential.IsNewTab)
+                                                {
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@residential.Url" target="@residential.Target">@residential.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value</a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, residential.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@residential.Url" target="_blank">@residential.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value</a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, residential.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (!residential.IsNewTab)
+                                                {
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@residential.Link" target="@residential.Target">@residential.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value</a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, residential.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li class="scale-anm all @projectStatus">
+                                                        <a href="@residential.Link" target="_blank">@residential.Item.Fields[Templates.RealtyResidentail.Fields.Title].Value</a>
+                                                        @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, residential.Item, new { @class = "img-fluid", @style = "display:none" })
+                                                    </li>
+                                                }
+                                            }
+                                        }
+                                    </ul>
+                                    count++;
+                                }
+                            }
+                        </div>
+                        <div class="col-sm-3 px-2 pt-2">
+                            <ul id="ulimg">
+                                @{ count = 0; }
+                                @if (MenuImageRootItem != null)
+                                {
+                                    foreach (var item in MenuImageRootItem.Children.ToList())
+                                    {
+                                        var style = item.Fields[Templates.RealtyMenuMedia.Fields.Style].Value;
+                                        var css = "";
+                                        if (count != 0)
+                                        {
+                                            css = "hide";
+                                        }
+
+                                        <li class="scale-anm @css @style">
+                                            @Html.Sitecore().Field(Templates.RealtyMenuMedia.Fields.ThumbImage, item, new { @class = "img-fluid" })
+                                        </li>
+
+                                        count++;
+                                    }
+                                }
+
+                                <li class="scale-anm submen-img" id="limenu">
+                                    <img src="" class="img-fluid" />
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="@commercial.Url()" id="dropdown02" role="button" aria-expanded="false">@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/Property Type/Commercial", "Commercial")<span class="dropMenuIcon mobile-none"><i class="fas fa-angle-down fa-xs"></i></span></a>
+            <div class="dropdown-menu mobile-none">
+                <div class="row">
+                    @if (Model?.NavItems != null)
+                    {
+                        foreach (var item in Model.NavItems)
+                        {
+
+                            if (item.Item.TemplateID == Templates.RealtyCommercial.ID)
+                            {
+                                var name = item.Item.Fields[Templates.RealtyCommercial.Fields.Title].Value;
+
+                                var itemlocation = item.Item.GetMultiListValueItems(Templates.RealtyCommercial.Fields.Location).FirstOrDefault();
+                                <div class="col-sm-3 pb-3 pl-3 pr-3">
+
+
+                                    @if (!item.IsExternalLink)
+                                    {
+                                        if (!item.IsNewTab)
+                                        {
+
+                                            <a href="@item.Url" target="@item.Target">
+                                                @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, item.Item, new { @class = "img-fluid menu-tile pb-3 px-3" })
+                                                <h5 class="py-1 px-3">
+                                                    @name <br>
+                                                    <span class="txt-black">
+                                                        @if (itemlocation != null)
+                                                        {
+                                                            @Html.Sitecore().Field(Templates.RealtyLocations.Fields.Text, itemlocation)
+                                                        }
+                                                    </span>
+                                                </h5>
+                                            </a>
+                                        }
+                                        else
+                                        {
+
+                                            <a href="@item.Url" target="_blank">
+                                                @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, item.Item, new { @class = "img-fluid menu-tile pb-3 px-3" })
+                                                <h5 class="py-1 px-3">
+                                                    @name <br>
+                                                    <span class="txt-black">
+                                                        @if (itemlocation != null)
+                                                        {
+                                                            @Html.Sitecore().Field(Templates.RealtyLocations.Fields.Text, itemlocation)
+                                                        }
+                                                    </span>
+                                                </h5>
+                                            </a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (!item.IsNewTab)
+                                        {
+                                            <a href="@item.Link" target="@item.Target">
+                                                @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, item.Item, new { @class = "img-fluid menu-tile pb-3 px-3" })
+                                                <h5 class="py-1 px-3">
+                                                    @name <br>
+                                                    <span class="txt-black">
+                                                        @if (itemlocation != null)
+                                                        {
+                                                            @Html.Sitecore().Field(Templates.RealtyLocations.Fields.Text, itemlocation)
+                                                        }
+                                                    </span>
+                                                </h5>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@item.Link" target="_blank">
+                                                @Html.Sitecore().Field(Templates.RealtyResidentail.Fields.Image, item.Item, new { @class = "img-fluid menu-tile pb-3 px-3" })
+                                                <h5 class="py-1 px-3">
+                                                    @name <br>
+                                                    <span class="txt-black">
+                                                        @if (itemlocation != null)
+                                                        {
+                                                            @Html.Sitecore().Field(Templates.RealtyLocations.Fields.Text, itemlocation)
+                                                        }
+                                                    </span>
+                                                </h5>
+                                            </a>
+                                        }
+                                    }
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@url" target="_blank">@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/Property Type/Club", "Club")</a>
+        </li>
+    </ul>
+    <ul class="nav-icons mobile-none">
+        @Html.Sitecore().Placeholder("search-realty")
+        <li>
+            <div class="dropdown">
+                <button class="dropbtn"><span class="searchIcon"><i class="fas fa-phone rotate90 txt-d-blue"></i></span></button>
+                <div class="dropdown-content margin-lllt dropdown-box pl-3 pr-3">
+                    @*<p class="py-3"><span>@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/Contact us", "Contact us")</span></p>*@
+                    @*<p class="py-3 pb-5">
+                        <span> @Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/Write to us", "Write to us") : </span>
+                        <span class="pull-right txt-blue txt-underline txt-right">
+
+                            <a href="mailto:@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/email", "info@adanirealty.com")" class="p-0 txt-blue pb-1"> @Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/email", "info@adanirealty.com")</a>
+                            <a href="mailto:@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/commercial email", "commercial@adanirealty.com")" class="p-0 pb-1 txt-blue"> @Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/commercial email", "commercial@adanirealty.com")</a>
+                        </span>
+                    </p>*@
+                    <p class="py-3 pb-5">
+                        <span>@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/Call us", "Call us (Toll free)")</span>
+                        <span class="pull-right txt-blue txt-right">
+                            <a href="tel:@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/Toll free", "1800-108-0009")" class="p-0 txt-blue pb-1">@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/Toll free", "1800-108-0009")</a>
+                            @*<a href="tel:@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/Toll free 2", "1800-3070-2020")" class="p-0 txt-blue pb-1">@Html.Sitecore().Dictionary("/sitecore/content/Realty/Global/Dictionary/menu/Toll free 2", "1800-3070-2020")</a>*@
+                        </span>
+                    </p>
+                    @*<p class="py-3">Request a call back</p>*@
+                    @*<div class="form-group row py-3">
+                            <div class="col-8">
+                                <input type="text" class="form-control dropdown-left" id="" placeholder="">
+                            </div>
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-primary dropdown-right">Send</button>
+                            </div>
+                        </div>*@
+                    @Html.Sitecore().Placeholder("CallBackForm")
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>

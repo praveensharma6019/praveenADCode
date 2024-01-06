@@ -1,0 +1,823 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Electricity.Website.Model.Tender
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+<div class="pageContent">
+    <div class="container">
+        <!-- Section -->
+        <div class="pb-3 panel">
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+                <div class="form-group row">
+                    <input id="message" type="hidden" value="@ViewBag.Message" />
+                </div>
+            }
+            @using (Html.BeginForm("Logout", "Electricity", FormMethod.Post))
+            {
+                <div class="col-12 p-0 pb-3">
+                    <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button></div>
+                    <div class="clearfix"></div>
+                </div>
+            }
+            @if (Model != null)
+            {
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Name:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" class="form-control" value="@Model.UserName" placeholder="" disabled="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Company Name:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" class="form-control" value="@Model.CompanyName" placeholder="" disabled="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Email:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" class="form-control" value="@Model.Email" placeholder="" disabled="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Mobile:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" class="form-control" value="@Model.Mobile" placeholder="" disabled="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Tender ID:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" class="form-control" value="@Model.NITNo" placeholder="" disabled="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Tender Name:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" class="form-control" value="@Model.TenderName" placeholder="" disabled="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Document Upload Status:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" class="form-control" value="@Model.DocumentStatus" placeholder="" disabled="">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">Download:</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <ul>
+                            @if (Model.tenderdocument != null && Model.tenderdocument.Count > 0)
+                            {
+                                /**/
+                                foreach (var item in Model.tenderdocument)
+                                {
+                                    <li><a href="@item.DocumentPath" target="_blank" download="download" class="txt-orange">@item.FileName</a></li>
+                                    @*<li><a href="@item.DocumentPath" download="" class="txt-orange">@item.FileName</a></li>*@
+                                }
+                            }
+
+                            @*
+                                <li><a href="#" class="txt-orange">NIT Augmentation of Fire Hydrant system</a></li>
+                                <li><a href="#" class="txt-orange">GCC</a></li>
+                                <li><a href="#" class="txt-orange">Technical Specification Augmentation in FF system</a></li>
+                                <li><a href="#" class="txt-orange">BOQ</a></li>
+                                <li><a href="#" class="txt-orange">AMENDMENT_1 </a></li>
+                                <li><a href="#" class="txt-orange">Hydrant layout for GHODBUNDER substation</a></li>
+                                <li><a href="#" class="txt-orange">Hydrant layout for VERSOVA substation</a></li>
+                                <li><a href="#" class="txt-orange">AEML_18032018 Technical &amp; GeneralSpecification-R1</a></li>
+                                <li><a href="#" class="txt-orange">AEML_Reliance_Fire_Fighting_BoQ_Civil</a></li>
+                                <li><a href="#" class="txt-orange">AEML_Reliance_Fire_Fighting_BoQ_Mechanical</a></li>*@
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            <div class="my-lg-3 py-lg-3">
+                <ul class="nav nav-tabs" id="tenderlogin" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active show" data-toggle="tab" href="#tender_fee">Tender Fee and EMD</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#upload_E">Upload Envelope</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#view_E">View Envelope</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " data-toggle="tab" href="#change_p">Change Password</a>
+                    </li>
+                </ul>
+                <div class="tab-content bg-white" id="tender_feediv">
+                    <div class="tab-pane fade py-4 active show" id="tender_fee" role="tabpanel">
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmTenderFeeandEMD", @class = "form-TenderFeeandEMD", @enctype = "multipart/form-data" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.HiddenFor(model => model.TenderIdDB)
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <h5 class="mb-0">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Fee and EMD Label", "Note for Bidder/Customer")</h5>
+                                    <ul class="ul-bullets mt-2">
+                                        <li>
+                                            First fill in the Bidder/Customer details and then Tender Fee & EMD details and then upload the Scanned copy.
+                                        </li>
+                                        <li>
+                                            File format supported for scan copy are <b>Jpeg & PDF</b> only. Max file upload size is <b>1 MB</b> per file.
+                                        </li>
+                                        <li>
+                                            File name should not contain any <b>Special Characters</b>. Only Space, Dash, Hyphen & Underscore is allowed.
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12">
+                                    <p><b>Bidder/Customer details</b></p>
+                                </div>
+                                @*<div class="col-lg-6 col-md-6 pl-lg-4">
+                                        <div class="row">
+                                            <div class="col-lg-6"><b>Customer Code</b></div>
+                                            <div class="col-lg-6">
+                                                @Html.TextBoxFor(x => x.CustomerCode, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", @placeholder = "For official work only" })
+                                            </div>
+                                        </div>
+                                    </div>*@
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="CustomerCode">Customer Code</label>
+                                        @Html.TextBoxFor(x => x.CustomerCode, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", @placeholder = "For official work only" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="VendorCode">Vendor Code</label>
+                                        @Html.TextBoxFor(x => x.VendorCode, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", @placeholder = "For official work only" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="UserName">Name</label>
+                                        @Html.TextBoxFor(x => x.UserName, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.UserName, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="CompanyName">Company Name</label>
+                                        @Html.TextBoxFor(x => x.CompanyName, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.CompanyName, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="inputPasswordNew">PAN Number</label>
+                                        @Html.TextBoxFor(x => x.PANNumber, new { @class = "form-control reset-control", @autocomplete = "off", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.PANNumber, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="GSTNumber">GST Number</label>
+                                        @Html.TextBoxFor(x => x.GSTNumber, new { @class = "form-control reset-control", @autocomplete = "off", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.GSTNumber, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="PANDocument">Upload PAN</label>
+                                        @if (Model.IsPANUploaded)
+                                        {
+                                            @Html.TextBoxFor(x => x.PANDocument, new { @type = "file", @class = "d-block reset-control", @autocomplete = "off" })
+                                            @Html.ValidationMessageFor(x => x.PANDocument, "", new { @class = "help-block mb-2" }, "p")
+                                            <a class="txt-orange" href="@Url.Action("DownloadFile", new { id = "pan" })">
+                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(x => x.PANDocument, new { @type = "file", @class = "d-block reset-control", @autocomplete = "off", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.PANDocument, "", new { @class = "help-block mb-2" }, "p")
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="GSTDocument">Upload GST</label>
+                                        @if (Model.IsGSTUploaded)
+                                        {
+                                            @Html.TextBoxFor(x => x.GSTDocument, new { @type = "file", @class = "d-block reset-control", @autocomplete = "off", id = "GSTDocument" })
+                                            @Html.ValidationMessageFor(x => x.GSTDocument, "", new { @class = "help-block mb-2" }, "p")
+
+                                            <a class="txt-orange" href="@Url.Action("DownloadFile", new { id = "gst" })">
+                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(x => x.GSTDocument, new { @type = "file", @class = "d-block reset-control", @autocomplete = "off", id = "GSTDocument", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.GSTDocument, "", new { @class = "help-block mb-2" }, "p")
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="Mobile">Mobile Number</label>
+                                        @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="Email">email Address</label>
+                                        @Html.TextBoxFor(x => x.Email, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="NITNo">Tender Number</label>
+                                        @Html.TextBoxFor(x => x.NITNo, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.NITNo, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="TenderName">Tender Description</label>
+                                        @Html.TextBoxFor(x => x.TenderName, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.TenderName, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-12"><hr></div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <p><b>Tender Fee</b></p>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <p><b>EMD</b></p>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="TenderFeeBankRef">Bank Ref</label>
+                                        @Html.TextBoxFor(x => x.TenderFeeBankRef, new { @class = "form-control reset-control", @autocomplete = "off", id = "OldPassword" })
+                                        @Html.ValidationMessageFor(x => x.TenderFeeBankRef, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="EMDBankRef">Bank Ref</label>
+                                        @Html.TextBoxFor(x => x.EMDBankRef, new { @class = "form-control reset-control", @autocomplete = "off", id = "OldPassword", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.EMDBankRef, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="TenderFeeBankRefDocument">Scanned Copy</label>
+                                        @if (Model.IsTenderFeeRefUploaded)
+                                        {
+                                            @Html.TextBoxFor(x => x.TenderFeeBankRefDocument, new { @type = "file", @class = "w-100 reset-control", @autocomplete = "off", id = "NewPassword" })
+                                            @Html.ValidationMessageFor(x => x.TenderFeeBankRefDocument, "", new { @class = "help-block mb-2" }, "p")
+
+                                            <a class="txt-orange" href="@Url.Action("DownloadFile", new { id = "tenderfee" })">
+                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(x => x.TenderFeeBankRefDocument, new { @type = "file", @class = "w-100 reset-control", @autocomplete = "off", id = "NewPassword" })
+                                            @Html.ValidationMessageFor(x => x.TenderFeeBankRefDocument, "", new { @class = "help-block mb-2" }, "p")
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="EMDBankRefDocument">Scanned Copy</label>
+                                        @if (Model.IsEMDRefUploaded)
+                                        {
+                                            @Html.TextBoxFor(x => x.EMDBankRefDocument, new { @type = "file", @class = "w-100 reset-control", @autocomplete = "off", id = "NewPassword" })
+                                            @Html.ValidationMessageFor(x => x.EMDBankRefDocument, "", new { @class = "help-block mb-2" }, "p")
+
+                                            <a class="txt-orange" href="@Url.Action("DownloadFile", new { id = "emd" })">
+                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(x => x.EMDBankRefDocument, new { @type = "file", @class = "w-100 reset-control", @autocomplete = "off", id = "NewPassword", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.EMDBankRefDocument, "", new { @class = "help-block mb-2" }, "p")
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="TenderFeeModeOfPayment">Mode Of Payment</label>
+                                        @Html.DropDownListFor(model => model.TenderFeeModeOfPayment, new List<SelectListItem>
+                                        {
+                                        new SelectListItem{ Text="Cheque", Value = "Cheque" },
+                                        new SelectListItem{ Text="DD", Value = "DD" },
+                                        new SelectListItem{ Text="Online Transfer", Value = "Online Transfer" },
+                                        new SelectListItem{ Text="BG", Value = "BG" },
+                                        }, Html.Sitecore().Dictionary("Electricity/Tender/Select Mode of payment Label", "--Select--"),new { @class = "form-control reset-control" })
+                                        @Html.ValidationMessageFor(model => model.TenderFeeModeOfPayment, "", new { @class = "help-block" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="EMDModeOfPayment">Mode Of Payment</label>
+                                        @Html.DropDownListFor(model => model.EMDModeOfPayment, new List<SelectListItem>
+                                        {
+                                        new SelectListItem{ Text="Cheque", Value = "Cheque" },
+                                        new SelectListItem{ Text="DD", Value = "DD" },
+                                        new SelectListItem{ Text="Online Transfer", Value = "Online Transfer" },
+                                        new SelectListItem{ Text="BG", Value = "BG" },
+                                        }, Html.Sitecore().Dictionary("Electricity/Tender/Select Mode of payment Label", "--Select--"), new { @class = "form-control reset-control", required = "required" })
+                                        @Html.ValidationMessageFor(model => model.EMDModeOfPayment, "", new { @class = "help-block" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="TenderFeeAmount">Amount</label>
+                                        @Html.TextBoxFor(x => x.TenderFeeAmount, new { @class = "form-control reset-control", @autocomplete = "off", id = "TenderFeeAmount" })
+                                        @Html.ValidationMessageFor(x => x.TenderFeeAmount, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="EMDAmount">Amount</label>
+                                        @Html.TextBoxFor(x => x.EMDAmount, new { @class = "form-control reset-control", @autocomplete = "off", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.EMDAmount, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="TenderFeeBankBranch">Bank Branch</label>
+                                        @Html.TextBoxFor(x => x.TenderFeeBankBranch, new { @class = "form-control reset-control", @autocomplete = "off", id = "TenderFeeBankBranch" })
+                                        @Html.ValidationMessageFor(x => x.TenderFeeBankBranch, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="EMDBankBranch">Bank Branch</label>
+                                        @Html.TextBoxFor(x => x.EMDBankBranch, new { @class = "form-control reset-control", @autocomplete = "off", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.EMDBankBranch, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pr-lg-4">
+                                    <div class="form-group">
+                                        <label for="TenderFeeDateOfPayment">Date of Fee Payment</label>
+                                        @Html.TextBoxFor(x => x.TenderFeeDateOfPayment, new { @class = "form-control reset-control", @autocomplete = "off", id = "TenderFeeDate" })
+                                        @Html.ValidationMessageFor(x => x.TenderFeeDateOfPayment, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 pl-lg-4">
+                                    <div class="form-group">
+                                        <label for="EMDDateOfPayment">Date of Fee Payment</label>
+                                        @Html.TextBoxFor(x => x.EMDDateOfPayment, new { @class = "form-control reset-control", @autocomplete = "off", id = "EMDFeeDate", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.EMDDateOfPayment, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            if (Model.IsTenderFeePaid)
+                            {
+                                <div class="text-right">
+                                    <input type="submit" class="btn btn-primary" name="tenderFeeandEMDUpdate" value="Update" id="btntenderFeeandEMDUpdate" />
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-right">
+                                    <input type="submit" class="btn btn-primary" name="tenderFeeandEMD" value="Submit" id="btntenderFeeandEMD" />
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="tab-pane fade txt-center py-3" id="upload_E" role="tabpanel">
+                        @*@using (Html.BeginForm("TenderDetails", "Electricity", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {*@
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmuserupload", @class = "form-signin", @enctype = "multipart/form-data" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.HiddenFor(x => x.TenderId)
+                            <div class="col-sm-12 txt-left p-0 pt-3">
+                                <p class="txt-sm mx-auto mb-2"><b>Note:</b> File format supported are Doc, PDF, Xlsx, DWG & Jpeg only. Win Zip, Win Rar or 7Zip are not allowed.</p>
+                                <p class="txt-sm mx-auto mb-2">
+                                    File name should not contain any Special Character. Only Space, Dash, Hyphen, Underscore is allowed.
+                                </p>
+                                <p class="txt-sm mx-auto mb-2">
+                                    Max file upload size is 2MB per file.
+                                </p>
+                                <p class="txt-sm mx-auto mb-2">Files should be uploaded in sequence of Envelope I, II &amp; III.</p>
+                            </div>
+                            <div class="form-group row  pt-3">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-I Label", "Envelope-I"):</label>
+                                <div class="col-sm-8 col-lg-9">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file pb-3" id="Envelope11" name="Envelope11" aria-describedby="fileHelp">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file pb-3" id="Envelope12" name="Envelope12" aria-describedby="fileHelp">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file pb-3" id="Envelope13" name="Envelope13" aria-describedby="fileHelp">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file pb-3" id="Envelope14" name="Envelope14" aria-describedby="fileHelp">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file pb-3" id="Envelope15" name="Envelope15" aria-describedby="fileHelp">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row pt-3">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-II Label", "Envelope-II"):</label>
+                                <div class="col-sm-8 col-lg-9">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <label>Select Business</label>
+                                            @Html.DropDownList("Business", new List<SelectListItem>
+                                                                                   {
+                                                                                      new SelectListItem{ Text="--Select--", Value = "" ,Selected = true},
+                                                                                      new SelectListItem{ Text="Generation", Value = "1" },
+                                                                                      new SelectListItem{ Text="Transmission", Value = "2" },
+                                                                                      new SelectListItem{ Text="Distribution", Value = "3" }},
+                                         new { @onchange = "onEnv3Business(this.value)", @class = "form-control w-auto d-inline-block" })
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label>Select Category</label>
+                                            @Html.DropDownList("Category", new List<SelectListItem>
+                                                                                  {
+                                                                                     new SelectListItem{ Text="--Select--", Value = "" ,Selected = true},
+                                                                                      new SelectListItem{ Text="Supply", Value = "1" },
+                                                                                      new SelectListItem{ Text="Service", Value = "2" },
+                                                                                      new SelectListItem{ Text="Supply & Service", Value = "3" }},
+                                        new { @onchange = "onEnv3Category(this.value)", @class = "form-control w-auto d-inline-block" })
+                                        </div>
+                                        <div class="" id="divDocs">
+                                            <div class="col-lg-12 text-left env3docs" id="divQualificationRequirementDocuments">
+                                                <label style="min-width:375px;">Qualification Requirement Documents <span class="env2docsMan" id="ManQualificationRequirementDocuments">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope31" name="Envelope21" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-12 text-left env3docs" id="divTechnicalSpecificationScopeofWork">
+                                                <label style="min-width:375px;">Technical Specification / Scope of Work <span class="env2docsMan" id="ManTechnicalSpecificationScopeofWork">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope32" name="Envelope22" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-12 text-left env3docs" id="divTypeTestReports">
+                                                <label style="min-width:375px;">Type Test Reports <span class="env2docsMan" id="ManTypeTestReports">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope33" name="Envelope23" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-12 text-left env3docs" id="divDrawingsandGeneralArrangement">
+                                                <label style="min-width:375px;">Drawings and General Arrangement <span class="env2docsMan" id="ManDrawingsandGeneralArrangement">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope34" name="Envelope24" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-12 text-left env3docs" id="divDeliverySchedule">
+                                                <label style="min-width:375px;">Delivery Schedule <span class="env2docsMan" id="ManDeliverySchedule">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope35" name="Envelope25" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-12 text-left env3docs" id="divDeviationsSheet">
+                                                <label style="min-width:375px;">Deviations Sheet <span class="env2docsMan" id="ManDeviationsSheet">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope36" name="Envelope26" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-12 text-left env3docs" id="divDulyStampedandSignTenderdocuments">
+                                                <label style="min-width:375px;">Duly Stamped and Sign Tender documents <span class="env2docsMan" id="ManDulyStampedandSignTenderdocuments">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope37" name="Envelope27" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-12 text-left env3docs" id="divOtherDocuments">
+                                                <label style="min-width:375px;">Other Documents <span class="env2docsMan" id="ManOtherDocuments">*</span></label>
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file d-inline-block w-auto ml-auto" id="Envelope38" name="Envelope28" aria-describedby="fileHelp">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group row  pt-3">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-III Label", "Envelope-III"):</label>
+                                <div class="col-sm-8 col-lg-6">
+                                    <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope3" name="Envelope3" aria-describedby="fileHelp">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 txt-left p-0">
+                                @*<button type="submit" class="btn btn-primary" name="uploadDoc">Submit</button>*@
+                                <input type="submit" class="btn btn-primary" name="uploadDoc" value="Submit" id="btnuploadDoc" />
+                            </div>
+
+                        }
+
+                    </div>
+                    <div class="tab-pane fade txt-center py-4" id="view_E" role="tabpanel">
+
+
+                        @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+                        {
+                            var envelope1data = Model.userUpladdocument.Where(x => x.EnvelopeType == "1").ToList();
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label text-left">
+                                    @Html.Sitecore().Dictionary("Electricity/Tender/Envelope-I Label", "Envelope-I"):
+                                    @*<p class="txt-xs">You may upload multiple files (including zip files) using the available file upload options</p>*@
+                                </label>
+                                <div class="col-sm-8 col-lg-9">
+                                    @foreach (var item in envelope1data)
+                                    {
+                                        <div class="row">
+                                            <div class="col-lg-12 text-left">
+                                                @*<label class="control-label pb-3">@item.FileName</label>*@
+                                                @{
+                                                    var myFilePath = item.DocumentPath;
+                                                    string ext = Path.GetExtension(myFilePath);
+                                                }
+                                                @if (ext.ToLower() == ".pdf")
+                                                {
+                                                    <a href="@item.DocumentPath" target="_blank" class="txt-orange"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@item.DocumentPath" download="" class="txt-orange"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                }
+                                                @Html.ActionLink("x", "TenderDetailDocumentDelete", new { id = item.Id, @class = "float-right" })
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-12"><hr class="my-2"></div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label text-left">
+                                    @Html.Sitecore().Dictionary("Electricity/Tender/Envelope-I Label", "Envelope-I"):
+                                    @*<p class="txt-xs">You may upload multiple files (including zip files) using the available file upload options</p>*@
+                                </label>
+                                <div class="col-sm-8 col-lg-9">
+                                    <div class="row">
+                                        <div class="col-lg-6 text-left">
+                                            <label class="control-label pb-3">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12"><hr class="my-2"></div>
+                            </div>
+                        }
+
+                        @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "2"))
+                        {
+                            var envelope2data = Model.userUpladdocument.Where(x => x.EnvelopeType == "2").ToList();
+                            var business = "";
+                            var category = "";
+                            switch (Model.Business)
+                            {
+                                case "1":
+                                    business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 1", "Generation");
+                                    break;
+                                case "2":
+                                    business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 2", "Transmission");
+                                    break;
+                                case "3":
+                                    business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 3", "Distribution");
+                                    break;
+                                default:
+                                    business = @Html.Sitecore().Dictionary("Electricity/Tender/Business", "");
+                                    break;
+                            }
+                            switch (Model.Category)
+                            {
+                                case "1":
+                                    category = @Html.Sitecore().Dictionary("Electricity/Tender/category 1", "Supply");
+                                    break;
+                                case "2":
+                                    category = @Html.Sitecore().Dictionary("Electricity/Tender/category 2", "Services");
+                                    break;
+                                case "3":
+                                    category = @Html.Sitecore().Dictionary("Electricity/Tender/category 3", "Supply & Services");
+                                    break;
+                                default:
+                                    category = @Html.Sitecore().Dictionary("Electricity/Tender/category", "");
+                                    break;
+                            }
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label text-left">
+                                    @Html.Sitecore().Dictionary("Electricity/Tender/Envelope-II Label", "Envelope-II"):
+                                    <p class="txt-xs">You may upload multiple files (including zip files) using the available file upload options</p>
+                                </label>
+                                <div class="col-sm-8 col-lg-9">
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-6 my-3 text-left">
+                                            <p>Business : <b>@business</b></p>
+                                        </div>
+                                        <div class="col-lg-4 col-md-6 my-3 text-left">
+                                            <p>Category : <b>@category</b></p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        @foreach (var item in envelope2data)
+                                        {
+                                            <div class="col-lg-4 col-md-6 my-3 text-left">
+                                                @*<label class="control-label pb-3">@item.FileName</label>*@
+                                                @{
+                                                    var myFilePath = item.DocumentPath;
+                                                    string ext = Path.GetExtension(myFilePath);
+                                                    string Doctype = "";
+                                                    switch (item.DocType)
+                                                    {
+                                                        case "1":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype1", "Qualification Requirement Documents");
+                                                            break;
+                                                        case "2":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype2", "Technical Specification / Scope of Work ");
+                                                            break;
+                                                        case "3":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype3", "Type Test Reports");
+                                                            break;
+                                                        case "4":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype4", "Drawings and General Arrangement");
+                                                            break;
+                                                        case "5":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype5", "Delivery Schedule");
+                                                            break;
+                                                        case "6":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype6", "Deviations Sheet (If any)");
+                                                            break;
+                                                        case "7":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype7", "Duly Stamped and Sign Tender documents");
+                                                            break;
+                                                        case "8":
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype8", "Other Documents");
+                                                            break;
+                                                        default:
+                                                            Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype", "");
+                                                            break;
+                                                    }
+                                                }
+                                                @if (ext.ToLower() == ".pdf")
+                                                {
+                                                    <div class="text-center border p-2 h-100 position-relative">
+                                                        <span class="pb-0 d-block pb-1">@Doctype</span>
+                                                        <a href="@item.DocumentPath" target="_blank" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                        @Html.ActionLink("x", "TenderDetailDocumentDelete", new { id = item.Id }, new { @class = "btn-download__remove" })
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="text-center border p-2 h-100 position-relative">
+                                                        <span class="pb-0 d-block pb-1">@Doctype</span>
+                                                        <a href="@item.DocumentPath" download="" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                        @Html.ActionLink("x", "TenderDetailDocumentDelete", new { id = item.Id }, new { @class = "btn-download__remove" })
+                                                    </div>
+                                                }
+
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-12"><hr class="my-2"></div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label text-left">
+                                    @Html.Sitecore().Dictionary("Electricity/Tender/Envelope-II Label", "Envelope-II"):
+                                    @*<p class="txt-xs">You may upload multiple files (including zip files) using the available file upload options</p>*@
+                                </label>
+                                <div class="col-sm-8 col-lg-9">
+                                    <div class="row">
+                                        <div class="col-lg-6 text-left">
+                                            <label class="control-label pb-3">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-12"><hr class="my-2"></div>
+                            </div>
+                        }
+
+
+                        @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "3"))
+                        {
+                            var envelope3data = Model.userUpladdocument.Where(x => x.EnvelopeType == "3").OrderBy(u => u.DocType).ToList();
+
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label text-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-III Label", "Envelope-III"):</label>
+                                <div class="col-sm-8 col-lg-9">
+                                    <div class="row">
+                                        @foreach (var item in envelope3data)
+                                        {
+                                            <div class="col-lg-4 col-md-6 my-3 text-left">
+                                                @*<label class="control-label pb-3">@item.FileName</label>*@
+                                                @{
+                                                    var myFilePath3 = item.DocumentPath;
+                                                    string ext3 = Path.GetExtension(myFilePath3);
+                                                }
+                                                @if (ext3.ToLower() == ".pdf")
+                                                {
+                                                    <a href="@item.DocumentPath" target="_blank" class="txt-orange "><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@item.DocumentPath" download="" class="txt-orange "><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                }
+                                                @Html.ActionLink("x", "TenderDetailDocumentDelete", new { id = item.Id, @class = "float-right" })
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-12"><hr class="my-2"></div>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label text-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-III Label", "Envelope-III"):</label>
+                                <div class="col-sm-8 col-lg-9">
+                                    <div class="row">
+                                        <div class="col-lg-6 text-left">
+                                            <label class="control-label pb-3">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12"><hr class="my-2"></div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="tab-pane fade py-4 " id="change_p" role="tabpanel">
+                        <div class="row">
+                            <div class="col-lg-5 mr-auto ml-auto">
+                                <div class="card card-outline-secondary">
+                                    <div class="card-header">
+                                        <h3 class="mb-0">@Html.Sitecore().Dictionary("Electricity/Tender/Change Password Label", "Change Password")</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmchangepwd", @class = "form-signin" }))
+                                        {
+                                            @Html.AddUniqueFormId()
+                                            <form class="form" role="form" autocomplete="off">
+                                                <div class="form-group">
+                                                    <label for="inputPasswordOld">Old Password</label>
+                                                    @Html.PasswordFor(x => x.OldPassword, new { @class = "form-control reset-control", @autocomplete = "off", id = "OldPassword", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.OldPassword, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inputPasswordNew">New Password</label>
+                                                    @Html.PasswordFor(x => x.Password, new { @class = "form-control reset-control", @autocomplete = "off", id = "NewPassword", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.Password, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inputPasswordNew">Confirm Password</label>
+                                                    @Html.PasswordFor(x => x.ConfirmPassword, new { @class = "form-control reset-control", @autocomplete = "off", id = "ConfirmPassword", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.ConfirmPassword, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                                <div class="form-group">
+                                                    @*<button type="submit" class="btn btn-primary" name="changePassword" >Submit</button>*@
+                                                    <input type="submit" class="btn btn-primary" name="changePassword" value="Submit" id="btnsubmitchangepwd" />
+                                                    <button type="submit" class="btn btn-secondary">Cancel</button>
+                                                </div>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Section -->
+    </div>
+</div>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@ViewBag.MessageBoxTitle</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(ViewBag.Message))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@ViewBag.Message</label>
+                    </div>
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">@ViewBag.MessageBoxButtonText</button>
+        </div>
+
+    </div>
+</div>

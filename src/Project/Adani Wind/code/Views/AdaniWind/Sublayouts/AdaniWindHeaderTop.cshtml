@@ -1,0 +1,51 @@
+@using Sitecore
+@using Sitecore.Mvc.Presentation
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	var LinkChildurl="#";
+	var businessChildUrl="";
+	var businessChildAlt="";
+	
+	var businessUrl="";
+	var businessAlt="";
+	
+	Sitecore.Data.Fields.ImageField BusinessImage = ((Sitecore.Data.Fields.ImageField)model.Fields["ImageSource"]);
+    if (BusinessImage != null && BusinessImage.MediaItem != null)
+    {
+        businessUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BusinessImage.MediaItem);
+        businessAlt = BusinessImage.Alt;
+    }
+    
+}
+        
+	<div class="top_bar_nav">
+		<a class="businessHeader" href="#businesses">
+		<img src="@businessUrl" alt="@businessAlt"> @Html.Sitecore().Field("Title",model)
+		</a>
+		<div class="business_dropdown">
+	@foreach(var child in model.GetChildren().ToList())
+	{   
+	    var classIcon =  child.Fields["MainClass"]?.Value; 
+	
+		Sitecore.Data.Fields.LinkField linkchildfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]); 
+		if(linkchildfield != null) 
+		{ 
+			LinkChildurl = linkchildfield.GetFriendlyUrl();
+		}
+		
+		Sitecore.Data.Fields.ImageField BusinessChildImage =((Sitecore.Data.Fields.ImageField)child.Fields["ImageSource"]);
+		if (BusinessChildImage != null && BusinessChildImage.MediaItem != null)
+		{
+			businessChildUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BusinessChildImage.MediaItem);
+			businessChildAlt = BusinessChildImage.Alt;
+		}
+		   <a href="@LinkChildurl" class="@classIcon" target="_blank">
+		   <i><img src="@businessChildUrl" alt="@businessChildAlt"> </i>
+		   <label>@Html.Sitecore().Field("LinkText",child)</label>
+		   </a>
+	}
+		</div>
+	 </div>
+	
+	

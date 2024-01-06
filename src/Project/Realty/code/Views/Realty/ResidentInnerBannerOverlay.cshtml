@@ -1,0 +1,44 @@
+﻿@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Realty.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasRealtyMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasRealtyMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var sourceItem = Sitecore.Context.Database.GetItem(datasource);
+    var multipleImage = sourceItem.GetMultiListValueItems(Templates.HasRealtyMediaSelector.Fields.MediaSelector);
+}
+
+<div class="@Html.Sitecore().Field(Templates.HasRealtyMediaSelector.Fields.cssDivClass, sourceItem)">
+    <div class="bannerImg">
+        <div class="large-12 columns">
+            @if (multipleImage != null)
+            {
+                <div class="owl-carousel owl-theme homebanner" id="carousel">
+                    @foreach (var item in multipleImage)
+                    {
+                        <div class="item">
+                            @Html.Sitecore().ImageField(Templates._HasMedia.Fields.HighResolutionImage, item)
+                        </div>
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+
+    @if (sourceItem.FieldHasValue(Templates.HasRealtyMediaSelector.Fields.Title))
+    {
+        <div class="banneroverlay">
+            @Html.Sitecore().Field(Templates.HasRealtyMediaSelector.Fields.Title, sourceItem)
+        </div>
+    }
+
+</div>

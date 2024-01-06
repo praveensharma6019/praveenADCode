@@ -1,0 +1,101 @@
+﻿@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    Item rootItem = Sitecore.Context.Database.GetItem(Sitecore.Context.Site.RootPath);
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-3">
+            <div class="logo text-center">
+                <a href="/" class="navbar-brand">
+                    @if(rootItem != null)
+                    {
+                        @Html.Sitecore().ImageField("Logo",rootItem)
+                    }
+                </a>
+            </div>
+        </div>
+        <div class="col-sm-9 col-9">
+            <div class="row header-menu">
+                <div class="menu-column">
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <!-- <div id="dismiss" class="d-block d-lg-none"><i class="far fa-times-circle"></i></div> -->
+                        <button class="navbar-toggler dismiss-menu" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                            <i class="far fa-times-circle"></i>
+                        </button>
+                        <ul class="main-menu">
+                            @if (models.GetChildren() != null)
+                            {
+                                foreach (Item item in models.GetChildren())
+                                {
+                                    if (item != null && !item.HasChildren)
+                                    {
+                                        LinkField link = (LinkField)item.Fields["Link"];
+                                        <li class="nav-item"><a href="@link.GetFriendlyUrl()">@Html.Sitecore().Field("NavigationTitle", item)</a></li>
+                                    }
+                                    if (item != null && item.HasChildren)
+                                    {
+                                        <li class="nav-item dropdown">
+                                            @if (String.IsNullOrEmpty(Html.Sitecore().Field("Link", item).ToString()))
+                                            {
+                                                <a>@Html.Sitecore().Field("NavigationTitle", item)</a>
+                                            }
+                                            else
+                                            {
+                                                LinkField mainlink = (LinkField)item.Fields["Link"];
+                                                <a href="@mainlink.GetFriendlyUrl()">@Html.Sitecore().Field("NavigationTitle", item)</a>
+                                            }
+                                            <div class="dropdown-menu megamenu" aria-labelledby="dropdown01">
+                                                <div class="container-fluid">
+                                                    <h5><a>Explore @Html.Sitecore().Field("NavigationTitle", item)</a></h5>
+                                                    <hr>
+                                                    <div class="row">
+                                                        @foreach (Item subitem in item.GetChildren())
+                                                        {
+                                                            if (subitem != null)
+                                                            {
+                                                                LinkField sublink = (LinkField)subitem.Fields["Link"];
+                                                                <div class="col-lg-6">
+                                                                    <a class="dropdown-item" href="@sublink.GetFriendlyUrl()">@Html.Sitecore().Field("NavigationTitle", subitem)</a>
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>                                        
+                                    }
+                                }
+                            }
+                            @*<li class="nav-item"><a href="">About us</a></li>
+        <li class="nav-item"><a href="">Services</a></li>
+        <li class="nav-item"><a href="">Specialities</a></li>
+        <li class="nav-item"><a href="">Contact us</a></li>*@
+                        </ul>
+                    </div>
+                </div>
+                <div class="top-right-column">
+                    <ul class="top-right">
+                        <li class="emergency-number">
+                            <a href="tel:02838619666">
+                                <img src="/Images/MundraHospital/call-24-icon.png">
+                                <span>Emergency Helpline</span>
+                            </a>
+                        </li>
+                        <li>
+                            <button class="navbar-toggler open-menu" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

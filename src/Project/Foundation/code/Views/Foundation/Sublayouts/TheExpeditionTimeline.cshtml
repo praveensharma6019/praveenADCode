@@ -1,0 +1,35 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var sortedYear = element.GetChildren().OrderByDescending(x => x.Fields["Year"].Value);
+    var i = 0;
+}
+
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="heading mb-4">@element.Fields["Text"]</h2>
+        <div class="timeline">
+            <ul>
+                @if (element.GetChildren() != null)
+                {
+                    foreach (Item item in sortedYear)
+                    {
+                        <li>
+                            <div class="timeline-block clearfix">
+                                <time>@item.Fields["Year"]</time>
+                                @Html.Sitecore().Field("Body",item)
+                                
+                                @Html.Sitecore().ImageField("Image", item,0,0, "img-fluid")                                
+                            </div>
+                        </li>
+                    }
+                }                
+            </ul>
+        </div>
+    </div>
+</section><!--/Timeliner-->

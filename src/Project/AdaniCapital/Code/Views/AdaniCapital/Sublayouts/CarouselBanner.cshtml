@@ -1,0 +1,57 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Resources.Media
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+<section class="hero_banner_container">
+    <div class="owl-carousel hero-banner">
+        @if (element != null)
+        {
+            if (element.GetChildren() != null)
+            {
+                foreach (Item item in element.GetChildren())
+                {
+                    var DesktopBannerImage = Helper.ImageUrl("DesktopBannerImage", item);
+                    var MobileBannerImage = Helper.ImageUrl("MobileBannerImage", item);
+                    var BannerImageTag = Helper.ImageTagUrl("MobileBannerImage", item);
+                    <div class="item">
+                        <picture>
+                            <source srcset="@DesktopBannerImage" media="(min-width:540px)">
+                            <source srcset="@MobileBannerImage" media="(min-width:0)">
+                            @Html.Raw(BannerImageTag)
+                        </picture>
+                        <div class="banner-content">
+                            <div class="container">
+                                <div>
+                                    @if (!String.IsNullOrWhiteSpace(Html.Sitecore().Field("MediaTitle", item).ToString()))
+                                    {
+                                        <h1>@Html.Sitecore().Field("MediaTitle", item)</h1>
+                                    }
+                                    @if (!String.IsNullOrWhiteSpace(Html.Sitecore().Field("SubTitle", item).ToString()))
+                                    {
+                                        <h2>@Html.Sitecore().Field("SubTitle", item)</h2>
+                                    }
+                                    @if (!String.IsNullOrWhiteSpace(Html.Sitecore().Field("Summary", item).ToString()))
+                                    {
+                                        <p>@Html.Sitecore().Field("Summary", item)</p>
+                                    }
+                                    @Html.Sitecore().Field("MediaDescription", item)
+                                    @if (!String.IsNullOrWhiteSpace(item.Fields["MediaLink"].Value))
+                                    {
+                                        var url = Helper.LinkUrl(item.Fields["MediaLink"]);
+                                        <a href="@url">Know more <span class="fa fa-angle-right"></span></a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+    </div>
+</section><!--/section-->

@@ -1,0 +1,92 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "";
+    string altText = "";
+    string cssClass = "bg-grey";
+    string sectionClass = model.Fields["cssClass"].ToString();
+    if (!string.IsNullOrEmpty(sectionClass))
+    {
+        cssClass = sectionClass;
+    }
+}
+
+<div class="section-holder edge-connex-hoder @cssClass">
+    <div class="content-wrapper grid-wrapper grid-layout-2">
+        @if (model != null)
+        {
+            string subTitle = model.Fields["MediaInfo"].ToString();
+            <p class="full h1 fm-asb tx-000" style="margin-bottom: 20px;">@Html.Sitecore().Field("Text", model)</p>
+            if (!string.IsNullOrEmpty(subTitle))
+            {
+                <p class="custom-module-headng" style="margin-bottom: 43px;">@subTitle</p>
+            }
+
+            if (model.HasChildren)
+            {
+                <ul class="data-center-list owl-carousel dot-bc brand-dots" id="data-center-list">
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+
+                        Sitecore.Data.Fields.LinkField linkField = item.Fields["ButtonLink"];
+                        var btnUrl = linkField.GetFriendlyUrl();
+
+                        <li>
+                            <div class="card-box card-media-top">
+                                <div class="card-media">
+                                    @if (imgurl != null)
+                                    {
+                                        <img src="@imgurl" alt="@altText" class="" />
+                                    }
+                                </div>
+                                <div class="card-content">
+                                    <p class="full card-title fm-am tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                                    <p class="full card-desc">@Html.Sitecore().Field("MediaDescription", item)</p>
+
+                                    @if (btnUrl != null)
+                                    {
+                                        CheckboxField checkbox = model.Fields["ExternalLink"];
+                                        if (checkbox != null && checkbox.Checked)
+                                        {
+                                            <a class="card-link" href="@btnUrl" target="_blank">@Html.Sitecore().Field("ButtonTitle", item)</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="card-link" href="@btnUrl">@Html.Sitecore().Field("ButtonTitle", item)</a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <a class="card-link" href="#">@Html.Sitecore().Field("ButtonTitle", item)</a>
+                                    }
+
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        }
+    </div>
+</div>

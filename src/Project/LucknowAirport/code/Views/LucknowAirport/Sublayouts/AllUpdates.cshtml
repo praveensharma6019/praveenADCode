@@ -1,0 +1,42 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.LucknowAirport.Website
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<div class="pageContent">
+    @if (datasource != null)
+    {
+    <div class="container">
+        <!-- Section -->
+        <div class="announcement">
+            @foreach (var child in parent.Children.OrderByDescending(x => x[Template.Article.Fields.DateCreated]).ToList())
+            {
+            var itemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+
+            <div class="panel">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <h6 class="txt-gray">
+                            @Html.Sitecore().Field(Template.Article.Fields.DateCreated, child, new
+                            {
+                            format = "dd/MM/yyyy"
+                            })
+                        </h6>
+                    </div>
+                    <div class="col-sm-7"><h5 class="txt-orange">@Html.Sitecore().Field("Title", child)</h5></div>
+                    <div class="col-sm-3 txt-right">
+                        <p><a href="@itemURL" class="btn btnBordered serviceBtn readmore mb-0">Read more</a></p>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        <!-- /Section -->
+    </div>
+    }
+</div>

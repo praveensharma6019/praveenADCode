@@ -1,0 +1,385 @@
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Data
+
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@model Sitecore.Transmission.Website.Models.ViewCarbonCalculator
+@using Sitecore.Transmission.Website.Models
+@{
+    string disp = "";
+    disp = "display: none;";
+    var check = "";
+    DateTime? carbonEmissionReviewDate = null;
+    var footprintTarget = Sitecore.Context.Database.GetItem("{1C63FFCF-DFA1-4613-99C5-D5683F074D6A}");
+    var CarbonEmissionReviewYear = Sitecore.Context.Database.GetItem("{512ABD71-7A24-4DA1-AB8C-5FF47656E480}");
+    var Disable = "";
+    var ses = Request.Cookies["EditTransmissionCostCalculator"] != null ? Request.Cookies["EditTransmissionCostCalculator"].Value : null;
+    if (ses != null && ses != "1")
+    {
+        Disable = "disabled";
+    }
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+</script>
+<section class="section_tabs">
+    <div class="container b">
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="true">Offset for carbon emission</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                <div class="row">
+                    <div class="table-responsive">
+                        <table class="table" id="offset_table">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 250px;">Actions</th>
+                                    <th>Consumption Unit</th>
+                                    <th>Offset for carbon emission</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="3"><input id="PersonalTransportChkBox" name="PersonalTransportChkBox" type="checkbox" value="" style="margin-left: -64px; margin-right: -54px;" @((Model.IsPersonalTransport) ? "checked" : "" ) /> &nbsp; <label>Personal Transport</label></td>
+                                </tr>
+                                @for (int z = 1; z <= 5; z++)
+                                {
+                                    var style = (z == 1 ? "" : "display:none");
+                                    <tr id="adddiselpetroldoc_@z" style="@style">
+                                        <td>
+                                            <div class="input-group mb-3">
+                                                <select class="form-control" id="DiselPetrolCons">
+                                                    <option>
+                                                        Select
+                                                    </option>
+                                                    <option @((Model.PersonalTransportDropdownValue == "0.12075") ? "selected" : "" ) value="0.12075">
+                                                        Car Pooling
+                                                    </option>
+                                                    <option @((Model.PersonalTransportDropdownValue == "0.1288") ? "selected" : "" ) value="0.1288">
+                                                        Conventional Fuel to CNG
+                                                    </option>
+                                                    <option @((Model.PersonalTransportDropdownValue == "0.10626") ? "selected" : "" ) value="0.10626">
+                                                        Conventional  Fuel to EV
+
+                                                    </option>
+                                                    <option @((Model.PersonalTransportDropdownValue == "0.161") ? "selected" : "" ) value="0.161">
+                                                        Conventional to Cycle  (In place of Personal Vehical)
+                                                    </option>
+
+                                                    <option @((Model.PersonalTransportDropdownValue == "0.145839") ? "selected" : "" ) value="0.145839">
+                                                        Public transportation. (In place of Personal Vehical)
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td><input type="number" class="calculator form-control diselpetrol" name="diselpetrol_@z" id="diselpetrol_@z" placeholder="" value="@(string.IsNullOrEmpty(Model.PersonalTransportValue)? "":Model.PersonalTransportValue)" disabled></td>
+                                        <td><input type="number" class="calculator form-control offset" id="d_diselpetrol_@z" name="d_diselpetrol_@z" placeholder="" value="@(string.IsNullOrEmpty(Model.PersonalTransport)? "":Model.PersonalTransport)" disabled></td>
+                                    </tr>
+                                }
+
+                                <tr>
+                                    <td colspan="3"><input id="PublicTransportChkBox" name="PublicTransportChkBox" type="checkbox" value="" style="margin-left: -64px; margin-right: -54px;" @((Model.IsPublicTransport) ? "checked" : "" ) /> <label>Public Transport</label></td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        Cab -Taxi (Shared)
+                                    </td>
+                                    <td><input type="number" class="calculator form-control" name="CNGBus" id="CNGBus" placeholder="" value="@(string.IsNullOrEmpty(Model.PublicTransportValue)? "":Model.PublicTransportValue)" disabled></td>
+                                    <td><input type="number" class="calculator form-control offset" id="d_CNGBus" name="d_CNGBus" placeholder="" value="@(string.IsNullOrEmpty(Model.PublicTransport)? "":Model.PublicTransport)" disabled></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input id="AirTripsChkBox" name="AirTripsChkBox" type="checkbox" value="" style="margin-left: -64px; margin-right: -54px;" @((Model.IsOnlineMeeting) ? "checked" : "" ) />
+                                        Online Meeting instead of Air Trips
+                                    </td>
+                                    <td><input type="number" class="form-control" id="OnlineMeeting_Airtrips" name="OnlineMeeting_Airtrips" placeholder="" value="@(string.IsNullOrEmpty(Model.OnlineMeetingValue)? "":Model.OnlineMeetingValue)" disabled></td>
+                                    <td><input type="number" class="form-control offset" id="d_OnlineMeeting_Airtrips" name="d_OnlineMeeting_Airtrips" placeholder="" value="@(string.IsNullOrEmpty(Model.OnlineMeeting)? "":Model.OnlineMeeting)" disabled></td>
+                                </tr>
+
+
+                                <tr>
+                                    <td>
+                                        <input id="FiveStarAppliancesChkBox" name="FiveStarAppliancesChkBox" type="checkbox" value="true" style="margin-left: -64px; margin-right: -54px;" @((Model.IsFiveStarAppliances) ? "checked" : "" ) />
+                                        Instead of 1 star Opt for 5 star Appliances
+                                    </td>
+                                    <td><input type="number" class="form-control" id="FiveStar_Appliances" name="FiveStar_Appliances" placeholder="" value="@(string.IsNullOrEmpty(Model.FiveStarAppliancesValue)? "":Model.FiveStarAppliancesValue)" disabled></td>
+                                    <td><input type="number" class="form-control offset" id="d_FiveStar_Appliances" name="d_FiveStar_Appliances" placeholder="" value="@(string.IsNullOrEmpty(Model.FiveStarAppliances)? "":Model.FiveStarAppliances)" disabled></td>
+                                </tr>
+
+                                <tr>
+                                    <td style="color:green">
+                                        <input id="NoOfTreesChkBox" name="NoOfTreesChkBox" type="checkbox" value="true" style="margin-left: -64px; margin-right: -54px;" @((Model.IsNumberOfTreesNeeded) ? "checked" : "" ) />
+                                        I will plant no. of trees
+                                    </td>
+                                    <td><input type="number" class="form-control" id="txt_888" onBlur="javascript:calculate_CarbonOffset(888)" name="txt_888" placeholder="" value="@(string.IsNullOrEmpty(Model.NumberOfTreesNeededVal)? "":Model.NumberOfTreesNeededVal)" disabled></td>
+                                    <td><input type="number" class="form-control offset" id="d_txt_888" name="d_txt_888" placeholder="" value="@(string.IsNullOrEmpty(Model.NumberofTress)? "":Model.NumberofTress)" disabled></td>
+                                </tr>
+                                <tr>
+                                    <td style="color:green">
+                                        <input id="NoOfPlantationProjectTreesChkBox" name="NoOfPlantationProjectTreesChkBox" type="checkbox" value="true" style="margin-left: -64px; margin-right: -54px;" @((Model.IsNumberOfPlantationProjectTreesNeeded) ? "checked" : "" ) />
+                                        I will plant no of trees under Adani 100 million tree plantation project
+                                    </td>
+                                    <td><input type="number" class="form-control" id="txt_8888" onBlur="javascript:calculate_CarbonOffset(8888)" name="txt_8888" placeholder="" value="@(string.IsNullOrEmpty(Model.NumberOfPlantationProjectTreesNeededVal)? "":Model.NumberOfPlantationProjectTreesNeededVal)" disabled></td>
+                                    <td><input type="number" class="form-control offset" id="d_txt_8888" name="d_txt_8888" placeholder="" value="@(string.IsNullOrEmpty(Model.NumberOfPlantationProjectTreesNeeded)? "":Model.NumberOfPlantationProjectTreesNeeded)" disabled></td>
+                                </tr>
+                                <tr>
+                                    <td style="color:green">
+                                        <input id="TreeFundChkBox" name="TreeFundChkBox" type="checkbox" value="true" style="margin-left: -64px; margin-right: -54px;" @((Model.IsFundNeededtoPlantTrees) ? "checked" : "" ) />
+                                        I will fund to tree plantation (INR 1000/Tree)
+                                    </td>
+                                    <td><input type="number" class="form-control" id="txt_999" onBlur="javascript:calculate_CarbonOffset(999)" name="txt_999" placeholder="" value="@(string.IsNullOrEmpty(Model.FundNeededtoPlantTreesVal)? "":Model.FundNeededtoPlantTreesVal)" disabled></td>
+                                    <td><input type="number" class="form-control offset" id="d_txt_999" name="d_txt_999" placeholder="" value="@(string.IsNullOrEmpty(Model.FundNeededtoPlantTrees)? "":Model.FundNeededtoPlantTrees)" disabled></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    @if (ses == "1")
+                    {
+                        <div class="col-lg-3 ml-auto text-right my-3">
+                            <input type="button" id="calculateOffset" value="Calculate Carbon Offset Footprints" class="btn btn-primary" style="color:white; height:77px;" />
+                        </div>
+                    }
+                    <div class="carbon_calculater--result" id="CalculateOffsetValue">
+                        <div class="row">
+                            <div class="col-lg-6 py-3">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h4>Offset Emission from Domestic Use</h4>
+                                    </div>
+                                    <div class="col-4">
+
+                                        <p id="OffsetEmissionfromDomesticUse" name="OffsetEmissionfromDomesticUse">@(string.IsNullOrEmpty(Model.OffsetEmissionfromDomesticUse) ? "0" : Model.OffsetEmissionfromDomesticUse) Tonnes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 py-3">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h4>Total Offset Carbon Emission</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <p id="TotalOffsetCarbonEmission" name="TotalOffsetCarbonEmission">@(string.IsNullOrEmpty(Model.TotalOffsetCarbonEmission) ? "0" : Model.TotalOffsetCarbonEmission) Tonnes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 py-3">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h4>Offset Emission from Transportation</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <p id="OffsetEmissionfromTransportation" name="OffsetEmissionfromTransportation">@(string.IsNullOrEmpty(Model.OffsetEmissionfromTransportation) ? "0" : Model.OffsetEmissionfromTransportation) Tonnes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 py-3">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h4>Average Carbon Offset Emission per Month per person</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <p id="AverageCarbonOffset" name="AverageCarbonOffset">@(string.IsNullOrEmpty(Model.AverageOffsetEmissionperMonth) ? "0" : Model.AverageOffsetEmissionperMonth) Tonnes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 py-3">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h4>Offset Emission from Air Trips</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <p id="OffsetEmissionfromAirTrips" name="OffsetEmissionfromAirTrips">@(string.IsNullOrEmpty(Model.OffsetEmissionfromAirTrips) ? "0" : Model.OffsetEmissionfromAirTrips) Tonnes</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 py-3">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h4>Reduced Annual Carbon Offset Footprint</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <p id="ReducedAnnualffsetFootprint" name="ReducedAnnualffsetFootprint">@(string.IsNullOrEmpty(Model.AnnualCarbonFootprints) ? "0" : Model.AnnualCarbonFootprints) Tonnes</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 py-3" style="display:none;">
+                                <div class="row">
+                                    <div class="col-8">
+                                        <h4>% Reduction in Carbon Offset Footprint</h4>
+                                    </div>
+                                    <div class="col-4">
+                                        <p id="PercntCarbonOffsetReduction" name="PercntCarbonOffsetReduction"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                </div>
+                <div class="container c">
+                    <canvas id="myChart" style="width:100%;max-width:100%"></canvas>
+                </div>
+
+                <div class="row">
+                    <a href="#" type="button" id="btnOpen" onclick="OpenTips()">Good habits for Carbon neutrality (Tips) </a>
+                </div>
+
+            </div>
+            <br />
+            <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h5>Domestic use</h5>
+                        <ol>
+                            <li>Use of LED</li>
+                            <li>Switching off lights when not required</li>
+                            <li>Fill your home with plants</li>
+                            <li>Do your shopping digitally</li>
+                            <li>Stream through your smart TV avoid going in theaters</li>
+                            <li>Opt for refillable packaging</li>
+                            <li>Don’t forget your reusable bags</li>
+                            <li>Switch to paperless billing</li>
+                        </ol>
+                    </div>
+                    <div class="col-lg-4">
+                        <h5>Transportation Use</h5>
+                        <ol>
+                            <li>Use of Cycle</li>
+                            <li>Keep your vehicle off while at stoppage</li>
+                            <li>Choose ‘eco mode’ when driving</li>
+                        </ol>
+                    </div>
+                    <div class="col-lg-4">
+                        <h5>Office Use</h5>
+                        <ol>
+                            <li>Restrict use of Conference/ Meeting hall</li>
+                            <li>Choose a laptop over a desktop computer</li>
+                            <li>Avoid printing / Minimize Printing /Use of Network Printer</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--footprint Target Code Starts from Here-->
+<section class="footprint">
+    <div class="container">
+        <div id="footprintTarget">
+            <h3>My Carbon footprint target:</h3>
+
+            <p class="d-inline">
+                I will reduce my Carbon Emission by <span style="border-bottom: 1px solid black; padding-left: 50px" id="per">@(string.IsNullOrEmpty(Model.CarbonEmissionReducePercentage) ? "NaN" : Model.CarbonEmissionReducePercentage)% &nbsp;</span>
+            <p id="CarbonEmissionReducePercentage" name="CarbonEmissionReducePercentage" class="d-inline" style="font-weight: bold; border-bottom: 1px solid black;"></p><span style="font-weight: bold;"></span> by this year.
+            </p>
+
+
+        </div>
+    </div>
+</section>
+
+<!--footprint Target Code Ends from Here-->
+<!--emission reduction Code Starts from Here-->
+
+<section class="reduction">
+    <div class="container cd" id="emissionReduction">
+        <div class="go">
+            <h3>Review of Carbon Emission reduction:</h3>
+            <p>Please set a time  frame to come back to this calculator and submit supporting evidences and get eligible for a surprise reward(s).</p>
+
+            <h3>
+                I will review my Carbon Emission by
+                <select class="" id="CarbonEmissionReviewYear">
+                    @if (Model.CarbonEmissionReviewYear == null)
+                    {
+                        <option value="">Select</option>
+                    }
+                    <option @((Model.CarbonEmissionReviewYear == "Quaterly") ? "selected" : "" ) value="Quaterly">Quaterly</option>
+                    <option @((Model.CarbonEmissionReviewYear == "Half Yearly") ? "selected" : "" ) value="Half Yearly">Half Yearly</option>
+                    <option @((Model.CarbonEmissionReviewYear == "Yearly") ? "selected" : "" ) value="Yearly">Yearly</option>
+                </select>
+                or by Date
+                <input type="date" id="CarbonEmissionReviewDate" name="CarbonEmissionReviewDate" style="text-transform: initial;" value="@((Model.CarbonEmissionReviewDate != null)? DateTime.Parse(Model.CarbonEmissionReviewDate.ToString()).ToString("yyyy-MM-dd") : "")">
+                by this year.
+            </h3>
+
+
+
+
+        </div>
+    </div>
+    <div class="row d">
+
+        <div class="col-lg-1 text-left my-3">
+
+            <a href="/Carbon-Footprint-Calculator/History" class="btn btn-secondary">Back</a>
+        </div>
+        <div class="col-lg-1 text-left my-3">
+            <button onclick="window.print()" class="btn btn-primary">Download</button>
+        </div>
+        @if (ses == "1")
+        {
+            <div class="col-lg-3 ml-auto text-right my-3">
+                <a href="#cFormType" class="btn btn-primary" id="btnSaveTarget">PLEDGE <span id="emoji" style="display:none;">&#128512;</span></a>
+            </div>
+        }
+
+    </div>
+    <div>
+
+    </div>
+</section>
+<script language="javascript" type="text/javascript">
+
+    function printPageArea(areaID) {
+        var printContent = document.getElementById(areaID).innerHTML;
+        var originalContent = document.body.innerHTML;
+        document.body.innerHTML = printContent;
+        window.print();
+        document.body.innerHTML = originalContent;
+    }
+
+    function calculate_CarbonOffset(i) {
+        if (i > 0) {
+
+            if (document.getElementById('txt_' + i).value.search(/\S/) != -1) {
+                if (isNaN(document.getElementById('txt_' + i).value) == false) {
+                    if (document.getElementById('txt_' + i).value >= 0) {
+                        document.getElementById('d_txt_' + i).value = (document.getElementById('txt_' + i).value * cal_factor[i]).toFixed(2);
+                    }
+                    else {
+                        document.getElementById('d_txt_' + i).value = '';
+                    }
+                }
+                else {
+                    document.getElementById('d_txt_' + i).value = '';
+                }
+            }
+            else {
+                document.getElementById('d_txt_' + i).value = '';
+            }
+        }
+
+
+    }
+
+    var cal_factor = new Array();
+    cal_factor[0] = "";
+    cal_factor[111] = "0.227011";//short haul
+    cal_factor[222] = "0.137156";//medium haul
+    cal_factor[333] = "0.167421";//long haul
+    cal_factor[444] = "16.8783333333333";
+    cal_factor[555] = "13.53";
+    cal_factor[666] = "13.776";
+    cal_factor[777] = "0.220416";
+    cal_factor[888] = "1.81";
+    cal_factor[8888] = "1.81";
+    cal_factor[999] = "";
+</script>
+

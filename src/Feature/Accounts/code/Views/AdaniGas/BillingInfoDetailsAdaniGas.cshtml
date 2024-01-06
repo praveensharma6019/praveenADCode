@@ -1,0 +1,78 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model SapPiService.Domain.BillingDetailsList
+
+<!-- Toggle button to show/hide side nav -->
+<div class="d-block d-md-none sideNavBtn">
+<button type="button" id="sidebarCollapse" class="btn btn-secondary">
+<em class="fas fa-align-left"></em>
+<span>&nbsp;Menu</span>
+</button>
+</div>
+<!-- /Toggle button to show/hide side nav -->
+<div class="clearfix"></div>
+<!-- Update Profile Page Content-->
+@if (Model != null)
+{
+    <div class="panel">
+        <h3 class="mb-3">@Html.Sitecore().Dictionary("/Accounts/BillingInfo/Details/Billing Information", "Billing Information")</h3>
+		<div class="table-responsive">
+        <table class="table table-striped border text-center bg-white">
+            <thead>
+                <tr>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/BillingInfo/Details/Sr. No", "Sr. No")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/BillingInfo/Details/Invoice No", "Invoice No.")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/BillingInfo/Details/Bill Date", "Bill Date")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/BillingInfo/Details/Bill Amount", "Bill Amount")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/BillingInfo/Details/Due Date", "Due Date")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/BillingInfo/Details/Print Bill", "Print Bill")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var count = 1;
+                    foreach (var item in Model.BillingDetails.OrderByDescending(x => x.BillDate).Take(5))
+                    {
+                        DateTime billDate = DateTime.Parse(item.Bill_Posting_Date);
+                        var billDate1 = billDate.ToString("dd.MM.yyyy");
+                        DateTime dueDate = DateTime.Parse(item.DueDate);
+                        var dueDate1 = dueDate.ToString("dd.MM.yyyy");
+                        var decimalPoint =System.Convert.ToDecimal(item.AmountDue);
+						var readingInDecimal = decimalPoint.ToString("F");
+                        
+                        <tr>
+                            <td>@count</td>
+                            <td>@item.Bill_ID</td>
+                            <td>@billDate1</td>
+                            <td>@readingInDecimal</td>
+                            <td>@dueDate1</td>
+                            <td><a href="" class="lnk_Printbill" data-document="@item.InvoiceID"><i class="fa fa-print"></i></a></td>
+                        </tr>
+                        count++;
+                    }
+
+                }
+            </tbody>
+        </table>
+         </div>
+
+    </div>
+}
+
+    <div class="modal" id="printPDFModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content gallery-slider">
+                <!-- Modal Header -->
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div id="main-pdf" style="display:none;">
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+

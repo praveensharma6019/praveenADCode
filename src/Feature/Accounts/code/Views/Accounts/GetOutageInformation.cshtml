@@ -1,0 +1,179 @@
+@model SapPiService.Domain.OutageDetail
+@if (@Model != null)
+{
+    <!-- Toggle button to show/hide side nav -->
+    <div class="d-block d-md-none sideNavBtn">
+        <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+            <i class="fas fa-align-left"></i>
+            <span>&nbsp;Menu</span>
+        </button>
+    </div>
+    <!-- /Toggle button to show/hide side nav -->
+    <div class="clearfix"></div>
+    <!-- Update Profile Page Content-->
+    <div class="panel">
+        @*<h5 class="txt-orange">Welcome John Doe</h5>*@
+        <form class="pt-3">
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">Master Account Number</label>
+                <div class="col-sm-8 col-lg-6">
+                    <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.AccountNumber">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">Billing Amount for this month</label>
+                <div class="col-sm-8 col-lg-6">
+                    <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.Amount">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    if (@Model.Message != "")
+    {
+        <div class="panel">
+            <p>@Model.Message</p>
+        </div>
+    }
+
+    if (Model == null)
+    {
+        <div class="">
+            <p>Unable to get details, please try again later!</p>
+        </div>
+    }
+    else if (Model.AccountNumber == null || !string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="">
+            <p>@Model.Message</p>
+        </div>
+    }
+    else
+    {
+        if (Model.AccountNumber != null && Model.CurrentOutageDetails != null && Model.FutureOutageDetails != null)
+        {
+            <div class="">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link show PaymentKiosk active" id="CurrentOutage" data-toggle="tab" href="#CurrentOutageTab">Current Outage</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="FutureOutage" data-toggle="tab" href="#FutureOutageTab">Future Outage</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content bg-gray-light">
+                    <div class="tab-pane fade active show" id="CurrentOutageTab" role="tabpanel">
+                        @if (Model.CurrentOutageDetails.Count == 0)
+                        {
+                            <div class="">
+                                <h5 class="txt-orange">Dear Consumer</h5>
+                                <div class=""></div>
+                                <p class="mt-2 mb-2">Power outage is not reported in your area.</p>
+                                <p>In case you are suffering from Power Outage, you can call our 24x7 toll-free helpline - 19122, anytime to report outage &amp; know the status of restoration.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <h5 class="txt-orange">Dear Consumer</h5>
+                            <div class=""></div>
+                            <p class="mt-2 mb-2">We regret that you may be facing a power outage in your area. Reason for outage and restoration time is mentioned below</p>
+                            <div class="">
+                                <table class="table table-hover table-striped bg-white table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Outage Date</th>
+                                            <th scope="col">Start Time</th>
+                                            <th scope="col">Expected restoration time</th>
+                                            <th scope="col">Activity</th>
+                                            <th scope="col">Outage Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var currObj in Model.CurrentOutageDetails)
+                                        {
+                                            <tr>
+                                                <th scope="row">@currObj.Date</th>
+                                                <th scope="row">@currObj.StartTime</th>
+                                                <th scope="row">@currObj.EndTime</th>
+                                                <th scope="row">@currObj.ActivityDescription</th>
+                                                <th scope="row">@currObj.OutageType</th>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    <div class="tab-pane fade" id="FutureOutageTab" role="tabpanel">
+                        @if (Model.FutureOutageDetails.Count == 0)
+                        {
+                            <div class="">
+                                <h5 class="txt-orange">Dear Consumer</h5>
+                                <div class=""></div>
+                                <p class="mt-2 mb-2">Planned maintenance activity is not scheduled in your area. </p>
+                                <p>In case you are suffering from Power Outage , you can call our 24x7 toll-free helpline - 19122, anytime to report outage &amp; know the status of restoration.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "f")
+                            {
+                                <div class="">
+                                    <h5 class="txt-orange">Dear Consumer</h5>
+                                    <div class=""></div>
+                                    <p class="mt-2 mb-2">For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                </div>
+                            }
+                            else if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "r")
+                            {
+                                <div class="">
+                                    <h5 class="txt-orange">Dear Consumer</h5>
+                                    <div class=""></div>
+                                    <p class="mt-2 mb-2">Due to technical reasons, we have rescheduled maintenance activity in your area, Revised schedule is mentioned below for your reference.  </p>
+                                </div>
+                            }
+                            if (Model.FutureOutageDetails.Count > 1)
+                            {
+                                <div class="">
+                                    <h5 class="txt-orange">Dear Consumer</h5>
+                                    <div class=""></div>
+                                    <p class="mt-2 mb-2">For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                </div>
+                            }
+                            <div class="">
+                                <table class="table table-hover table-striped bg-white table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th scope="col">Outage Date</th>
+                                            <th scope="col">Start Time</th>
+                                            <th scope="col">Expected restoration time</th>
+                                            <th scope="col">Activity</th>
+                                            <th scope="col">Outage Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var futureObj in Model.FutureOutageDetails)
+                                        {
+                                            <tr>
+                                                <th scope="row">@futureObj.Date</th>
+                                                <th scope="row">@futureObj.StartTime</th>
+                                                <th scope="row">@futureObj.EndTime</th>
+                                                <th scope="row">@futureObj.ActivityDescription</th>
+                                                <th scope="row">@futureObj.OutageType</th>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+
+}
+

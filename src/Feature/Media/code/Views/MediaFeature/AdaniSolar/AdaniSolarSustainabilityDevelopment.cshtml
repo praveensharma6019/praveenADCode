@@ -1,0 +1,64 @@
+﻿@using Sitecore.Feature.Media
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants().Where(x => x.TemplateID == Templates.SolarPageTypeNews.ID);
+    <section class="bg-gray py-5">
+        <div class="container">
+            <h2 class="heading pl-4 mb-4">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, elements)</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="row">
+                        @foreach (var item in itemList.Take(2))
+                        {
+                            if (item.FieldHasValue(Templates.SolarPageTypeNews.Fields.Title))
+                            {
+                                <div class="col-lg-12 sus-main padd-box">
+                                    <a href="@item.Url()">
+                                        <div class="bg-images">
+                                            @Html.Sitecore().ImageFieldWithoutSize2(Templates.SolarPageTypeNews.Fields.Image, item, 0, 0)
+                                        </div>
+                                        <div class="sustainability-block p-5">
+                                            <h3>@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Title, item)</h3>
+                                            <p>@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Summary, item)</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-4 sus-report bg-gradient padd-box">
+                    @Html.Sitecore().Placeholder("sustainability-report")
+                </div>
+            </div>
+            <div class="row">
+                @foreach (var item in itemList.Skip(2))
+                {
+                    if (item.FieldHasValue(Templates.SolarPageTypeNews.Fields.Title))
+                    {
+                        <div class="col-lg-4 sus-main padd-box">
+                            <a href="@item.Url()">
+                                <div class="bg-images">
+                                    @Html.Sitecore().ImageFieldWithoutSize2(Templates.SolarPageTypeNews.Fields.Image, item, 0, 0)
+                                </div>
+                                <div class="sustainability-block p-5">
+                                    <h3>@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Title, item)</h3>
+                                    <p>@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Summary, item)</p>
+                                </div>
+                            </a>
+                        </div>                       
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}

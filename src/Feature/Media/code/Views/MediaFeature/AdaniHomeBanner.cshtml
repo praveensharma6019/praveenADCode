@@ -1,0 +1,74 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource).FieldHasValue(Templates.HasMediaSelector.Fields.IsBanner);
+    var mobileMedia = Model.Item.Fields["MobileMediaSelector"].Value;
+    Sitecore.Data.Fields.LinkField link = Model.Item.Fields["Link"];
+    var i = 0;
+}
+<!-- Banner Carousel -->
+<div class="mainSlider test" data-aos="fade-up" >
+    <div class="owl-carousel owl-theme homeslider" id="mainslider">
+        <div class="item">
+            @foreach (var element in elements)
+            {
+                //var style = "background-image: ";
+                var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                var fixedHeight = Model.Rendering.IsFixedHeight();
+                if (fixedHeight && carouselHeight.HasValue)
+                {
+                    style += "; height:" + carouselHeight + "px;";
+                }
+
+                var ImagePath = "";
+                if (mobileMedia.Count() > i)
+                {
+                    var imageItem = Sitecore.Context.Database.GetItem(new Sitecore.Data.ID(mobileMedia.Split('|')[i].ToString()));
+                    ImagePath = MediaManager.GetMediaUrl(imageItem);
+                }
+                i++;
+
+                if (!System.Convert.ToBoolean(@models))
+                {
+
+                    <picture href="">
+                        <source srcset="@style" media="(min-width: 1779px)">
+                        <source srcset="@style" media="(min-width: 1400px)">
+                        <source srcset="@style" media="(min-width: 1084px)">
+                        <source srcset="@style" media="(min-width:768px)">
+                        <source srcset="@style" media="(min-width:540px)">
+                        <source srcset="@ImagePath" media="(min-width:0)">
+                        <img srcset="@style" src="@style" alt="">
+                    </picture>
+                   
+                }
+                else
+                {
+                    <div class="item" data-videosrc="@link.GetFriendlyUrl()">
+                        <img src="@style">
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

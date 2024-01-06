@@ -1,0 +1,159 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+}
+@if (Model != null)
+{
+    <div class="col-sm-8 col-md-9">
+        <nav class="navbar navbar-expand-lg pl-5">
+            <div class="">
+                <div class="collapse navbar-collapse" id="navbar">
+                    <ul class="navbar-nav mr-auto">
+
+                        @foreach (var item in Model.NavItems.Take(Model.NavItems.Count() - 1))
+                        {
+                            if (item.Item.Fields[Templates.Navigable.Fields.ShowInNavigation].IsChecked())
+                            {
+                                if (item.Item.Children.Count > 0 && item.Item.HasChildren)
+                                {
+                                    Sitecore.Data.Fields.LinkField menu = item.Item.Fields["Link"];
+                                    var menuurl = menu.GetFriendlyUrl();
+
+                                    <li class="nav-item dropdown">
+                                        @if (!string.IsNullOrEmpty(menuurl))
+                                        {
+                                            <a class="nav-link" href="@menuurl">
+                                                @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a class="nav-link">
+                                                @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                            </a>
+                                        }
+                                        @if (item.Item.Fields[Templates.LinkMenuItem.Fields.Icon].Value == "product")
+                                        {
+                                            <div class="dropdown-menu megamenu" aria-labelledby="dropdown01">
+                                                <h5><a href="@menuurl">Explore @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</a></h5>
+                                                <hr>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="row">
+                                                            @foreach (var ch in item.Item.Children.InnerChildren)
+                                                            {
+                                                                if (ch.Fields[Templates.LinkMenuItem.Fields.Icon].Value == "productitem")
+                                                                {
+                                                                    Sitecore.Data.Fields.LinkField linkvalue = ch.Fields["Link"];
+                                                                    var linkUrl = linkvalue.GetFriendlyUrl();
+
+                                                                    <div class="col-md-12 mb-2">
+                                                                        <a class="dropdown-item"
+                                                                           href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, ch)</a>
+                                                                    </div>
+                                                                    if (ch.HasChildren)
+                                                                    {
+                                                                        foreach (var ch1 in ch.Children.InnerChildren)
+                                                                        {
+                                                                            if (ch1.Fields[Templates.LinkMenuItem.Fields.Icon].Value == "productitem")
+                                                                            {
+                                                                                Sitecore.Data.Fields.LinkField linkvalue2 = ch1.Fields["Link"];
+                                                                                var linkUrl2 = linkvalue2.GetFriendlyUrl();
+
+                                                                                <div class="col-md-12 pl-5 mb-3">
+                                                                                    <a class="dropdown-item"
+                                                                                       href="@linkUrl2">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, ch1)</a>
+                                                                                </div>
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                }
+
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                    @foreach (var ch in item.Item.Children.InnerChildren)
+                                                    {
+                                                        if (ch.Fields[Templates.LinkMenuItem.Fields.Icon].Value != "productitem")
+                                                        {
+                                                            Sitecore.Data.Fields.LinkField linkvalue = ch.Fields["Link"];
+                                                            var linkUrl = linkvalue.GetFriendlyUrl();
+                                                            <div class="col-md-6">
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <a class="dropdown-item"
+                                                                           href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, ch)</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="dropdown-menu megamenu" aria-labelledby="dropdown01">
+                                                @if (!string.IsNullOrEmpty(menuurl))
+                                                {
+                                                    <h5><a href="@menuurl">Explore @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</a></h5>
+                                                }
+                                                else
+                                                {
+                                                    <h5><a>Explore @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</a></h5>
+                                                }
+                                                <hr>
+                                                <div class="row">
+                                                    @foreach (var ch in item.Item.Children.InnerChildren)
+                                                    {
+                                                        if (ch.Fields[Templates.Navigable.Fields.ShowChildren].IsChecked())
+                                                        {
+                                                            Sitecore.Data.Fields.LinkField linkvalue = ch.Fields["Link"];
+                                                            var linkUrl = linkvalue.GetFriendlyUrl();
+                                                            <div class="col-md-6">
+                                                                <a class="dropdown-item" href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, ch)</a>
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="@item.Url">
+                                            @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                        </a>
+                                    </li>
+                                }
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="col-sm-4 col-md-3 mobile-none">
+        @foreach (var item in Model.NavItems.Skip((Model.NavItems.Count() - 1)))
+        {
+            if (item.IsVisible)
+            {
+                <p class="mt-1">
+                    <a href="@item.Url" class="btn-tracking">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</a>
+                </p>
+            }
+        }
+    </div>
+}

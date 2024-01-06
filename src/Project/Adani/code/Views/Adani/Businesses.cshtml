@@ -1,0 +1,58 @@
+﻿@using Sitecore.Data
+@using Sitecore.Adani.Website
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<section class="bg-gray businesses-block">
+    <div class="container">
+        <h2 class="heading pl-4 mb-4">@Html.Sitecore().Field("Title", models)</h2>
+        @Html.Sitecore().Field("Summary", models)
+
+        <section class="bg-gray">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3 ml-auto">
+                        <div class="form-group">
+
+                            <select class="form-control btn-gradient" id="btn-mrelease">
+                                <option value="all">All businesses</option>
+                                <option value="Transport-and-Logistics">Transport and Logistics</option>
+                                <option value="Power-and-Utilities">Power and Utilities</option>
+                                <option value="Incubation">Incubation</option>
+                                <option value="Others">Other Businesses</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="row" id="business-parent">
+            @foreach (var item in models.Children.ToList())
+            {
+                //   var childitems = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(item.ID));
+                var newsType = item.Fields["type"].Value;
+                var formatedType = newsType.Replace(" ", "-");
+
+                <div class="col-sm-6 col-lg-4 my-3 all @formatedType">
+                    @{
+
+                        Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                        var linkUrl = linkvalue.GetFriendlyUrl();
+
+                    }
+                    <a href="@linkUrl" class='business-tile'>
+                        <div class="business-thumb">@Html.Sitecore().ImageField(Templates.Businesses.Fields.Image, item, 0, 0)</div>
+                        <div class="business-title">@Html.Sitecore().Field(Templates.Businesses.Fields.Title, item)</div>
+
+                        <div class="business-desc">@Html.Sitecore().Field(Templates.Businesses.Fields.Summary, item)</div>
+                    </a>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>

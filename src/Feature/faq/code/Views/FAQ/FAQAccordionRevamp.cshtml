@@ -1,0 +1,110 @@
+﻿
+@using Sitecore.Feature.FAQ
+@using Sitecore.Feature.FAQ.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+@using Sitecore.Data.Items;
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+    //Cast to a Sitecore item
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)element;
+
+
+    //Read the Multifield List
+    Sitecore.Data.Fields.MultilistField Multiitemslist = myItem != null ? myItem.Fields["FAQList"] : null;
+
+    //var Imageplus = myItem.Fields["ImagePlus"].ImageUrl().ToString();
+    Sitecore.Data.Items.Item[] itemsList = Multiitemslist != null ? Multiitemslist.GetItems() : null;
+
+    //Sitecore.Data.Fields.ImageField ImagefieldPlus = myItem != null ? myItem.Fields[Templates.FaqDetails.Fields.ImagePlus] : null;
+    //string ImagePlus = ImagefieldPlus.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImagefieldPlus.MediaItem) : string.Empty;
+
+
+    //Sitecore.Data.Fields.ImageField ImagefieldMinus = myItem != null ? myItem.Fields[Templates.FaqDetails.Fields.ImageMinus] : null;
+    //string ImageMinus = ImagefieldMinus.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImagefieldMinus.MediaItem) : string.Empty;
+
+
+
+    var count = 0;
+    var phName = "";
+    var replacestr = string.Empty;
+}
+
+
+@if (myItem != null)
+{
+    <div class="section-container custom_accrdion">
+        <header class="section-header">
+            @Html.Raw(Html.Sitecore().Field(Templates.FaqDetails.Fields.Title, myItem).ToString())
+        </header>
+        @if (Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString() != string.Empty)
+        {
+            @Html.Raw(Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString())
+        }
+        <div class="accordion">
+            <ul class="collapsible collapsible-accordion">
+                @if (itemsList != null)
+                {
+                    foreach (var item in itemsList)
+                    {
+                        count++;
+                        phName = replacestr + count;
+                        var id = Guid.NewGuid().ToString();
+                        var eventQuestion = @Html.Sitecore().Field(Templates.Faq.Fields.Question, item);
+
+                        <li class="faqli"
+                            data-gaevent="faq_expand"
+                            data-gaeventCategory="User Interaction"
+                            data-gaeventAction="FAQ Expand"
+                            data-gaeventLabel="@eventQuestion">
+                            <div class="collapsible-header">
+                                @Html.Sitecore().Field(Templates.Faq.Fields.Question, item)
+                            </div>
+                            <div class="collapsible-body">
+                                @Html.Sitecore().Field(Templates.Faq.Fields.Answer, item)
+                                <div id="customerCareControl" class="@phName">
+                                    @Html.Sitecore().Placeholder(phName)
+                                </div>
+                                </div>
+                        </li>
+
+                    }
+                }
+            </ul>
+            @{
+                Sitecore.Data.Items.Item home = Sitecore.Context.Database.GetItem("{1E9F3E3D-D6B0-4AE1-A7E6-D1BB2C619E71}");
+
+                if (Sitecore.Context.Item.ID == home.ID)
+                {
+                    Sitecore.Data.Items.Item faqPageItem = Sitecore.Context.Database.GetItem("{47BF04C3-914E-440A-8969-2419001C6378}");
+                    string faqsPageUrl = faqPageItem != null ? Sitecore.Links.LinkManager.GetItemUrl(faqPageItem) : "/HelpAndSupport/Faqs";
+                    <a href="@faqsPageUrl" class="link-btn accordion-more">See All</a>
+                }
+            }
+
+        </div>
+
+    </div>
+}
+@*<script type="text/javascript">
+    $('.eventFAQQuestion').click(function () {
+        dataLayer.push({
+            'event': $(this).attr('data-gaevent'),
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+</script>*@

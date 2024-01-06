@@ -1,0 +1,61 @@
+@using Sitecore.Feature.Blogs
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var ulclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "ulclass").FirstOrDefault().Value;
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "divclass").FirstOrDefault().Value;
+	 var maxcount = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "maxcount").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(divclass))
+    {
+        divclass = "box-block p-4 w-100 h-100";
+    }
+    var i = 0;
+    var sortedItem = elements.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+}
+<div class="row">
+
+@foreach (var item in sortedItem)
+        {
+            string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+			  Sitecore.Data.Fields.LinkField imageLink = item.Fields["LinkUrl"];
+            var imageLinkUrl = imageLink.GetFriendlyUrl();
+            if (string.IsNullOrEmpty(imageLinkUrl))
+            {
+<div class="col-lg-6">
+						<ul class="ul-media-section">
+							 <li>
+                    <p><a href="@linkUrl" >@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span></p>
+                </li>
+						</ul>
+</div>
+		}
+ else
+            {
+			<div class="col-lg-6">
+						<ul class="ul-media-section">
+							 <li>
+                    <p><a href="@imageLinkUrl" target="_blank" >@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span></p>
+                </li>
+						</ul>
+</div>
+}
+ if (i ==int.Parse(maxcount) )
+            {
+                break;
+            }
+            i++;	
+}		
+	   @{
+
+        string parentUrl = Sitecore.Links.LinkManager.GetItemUrl(elements);
+    }
+    <div class="col-lg-12 text-right pt-4"><p><a href="@parentUrl">Read more</a></p></div>				
+</div>
+<br />

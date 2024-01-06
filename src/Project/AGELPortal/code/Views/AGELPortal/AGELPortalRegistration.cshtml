@@ -1,0 +1,86 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model Sitecore.AGELPortal.Website.Models.PortalRegistrationModel
+
+@{
+    Layout = null;
+    var name1 = Model?.name;
+    var email1 = Model?.email;
+    var mobile1 = Model?.mobile;
+
+    Uri myUri = new Uri(Request.Url.AbsoluteUri);
+    var name = HttpUtility.ParseQueryString(myUri.Query).Get("token1");
+    if (name == null)
+    {
+        name = name1;
+    }
+    var email = HttpUtility.ParseQueryString(myUri.Query).Get("token2");
+    if (email == null)
+    {
+        email = email1;
+    }
+    var mobile = HttpUtility.ParseQueryString(myUri.Query).Get("token3");
+    if (mobile == null)
+    {
+        mobile = mobile1;
+    }
+}
+
+<div class="container">
+    <div class="card outlined mid-form section-container border-none-mobile">
+        <header class="section-header">
+            <img src="/images/AGELPortal/logo.svg" alt="form-logo">
+            <h1>Register Account</h1>
+        </header>
+        <div class="card-with-form login-wrap">
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "registration_form", name = "registration_form", @class = "registration_form", autocomplete="off" }))
+            {
+                @Html.AntiForgeryToken()
+            <div class="input-field custom">
+                <input value="@name" id="name" name="name" readonly type="text" class="validate" autocomplete="off"> 
+                @*<div>@Html.Sitecore().Dictionary("Form/InvalidUser", "InvalidUser")</div>*@
+                @Html.ValidationMessageFor(model => model.name, "", new { @class = "help-block text-danger" }, "p")
+                <label class="active" for="first_name2">Enter Name</label>
+            </div>
+                <div class="input-field custom">
+                    <input value="@mobile" id="mobile" name="mobile" readonly type="text" class="validate" autocomplete="off">
+                    @Html.ValidationMessageFor(model => model.mobile, "", new { @class = "help-block text-danger" }, "p")
+                    <label class="active" for="mobile">Enter Mobile Number</label>
+                </div>
+                <div class="input-field custom">
+                    <!--onfocusout="SendOtpMobile(event,this);"-->
+                    <input value="@email" id="email" name="email" readonly type="email" class="validate" autocomplete="off">
+                    @Html.ValidationMessageFor(model => model.email, "", new { @class = "help-block text-danger" }, "p")
+                    <p class="emailerror"></p>
+                    <label class="active" for="email">Enter Email ID</label>
+                </div>
+                <div id="OtpDiv" class="input-field custom">
+                    <input value="" id="OTP" name="OTP" type="text" class="validate" autocomplete="off">
+                    @Html.ValidationMessageFor(model => model.OTP, "", new { @class = "help-block text-danger" }, "p")
+		    <p style="margin-top:22px;">OTP will be sent if user details is valid.</p>
+                    <label class="active" for="email">Enter OTP</label>
+                </div>
+                <div id="Otperror" class="input-field custom" style="display:none">
+                    <p>Somthing went wrong please try again</p>
+                    </div>
+                    <div class="h-right btn-group2">
+                        <!--<a class="full-btn" href="/htmls/login_register/create_password.html">
+
+                </a>--><input type="hidden" value="@Model.Id" name="Id" />
+                        @Html.ValidationMessageFor(model => model.UserValidation, "", new { @class = "help-block text-danger" }, "p")
+                        <button type="submit" id="portal-register" class="waves-effect btn full-btn">Verify OTP</button>
+
+                    </div>
+                    }
+                </div> 
+                <div class="bordered-items">
+                    <ul>
+                        <li>Already have an Account? <a href="/agelportal/home/login" class="bold">Login Now</a></li>
+                        <li>Need some help? Call <span class="ff-rb">19122</span></li>
+                    </ul>
+                </div>
+            </div>
+</div>

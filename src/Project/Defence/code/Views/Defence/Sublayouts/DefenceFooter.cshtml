@@ -1,0 +1,163 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var SocialMenu = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["Social-Menu"];
+    var SocialMenuitem = Sitecore.Context.Database.GetItem(SocialMenu);
+    var SocialMenudata = SocialMenuitem.Children;
+
+
+
+    var footerMobilelink = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["FooterMenuMobile"];
+    var footerMobileMenuitem = Sitecore.Context.Database.GetItem(footerMobilelink);
+    var footerMobileMenudata = footerMobileMenuitem.Children;
+
+
+
+
+    var footerlinklink = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["FooterMenu"];
+    var footerlinklinkitem = Sitecore.Context.Database.GetItem(footerlinklink);
+    var footerlinklinkdata = footerlinklinkitem.Children;
+
+    var footerlogo = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["FooterLogo"];
+
+
+    var i = 1;
+    var j = 1;
+    var k = 1;
+}
+
+<div class="container">
+    <div class="row footerPanel2">
+        @foreach (var item in footerlinklinkdata.ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkvalues = item.Fields["Link"];
+            var linkUrls = linkvalues.GetFriendlyUrl();
+            if (i == 1)
+            {
+                <div class="col-md-2 ft-submenu col-6 d-md-block d-none">
+                    <h5><a href="@linkUrls">@Html.Sitecore().Field("NavigationTitle", item)</a></h5>
+
+                    @if (item.HasChildren)
+                    {
+                        <ul class="ft-business">
+
+                            @foreach (var items in item.GetChildren().ToList())
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                                var link = linkvalue.GetFriendlyUrl();
+                                if (k > 5)
+
+                                {
+
+                                    <li class="d-none"><a href="@link">@Html.Sitecore().Field("NavigationTitle", items)</a></li>
+
+
+                                }
+                                else
+                                {
+                                    <li><a href="@link">@Html.Sitecore().Field("NavigationTitle", items)</a></li>
+
+                                }
+                                k++;
+                            }
+                        </ul>
+
+                    }
+
+                </div>
+            }
+            else if (i == 2)
+            {
+                <div class="col-md-3 ft-submenu col-6 d-md-block d-none">
+                    <h5><a href="@linkUrls">@Html.Sitecore().Field("NavigationTitle", item)</a></h5>
+
+                    @if (item.HasChildren)
+                    {
+                        <ul class="ft-business">
+                            @foreach (var items in item.GetChildren().ToList())
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                                var link = linkvalue.GetFriendlyUrl();
+
+
+                                <li><a href="@link">@Html.Sitecore().Field("NavigationTitle", items)</a></li>
+
+
+                            }
+                        </ul>
+
+                    }
+
+                </div>
+            }
+            i++;
+        }
+
+        <div class="col-md-3 col-6 d-md-block">
+            <div>
+                @foreach (var item in footerlinklinkdata.ToList())
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                    var link = linkvalue.GetFriendlyUrl();
+                    if (j > 2)
+                    {
+                        <h5><a href="@link" target="_blank">@Html.Sitecore().Field("NavigationTitle", item)</a></h5>
+                    }
+                    j++;
+                }
+            </div>
+        </div>
+
+
+        <div class="col-md-4">
+            <div class="row border-left ft-logo">
+                <div class="col-sm-12 mb-3 text-center">
+                    <ul class="ft-social">
+                        @foreach (var item in SocialMenudata.ToList())
+                        {
+                            Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+                            <li><a href="@linkUrl" target="_blank" title="@Html.Sitecore().Field("NavigationTitle",item)" data-toggle="tooltip" data-placement="top"><i class="@Html.Sitecore().Field("Icon",item)"> </i></a></li>
+
+                        }
+                    </ul>
+                </div>
+                <div class="col-sm-12 text-center">
+                    <ul class="terms-link d-md-none">
+                        <li class="d-inline-block"><a href="/privacy-policy" class="txt-blue">Privacy Policy</a></li>
+                        <li class="d-inline-block"><a href="/disclaimer" class="txt-blue">Legal Disclaimer</a></li>
+                        <li class="d-inline-block"><a href="/terms-of-use" class="txt-blue">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-12 text-center">
+                    <img src="@footerlogo" class="img-fluid">
+                </div>
+                <div class="col-sm-12 d-md-none mb-3">
+                    <p class="sitemap-link bg-gradient d-block p-2">Sitemap<i class="fa fa-angle-down"></i></p>
+                </div>
+
+                <div class="col-sm-12 d-none ft-mobilemenu">
+                    <div class="row">
+                        @foreach (var item in footerMobileMenudata.ToList())
+                        {
+                            Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+
+                            <div class="col-sm-6">
+                                <h5 class="text-center"><a href="@linkUrl">"@Html.Sitecore().Field("NavigationTitle", item)</a></h5>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+

@@ -1,0 +1,116 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data;
+
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+}
+<div class="row">
+    <div class="col s12">
+      
+        <h1>@Sitecore.Context.Item.Fields["Title"]</h1>
+
+        <div class="discover">
+            <ul class="tabs">
+                <li class="tab">
+                    <a href="#electricity" class="active"><h4>@Sitecore.Context.Item.Fields["Title"]</h4></a>
+                </li>
+                <li class="tab">
+                    <a href="#gas"><h4>Archive</h4></a>
+                </li>
+            </ul>
+            <div id="electricity">
+                <div class="section-wrapper custom_accrdion">
+                    <div class="accordion">
+                        <ul class="collapsible collapsible-accordion">
+                            @foreach (var item in parent.Children.ToList())
+                            {
+                                var selectedItems = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.GetMultiListValueItems(item, new ID("{BE3010D5-DDC2-4E51-A1C8-F4415A9601CC}")).ToList();
+                                bool Archive = item.Fields["Is Archive"].Value == "" ? true : false;
+                                if (Archive && selectedItems.Where(x => x.Fields["IsVisible"].Value == "1").Count() > 0)
+                                {
+                                    <li>
+                                        <div class="collapsible-header">
+                                            @Html.Sitecore().Field(new ID("{65EB83F9-3400-4569-BEFE-6A29567FE3B3}"), item)
+                                        </div>
+                                        <div class="collapsible-body">
+                                            <div class="block-link-wrapper">
+                                                @foreach (var doc in selectedItems.ToList())
+                                                {
+
+                                                    bool IsArchive = doc.Fields["IsVisible"].Value == "" ? false : true;
+                                                    if (IsArchive)
+                                                    {
+                                                        Sitecore.Data.Fields.LinkField linkField = doc.Fields["Link"];
+                                                      <a href="@linkField.GetFriendlyUrl()">@doc.Fields["ShortDescription"]</a>
+                                                    }
+
+                                                }                                              
+                                               
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                }
+                            }
+
+                            
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="gas">
+                <div class="section-wrapper custom_accrdion">
+                    <div class="accordion">
+                        <ul class="collapsible collapsible-accordion">
+                            @foreach (var item in parent.Children.ToList())
+                            {
+                                var selectedItems = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.GetMultiListValueItems(item, new ID("{BE3010D5-DDC2-4E51-A1C8-F4415A9601CC}")).ToList();
+                                bool Archive = item.Fields["Is Archive"].Value == "" ? true : false;
+                                if (Archive && selectedItems.Where(x => x.Fields["IsVisible"].Value == "").Count() > 0)
+                                {
+                                    <li>
+                                        <div class="collapsible-header">
+                                            @Html.Sitecore().Field(new ID("{65EB83F9-3400-4569-BEFE-6A29567FE3B3}"), item)
+                                        </div>
+                                        <div class="collapsible-body">
+                                            <div class="block-link-wrapper">
+                                                @foreach (var doc in selectedItems.ToList())
+                                                {
+
+                                                    bool IsArchive = doc.Fields["IsVisible"].Value == "" ? false : true;
+                                                    if (!IsArchive)
+                                                    {
+                                                        Sitecore.Data.Fields.LinkField linkField = doc.Fields["Link"];
+                                                        <a href="@linkField.GetFriendlyUrl()">@doc.Fields["ShortDescription"]</a>
+                                                    }
+
+                                                }
+
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                }
+                            }
+
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+    </div>
+</div>

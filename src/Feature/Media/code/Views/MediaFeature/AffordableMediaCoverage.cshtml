@@ -1,0 +1,63 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    var i = 0;
+
+    var param = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var key = param.Where(x => x.Key == "Image").FirstOrDefault().Value;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.PageContext.Database.GetItem(key);
+
+    var BackimgId = param.Where(x => x.Key == "background-image").FirstOrDefault().Value;
+    var BackImg = Sitecore.Mvc.Presentation.RenderingContext.Current.PageContext.Database.GetItem(BackimgId);
+
+
+
+}
+<section class="py-5 media-coverage" id="MediaCoverage">
+    <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, BackImg)</div>
+    <div class="container">
+        <h3 class="text-center sectionHeading txt-white">Media Coverage</h3>
+       
+            <div class="bootleggers owl-carousel" id="media-coverage">
+                @foreach (var img in elements.ToList())
+                {
+                    var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                    var style = img.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                    Sitecore.Data.Fields.LinkField linkfield = img.Item.Fields["MediaLink"];
+
+                    if (linkfield != null && linkfield.Value != "")
+                    {
+                        var url = linkfield.GetFriendlyUrl();
+                        <a href="@url" target="_blank" class="item popup">
+                            <img src="@style" class="img-fluid " alt="Media Coverage">
+                            <h4>@Html.Sitecore().ImageField(Templates.HasMedia.Fields.Title, img.Item)</h4>
+                        </a>
+
+                    }
+                    else
+                    {
+                        <a class="item popup" href="@style">
+                            <img src="@style" class="img-fluid" alt="Media Coverage">
+                            <h4>@Html.Sitecore().ImageField(Templates.HasMedia.Fields.Title, img.Item)</h4>
+                        </a>
+
+                    }
+                }
+            </div>
+        
+        <!-- /Img Popup6 -->
+    </div>
+</section>
+<!-- /Media Coverage Block -->

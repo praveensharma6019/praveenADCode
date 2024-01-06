@@ -1,0 +1,190 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+
+
+<div class="tab-pane" id="energycalculator" role="tabpanel">
+    <p>Just provide a little information and we shall work with you to save energy.</p>
+    <div class="py-3"></div>
+    <h5 class="txt-orange">Equipments For</h5>
+    <div class="py-3"></div>
+
+    <div class="bg-gray form-inner-box energy-navigation">
+        <ul class="servicesList owl-carousel" id="energyCarousel">
+            @foreach (var item in parent.Children.ToList())
+            {
+                <li class="slideItem">
+                    <a href="#" class="eqiptiles" id="@item.DisplayName" name="@item.DisplayName">
+                        <div class="eqipicons">
+                            @Html.Sitecore().Field("{E6CD7A67-0869-4271-A535-F63E74BF205A}", item, new { @class = "menuSelect" })
+                        </div>
+                        <span>@item.DisplayName</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="py-3"></div>
+    <div class="container">
+        <!-- Set up your HTML -->
+        <div class="form-group row">
+            <label for="" class="col-sm-4 col-md-3 col-form-label">Choosen number of day(s)</label>
+            <div class="col-sm-8 col-lg-3">
+                @*<input type="text" class="form-control"  placeholder="" onchange="dayschanges()" />*@
+                <select id="days" class="form-control" onchange="dayschanges()">
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                    <option value='5'>5</option>
+                    <option value='6'>6</option>
+                    <option value='7'>7</option>
+                    <option value='8'>8</option>
+                    <option value='9'>9</option>
+                    <option value='10'>10</option>
+                    <option value='11'>11</option>
+                    <option value='12'>12</option>
+                    <option value='13'>13</option>
+                    <option value='14'>14</option>
+                    <option value='15'>15</option>
+                    <option value='16'>16</option>
+                    <option value='17'>17</option>
+                    <option value='18'>18</option>
+                    <option value='19'>19</option>
+                    <option value='20'>20</option>
+                    <option value='21'>21</option>
+                    <option value='22'>22</option>
+                    <option value='23'>23</option>
+                    <option value='24'>24</option>
+                    <option value='25'>25</option>
+                    <option value='26'>26</option>
+                    <option value='27'>27</option>
+                    <option value='28'>28</option>
+                    <option value='29'>29</option>
+                    <option value='30'>30</option>
+                    <option value='31'>31</option>
+                </select>
+            </div>
+            <div class="col-sm-8 col-lg-6">
+                <span class="txt-lg">
+                    *Results of calculations are approximations only. AhmedabadAirport Consumption is based on 1 Unit = 1000 Watts per hour.
+                </span>
+            </div>
+        </div>
+        <div class="py-3"></div>
+        @foreach (var item in parent.Children.ToList())
+        {
+            <div id="@item.DisplayName" class="calc @item.DisplayName" name="@item.DisplayName">
+                <h5 class="txt-orange">@Html.Sitecore().Field("{63D9A869-E27E-4438-822C-EB36C26DB1B3}", item)</h5>
+                <div class="py-3"></div>
+
+                @foreach (var children in item.Children.ToList())
+                {
+                    <div class="row align-items-center form-inner-box bg-white energy" id="@item.DisplayName.ToLower()">
+                        <div class="col-lg-2 menuSelect">
+                            @Html.Sitecore().ImageField("{E6CD7A67-0869-4271-A535-F63E74BF205A}", children)
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="col-form-label">Actual Load</div>
+                            <div class="input-group">
+                                <input type="text" class="calculator form-control @children.DisplayName.ToLower()" placeholder="" name="@children.DisplayName.ToLower()" onchange="calc(this)" />
+                                <div class="input-group-appended">
+                                    <span class="input-group-text">Watts</span>
+                                </div>
+                            </div>
+                            <span class="txt-lg">Approximate(600)</span>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="col-form-label">Qty.</div>
+                            <div class="input-group">
+                                <input type="text" class="calculator form-control @children.DisplayName.ToLower()" placeholder="" name="@children.DisplayName.ToLower()" onchange="calc(this)" />
+                            </div>
+                            <span class="txt-lg">&nbsp;</span>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="col-form-label">Average Usage</div>
+                            <div class="input-group">
+                                <select id='dayddl' class="form-control @children.DisplayName.ToLower()" name="@children.DisplayName.ToLower()" onchange="calc(this)">
+                                    <option value='0'>0 Hrs</option>
+                                    <option value='1'>1 Hrs</option>
+                                    <option value='2'>2 Hrs</option>
+                                    <option value='3'>3 Hrs</option>
+                                    <option value='4'>4 Hrs</option>
+                                    <option value='5'>5 Hrs</option>
+                                    <option value='6'>6 Hrs</option>
+                                    <option value='7'>7 Hrs</option>
+                                    <option value='8'>8 Hrs</option>
+                                    <option value='9'>9 Hrs</option>
+                                    <option value='10'>10 Hrs</option>
+                                    <option value='11'>11 Hrs</option>
+                                    <option value='12'>12 Hrs</option>
+                                    <option value='13'>13 Hrs</option>
+                                    <option value='14'>14 Hrs</option>
+                                    <option value='15'>15 Hrs</option>
+                                    <option value='16'>16 Hrs</option>
+                                    <option value='17'>17 Hrs</option>
+                                    <option value='18'>18 Hrs</option>
+                                    <option value='19'>19 Hrs</option>
+                                    <option value='20'>20 Hrs</option>
+                                    <option value='21'>21 Hrs</option>
+                                    <option value='22'>22 Hrs</option>
+                                    <option value='23'>23 Hrs</option>
+                                    <option value='24'>24 Hrs</option>
+                                </select>
+                            </div>
+                            <span class="txt-lg">Hours/Day</span>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="col-form-label">&nbsp;</div>
+                            <div class="input-group">
+                                <select name="@children.DisplayName.ToLower()" id='dayddl' class="form-control @children.DisplayName.ToLower()" onchange="calc(this)">
+                                    <option value='0'>0 Mins</option>
+                                    <option value='5'>5 Mins</option>
+                                    <option value='10'>10 Mins</option>
+                                    <option value='15'>15 Hrs</option>
+                                    <option value='20'>20 Hrs</option>
+                                    <option value='25'>25 Hrs</option>
+                                    <option value='30'>30 Hrs</option>
+                                    <option value='35'>35 Hrs</option>
+                                    <option value='40'>40 Hrs</option>
+                                    <option value='45'>45 Hrs</option>
+                                    <option value='50'>50 Hrs</option>
+                                    <option value='55'>55 Hrs</option>
+                                    <option value='60'>60 Hrs</option>
+                                </select>
+                            </div>
+                            <span class="txt-lg">Minutes/Day</span>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="col-form-label">App. Units</div>
+                            <div class="input-group">
+                                <input type="number" class="calculator form-control @children.DisplayName.ToLower()" placeholder="" name="@children.DisplayName.ToLower()" disabled />
+                            </div>
+                            <span class="txt-lg">Monthly</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        <div class="row align-items-center form-inner-box bg-dark-gray">
+            <div class="col-auto ml-lg-auto">
+                <h5>Total Units</h5>
+            </div>
+            <div class="col-auto ml-lg-auto">
+                <div class="col-form-label">&nbsp;</div>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="grandtotal" placeholder="" disabled />
+                </div>
+                <span class="txt-lg">Monthly</span>
+            </div>
+        </div>
+    </div>
+</div>
+

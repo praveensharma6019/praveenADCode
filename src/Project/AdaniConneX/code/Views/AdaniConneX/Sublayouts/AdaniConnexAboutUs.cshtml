@@ -1,0 +1,78 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "";
+    string altText = "";
+    string sectionClass = "";
+}
+
+@if (model != null)
+{
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaImage"]);
+    if (imgField != null && imgField.MediaItem != null)
+    {
+        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+        altText = imgField.Alt;
+    }
+
+    <div class="section-holder edge-connex-hoder">
+        <div class="content-wrapper">
+            <div class="full">
+                <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", model)</p>
+                <p class="full d-txt desc">@Html.Sitecore().Field("MediaDescription", model)</p>
+            </div>            
+                
+                    <div class="tab-accordion-wrapper">
+                        <div class="sustainability-wrapper">
+                            <div class="full">
+                                <div class="full sustainability-content grid-wrapper">
+                                    <div class="right-col custom-col">
+                                        <div class="full movie-holder">
+                                            <div class="full image-wrapper" id="sustainabilityVideoHolder">
+                                                @if (imgurl != "")
+                                                {
+                                                    <figure>
+                                                        <img src="@imgurl" alt="@altText" />
+                                                    </figure>
+                                                }
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (model.HasChildren)
+                                    {
+                                        <div class="left-col custom-col">
+                                            @foreach (Item item in model.GetChildren())
+                                            {
+                                                <p class="full h2 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                                                @Html.Sitecore().Field("MediaDescription", item)
+
+                                            }
+                                     </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+            
+        </div>
+</div>
+}

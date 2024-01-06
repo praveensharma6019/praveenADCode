@@ -1,0 +1,196 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using System.Globalization
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var elements = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Item;
+	Sitecore.Data.Database db = Sitecore.Configuration.Factory.GetDatabase("web");
+	var awardsItem = db.GetItem("{050241C6-F442-4F25-B8E6-793ED1419C27}");
+    int i = 1;    
+}
+@if(awardsItem != null)
+{
+var itemList = awardsItem.GetChildren().ToList().Where(x => x.TemplateID == Templates.SolarPageTypeNews.ID);
+<section class="bg-gray pt-5" id="upcomingsection">
+        <div class="container events-m">
+            <h2 class="heading pl-4 mb-4">Awards</h2>
+            <div class="row" id="awardrow">
+                @if (itemList != null)
+                {
+                    foreach (var item in itemList)
+                    {
+                        <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="item boxzoom" data-toggle="modal" data-target="#modalevent-@i">
+                                    @Html.Sitecore().ImageFieldWithoutSize2(Templates.SolarPageTypeNews.Fields.Image, item, cssClass: "img-fluid w-100")
+                                    <p class="events-title">@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Title, item)</p>
+                                    
+                                </div>
+								<p class="events-desc mt-3">
+                                        <span>
+                                            @Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Summary, item)
+                                        </span>
+                                    </p>
+                            </div>
+
+                            var innerItem = item.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{F0369E1A-9030-4A05-A09C-EF09B664ED27}"));
+                            if (innerItem != null && innerItem.Count() > 0)
+                            {
+                                <div class="modal events-modal" id="modalevent-@i">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <div class="modal-body">
+                                                <div class="owl-carousel events-item">
+                                                    @foreach (var inner in innerItem)
+                                                    {
+                                                        if (inner != null)
+                                                        {
+                                                            <div class="item">
+                                                                @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, inner, cssClass: "img-fluid")
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            i++;
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}
+@if (elements != null)
+{
+    var itemList = elements.GetChildren().ToList().Where(x => x.TemplateID == Templates.SolarPageTypeNews.ID);
+
+    <section class="bg-gray pt-5" id="upcomingsection">
+        <div class="container events-m">
+            <h2 class="heading pl-4 mb-4">Upcoming Events</h2>
+            <div class="row" id="upcomingrow">
+                @if (itemList != null)
+                {
+                    foreach (var item in itemList)
+                    {
+                        var eventDate = DateTime.ParseExact(item.Fields[Templates.SolarPageTypeNews.Fields.Date].ToString(), "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
+                        int result = DateTime.Compare(eventDate, DateTime.Now);
+                        if (result > 0)
+                        {
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <div class="item boxzoom" data-toggle="modal" data-target="#modalevent-@i">
+                                    @Html.Sitecore().ImageFieldWithoutSize2(Templates.SolarPageTypeNews.Fields.Image, item, cssClass: "img-fluid w-100")
+                                    <p class="events-title">@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Title, item)</p>
+                                    
+                                </div>
+								<p class="events-desc mt-3">
+                                        <span>
+                                            @Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Summary, item)
+                                        </span>
+                                    </p>
+                            </div>
+
+                            var innerItem = item.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{F0369E1A-9030-4A05-A09C-EF09B664ED27}"));
+                            if (innerItem != null && innerItem.Count() > 0)
+                            {
+                                <div class="modal events-modal" id="modalevent-@i">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <div class="modal-body">
+                                                <div class="owl-carousel events-item">
+                                                    @foreach (var inner in innerItem)
+                                                    {
+                                                        if (inner != null)
+                                                        {
+                                                            <div class="item">
+                                                                @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, inner, cssClass: "img-fluid")
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            i++;
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-gray pt-5" id="pastsection">
+        <div class="container events-m">
+            <h2 class="heading pl-4 mb-4">Past Events</h2>
+            <div class="row" id="pastrow">
+                @if (itemList != null)
+                {
+                    foreach (var item in itemList)
+                    {
+                        var eventDate = DateTime.ParseExact(item.Fields[Templates.SolarPageTypeNews.Fields.Date].ToString(), "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
+                        int result = DateTime.Compare(eventDate, DateTime.Now);
+                        if (result < 0)
+                        {
+                            <div class="col-lg-3 col-md-6 mb-3">
+                                <div class="item boxzoom" data-toggle="modal" data-target="#modalevent-@i">
+                                    @Html.Sitecore().ImageFieldWithoutSize2(Templates.SolarPageTypeNews.Fields.Image, item, cssClass: "img-fluid w-100")
+                                    <p class="events-title">@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Title, item)</p>
+                                    <p class="events-desc mt-3">
+                                        <span>
+                                            @Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Summary, item)
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+
+
+                            var innerItem = item.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{F0369E1A-9030-4A05-A09C-EF09B664ED27}"));
+                            if (innerItem != null && innerItem.Count() > 0)
+                            {
+                                <div class="modal events-modal" id="modalevent-@i">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <div class="modal-body">
+                                                <div class="owl-carousel events-item">
+                                                    @foreach (var inner in innerItem)
+                                                    {
+                                                        if (inner != null)
+                                                        {
+                                                            <div class="item">
+                                                                @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, inner, cssClass: "img-fluid")
+																 <p class="events-title">@Html.Sitecore().Field("MediaTitle", inner)</p>
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            i++;
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+}

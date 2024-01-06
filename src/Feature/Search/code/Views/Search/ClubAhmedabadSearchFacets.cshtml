@@ -1,0 +1,45 @@
+﻿@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Extensions
+@model Sitecore.Feature.Search.Models.SearchResultsViewModel
+
+@if (Model.TotalResults == 0)
+{
+    return;
+}
+
+@if (!Model.Results.Facets.Any())
+{
+    <div class="alert alert-info">
+        <small>
+            @DictionaryPhraseRepository.Current.Get("/Search/Search Facets/No Filters", "No filters were found")
+        </small>
+    </div>
+    return;
+}
+
+
+@foreach (var facet in Model.Results.Facets)
+{
+    if (facet.Definition.ViewName != null)
+    {
+        @Html.Partial(facet.Definition.ViewName, facet)
+    }
+    else
+    {
+        <ul class="list-unstyled parentMenu">
+            @foreach (var facetValue in facet.Values)
+            {
+                <li class="@(facetValue.Selected ? "active" : "")">
+                    <a href="#" onclick="ToggleFacet('@Model.Query', '@Model.Facets', '@facet.Definition.FieldName', '@facetValue.Value')">
+                        @if (facetValue.Selected)
+                        {
+                            <small class="glyphicon glyphicon-ok text-info"></small>
+                        }
+                        <span pid="facetName">@(string.IsNullOrWhiteSpace(facetValue.Title) ? DictionaryPhraseRepository.Current.Get("/Search/Search Facets/Blank Facet Value", "(none)") : facetValue.Title)</span>
+                        <small class="badge badge-default" pid="facetCount">@facetValue.Count</small>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+}

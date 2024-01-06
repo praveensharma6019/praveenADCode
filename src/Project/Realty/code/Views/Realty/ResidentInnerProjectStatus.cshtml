@@ -1,0 +1,68 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.SingleText.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.SingleText.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+
+    var param = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var key = param.Where(x => x.Key == "Link").FirstOrDefault().Value;
+    var value = Sitecore.Mvc.Presentation.RenderingContext.Current.PageContext.Database.GetItem(key);
+
+}
+
+<section class="statusbox" id="projects">
+    <div class="container-fluid m-0 p-0">
+        <div class="row p-0 m-0">
+            <div class="col-lg-6 p-4 m-0 bg-l-blue">
+                <h3 class="mb-3">@Html.Sitecore().Field(Templates.SingleText.Fields.Text, models)</h3>
+                <div class="large-12 columns">
+                    <div class="carousel-wrap">
+                        <div class="bootleggers owl-carousel owl-loaded owl-drag" id="projectstatus">
+                            <div class="owl-stage-outer">
+                                <div class="owl-stage" style="transform: translate3d(0px, 0px, 0px); transition: all 0s ease 0s; width: 1219px;">
+                                    @foreach (var item in models.Axes.GetDescendants())
+                                    {
+                                        Sitecore.Data.Fields.ImageField imageField = item.Fields[Templates.HasMediaImage.Fields.Image];
+                                        if (imageField?.MediaItem != null)
+                                        {
+                                            var image = new MediaItem(imageField.MediaItem);
+                                            var imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                                            <div class="owl-item active" style="width: 294.667px; margin-right: 10px;">
+                                                <a class="item popup" href="@imageUrl"><img src="@imageUrl" class="img-fluid" alt="Gallery"></a>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <div class="owl-nav disabled">
+                                <button type="button" role="presentation" class="owl-prev"><span aria-label="Previous">‹</span></button>
+                                <button type="button" role="presentation" class="owl-next"><span aria-label="Next">›</span></button>
+                            </div>
+                            <div class="owl-dots disabled"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p class="mt-5 txt-center mb-4"><a href="@HttpContext.Current.Server.UrlDecode(key.ToString())" role="presentation" class="btn-primary">View All</a></p>
+                    </div>
+                </div>
+            </div>
+            @Html.Sitecore().Placeholder("inner-rera-certificate")
+        </div>
+    </div>
+</section>

@@ -1,0 +1,31 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+	Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)element.Fields["ImageSource"]);
+	string imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+}
+
+@if (element != null)
+{
+<div class="container d-flex align-items-center">
+	  <a href="/" class="logo me-auto"><img src="@imgurl" alt="@Html.Sitecore().Field("ImageAltText", element)" class="img-fluid"></a>
+      <nav id="navbar" class="navbar">
+        <ul id="navigation">
+		@foreach (var item in element.GetChildren().ToList())
+		{
+			Sitecore.Data.Fields.LinkField linkfield = item.Fields["LinkUrl"];
+			var itemlink = linkfield.GetFriendlyUrl();
+			 if (itemlink != null)
+			 {
+				<li><a class="tab" href="@itemlink">@Html.Sitecore().Field("Title", item)</a></li>
+			 }
+		}
+        </ul>
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav><!-- .navbar -->
+
+    </div>
+}

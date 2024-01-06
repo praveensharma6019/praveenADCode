@@ -1,0 +1,401 @@
+﻿@using Sitecore
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var TBLogo = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "TBLogo").FirstOrDefault().Value;
+ var Traveller = Sitecore.Context.Database.GetItem("{E00204FA-25ED-42CB-8734-BDDD2EE5A301}");
+	 var Business = Sitecore.Context.Database.GetItem("{E635DDC9-547E-46DA-B4C8-815FBA69CB5A}");
+	  var Corporate = Sitecore.Context.Database.GetItem("{E635DDC9-547E-46DA-B4C8-815FBA69CB5A}");
+	  var menu = Sitecore.Context.Database.GetItem("{C1B2F184-E0FA-4ABD-8942-DDCBE08056AC}");
+	  
+	  var activeClass ="active";
+	  
+	  var modelBusinessMenu = Sitecore.Context.Database.GetItem("{1A733349-6F30-4E3B-ADC2-3C8F0DE02995}");
+	var imgurls = Helper.ImageUrl("Image", modelBusinessMenu);
+	
+	var elementCallInfo = Sitecore.Context.Database.GetItem("{FBD3A85C-5EAE-4ABF-9D62-B57FC0CFFF2C}");
+	
+	 string CurrentURLs = Request.RawUrl;
+	 
+	 
+}
+@*
+@if(CurrentURLs.Contains("/svpia-ahmedabad-airport"))
+{
+menu = Sitecore.Context.Database.GetItem("{C1B2F184-E0FA-4ABD-8942-DDCBE08056AC}");
+}*@
+
+<!-- <div class="header-topbar"> -->
+    <!-- <div class="container-fluid"> -->
+        <!-- <div class="alert fade show" role="alert"> -->
+            <!-- <a href="/notification" class="txt-white"> -->
+                <!-- Important information – Coronavirus update -->
+
+            <!-- </a> -->
+            <!-- <button type="button" class="close" data-dismiss="alert" aria-label="Close"> -->
+                <!-- <span aria-hidden="true">&times;</span> -->
+            <!-- </button> -->
+        <!-- </div> -->
+    <!-- </div> -->
+<!-- </div> -->
+<div class="navPanel @CurrentURLs">
+
+
+<div class="header--top_bar">
+
+
+@if (elementCallInfo != null )
+{
+    var imgURL = Helper.ImageUrl("Image", elementCallInfo);
+<div class="contact_info">
+    <img src="@imgURL" alt="Call" />
+   
+    
+        @for(int i = 0; i < elementCallInfo.GetChildren().Count; i++)
+        {
+            @elementCallInfo.GetChildren()[i]["Title"] @Html.Raw(elementCallInfo.GetChildren()[i]["Text"])
+        }
+    
+
+</div>
+}
+
+	<div class="top_bar_nav">
+		<a href="#businesses">
+            <img src="@imgurls" alt="Business" /> @Html.Sitecore().Field("Text", modelBusinessMenu)
+        </a>
+		<div class="business_dropdown">
+					@foreach (Item item in modelBusinessMenu.GetChildren().ToList())
+						{
+							var subItemModel = Sitecore.Context.Database.GetItem(item.ID);
+							var childCount = subItemModel.GetChildren().Count();
+							
+							
+							
+							if (childCount > 0)
+							{
+								foreach (Item subItem in subItemModel.GetChildren().ToList())
+								{
+									var url = Helper.LinkUrl(subItem.Fields["LinkUrl"]);
+									var imgurl = Helper.ImageUrl("LinkImage", subItem);
+									if (!string.IsNullOrWhiteSpace(imgurl))
+									{
+										<a href="@url" class="@Html.Sitecore().Field("Class", subItem)" target="_blank">
+											<i><img src="@imgurl" alt="@Html.Sitecore().Field("Title", subItem)"> </i>
+											<label>@Html.Sitecore().Field("Title", subItem)</label>
+										</a>
+
+									}
+
+								}
+							}
+						}
+			</div>
+		
+				
+	</div>       
+</div>
+
+
+
+	<div class="container-fluid navtopbar">
+	 <nav class="navbar navbar-expand-lg navbar-light">
+      <a class="navbar-brand" href="/svpia-ahmedabad-airport">
+	  <div class="row">
+		<div class="col-sm-4 col-5">
+			<img src="-/media/C9A554BB1A5947D48D5777A275CE144E.ashx" alt="Adani Airports">
+			<img src="-/media/38AF517E486A4AB8A4D25001A7A7EE5D.ashx" alt="Adani Airports">
+		</div>
+		<div class="col-sm-8 col-7">
+			<p>Ahmedabad<span class="d-block">Sardar Vallabhbhai Patel<br> International Airport</span></p>
+		</div>
+	  </div>
+	  </a>
+      <div class="navbar-collapse collapse" id="mainMenu" style="">
+		<span class="nav-close"></span>
+        <ul class="navbar-nav mx-auto primaryMenu">
+		@foreach (var element in menu.GetChildren().ToList())
+		{
+		var childCount = element.GetChildren().Count();
+		if(childCount != 0)
+		{
+		<li class="@childCount nav-item dropdown @activeClass">
+			@Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+															 @Html.Sitecore().Field("NavigationTitle", element)
+                                                        
+                                                        @Html.Sitecore().EndField()
+														
+			 
+		
+		
+			<span class="fa fa-angle-down"></span>
+		<div class="dropdown-menu megamenu">
+			<ul>
+					@foreach (var subMenu in element.GetChildren().ToList())
+														{
+															
+															<li class="dropdown-item">
+															@Html.Sitecore().BeginField("Link", subMenu, new { haschildren = true, @class = "dropdown-item" })
+
+															 @Html.Sitecore().Field("NavigationTitle", subMenu) 
+                                                        
+                                                        @Html.Sitecore().EndField()
+															</li>
+														}														
+															
+			</ul>
+			
+            </div>
+          </li>
+		}
+		else{
+		<li class="@childCount nav-item">
+			@Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+															 @Html.Sitecore().Field("NavigationTitle", element)
+                                                        
+                                                        @Html.Sitecore().EndField()
+														  </li>
+														
+		}
+		activeClass = "";
+		}
+		
+		
+        </ul>
+		
+		<div class="nav_cta d-lg-none d-block">
+			<ul>
+			@*@if(CurrentURLs.Contains("/svpia-ahmedabad-airport"))
+	 {*@
+			<li><a href="/svpia-ahmedabad-airport/services"><img src="-/media/21836FD4235E4031A4A085975913D4E3.ashx"><span>Check-out Services</span></a></li>
+			<li><a href="/svpia-ahmedabad-airport/contact-us?na=Suspicious"><img src="-/media/0941E1DE111C4693B24329DBDA9CB9D6.ashx"><span>Report Suspicion</span></a></li>
+			@*}
+	 else
+	 {
+			<li><a href="/AirportService"><img src="-/media/21836FD4235E4031A4A085975913D4E3.ashx"><span>Check-out Services</span></a></li>
+			<li><a href="/Contactus?na=Suspicious"><img src="-/media/0941E1DE111C4693B24329DBDA9CB9D6.ashx"><span>Report Suspicion</span></a></li>
+		}*@
+		</ul>
+		</div>
+      </div>
+	  
+	   <ul class="primarymenu ml-auto">
+		<li class="user-login d-none"><a href="#" class="nav-link"><svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="19.5" viewBox="0 0 17.5 19.5"><defs></defs><g transform="translate(-3.25 -2.25)"><path class="a" d="M20,21V19a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/><circle class="a" cx="4" cy="4" r="4" transform="translate(8 3)"/></g></svg></a></li>
+		<li class="weather-plugin"><a ><span id="tempInfo"></span><img src="-/media/2374C10805614E11941FD17EB9ACC1D1.ashx"></a></li>
+		<li class="search" id="search-toggle"><a href="#" class="nav-link"><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)"/><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)"/></g></svg></a>
+		<div class="search-container">
+    <div class="container-fluid">
+        <form class="search-container__form" autocomplete="off">
+			<div class="form-group mb-3 wrapper">
+			  <input type="text" class="form-control" placeholder="Search" id="SearchBox" aria-label=""  maxlength="30" required>
+				<button type="button" onclick="Search()" value="X" id="SearchBtn" disabled><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)"></circle><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)"></line></g></svg></button>
+			</div>
+		</form>
+<div class="search-container__results"> 
+    <p>Popular Searches</p> 
+     <ul id="SearchResult"> 
+	 @*@if(CurrentURLs.Contains("/svpia-ahmedabad-airport"))
+	 {*@
+          <li><a href="/svpia-ahmedabad-airport/passenger-guide">Passenger Guide</a></li> 
+        <li><a href="/svpia-ahmedabad-airport/shop-and-dine/lounge">Lounge</a></li>
+        <li><a href="/svpia-ahmedabad-airport/transport">Transport</a></li> 
+         <li><a href="/svpia-ahmedabad-airport/shop-and-dine/outlets">Shop and Dine</a></li> 
+        <li><a href="/svpia-ahmedabad-airport/services/lost-and-found">Lost and Found</a></li> 
+		@*}
+		else
+		{
+		  <li><a href="/PassengerGuide">Passenger Guide</a></li> 
+        <li><a href="/ShopAndDine/Relax">Place to Relax</a></li>
+        <li><a href="/Transport">Cab Services</a></li> 
+         <li><a href="/ShopAndDine/Shop">Duty Free & Shopping</a></li> 
+        <li><a href="/AirportService/LostandFound">Lost and Found</a></li> 
+		}*@
+         </ul> 
+ </div>
+</div>
+</div>
+		</li>
+		<li class="toggle_nav"><button class="navbar-toggler d-block" id="nav-button" type="button" data-toggle="collapse" data-target="#mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+		<span></span>
+		<span></span>
+		<span></span>
+      </button></li>
+	  </ul>
+	 
+    </nav>
+	</div>
+	</div>
+	
+	
+	<script src="/scripts/AhmedabadAirport/jquery.min.js"></script>
+<script>
+	$('#SearchBox').keyup(function (event) {
+		 
+		var maxLength = 30;
+		var inputEmail = document.querySelector('#SearchBox');
+		if(inputEmail.value.length > maxLength) {
+		inputEmail.value = inputEmail.value.substring(0, maxLength);
+		}
+		if($('#SearchBox').val().trim()!=""){
+		document.getElementById("SearchBtn").disabled = false;
+		}
+		else{
+		document.getElementById("SearchBtn").disabled = true;
+		}
+       
+    });
+    $('#SearchBox').keypress(function (event) {
+       // event.preventDefault();
+		if($('#SearchBox').val().trim()!=""){
+		document.getElementById("SearchBtn").disabled = false;
+		//window.location.href ="/svpia-ahmedabad-airport/search-result?key=" +  $('#SearchBox').val();
+		}
+		else{
+		document.getElementById("SearchBtn").disabled = true;
+		}
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13' && $('#SearchBox').val().trim()!="")
+			{
+			//if (window.location.href.indexOf("svpia-ahmedabad-airport") > -1)
+			//{
+            window.location.href ="/svpia-ahmedabad-airport/search-result?key=" +  $('#SearchBox').val();
+			//}
+			//else
+			//{
+            //window.location.href ="/searchresult?key=" +  $('#SearchBox').val();
+			
+			//}
+            event.preventDefault();
+        }
+
+    });
+
+ function SearchRedirect()
+ {
+ 			//if (window.location.href.indexOf("svpia-ahmedabad-airport") > -1)
+			//{
+			 window.location.href ="/svpia-ahmedabad-airport/search-result?key=" +  $('#SearchBox').val();
+			 //}
+			 //else
+			 //{ 
+			 //window.location.href ="/searchresult?key=" +  $('#SearchBox').val();
+			 //}
+            event.preventDefault();
+
+ }
+
+    function Search() {
+      //  $('#SearchBtn').submit(); test2
+	  if($('#SearchBox').val().trim()=="")	
+		{
+			//document.getElementById("alert_search").style.display = "block";
+		return false;
+		}
+		else{
+		//document.getElementById("alert_search").style.display = "none";
+		}
+		
+      //  $('#SearchBtn1').submit();
+	  //if (window.location.href.indexOf("svpia-ahmedabad-airport") > -1)
+		//	{
+  window.location.href ="/svpia-ahmedabad-airport/search-result?key=" +  $('#SearchBox').val();
+  //}
+  //else
+  //{
+  //window.location.href ="/searchresult?key=" +  $('#SearchBox').val();
+  //}
+  //return false;
+
+        var itemId = $('#SearchBox').val();
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/MangaloreAirport/GetSearchResult",
+            context: this,
+            success: function (objects) {
+                // alert("s1");
+                console.log(objects);
+                $('#SearchResult').html('');
+                var html = "";
+
+                for (var i = 0; i < objects.length; i++) {
+                    var value = objects[i]["Value"];
+                    if (value.indexOf("New Local Datasource Folder") > 0) {
+
+                    }
+                    else {
+                        if (value.indexOf("svpia-ahmedabad-airport/Home") > 0)
+                            value = "/" + value.replace("/svpia-ahmedabad-airport/Home/", "");
+
+                        html = html + " <li><a href='" + value + "'>" + objects[i]["Key"] + "</a></li>";}
+                }
+                $('#SearchResult').html(html);
+                return false;
+
+            }
+        });
+
+    }
+
+
+		
+	
+	
+    //$('#SearchBtn').on('submit', function (e) {
+    //    alert("1");
+    //    e.preventDefault();
+    //    //  e.stopPropagation(); // only neccessary if something above is listening to the (default-)event too
+
+    //    var itemId = $('#SearchBox').val();
+    //    $.ajax({
+    //        method: "POST",
+    //        data: { itemId: itemId },
+    //        url: "/api/MangaloreAirport/GetSearchResult",
+    //        context: this,
+    //        success: function (objects) {
+    //            // alert("s1");
+    //            console.log(objects);
+    //            $('#SearchResult').html('');
+    //            var html = "";
+
+    //            for (var i = 0; i < objects.length; i++) {
+    //                html = html + " <li><a href='" + objects[i]["Value"] + "'>" + objects[i]["Key"] + "</a></li>";
+
+    //            }
+    //            $('#SearchResult').html(html);
+    //            return false;
+    //            //$("#City").html(""); // clear before appending new list
+    //            //$.each(cities, function (i, city) {
+    //            //    $("#City").append(
+    //            //        $('<option></option>').val(city.CityId).html(city.CityName));
+    //            //});
+    //        }
+    //    });
+    //});
+</script>
+<script>
+
+$('.top_bar_nav').click(function(){
+	$(this).toggleClass('active');
+  });
+</script>

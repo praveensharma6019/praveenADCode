@@ -1,0 +1,90 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+<section class="bg-white py-5">
+    <div class="container">
+        @if (element != null)
+        {
+            <h2 class="border-l txt-black position-relative mb-4">@Html.Sitecore().Field("Text", element)</h2>
+        }
+        <div class="video-main">
+            <div id="big" class="owl-carousel">
+                @if (element != null)
+                {
+                    if (element.GetChildren() != null)
+                    {
+                        var childItem = element.GetChildren();
+                        for (int i = 0; i < childItem.Count; i++)
+                        {
+                            <div class="item">
+                                <div class="row no-gutters">
+                                    <div class="col-lg-8">
+                                        <div class="video-section" data-toggle="modal" data-target="#video-@i">
+                                            @Html.Sitecore().ImageField("MediaThumbnail", childItem[i], 0, 0, "img-fluid w-100 h-100")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="video-content p-4">
+                                            <h3>@Html.Sitecore().Field("MediaTitle", childItem[i])</h3>
+                                            @Html.Sitecore().Field("MediaDescription", childItem[i])
+                                            <p><a href="video-@i" data-toggle="modal" data-target="#video-@i">Watch Now</a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+            <div class="home-video-thumb">
+                <div id="thumbs" class="owl-carousel home-video-thumb">
+                    @if (element != null)
+                    {
+                        if (element.GetChildren() != null)
+                        {
+                            var childItem = element.GetChildren();
+                            for (int j = 0; j < childItem.Count; j++)
+                            {
+                                <div class="item">
+                                    @Html.Sitecore().ImageField("MediaThumbnail", childItem[j], 0, 0, "img-fluid w-100 h-100")
+                                </div>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <!--Video Modal-->
+        @if (element != null)
+        {
+            if (element.GetChildren() != null)
+            {
+                var childList = element.GetChildren();
+                for (int k = 0; k < childList.Count; k++)
+                {
+                    LinkField link = (LinkField)childList[k].Fields["MediaLink"];
+                    <div class="modal video" id="video-@k">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                    <div class='embed-container'>
+                                        <iframe id="v-@k" src='@link.GetFriendlyUrl()' frameborder='0' allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+
+        <!--/Video Modal-->
+    </div>
+</section>

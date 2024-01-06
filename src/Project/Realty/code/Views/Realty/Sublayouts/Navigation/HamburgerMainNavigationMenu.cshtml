@@ -1,0 +1,50 @@
+﻿@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (element != null)
+{
+    <div class="hamburger_section hamburger_links">
+        <h5>@Html.Sitecore().Field("Text", element)</h5>
+
+        <ul>
+            @if (element.HasChildren)
+            {
+                int count = 1;
+                foreach (Item item in element.GetChildren())
+                {
+					
+                    var imgurls = Helper.ImageUrl("LinkImage", item);
+                    var url = Helper.LinkUrl(item.Fields["LinkUrl"]);
+					LinkField URL = item.Fields["LinkUrl"];
+					string IsActive = "";
+                    if (item.HasChildren)
+                    {
+                        IsActive = "active";
+                    }
+                    <li>
+						@if (URL.LinkType.ToLower() == "external")
+						{
+							<a href="@URL.url" class="@IsActive" target="_blank"><img src="@imgurls" alt="@Html.Sitecore().Field("Title", item)"> @Html.Sitecore().Field("Title", item)</a>
+						}
+						else
+						{
+							<a href="@url" class="@IsActive"><img src="@imgurls" alt="@Html.Sitecore().Field("Title", item)"> @Html.Sitecore().Field("Title", item)</a>
+						}
+                        
+                        @if (item.HasChildren)
+                        {
+                            <a class="hamburger_dropdown arrow" href="#child_@count"><img src="/-/media/904159C6CA6241DFAE493079EC5BF624.png"></a>
+                        }
+                    </li>
+				 count++;
+                }
+               
+            }
+        </ul>
+    </div>
+}

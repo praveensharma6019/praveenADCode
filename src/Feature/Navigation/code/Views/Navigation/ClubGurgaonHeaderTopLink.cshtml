@@ -1,0 +1,103 @@
+﻿
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+ var currentURl = Sitecore.Links.LinkManager.GetItemUrl(Sitecore.Context.Item);
+}
+
+@if (Model?.NavItems != null)
+{
+    var currentlink = Request.RawUrl;
+    foreach (var item in Model.NavItems)
+    {
+        var itemname = (Convert.ToString(@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item))).ToLower();
+        if (itemname == "club" )
+        {
+            <li><a href="@item.Url" target="_blank">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</a></li>
+        }
+        else
+        {
+            if (item.Url == currentURl)
+            {
+                <li><a href="@item.Url" class="active">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</a></li>
+            }
+            else
+            {
+                <li><a href="@item.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</a></li>
+            }
+        }
+    }
+}
+
+
+
+@*@if (Model?.NavItems != null)
+    {
+        foreach (var item in Model.NavItems)
+        {
+            var hasChildren = item.Children != null && item.Children.NavItems.Any() && item.ShowChildren;
+            var cssClass = "";
+            if (hasChildren)
+            {
+                cssClass += " dropdown";
+            }
+
+            <li class="@cssClass">
+
+                @if (hasChildren)
+                {
+
+                    <a href="@item.Url" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        @foreach (var subitem in item.Children.NavItems)
+                        {
+                            <li class="@(subitem.IsActive ? "active" : "")">
+                                <a href="@subitem.Url" target="@subitem.Target">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</a>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    if (!item.IsExternalLink)
+                    {
+                        if (!item.IsNewTab)
+                        {
+                            <a href="@item.Url" target="@item.Target">
+                                @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@item.Url" target="_blank">
+                                @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        if (!item.IsNewTab)
+                        {
+                            <a href="@item.Link" target="@item.Target">
+                                @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@item.Link" target="_blank">
+                                @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                            </a>
+                        }
+                    }
+                }
+            </li>
+        }
+    }*@

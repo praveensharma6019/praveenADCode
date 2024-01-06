@@ -1,0 +1,43 @@
+﻿@using Sitecore.Data.Fields;
+@using Sitecore.Data.Items;
+@using Sitecore.Links;
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<ul class="primarymenu ml-auto">
+    @if (element.GetChildren() != null)
+    {
+        foreach (Item item in element.GetChildren())
+        {
+            LinkField link = (LinkField)item.Fields["Link"];
+            if (item.ID.ToString() == "{3ED92B95-839F-44C4-AD10-0F8B2B609BC8}")
+            {
+                <li class="nav-dropdown">
+                    <a href="@link.GetFriendlyUrl()" class="nav-link">@Html.Sitecore().Field("NavigationTitle", item)</a>
+                    @{Item targetItm = link.TargetItem;}
+                    <div class="dropdown-menu">
+                        @foreach (Item inItem in targetItm.GetChildren())
+                        {
+                            var inLink = LinkManager.GetItemUrl(inItem).ToLower();
+                            <a class="dropdown-item" href="@inLink">@inItem.Fields["Title"]</a>
+                        }
+                    </div>
+                </li>
+            }
+            else
+            {
+                <li>
+                    <a href="@link.GetFriendlyUrl()" class="nav-link">@Html.Sitecore().Field("NavigationTitle", item)</a>
+                </li>
+            }
+            
+        }
+    }
+</ul>
+            <button class="navbar-toggler" id="nav-button" type="button" data-toggle="collapse" data-target="#mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <i>More</i>
+                <span class="toggler-icon"></span>
+            </button>

@@ -1,0 +1,114 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@model Sitecore.Transmission.Website.Models.TransmissionCostCalculatorModel
+
+@*<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        .g-recaptcha {
+            display: flex;
+            justify-content: center;
+        }
+
+        .help-block {
+            color: red;
+        }
+    </style>*@
+
+@if (Session["CarbonCalculatorLogin"] != null && !string.IsNullOrEmpty(Session["CarbonCalculatorLogin"].ToString()))
+{
+    <div class="form-group row">
+        <input id="message" type="hidden" value="@Session["CarbonCalculatorLogin"].ToString()" />
+    </div>
+}
+
+<section class="section_login">
+    <div class="bg-image">
+        <img src="-/media/40B56C4D2D7B45339A33F3069F46B08A.ashx" alt="" />
+    </div>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "TransmissionCarbonCalculatorLoginForm" }))
+    {
+        <!--<form action="" id="TransmissionCarbonCalculatorLoginForm" method="post">-->
+        @Html.AntiForgeryToken()
+        @Html.AddUniqueFormId()
+        @Html.ValidationSummary(true)
+        <div class="login-form">
+
+            @if (Session["SuccessMsg"] != null)
+            {
+                <div class="alert-success mb-4 p-2">@Session["SuccessMsg"]</div>
+                Session["SuccessMsg"] = null;
+            }
+            @if (Session["ErrorMsg"] != null)
+            {
+                <div class="alert-danger mb-4 p-2">@Session["ErrorMsg"]</div>
+                Session["ErrorMsg"] = null;
+            }
+
+
+            <h1>Login</h1>
+            <p>Please login to continue</p>
+
+
+
+            <form action="">
+                <div class="row">
+
+                    <div class="col-12">
+                        <div class="form-group mobile-control">
+                            <input type="text" class="form-control" id="mobile-login" name="LoginId" aria-describedby="User ID/Mobile Number" placeholder="User ID/Mobile Number" />
+                            @*<small id="mo-login-msg" class="form-text text-muted" />*@
+                            <button type="button" id="loginOtpbtn">Send OTP</button>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="OTP" id="OTP" placeholder="Enter OTP" />
+                            <input type="hidden" name="InCompleteGrievance" value="@Session["InCompleteCarbonCalcultor"]" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" />
+                            <label class="form-check-label" for="exampleCheck1">Keep me Logged in</label>
+                            <p class="float-right btn-register">
+                      Not registered Yet? <a href="/Carbon-Footprint-Calculator/User-Registration">Register</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" id="TransmissionCarbonCalculatorLoginButton" class="btn btn-primary">Login</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    }
+</section>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["CarbonCalculatorLogin"] != null && !string.IsNullOrEmpty(Session["CarbonCalculatorLogin"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["CarbonCalculatorLogin"].ToString()</label>
+                    </div>
+                    Session["CarbonCalculatorLogin"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>

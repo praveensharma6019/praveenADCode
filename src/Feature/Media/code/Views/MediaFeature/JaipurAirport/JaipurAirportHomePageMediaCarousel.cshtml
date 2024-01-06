@@ -1,0 +1,109 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+                /**/
+
+
+                var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+                var model = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<section class="mainSlider">
+	<div class="">
+	<div class="mainSlider_main">
+		<div class="owl-carousel homeslider-other">
+ @foreach (var item in model.GetChildren().ToList())
+                {
+                    Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BannerImage"]);
+                    string BannerImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+
+                    Sitecore.Data.Fields.ImageField MobileImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["MobileImage"]);
+                    string MobileImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MobileImageField.MediaItem);
+
+                    Sitecore.Data.Fields.LinkField linkfld = item.Fields["ExploreLink"];
+                    var url = linkfld.GetFriendlyUrl();
+
+                    <div class="item">
+                        <picture>
+                            @if (!string.IsNullOrEmpty(BannerImageUrl))
+                            {
+                                <source srcset="@BannerImageUrl" media="(min-width: 960px)">
+                                <source srcset="@BannerImageUrl" media="(min-width: 767px)">
+                            }
+                            @if (!string.IsNullOrEmpty(MobileImageUrl))
+                            {
+
+                                <source srcset="@MobileImageUrl" media="(min-width: 0)">
+                                <source srcset="@MobileImageUrl" media="(min-width: 0)">
+                            }
+                            <img alt="@BannerImageField.Alt" srcset="@BannerImageUrl" src="@BannerImageUrl">
+                        </picture>
+                        <div class="bannercontent">
+				<div class="container-fluid">
+                    <div class="bannercontent_inner">
+
+                        @Html.Sitecore().Field("Title", item)
+                       <!-- <div><a href="@url" class="btn btn-gradient">EXPLORE</a></div> -->
+                    </div>
+				</div>
+				</div>
+                    </div>
+
+                }
+	</div>
+	<div class="scroll-down">
+		<a href="#main-section"><span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span></a>
+	</div>
+	</div>
+<div class="flight-schedule">
+    <div class="container-fluid">
+        <div class="flight-schedule-container ">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+				<a class="nav-link active" data-toggle="tab" href="#arrival">Arrival 
+					</a>
+                    
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " data-toggle="tab" href="#departure">Departure </a>
+                </li>
+				
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content check_flight">
+                <div class="tab-pane container-fluid  fadeUp animate" id="departure">
+                   <form id="departure_from" class="check_dp_flight-schedule" method="get" action="/jaipur-airport/flight-status">
+                        <div class="form-group mb-3">
+						  <input id="rec_username" name="flight" type="text" class="form-control" placeholder="Flight, City, Airline…" aria-label="Flight, City, Airline…">
+                            <input type="hidden" name="type" value="departure"/>
+							<button class="" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)"/><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)"/></g></svg></button>
+						</div>
+                    </form>
+                </div>
+                <div class="tab-pane container-fluid active fadeUp animate" id="arrival" >
+                    <form id="arrival_form" class="check_dp_flight-schedule" method="get" action="/jaipur-airport/flight-status">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input id="dep_flight_search" name="flight" class="form-control" placeholder="Flight, City, Airline…">
+                                <input type="hidden" name="type" value="arrival" />
+                                <button class="" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)" /><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)" /></g></svg></button>
+                            </div>
+						</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+	
+	</div>
+</section>

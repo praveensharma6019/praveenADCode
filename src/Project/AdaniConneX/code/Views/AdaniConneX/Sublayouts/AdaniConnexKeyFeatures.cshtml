@@ -1,0 +1,120 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var Button = paramid["Button"] != null ? Sitecore.Context.Database.GetItem(paramid["Button"]) : null;
+	 var dcDetailClass = paramid["dcDetailClass"] != null ? paramid["dcDetailClass"] : null;
+    string url = "";
+    string altText = "";
+    string sectionClass = "";
+    
+}
+
+@if (model != null)
+{
+    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("cssClass", model).ToString()))
+    {
+        sectionClass = model.Fields["cssClass"].ToString();
+    }
+    else
+    {
+        sectionClass = "bg-grey";
+    }
+    <div class="section-holder @sectionClass">
+        <div class="content-wrapper grid-wrapper grid-layout-3">
+
+            <div class="full">
+                <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</p>
+                <p class="full d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</p>
+            </div>
+            <div class="full">
+                <ul class="edge-connex-list @dcDetailClass grid-wrapper gird-layout-3 width-type-2">
+
+                    @if (model.HasChildren)
+                    {
+                        foreach (Item item in model.GetChildren())
+                        {
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                            if (imgField != null && imgField.MediaItem != null)
+                            {
+                                url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                altText = imgField.Alt;
+                            }
+
+
+                            var cssClass = item.Fields["Class"].ToString();
+                            <li class="grid">
+                                <div class="eci-holder">
+                                    @if (!string.IsNullOrWhiteSpace(cssClass))
+                                    {
+                                        <i class="@cssClass"></i>
+                                    }
+                                    else
+                                    {
+                                        if (url != "")
+                                        {
+                                            <i class="i-50"><img src="@url" /></i>
+                                        }
+                                    }
+
+
+
+
+                                </div>
+                                <aside>
+                                    <p class="h3 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                                    <p class="full">@Html.Sitecore().Field("MediaDescription", item)</p>
+                                </aside>
+                            </li>
+                        }
+                    }
+
+                </ul>
+
+                @if (Button != null)
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = Button.Fields["Link"];
+                    var itemlink = linkvalue.GetFriendlyUrl();
+                    <div class="full edge-connex-cta-holder">
+
+                        @if (itemlink != null)
+                        {
+                            CheckboxField checkbox = Button.Fields["IsExternalLink"];
+                            if (checkbox != null && checkbox.Checked)
+                            {
+                                <a href="#whitePaperPopup" doc-name="AdaniConneX Chennai 1 Factsheet" data-type="Factsheet" data-url="@itemlink" class="btn whitePaperActionnew">@Html.Sitecore().Field("ShortTitle", Button)</a>
+                            }
+                            else
+                            {
+                                <a href="#whitePaperPopup" doc-name="AdaniConneX Chennai 1 Factsheet" data-type="Factsheet" data-url="@itemlink" class="btn whitePaperActionnew">@Html.Sitecore().Field("ShortTitle", Button)</a>
+                            }
+                        }
+                        else
+                        {
+                            <a href="#whitePaperPopup" doc-name="AdaniConneX Chennai 1 Factsheet" data-type="Factsheet" data-url="@itemlink" class="btn whitePaperActionnew">@Html.Sitecore().Field("ShortTitle", Button)</a>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+
+        </div>
+    </div>
+}

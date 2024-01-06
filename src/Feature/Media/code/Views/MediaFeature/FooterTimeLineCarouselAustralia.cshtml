@@ -1,0 +1,55 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="~/scripts/Australia/jquery-timelinr-0.9.7.js"></script>
+
+<section class="section history" id="our-story">
+    <div class="container">
+        <!-- Timeline Carousel -->
+        <div id="timeline">
+            <ul id="dates" >
+                @foreach (var year in models.Children.ToList())
+                {
+                    <li><a href="#@Html.Sitecore().Field(Templates.TimelineCarousel.Fields.Year,year)">@Html.Sitecore().Field(Templates.TimelineCarousel.Fields.Year, year)</a></li>
+                }
+            </ul>
+            <ul id="issues" >
+                @foreach (var item in models.Children.ToList())
+                {
+                    <li id="@Html.Sitecore().Field(Templates.TimelineCarousel.Fields.Year,item)" >
+                        <div class="row justify-content-center">
+                            <div class="col-sm-6 col-md-5">@Html.Sitecore().ImageField(Templates.TimelineCarousel.Fields.Image, item,0, 0, "img-fluid")</div>
+                            <div class="col-sm-6 col-md-5">
+                                <div class="detailTxt bulletList">
+                                    @Html.Sitecore().Field(Templates.TimelineCarousel.Fields.Desription, item)
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+            <!--<div id="grad_left"></div>
+            <div id="grad_right"></div>-->
+            <a href="#" id="next">+</a>
+            <a href="#" id="prev">-</a>
+        </div>
+        <!-- /Timeline Carousel -->
+    </div>
+</section>
+
+<script>
+
+    $().timelinr({
+        arrowKeys: 'true',
+        startAt: 3
+    })
+
+</script>

@@ -1,0 +1,53 @@
+﻿@using Sitecore.Feature.Media
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Sitecore.Data.Items.Item datasourceItem = Sitecore.Context.Database.GetItem(datasource);
+
+}
+@if (datasourceItem != null)
+{
+    Sitecore.Data.Fields.MultilistField multiselectField = datasourceItem.Fields[Templates.OtherInformation.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+
+    <div class="section-container">
+        <h2>@Html.Raw(datasourceItem["Title"])</h2>
+        @foreach (var item in items)
+        {
+            var title = item.Fields["Title"].Value;
+            var description = item.Fields["Description"].Value;
+            var buttonText = item.Fields["CTAText"].Value;
+            //Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+            //string imgurls = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+
+            Sitecore.Data.Fields.LinkField linkfld = item.Fields["CTALink"];
+            var url = linkfld.GetFriendlyUrl();
+            <div class="bill-statement mb-20 section-inner-wrapper card outlined">
+                <div class="items">
+                    @*<img src="@imgurls">*@
+                    <div class="item-content">
+                        <h5>
+                            @Html.Raw(title)
+                        </h5>
+                        <p>@Html.Raw(description)</p>
+                    </div>
+                </div>
+                <button data-mediaurl="@url"
+                        data-gaevent="bill_tariff_download"
+                        data-gaeventCategory="Bill Tariff Download"
+                        data-gaeventAction="Tariff Download"
+                        data-gaeventLabel="@Html.Raw(title)| Bill Tariff Download"
+                        sub_category ="bill_tariff_download_AEML" 
+                        onclick="DownloadPDF(this)">
+                    @buttonText
+                    </button>
+                </div>
+            }
+
+    </div>
+    <script type="text/javascript">
+        function DownloadPDF(el) {
+            var mediaUrl = $(el).attr('data-mediaurl');
+            window.open(mediaUrl, '_blank');
+        }
+    </script>
+}

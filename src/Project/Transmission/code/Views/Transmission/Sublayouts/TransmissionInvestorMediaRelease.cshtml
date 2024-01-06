@@ -1,0 +1,50 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    var sortedItem = elements.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+}
+
+
+<div class="row">
+    @foreach (var item in sortedItem.ToList())
+    {
+        string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+        Sitecore.Data.Fields.LinkField imageLink = item.Fields["LinkUrl"];
+        var imageLinkUrl = imageLink.GetFriendlyUrl();
+
+        if (string.IsNullOrEmpty(imageLinkUrl))
+        {
+            <div class="col-lg-6">
+                <ul class="ul-media-section">
+                    <li><p><a href="@linkUrl">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</span></p></li>
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="col-lg-6">
+                <ul class="ul-media-section">
+                    <li><p><a href="@imageLinkUrl">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</span></p></li>
+                </ul>
+            </div>
+        }
+        if (i == 5)
+        {
+            break;
+        }
+        i++;
+    }
+
+</div>
+ @{
+
+        string parentUrl = Sitecore.Links.LinkManager.GetItemUrl(elements);
+    }
+    <p class="text-right"><a href="@parentUrl">Read more</a></p>

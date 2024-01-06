@@ -1,0 +1,943 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{
+    var hidediv = "style=display:none";
+    var required = "<span class='required'>*</span>";
+    Model.GovernmentTypeSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.ApplicationTitleSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.PincodeSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.BillLanguageSelectList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    // Model.GreenTariffList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+    Model.BankAccountTypeList.Sort((cv1, cv2) => cv1.Text.CompareTo(cv2.Text));
+
+}
+<div class="panel-body p-3">
+    <div class="row">
+        <div class="col-lg-6 mb-2">
+            <div class="row">
+                <div class="col-lg-5">
+
+                    <label class="eng">Sector<span class="required">*</span></label>
+                    <label class="mar">अर्जदाराचा प्रकार<span class="required">*</span></label>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-check form-check-inline">
+                        @if (Model.IsApplicantType == "0")
+                        {
+                            @Html.RadioButtonFor(model => model.IsApplicantType, "0", new { id = "Govt", @class = "form-check-input rbtype", @checked = "checked" })
+                        }
+                        else
+                        {
+                            @Html.RadioButtonFor(model => model.IsApplicantType, "0", new { id = "Govt", @class = "form-check-input rbtype", required = "required", })
+                        }
+                        <label class="form-check-label eng" for="govt">Govt</label>
+                        <label class="form-check-label mar" for="govt">शासकीय</label>
+
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @if (Model.IsApplicantType == "1")
+                        {
+                            @Html.RadioButtonFor(model => model.IsApplicantType, "1", new { id = "Non Govt", @class = "form-check-input rbtype", @checked = "checked" })
+                        }
+                        else
+                        {
+                            @Html.RadioButtonFor(model => model.IsApplicantType, "1", new { id = "Non Govt", @class = "form-check-input rbtype" })
+                        }
+                        <label class="form-check-label eng" for="non govt">Non Govt</label>
+                        <label class="form-check-label mar" for="non govt">गैर शासकीय</label>
+
+                    </div>
+                    @Html.ValidationMessageFor(model => model.IsApplicantType, "", new { @class = "error" })
+                </div>
+            </div>
+        </div>
+        @if (Model.IsApplicantType == "0")
+        {
+            <div class="col-lg-6 mb-2" @((!string.IsNullOrEmpty(Model.IsApplicantType) && Model.IsApplicantType == "0") ? "" : @hidediv) id="governmentlist">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <label for="exampleInputEmail1" class="eng">Sector sub type<span class="required">*</span></label>
+                        <label for="exampleInputEmail1" class="mar">शासनाचा प्रकार<span class="required">*</span></label>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="form-group">
+                            @Html.DropDownListFor(m => m.selectedGovernmentType, new SelectList(Model.GovernmentTypeSelectList, "Value", "Text", Model.selectedGovernmentType), "Select", new { @class = "form-control", id = "ddlGovernmentType", required = "required", })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="col-lg-6 mb-2 mb-lg-0">
+            <div class="row mb-2">
+                <div class="col-lg-5">
+                    <label class="eng">Applicant's Status<span class="required">*</span></label>
+                    <label class="mar">अर्जाचा प्रकार<span class="required">*</span></label>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.ApplicanttType, "1", new { id = "ApplicantTypeIndividual", @class = "form-check-input rbApplicantType", required = "required" })
+                        <label class="form-check-label eng" for="ApplicantTypeIndividual">Individual</label>
+                        <label class="form-check-label mar" for="ApplicantTypeIndividual">वैयक्तिक</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.ApplicanttType, "2", new { id = "ApplicantTypeJoint", @class = "form-check-input rbApplicantType" })
+                        <label class="form-check-label eng" for="ApplicantTypeJoint">Joint</label>
+                        <label class="form-check-label mar" for="ApplicantTypeJoint">संयुक्</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-3">
+
+        @if (Model.ApplicanttType == "2")
+        {
+            <label class="eng">Applicant Name</label>
+            <label class="mar">नाव: </label>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 jointName">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Full Name (Applicant 1)<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>पूर्ण नाव (अर्जदार १)<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.Name1Joint, new
+                   {
+                       @class = "form-control txt-caps",
+                       required = "required"
+
+                   })
+                        @Html.ValidationMessageFor(x => x.Name1Joint, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 jointName">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>DOB (Applicant 1)<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>जन्म तारीख (अर्जदार १) <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.Name1JointDateofBirth, new
+                   {
+                       @class = "form-control txt-caps",
+                       required = "required",
+                       type = "date",
+                       max = "2014-05-20"
+                   })
+                        @Html.ValidationMessageFor(x => x.Name1JointDateofBirth, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 jointName">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Full Name (Applicant 2)<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>पूर्ण नाव (अर्जदार २)<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.Name2Joint, new
+                   {
+                       @class = "form-control txt-caps",
+                       required = "required"
+
+                   })
+                        @Html.ValidationMessageFor(x => x.Name2Joint, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                @*<div class="col-lg-3 col-md-6 mb-2 mb-lg-0 jointName">
+                        <div class="form-group">
+                            <label for="" class="eng"><b>DOB (Applicant 2)</b></label>
+                            <label for="" class="mar"><b>जन्म तारीख (अर्जदार २) </b></label>
+                            @Html.TextBoxFor(x => x.Name2JointDateofBirth, new
+                       {
+                           @class = "form-control txt-caps",
+
+                           type = "date"
+                       })
+                        </div>
+                    </div>*@
+            </div>
+
+        }
+
+        else
+        {
+
+            <label class="eng">Applicant Name</label>
+            <label class="mar">नाव: </label>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 IndividualName">
+                    <div class="form-group">
+                        <label class="eng"><b>Title <span class="required">*</span></b></label>
+                        <label class="mar"><b>उपाधी <span class="required">*</span></b></label>
+                        @Html.DropDownListFor(m => m.ApplicationTitle, new SelectList(Model.ApplicationTitleSelectList, "Value", "Text", Model.ApplicationTitle), "Select", new { @class = "form-control", id = "ddlTitle", required = "required" })
+                    </div>
+                    @Html.ValidationMessageFor(x => x.ApplicationTitle)
+                </div>
+                @if (Model.ApplicationTitle == "0006")
+                {
+                    <div class="col-lg-6 col-md-6 mb-2 mb-lg-0 IndividualName">
+                        <div class="form-group">
+                            <label for="" class="eng"><b>Orgainzation Name <span class="required">*</span></b></label>
+
+                            @Html.TextBoxFor(x => x.FirstName, new
+                       {
+                           @class = "form-control txt-caps",
+                           required = "required",
+                           id = "firstname"
+                       })
+                            @Html.ValidationMessageFor(x => x.FirstName, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 IndividualName">
+                        <div class="form-group">
+                            <label for="" class="eng"><b>First Name <span class="required">*</span></b></label>
+                            <label for="" class="mar"><b>स्वतःचे नाव <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.FirstName, new
+                       {
+                           @class = "form-control txt-caps",
+                           required = "required",
+                           id = "firstname"
+                       })
+                            @Html.ValidationMessageFor(x => x.FirstName, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                }
+                @if (Model.ApplicationTitle != "0006")
+                {
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 IndividualName">
+                        <div class="form-group">
+                            <label for="" class="eng"><b>Middle Name</b></label>
+                            <label for="" class="mar"><b>वडिलांचे / पतीचे नाव</b></label>
+                            @Html.TextBoxFor(x => x.MiddleName, new
+                       {
+                           @class = "form-control txt-caps"
+                       })
+                            @Html.ValidationMessageFor(x => x.MiddleName, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 IndividualName">
+                        <div class="form-group">
+                            <label for="" class="eng"><b>Last Name <span class="required">*</span></b></label>
+                            <label for="" class="mar"><b>आडनाव <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.LastName, new
+                       {
+                           @class = "form-control txt-caps",
+                           required = "required",
+                           id = "lastname"
+                       })
+                            @Html.ValidationMessageFor(x => x.LastName, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                }
+                @if (Model.ApplicationTitle != "0006")
+                {
+
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0 IndividualName">
+                        <div class="form-group">
+                            <label for="" class="eng"><b>Date of Birth <span class="required">*</span></b></label>
+                            <label for="" class="mar"><b>जन्मतारीख  <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.DateofBirth, new
+                       {
+                           @class = "form-control txt-caps",
+                           required = "required",
+                           type = "date",
+
+                           max = "2014-05-20"
+
+                       })
+                            @Html.ValidationMessageFor(x => x.DateofBirth, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+
+                }
+            </div>
+
+        }
+    </div>
+
+    <div class="bg-white p-3 mt-3">
+
+        <label class="eng">Address at which supply is required</label>
+        <label class="mar">पत्त्यात  दुरुस्तीची गरज असल्यास</label>
+        <div>
+            <div class="row">
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Flat/Shop/Plot No</b></label>
+                        <label for="" class="mar"><b>सदनिका / दुकान /प्लॉट क्र .</b></label>
+                        @Html.TextBoxFor(x => x.FlatNumber, new
+                   {
+                       @class = "form-control txt-caps"
+                   })
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Building/CHL Name<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>इमारतीचे नाव<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.BuildingName, new
+                   {
+                       @class = "form-control txt-caps",
+                       required = "required",
+                   })
+                        @Html.ValidationMessageFor(x => x.BuildingName, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Lane/Street<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>मार्ग / गल्ली<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.Street, new
+                   {
+                       @class = "form-control txt-caps",
+                       required = "required",
+                   })
+                        @Html.ValidationMessageFor(x => x.Street, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Landmark</b></label>
+                        <label for="" class="mar"><b>मार्गदर्शक जागा</b></label>
+                        @Html.TextBoxFor(x => x.Landmark, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @*@Html.ValidationMessageFor(x => x.Landmark, "", new { @class = "help-block" }, "p")*@
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Pincode <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>पिन क्र. <span class="required">*</span></b></label>
+                        @Html.DropDownListFor(m => m.SelectedPincode, new SelectList(Model.PincodeSelectList, "Value", "Text"), "Select", new
+                   {
+                       @class = "form-control",
+                       required = "required",
+                       id = "ddlSelectedPincode"
+                   })
+                        @Html.ValidationMessageFor(x => x.SelectedPincode, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Suburb <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>उपनगर <span class="required">*</span></b></label>
+                        @if (Model.SuburbSelectList.Count == 1)
+                        {
+                            @Html.DropDownListFor(m => m.SelectedSuburb, new SelectList(Model.SuburbSelectList, "Value", "Text"), new
+                       {
+                           @class = "form-control",
+                           required = "required"
+                       })
+                            @Html.ValidationMessageFor(x => x.SelectedSuburb, "", new { @class = "help-block", id = "ddlSelectedSuburb" }, "p")
+                        }
+                        else
+                        {
+                            @Html.DropDownListFor(m => m.SelectedSuburb, new SelectList(Model.SuburbSelectList, "Value", "Text"), "Select", new
+                       {
+                           @class = "form-control",
+                           required = "required"
+                       })
+                            @Html.ValidationMessageFor(x => x.SelectedSuburb, "", new { @class = "help-block", id = "ddlSelectedSuburb" }, "p")
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="row mb-2">
+                        <div class="col-lg-7">
+                            <label class="eng">Is billing address different than Address where supply is required?</label>
+                            <label class="mar">देयकावरचा आणि पुरवठ्याचा पत्ता वेगळा आहे का ?</label>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.billingdifferentthanAddresswheresupply, "No", new
+                           {
+                               id = "billingdifferentthanAddresswheresupplyNo"@*, required = "required"*@,
+@class = "form-check-input rbbillingdifferentthanAddress"
+})
+                                <label class="form-check-label eng" for="billingdifferentthanAddresswheresupplyNo">No</label>
+                                <label class="form-check-label mar" for="billingdifferentthanAddresswheresupplyNo">नाही</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.billingdifferentthanAddresswheresupply, "Yes", new
+                           {
+                               id = "billingdifferentthanAddresswheresupplyYes"@*, required = "required"*@,
+@class = "form-check-input rbbillingdifferentthanAddress"
+})
+                                <label class="form-check-label eng" for="billingdifferentthanAddresswheresupplyYes">Yes</label>
+                                <label class="form-check-label mar" for="billingdifferentthanAddresswheresupplyYes">हो</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="row mb-2">
+                        <div class="col-lg-7">
+                            <label class="eng">Address in case of Rented Premise</label>
+                            <label class="mar">भाडेकरू असल्यास पत्ता</label>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.AddressInCaseOfRental, "No", new
+                           {
+                               id = "AddressInCaseOfRentalNo"@*, required = "required"*@,
+@class = "form-check-input rbAddressInCaseOfRental"
+})
+                                <label class="form-check-label eng" for="AddressInCaseOfRentalNo">No</label>
+                                <label class="form-check-label mar" for="AddressInCaseOfRentalNo">नाही </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.AddressInCaseOfRental, "Yes", new
+                           {
+                               id = "AddressInCaseOfRentalYes"@*, required = "required"*@,
+@class = "form-check-input rbAddressInCaseOfRental"
+})
+                                <label class="form-check-label eng" for="AddressInCaseOfRentalYes">Yes</label>
+                                <label class="form-check-label mar" for="AddressInCaseOfRentalYes">हो</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    @if (Model.billingdifferentthanAddresswheresupply == "Yes")
+    {
+        <div class="bg-white p-3 mt-3">
+
+            <label class="eng">Applicant's Present / Correspondence Address</label>
+            <label class="mar">अर्जदाराचा सध्याचा  /  पत्रव्यवहाराचा पत्ता  </label>
+
+            <div class="row">
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Flat/Shop/Plot No<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>सदनिका  / दुकान /प्लॉट क्र .<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.ApplicantCorrespondenceFlatNumber, new
+                   {
+                       @class = "form-control txt-caps",
+                   })
+                        @Html.ValidationMessageFor(x => x.ApplicantCorrespondenceFlatNumber, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Building/CHL Name  <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>इमारतीचे नाव  <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.ApplicantCorrespondenceBuildingName, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.ApplicantCorrespondenceBuildingName, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Lane/Street<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>मार्ग / गल्ली<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.ApplicantCorrespondenceStreet, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.ApplicantCorrespondenceStreet, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Landmark</b></label>
+                        <label for="" class="mar"><b>मार्गदर्शक जागा</b></label>
+                        @Html.TextBoxFor(x => x.ApplicantCorrespondenceLandmark, new
+                   {
+                       @class = "form-control txt-caps"
+
+                   })
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Pincode<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>पिन क्र.<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.ApplicantCorrespondencePincode, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.ApplicantCorrespondencePincode, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Suburb <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>उपनगर <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.ApplicantCorrespondenceSuburb, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.ApplicantCorrespondenceSuburb, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (Model.AddressInCaseOfRental == "Yes")
+    {
+
+        <div class="bg-white p-3 mt-3">
+            <label class="eng">Address in case of Rented Premise Address</label>
+            <label class="mar">भाडेकरू असल्यास पत्ता </label>
+            <div class="row">
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Name of the Owner<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>मालकाचे नाव<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalNameoftheOwner, new
+                   {
+                       @class = "form-control txt-caps"
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalNameoftheOwner, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng">
+                            <b>
+                                Contact No<span class="required">*</span>
+                            </b>
+                        </label>
+                        <label for="" class="mar"><b>संपर्क क्रमांक<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalContactNumber, new
+                   {
+                       @class = "form-control txt-caps"
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalContactNumber, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Owner Email <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>मालकाचा इ मेल <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalOwnerEmail, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalOwnerEmail, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng">
+                            <b>
+                                Flat/Shop/Plot No<span class="required">*</span>
+                            </b>
+                        </label>
+                        <label for="" class="mar"><b>सदनिका / दुकान /प्लॉट क्र . <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalFlatNumber, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalFlatNumber, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Building/CHL Name <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>इमारतीचे नाव <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalBuildingName, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalBuildingName, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Lane/Street <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>रस्ता / गल्ली <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalStreet, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalStreet, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Pincode<span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>पिन क्र.<span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalPincode, new
+                   {
+                       @class = "form-control txt-caps"
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalPincode, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Suburb <span class="required">*</span></b></label>
+                        <label for="" class="mar"><b>उपनगर <span class="required">*</span></b></label>
+                        @Html.TextBoxFor(x => x.RentalSuburb, new
+                   {
+                       @class = "form-control txt-caps",
+
+                   })
+                        @Html.ValidationMessageFor(x => x.RentalSuburb, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+
+    <div class="bg-white p-3 mt-3">
+        <label class="eng">Contact Details</label>
+        <label class="mar">संपर्कांचा तपशील</label>
+
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="form-group">
+                    <label for="" class="eng"><b>Mobile Number <span class="required">*</span></b></label>
+                    <label for="" class="mar"><b>भ्रमणध्वनी(मोबाईल ) क्र <span class="required">*</span></b></label>
+                    @Html.TextBoxFor(x => x.MobileNo, new { @class = "form-control", required = "required" })
+                    @Html.ValidationMessageFor(x => x.MobileNo, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="form-group">
+                    <label for="" class="eng"><b>Email <span class="required">*</span></b></label>
+                    <label for="" class="mar"><b>ईमेल <span class="required">*</span></b></label>
+                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control",
+                   @Value = Model.Email, required = "required" })
+                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="form-group">
+                    <label for="" class="eng"><b>Landline Number</b></label>
+                    <label for="" class="mar"><b>घरचा दूरध्वनी क्र</b></label>
+                    @Html.TextBoxFor(x => x.LandlineNo, new
+               {
+                   @class = "form-control"@*, required = "required"*@})
+                    @Html.ValidationMessageFor(x => x.LandlineNo, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="bg-white p-3 mt-3">
+        <label>Billing Details</label>
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="form-group">
+                    <label class="eng"><b>Bill Language <span class="required">*</span></b></label>
+                    <label class="mar"><b>देयकाची  भाषा <span class="required">*</span></b></label>
+                    @Html.DropDownListFor(m => m.BillLanguage, new SelectList(Model.BillLanguageSelectList, "Value", "Text", Model.BillLanguage), "Select", new
+               {
+                   @class = "form-control",
+
+               })
+                    @Html.ValidationMessageFor(x => x.BillLanguage, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="form-group">
+                    <label class="w-100 eng"><b>Bill Format :</b></label>
+                    <label class="w-100 mar"><b>बिलाचे स्वरूप :</b></label>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.BillFormat, "EPBill", new
+                   {
+                       id = "IsPaperlessNo"@*, required = "required"*@,
+@class = "form-check-input "
+})
+                        <label class="form-check-label eng" for="IsPaperlessNo">E-Bill + Hard Copy of Bill</label>
+                        <label class="form-check-label mar" for="IsPaperlessNo">इ बिल  +   छापील देयक</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.BillFormat, "EBill", new
+                   {
+                       id = "IsPaperlessNo"@*, required = "required"*@,
+@class = "form-check-input"
+})
+                        <label class="form-check-label eng" for="IsPaperlessYes">Paperless **</label>
+                        <label class="form-check-label mar" for="IsPaperlessYes">कागदरहित देयक **</label>
+
+                    </div>
+                    <p class="txt-green" style="font-size: 12px;">Go Green with Paperless billing &amp; get credit of Rs 10/- every month</p>
+
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="form-group form-check  mt-4 pt-1">
+
+                    <input type="checkbox" id="chkPassport" name="IsGreenTariffApplied"
+                           data-toggle="modal" data-target=""
+                           @(!string.IsNullOrEmpty(Model.IsGreenTariffApplied) ? "checked" : "") value="1" class="form-check-input" />
+                    <label for="chkPassport" class="form-check-label eng">I/We would like to opt for Green Tariff.</label>
+                    <label for="chkPassport" class="form-check-label mar">हरित वीज दर  घेऊ इच्छिता का ?</label>
+
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0" @(!string.IsNullOrEmpty(Model.IsGreenTariffApplied) ? "" : hidediv) id="greenlist">
+                <div class="form-group">
+                    <label for="">
+                        <b>
+                            Green power Opt-In %
+                            <span class="required">*</span>
+                        </b>
+                    </label>
+
+                    @Html.DropDownListFor(m => m.GreenTariff, new SelectList(Model.GreenTariffList, "Value", "Text", 100), new { @class = "form-control", })@Html.ValidationMessageFor(x => x.GreenTariff, "", new { @class = "help-block", id = "GreenTariff" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="form-group form-check  mt-4 pt-1">
+                    <input type="checkbox" id="IsSez" class="form-check-input rbbissez"
+                           name="IsSez" @(!string.IsNullOrEmpty(Model.IsSez) && Model.IsSez == "1" ? "checked" : "") value="1" />
+                    <label for="IsSez" class="form-check-label eng">
+
+                        My/Our Premise is in SEZ area
+                    </label>
+                    <label for="IsSez" class="form-check-label mar">
+                        सेझ मध्ये आहात का ?
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="">
+            <label class="eng">Bank Details</label>
+            <label class="mar">बँकेचे तपशील  </label>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>MICR</b></label>
+                        <label for="" class="mar"><b>एमआयसीआर  क्र.</b></label>
+                        @if (Model.ApplicationSubType == "2")
+                        {
+                            @Html.TextBoxFor(x => x.MICR, new
+                       {
+                           @class = "form-control",
+                           required = "required",
+                           id = "MICR"
+                       })
+                            @Html.ValidationMessageFor(x => x.MICR, "", new { @class = "help-block" }, "p")
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.MICR, new
+                                               {
+                                                   @class = "form-control",
+
+                                                   id = "MICR"
+                                               })
+                            @Html.ValidationMessageFor(x => x.MICR, "", new { @class = "help-block" }, "p")
+
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        @if (Model.ApplicationSubType == "2")
+                        {
+                            <label for="" class="eng"><b>Type of Bank Account <span class='required'>*</span></b></label>
+                            <label for="" class="mar"><b>बँक खात्याचा प्रकार <span class='required'>*</span></b></label>
+                            @Html.DropDownListFor(m => m.BankAccountType, new SelectList(Model.BankAccountTypeList, "Value", "Text"), "Select", new
+                       {
+                           @class = "form-control",
+                           required = "required"
+                       })
+                            @Html.ValidationMessageFor(x => x.BankAccountType, "", new { @class = "help-block", id = "ddlBankAccountType" }, "p")
+                        }
+                        else
+                        {
+                            <label for="" class="eng"><b>Type of Bank Account</b></label>
+                            <label for="" class="mar"><b>बँक खात्याचा प्रकार </b></label>
+                            @Html.DropDownListFor(m => m.BankAccountType, new SelectList(Model.BankAccountTypeList, "Value", "Text"), "Select", new
+                       {
+                           @class = "form-control",
+
+                       })
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Bank Account holders name</b></label>
+                        <label for="" class="mar"><b>खातेधारकाचे  नाव</b></label>
+                        @Html.TextBoxFor(Model => Model.BankHoldersName, new
+                   {
+                       @class = "form-control",
+                       @Value = Model.BankHoldersName,
+                       required = "required",
+                       //@readonly = "readonly",
+                   })
+                        @Html.ValidationMessageFor(Model => Model.BankHoldersName, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Bank</b></label>
+                        <label for="" class="mar"><b>बँक</b></label>
+                        @if (Model.ApplicationSubType == "2")
+                        {
+                            @Html.TextBoxFor(Model => Model.Bank, new
+                       {
+                           @class = "form-control",
+                           required = "required",
+                           @Value = Model.Bank
+                       })
+                            @Html.ValidationMessageFor(Model => Model.Bank, "", new { @class = "help-block" }, "p")
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(Model => Model.Bank, new
+                     {
+                         @class = "form-control",
+
+                         @Value = Model.Bank
+                     })
+                            @Html.ValidationMessageFor(Model => Model.Bank, "", new { @class = "help-block" }, "p")
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        <label for="" class="eng"><b>Branch</b></label>
+                        <label for="" class="mar"><b>शाखा </b></label>
+                        @if (Model.ApplicationSubType == "2")
+                        {
+                            @Html.TextBoxFor(Model => Model.Branch, new
+                       {
+                           @class = "form-control",
+                           required = "required",
+                           @Value = Model.Branch,
+                       })
+                            @Html.ValidationMessageFor(Model => Model.Branch, "", new { @class = "help-block" }, "p")
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(Model => Model.Branch, new
+                     {
+                         @class = "form-control",
+
+                         @Value = Model.Branch,
+                     })
+                            @Html.ValidationMessageFor(Model => Model.Branch, "", new { @class = "help-block" }, "p")
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        @if (Model.ApplicationSubType == "2")
+                        {
+                            <label for="" class="eng"><b>Bank Account No <span class='required'>*</span></b></label>
+                            <label for="" class="mar"><b>बँक खाते क्रमांक  <span class='required'>*</span></b></label>
+                            @Html.TextBoxFor(x => x.BankAccountNumber, new
+                       {
+                           @class = "form-control",
+                           required = "required",
+                           oncopy="return false",
+                           onpaste="return false",
+                           autocomplete="off",
+                           @maxlength="18"
+                       })
+                            @Html.ValidationMessageFor(x => x.BankAccountNumber, "", new { @class = "help-block" }, "p")
+                        }
+                        else
+                        {
+                            <label for=""><b>Bank Account No</b></label>
+                            @Html.TextBoxFor(x => x.BankAccountNumber, new
+                       {
+                           @class = "form-control",
+                           oncopy = "return false",
+                           onpaste = "return false",
+                           autocomplete = "off"
+                       })
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="form-group">
+                        @if (Model.ApplicationSubType == "2")
+                        {
+                            <label for=""><b>Confirm Bank Account No <span class='required'>*</span></b></label>
+                            @Html.TextBoxFor(x => x.BankAccountNumberConfirm, new
+                       {
+                           @class = "form-control",
+                           required = "required",
+                           oncopy="return false",
+                           onpaste="return false"
+                       })
+                        }
+                        else
+                        {
+                            <label for=""><b>Confirm Bank Account No</b></label>
+                            @Html.TextBoxFor(x => x.BankAccountNumberConfirm, new
+                       {
+                           @class = "form-control",
+                           oncopy = "return false",
+                           onpaste = "return false"
+                       })
+                        }
+                        @Html.ValidationMessageFor(x => x.BankAccountNumberConfirm, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+
+            </div>
+
+
+
+        </div>
+    </div>
+
+
+    @*@if (Model.ApplicationMode == "SAD" && Model.ApplicationMode == "SLD" && Model.ApplicationMode == "SOD" && Model.ApplicationMode == "SDD")
+        {*@
+
+    <div class="text-right pt-3">
+
+        <input type="submit" class="btn btn-primary" name="SaveApplicationDetail" id="SaveApplicationDetail" value="Save As Draft" />
+    </div>
+
+    @*}*@
+
+
+
+
+</div>
+
+<!-- confirmation modal-->
+<div id="greentariffmodal" class="modal fade" style="display: none">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h4 class="modal-title">Green Tariff Details</h4>
+            </div>
+            <div class="modal-body">
+                <p>Additional charge of 0.66 paise per unit will be charged </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="Ok">Ok</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="Cancel">Cancel</button>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

@@ -1,0 +1,63 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+var elements = Sitecore.Context.Database.GetItem(datasource);
+var sortedItem = elements.GetChildren().OrderByDescending(x => x.Fields["Date"].Value);
+}
+<section class="section_school-events bg-white pt-5">
+   <div class="container">
+   <div class="row">
+         <div class="col-lg-3 col-md-6 ml-auto">
+            <select class="form-control btn-gradient" id="btn-mrelease">
+               <option value="all">All Schools</option>
+               <option value="Ahmedabad">Ahmedabad</option>
+               <option value="Bhadreshwar">Bhadreshwar</option>
+               <option value="Surguja">Surguja</option>
+            </select>
+         </div>
+      </div>
+      <div class="row">
+         @foreach (var item in sortedItem)
+         {
+         Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+         string ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+		 var newsType = item.Fields["Title"].Value;
+         var formatedType=newsType.Replace(" ","-");
+         <div class="col-lg-6 mb-lg-0 mb-5 all @formatedType">
+            <div class="latest_happenings--active">
+               <a href="#">
+                  <div class="latest_happenings--thumb">
+                     <span>@Html.Sitecore().Field("Title", item)</span>
+                     <div class="owl-carousel events-carousel">
+                        <div class="item">
+                           <img src="@ImageUrl" class="lazyload" />
+                        </div>
+                     </div>
+                  </div>
+                  <div class="latest_happenings--desc">
+                     <p class="text-voilet">
+                        
+                     @Html.Sitecore().Field("Date", item, new { format = "MMMMMM dd , yyyy" })
+                    
+                     </p>
+                     <h3 class="text-voilet mb-3">@Html.Sitecore().Field("Summary", item)</h3>
+                     <p class="text-black mb-5">@Html.Sitecore().Field("Body", item) </p>
+                  </div>
+               </a>
+            </div>
+         </div>
+         }
+      </div>
+   </div>
+</section>
+<section class="bg-white pb-4 pb-lg-5">
+   <div class="container">
+      <div class="arrow_flyin" data-aos="fade-left" data-aos-easing="linear" data-aos-duration="1500"><img alt="" src="https://stageadanividyamandir.adaniuat.com/-/media/D650E102501240FD8402484A1BDB92A7.png?la=en&amp;hash=FAAAFDD098FD252129338806C55D8045" class="w-100" /></div>
+   </div>
+</section>
+<!--/Section-->

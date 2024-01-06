@@ -1,0 +1,84 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@*@using Sitecore.Data.Items
+@using Sitecore.Data
+
+@{
+    Sitecore.Data.Database webDb = Sitecore.Configuration.Factory.GetDatabase("web");
+    //Sitecore.Data.Database masterDb = Sitecore.Configuration.Factory.GetDatabase("master");
+    Item yearList = webDb.GetItem("{A2ACEEC7-7CE6-4460-8032-CB9106522FE4}");
+    Item WEbyearList = webDb.GetItem("{A2ACEEC7-7CE6-4460-8032-CB9106522FE4}");
+    var current_year = DateTime.Now.Year;
+    bool yearPresent = false;
+    var finYear = current_year.ToString() + "-" + (current_year + 1).ToString();
+    int sortOrder = 0;
+    foreach (Item existYear in yearList.GetChildren())
+    {
+        sortOrder = int.Parse(yearList.GetChildren()[0].Fields[Sitecore.FieldIDs.Sortorder].Value);
+        if (finYear == existYear.Fields["Text"].Value && DateTime.Now > new DateTime(current_year, 4, 1))
+        {
+            yearPresent = true;
+        }
+    }
+    if (!yearPresent)
+    {
+        using (new Sitecore.SecurityModel.SecurityDisabler())
+        {
+            TemplateItem template = webDb.GetTemplate(new ID("{EBDC1CD7-3BA3-43C6-BEF3-7FCD3C1A4897}"));
+            //TemplateItem webtemplate = webDb.GetTemplate(new ID("{EBDC1CD7-3BA3-43C6-BEF3-7FCD3C1A4897}"));
+            Item newYear = yearList.Add(finYear, template);
+            //Sitecore.Data.Managers.ItemManager.AddFromTemplate(finYear, new ID("{EBDC1CD7-3BA3-43C6-BEF3-7FCD3C1A4897}"), WEbyearList, newYear.ID);
+            newYear.Editing.BeginEdit();
+            newYear["text"] = finYear;
+            newYear["value"] = current_year + "-04-01T00:00:00_" + (current_year + 1) + "-03-31T00:00:00";
+            newYear[Sitecore.FieldIDs.Sortorder] = (sortOrder - 100).ToString();
+            newYear.Editing.EndEdit();
+            Sitecore.Publishing.PublishOptions publishOptions = new Sitecore.Publishing.PublishOptions(newYear.Database,
+                                          Database.GetDatabase("web"),
+                                          Sitecore.Publishing.PublishMode.SingleItem,
+                                          newYear.Language,
+                                          System.DateTime.Now);  // Create a publisher with the publishoptions
+            Sitecore.Publishing.Publisher publisher = new Sitecore.Publishing.Publisher(publishOptions);
+
+            // Choose where to publish from
+            publisher.Options.RootItem = newYear;
+
+            // Publish children as well?
+            publisher.Options.Deep = true;
+
+            // Do the publish!
+            publisher.Publish();
+        }
+    }
+}*@
+<div class="panel">
+    <h3 class="mb-3">Gas Consumption Pattern</h3>
+    <div class="selBlk py-3 mb-2" id="ConsumptionDropDown" style="">
+        <label>Select Year</label>
+        <div class="select-style d-inline-block">
+            <select id="year" class="form-control"></select>
+        </div>
+    </div>
+
+
+    <!-- CHART -->
+
+    <div class="chart">
+        <div class="row">
+            <div class="col-lg-6">
+                <h5 class="pb-3">SCM</h5>
+                <div id="scmgraph"></div><br />
+            </div>
+            <div class="col-lg-6">
+                <h5 class="pb-3">Amount</h5>
+                <div id="amountgraph"></div><br />
+            </div>
+            <div class="col-lg-6">
+                <h5 class="pb-3">MMBTU</h5>
+                <div id="mmbtugraph"></div>
+            </div>
+        </div>
+
+    </div>
+</div>

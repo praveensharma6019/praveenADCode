@@ -1,0 +1,84 @@
+﻿@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.CommercialMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.CommercialMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var multipleImage = model.GetMultiListValueItems(Templates.CommercialMediaSelector.Fields.MediaSelector);
+}
+
+<section class="bg-white section" id="amenities">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-5 align-self-center">
+                @Html.Sitecore().Field(Templates.CommercialMediaSelector.Fields.Description, model)
+            </div>
+            @if (multipleImage != null)
+            {
+                <div class="col-lg-7 mobile-none">
+
+                    @{
+                        var cnt = 0;
+                        var cntnumber = multipleImage.ToList().Count / 2;
+                    }
+
+                    @for (int i = 0; i < cntnumber; i++)
+                    {
+                        <div class="row">
+                            @foreach (var item in multipleImage.ToList().Skip(cnt).Take(2))
+                            {
+                                cnt++;
+                                if (i % 2 == 0)
+                                {
+                                    if (item.Fields[Templates.HasRealityMediaImage.Fields.IsOverlay].IsChecked())
+                                    {
+                                        <div class="col-sm-4 py-1 px-1 gallery-item">
+                                            @Html.Sitecore().Field(Templates.HasRealityMediaImage.Fields.Image, item, new { @class = "img-fluid" })
+                                            <div class="overlay blue-overlay">
+                                                <div class="text">@Html.Sitecore().Field(Templates.HasRealityMediaImage.Fields.OverlayText, item)</div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+
+                                        <div class="col-sm-4 py-1 px-1 ml-auto">
+                                            @Html.Sitecore().Field(Templates.HasRealityMediaImage.Fields.Image, item, new { @class = "img-fluid" })
+                                        </div>
+                                    }
+
+                                }
+                                else
+                                {
+                                    if (item.Fields[Templates.HasRealityMediaImage.Fields.IsOverlay].IsChecked())
+                                    {
+                                        <div class="col-sm-6 py-1 px-1 ml-auto gallery-item">
+                                            @Html.Sitecore().Field(Templates.HasRealityMediaImage.Fields.Image, item, new { @class = "img-fluid" })
+                                            <div class="overlay blue-overlay">
+                                                <div class="text">@Html.Sitecore().Field(Templates.HasRealityMediaImage.Fields.OverlayText, item)</div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-sm-6 py-1 px-1">
+                                            @Html.Sitecore().Field(Templates.HasRealityMediaImage.Fields.Image, item, new { @class = "img-fluid" })
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+        </div>
+    </div>
+</section>

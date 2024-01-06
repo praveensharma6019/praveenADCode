@@ -1,0 +1,76 @@
+@model  SapPiService.Domain.ConsumptionHistory
+@if (@Model != null)
+{
+    var i = 1;
+    <!-- Toggle button to show/hide side nav -->
+    <div class="d-block d-md-none sideNavBtn">
+        <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+            <i class="fas fa-align-left"></i>
+            <span>&nbsp;Menu</span>
+        </button>
+    </div>
+    <!-- /Toggle button to show/hide side nav -->
+    <div class="clearfix"></div>
+    <!-- Update Profile Page Content-->
+    <div class="panel">
+        <p>Know how you have been consuming electricity. it will help you understand your usage pattern.</p>
+        <div class="py-3"></div>
+        @if (Model.MeterConsumptions!=null && Model.MeterConsumptions.Count > 0)
+        {
+            foreach (var MeterConsumptions in @Model.MeterConsumptions)
+            {
+                <div>
+                    <p><span>Meter</span><span class="pull-right">@i/@Model.MeterConsumptions.Count</span></p>
+                </div>
+                <div>
+                    <p><span>Meter Number</span><span class="pull-right">@MeterConsumptions.MeterNumber</span></p>
+                </div>
+                <div class="tablexoverflow">
+                    <table class="table table-white">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Reading</th>
+                                <th scope="col">Units Consumed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in MeterConsumptions.ConsumptionRecords)
+                            {
+                                var UnitsConsumed = @record.UnitsConsumed;
+                                UnitsConsumed = (UnitsConsumed=="0") ? UnitsConsumed: UnitsConsumed.Substring(0, UnitsConsumed.IndexOf(',') + 3);
+                                UnitsConsumed = UnitsConsumed.Replace(',', '.');
+                                <tr>
+                                    <th scope="row">@record.ConsumptionDate</th>
+                                    <th scope="row">@record.Status</th>
+                                    <th scope="row">@record.Reading</th>
+                                    <th scope="row">@UnitsConsumed</th>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                i++;
+            }
+            <div class="row">
+                <div class="col-sm-12">
+                    <p class="panelbtmbar">
+                        <span>Status</span>
+                        <span>R&nbsp;&nbsp;&nbsp;&nbsp;Running</span>
+                        <span>D&nbsp;&nbsp;&nbsp;&nbsp;Disconnected</span>
+                        <span>N&nbsp;&nbsp;&nbsp;&nbsp;New</span>
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div>
+                <p>No data available.</p>
+            </div>
+        }
+
+
+    </div>
+}

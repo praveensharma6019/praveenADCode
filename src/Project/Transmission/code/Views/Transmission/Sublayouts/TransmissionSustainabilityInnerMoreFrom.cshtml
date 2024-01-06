@@ -1,0 +1,62 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+
+@{
+    var count = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var items = Sitecore.Context.Database.GetItem(count);
+    string pagename = Path.GetFileName(Request.Url.AbsolutePath);
+
+
+	 var Newsdatasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["links"];
+    var links = Sitecore.Context.Database.GetItem(Newsdatasource);
+}
+
+
+
+<section class="bg-gray py-5">
+    <div class="container">
+        <h2 class="heading pl-4 mb-3">More from the section</h2>
+        <div class="row">
+            @foreach (var item in items.Children.ToArray())
+            {
+                if (!item.DisplayName.Contains(pagename))
+                {
+                    <div class="col-lg-4 sus-main padd-box">
+					<a href="@item.Url()">
+                        <div class="bg-images">
+                            @Html.Sitecore().ImageField("Image", item, 0, 0)
+
+                        </div>
+                        <div class="sustainability-block p-5">
+                            <h3>  @Html.Sitecore().Field("Title", item)</h3>
+							<p>@Html.Sitecore().Field("Summary", item)</p>
+                        </div>
+						</a>
+                    </div>
+                }
+            }
+			@foreach (var item in links.Children.ToArray())
+            {
+                if (!item.DisplayName.Contains(pagename))
+                {
+                    <div class="col-lg-4 sus-main padd-box d-none">
+					<a href="@item.Url()">
+                        <div class="bg-images">
+                            @Html.Sitecore().ImageField("Image", item, 0, 0)
+
+                        </div>
+                        <div class="sustainability-block p-5">
+                            <h3>  @Html.Sitecore().Field("Title", item)</h3>
+							<p>@Html.Sitecore().Field("Summary", item)</p>
+                        </div>
+						</a>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</section>

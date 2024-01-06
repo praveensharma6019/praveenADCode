@@ -1,0 +1,71 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Media
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var img = Sitecore.Context.Database.GetItem(paramid["background-image"]);
+    var i = 0;
+    var j = 0;
+}
+
+
+
+<!-- Testimonials -->
+<section class="testimonial">
+    <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, img)</div>
+	<div class="testimonial-header-wrp bg-white clearboth pt-4">
+		<div class="container">
+			<div class="section-header txt-center">
+				<h2>Happy Customers</h2>
+			</div>
+		</div>
+	</div>
+    <div class="testimonial-bg pt-4 pb-5">
+        <div class="container">
+            
+            <div class="large-12 columns">
+                <div class="round-nav owl-carousel owl-theme" id="testimonials">
+
+                    @foreach (var child in models.Children.ToList())
+                    {
+                        <div class="items img-testimonial">
+                            <a href="video-@i" data-toggle="modal" data-target="#video_@i">  @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Thumbnail, child,0,0,"img-fluid")</a>
+                        </div>
+                        i++;
+                    }
+
+
+                </div>
+            </div>
+
+            <!-- Video Model -->
+            @foreach (var child in models.Children.ToList())
+            {
+                <div class="modal video" id="video_@j" aria-hidden="true" style="display: none;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <button type="button" class="close" onclick="CloseModal1('@j')" data-dismiss="modal">×</button>
+                            @{
+                                Sitecore.Data.Fields.LinkField linkField = child.Fields[Templates.HasMediaVideo.Fields.VideoLink];
+                                var NavigateUrl = linkField.Url;
+                            }
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <iframe width="100%" height="350" src="@NavigateUrl" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                j++;
+            }
+                <!-- /Video Model -->
+            </div>
+    </div>
+</section>

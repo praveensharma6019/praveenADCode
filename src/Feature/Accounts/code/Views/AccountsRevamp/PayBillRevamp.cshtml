@@ -1,0 +1,609 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ViewPayBill
+@using Sitecore.Feature.Accounts.SessionHelper
+@using ClientsideEncryption;
+
+@{
+    var SecurityDepositAmount = Request.QueryString["SecurityDeposit"];
+
+    if (SecurityDepositAmount != null)
+    {
+
+        var encryptedValue = Request.QueryString["SecurityDeposit"];
+        SecurityDepositAmount = AESEncrytDecry.DecryptStringAES(encryptedValue);
+    }
+
+    double outputval = 0;
+    Sitecore.Data.Database db = Sitecore.Configuration.Factory.GetDatabase("web");
+    var BenefitsContentQuickPay = db.GetItem("{81FED148-9952-4212-B0AB-3F1A3BFAB55E}");
+}
+
+
+<div class="col s12">
+    <div class="section-container">
+        <h1>Payment</h1>
+        <div class="row">
+            <div class="col m8 s12">
+                <div class="payment-reminder hide-on-large-only">
+                    <div class="section-wrapper">
+                        <div class="card outlined reminder">
+                            <div class="circle-icon-small gradiant-border-small"><i class="vi-energywizard"></i></div>
+                            <aside>
+                                <h5>CA Number <strong>@Model.AccountNumber</strong></h5>
+                                @if (SecurityDepositAmount != null)
+                                {
+                                    <input type="hidden" value="@Model.SecurityDeposit" id="CheckAmountPayable" />
+                                    <h4>
+                                        ₹
+                                        @if (Model.SecurityDeposit != "0")
+                                        {
+                                            @Model.SecurityDeposit
+                                        }
+                                        else
+                                        {
+                                            @String.Format("{0}.00", Model.SecurityDeposit)
+                                        }
+                                    </h4>
+                                    <p>
+                                        <span> Security Deposit</span>
+                                    </p>
+                                }
+                                else
+                                {
+                                    <input type="hidden" value="@Model.AmountPayable" id="CheckAmountPayable" />
+                                    <h4>
+                                        ₹
+                                        @if (Model.AmountPayable != "0")
+                                        {
+                                            @Model.AmountPayableshow
+                                        }
+                                        else
+                                        {
+                                            @String.Format("{0}.00", Model.AmountPayableshow)
+                                        }
+                                    </h4>
+                                    <p>
+                                        @if (Model.AmountPayable != "0")
+                                        {
+                                            if (Model.PaymentDueDate == null || Model.PaymentDueDate == "0000-00-00")
+                                            {
+                                                <span style="color: black;"> No Bill Due</span>
+                                            }
+                                            else
+                                            {
+                                                if (Model.AmountPayable != "0")
+                                                {
+                                                    @*if (DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) > DateTime.Now.AddDays(-4))
+                                                        {
+                                                            <span style="color:black"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span style="color:red"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy") </span>
+                                                        }*@
+
+                                                    if (Model.DueDateGraterthenFourDays)
+                                                    {
+                                                        //Changed by Prashant cause it was throwring error on again parsing it on view
+                                                        <span style="color:red"> Due on @Model.PaymentDueDate</span>
+                                                        @*<span style="color:black">Due on @Model.PaymentDueDate</span>*@
+                                                        @*<span style="color:red"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+
+                                                    }
+                                                    else
+                                                    {
+                                                        //Changed by Prashant cause it was throwring error on again parsing it on view
+                                                        <span style="color:red"> Due on @Model.PaymentDueDate</span>
+                                                        @*<span style="color:black"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: black;"> No Bill Due</span>
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span style="color: black;"> No Bill Due</span>
+                                        }
+
+                                    </p>
+                                }
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-wrapper">
+                    <div class="payemnt-offer">
+                        <div class="card outlined" style="background-color: #f6fcf6;">
+                            <figure>
+                                <img src="/electricity_assets/images/payment-offers.png" alt="payment offers">
+                            </figure>
+                            <aside>
+                                <p>
+                                    Getting great offers &amp; discounts is amazing, isn&rsquo;t it? Stay tuned!<br>We are working out some exciting deals for you.
+                                </p>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmRegister", @class = "card-with-form" }))
+                {
+                    //HtmlHelper.UnobtrusiveJavaScriptEnabled = false;
+                    @Html.AddUniqueFormId()
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(x => x.AccountNumber)
+                    @Html.HiddenFor(m => m.EMIOutstandingAmount, new { id = "EMIOutstandingAmount" })
+                    @Html.HiddenFor(m => m.EMIInstallmentAmount)
+                    @Html.HiddenFor(m => m.ProceedWithEMI)
+
+                    // @Html.HiddenFor(m => m.AmountPayable)
+
+                    <div class="section-wrapper">
+                        <h2>Payment Amount</h2>
+                        <div class="field-group">
+
+                            @{
+
+                                if (SecurityDepositAmount != null)
+                                {
+                                    Model.SecurityDepositAmountType = "Actual";
+
+                                    <input type="hidden" value="@Model.SecurityDepositAmountType" id="SecurityDepositAmountType" />
+
+                                    @*<div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="Applicant Type" type="radio" checked="" onclick="checkMinimumPayable(@(Model.SecurityDeposit != "0" ? Model.SecurityDeposit : String.Format("{0}.00", Model.SecurityDeposit)))">
+                                            <span>Minimum Payable</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="Applicant Type" type="radio" onclick="checkOtherPayment()">
+                                            <span>Partial Payment</span>
+                                        </label>
+                                    </div>*@
+                                }
+
+                                if (string.IsNullOrEmpty(SecurityDepositAmount) && double.TryParse(Model.AmountPayable, out outputval))
+                                {
+                                    if (outputval > 0)
+                                    {
+                                        <div class="radio-field">
+                                            <label>
+                                                <input class="with-gap" name="Applicant Type" type="radio" checked="" onclick="checkMinimumPayable(@(Model.AmountPayable != "0" ? Model.AmountPayable : String.Format("{0}.00", Model.AmountPayable)))">
+                                                <span>Minimum Payable</span>
+                                            </label>
+                                        </div>
+                                        <div class="radio-field">
+                                            <label>
+                                                <input class="with-gap" name="Applicant Type" type="radio" onclick="checkOtherPayment()">
+                                                <span>Partial Payment</span>
+                                            </label>
+                                        </div>
+
+                                    }
+
+                                }
+
+                            }
+
+
+                        </div>
+
+                        @{
+
+                            if (double.TryParse(Model.AmountPayable, out outputval))
+                            {
+
+                                if (string.IsNullOrEmpty(SecurityDepositAmount) && outputval > 0)
+                                {
+                                    <div class="input-field custom">
+                                        @Html.TextBoxFor(x => x.AmountPayable, new { @class = "form-control validate checkPayable ameldisabled", id = "amountPayable", required = "required", @readonly = "readonly", @type = "number" })
+                                        <label for="full_name" class="active">Enter Amount</label>
+                                        <p id="paymentErrorMessage" class="help-text field-validation-error"></p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (SecurityDepositAmount != null)
+                                    {
+                                        @Html.HiddenFor(m => m.AmountPayable)
+
+                                        @*<input type="hidden" value="@Model.AmountPayable" id="amount_payable_actual" />*@
+                                        <div class="input-field custom">
+                                            @Html.TextBoxFor(x => Model.SecurityDeposit, new { @class = "form-control checkPayable ameldisabled", id = "SecurityDepositAmount", required = "required", @type = "number", @readonly = "readonly" })
+                                            <label for="full_name" class="active">Enter Amount</label>
+                                            <p id="paymentErrorMessage" class="help-text field-validation-error"></p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        @Html.HiddenFor(m => m.AmountPayable)
+                                        @Html.HiddenFor(m => m.AmountPayableshow)
+                                        @*<input type="hidden" value="@Model.AmountPayable" id="amount_payable_actual" />*@
+                                        <div class="input-field custom">
+                                            @Html.TextBoxFor(x => x.AdvanceAmmount, new { @class = "form-control validate checkPayable", id = "advanceAmmount", required = "required", @type = "number" })
+                                            <label for="full_name" class="active">Enter Amount</label>
+                                            <p id="paymentErrorMessage" class="help-text field-validation-error"></p>
+                                        </div>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.AdvanceAmmount, new { @class = "form-control validate checkPayable", id = "advanceAmmount", required = "required", @type = "number" })
+                                    <label for="full_name" class="active">Enter Amount</label>
+                                    <p id="paymentErrorMessage" class="help-text field-validation-error"></p>
+                                </div>
+                            }
+
+                            @Html.ValidationMessageFor(x => x.AmountPayable, "", new { @class = "help-block" }, "p")
+
+
+
+                        }
+                    </div>
+                    if (UserSession.UserSessionContext == null)
+                    {
+                        <div class="section-wrapper">
+                            <h2>Enter your details</h2>
+
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.Email, new { @class = "form-control", id = "emailaddress", required = "required" })
+                                <label for="emailaddress" class="active">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Email Address", "Email")<span class="required">*</span></label>
+                                <p id="emailaddressMessage" class="help-text field-validation-error"></p>
+                                @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                            </div>
+
+
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control", id = "mobileNumber", required = "required" })
+                                <label for="mobileNumber" class="active"> @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Mobile", "Mobile")<span class="required">*</span></label>
+                                <p id="mobileNumberMessage" class="help-text field-validation-error"></p>
+                                @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+
+                    }
+                    else
+
+                    {
+                        <div class="section-wrapper">
+                            <div class="">
+                                <h2>Enter your details</h2>
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control", id = "emailaddress", required = "required" })
+                                    <label for="emailaddress" class="active">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Email Address", "Email")<span class="required">*</span></label>
+                                    <p id="emailaddressMessage" class="help-text field-validation-error"></p>
+                                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                                </div>
+
+
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control", id = "mobileNumber", required = "required" })
+                                    <label for="mobileNumber" class="active"> @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Mobile", "Mobile")<span class="required">*</span></label>
+                                    <p id="mobileNumberMessage" class="help-text field-validation-error"></p>
+                                    @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "help-block" }, "p")
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+
+                    <h2>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Payment Methods", "Payment Methods")</h2>
+
+                    <div class="carousel_wrapper section-wrapper">
+                        <div class="payment-method">
+                            <div class="card outlined">
+                                <div class="payment-method-content">
+                                    @Html.HiddenFor(x => x.PaymentDueDate)
+
+                                    <div class="payment-method-item cusomer_detail active">
+                                        <div class="radio-field">
+                                            <p>
+                                                <label>
+                                                    @*<input class="with-gap" name="pay_method" type="radio" id="billdesk" checked="">*@
+                                                    @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.BillDesk, new { required = "required", @checked = "checked", @class = "with-gap" })
+                                                    <span>BillDesk</span>
+                                                </label>
+                                            </p>
+                                        </div>
+                                        <figure>
+                                            <img class="offer-icon" src="/electricity_assets/images/billdesk.png" alt="BillDesk">
+                                        </figure>
+                                    </div>
+
+                                    @if (SecurityDepositAmount == null)
+                                    {
+                                        <div class="payment-method-item cusomer_detail" style="display:none">
+                                            <div class="radio-field">
+                                                <p>
+                                                    <label>
+                                                        @*<input class="with-gap" name="pay_method" type="radio" id="paytm">*@
+                                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.DBSUPI, new { required = "required", @class = "with-gap" })
+                                                        <span>DBS</span>
+                                                    </label>
+                                                </p>
+                                            </div>
+                                            <figure>
+                                                <img class="offer-icon" src="/electricity_assets/images/dbs.png" alt="Paytm">
+                                            </figure>
+                                        </div>
+
+                                        <div class="payment-method-item cusomer_detail">
+                                            <div class="radio-field">
+                                                <p>
+                                                    <label>
+                                                        @*<input class="with-gap" name="pay_method" type="radio" id="UPI">*@
+                                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.Benow, new { required = "required", @class = "with-gap" })
+                                                        <span>UPI</span>
+                                                    </label>
+                                                </p>
+                                            </div>
+                                            <figure>
+                                                <img class="offer-icon" src="/electricity_assets/images/upi.png" alt="UPI">
+                                            </figure>
+                                        </div>
+
+                                        <div class="payment-method-item cusomer_detail">
+                                            <div class="radio-field">
+                                                <p>
+                                                    <label>
+                                                        @*<input class="with-gap" name="pay_method" type="radio" id="DBS">*@
+                                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.Paytm, new { required = "required", @class = "with-gap" })
+                                                        <span>Paytm</span>
+                                                    </label>
+                                                </p>
+                                            </div>
+                                            <figure>
+                                                <img class="offer-icon" src="/electricity_assets/images/paytm.png" alt="DBS">
+                                            </figure>
+                                        </div>
+
+                                        <div class="payment-method-item cusomer_detail" style="display:none">
+                                            <div class="radio-field">
+                                                <p>
+                                                    <label>
+                                                        @*<input class="with-gap" name="pay_method" type="radio" id="DBS">*@
+
+                                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.CITYUPI, new { required = "required", @class = "with-gap" })
+                                                        <span>CitiBank</span>
+                                                    </label>
+                                                </p>
+                                            </div>
+                                            <figure>
+                                                <img class="offer-icon" src="/electricity_assets/images/CITI.png" alt="City">
+                                            </figure>
+                                        </div>
+
+                                    }
+                                    <div class="payment-method-item cusomer_detail" style="display:none">
+                                        <div class="radio-field">
+                                            <p>
+                                                <label>
+                                                    @*<input class="with-gap" name="pay_method" type="radio" id="DBS">*@
+
+                                                    @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.SafeXPay, new { required = "required", @class = "with-gap" })
+                                                    <span>SafeXPay</span>
+                                                </label>
+                                            </p>
+                                        </div>
+                                        <figure>
+                                            <img class="offer-icon" src="/electricity_assets/images/SafeXPay.png" alt="SafeXPay">
+                                        </figure>
+                                    </div>
+                                    <div class="payment-method-item cusomer_detail" style="display:none">
+                                        <div class="radio-field">
+                                            <p>
+                                                <label>
+                                                    @*<input class="with-gap" name="pay_method" type="radio" id="DBS">*@
+
+                                                    @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.CashFree, new { required = "required", @class = "with-gap" })
+                                                    <span>CashFree</span>
+                                                </label>
+                                            </p>
+                                        </div>
+                                        <figure>
+                                            <img class="offer-icon" src="/electricity_assets/images/CashFree.png" alt="CashFree">
+                                        </figure>
+                                    </div>
+
+                                </div>
+                                <div class="single-line-form card-with-form">
+                                    <div class="hero-captcha-box">
+                                        <div class="g-recaptcha-response" id="paybillrevamprecaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        <span class="field-validation-error" id="Captchaerror"></span>
+                                    </div>
+
+                                </div>
+                                <div class="payment-method-btn-group">
+                                    <input type="hidden" id="Pay_PaymentGateway" class="" name="Pay_PaymentGateway" value="Pay Now" />
+                                    <button type="submit" id="Pay_PaymentGateway" name="Pay_PaymentGateway" class="waves-effect waves-light btn PayPaymentGateway" 
+                       @*data-gaevent="bill_payment_method_select"
+                       data-gaeventCategory="Bill Payment"
+                       data-gaeventAction="Bill Payment Method Select"
+                       data-gaeventLabel= "@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Payment Methods", "Payment Methods")"*@>Proceed To Pay</button>
+                                </div>
+                            </div>
+                            <p>
+                                Note: Please note that convenience fee of ₹ 0.75% (plus GST) shall be
+                                levied on the transaction done via Debit/Credit card for
+                                transactions above ₹<span>2000/-.</span> You may choose from alternate
+                                convenient digital modes such as BHIM UPI, Internet banking, NEFT,
+                                RTGS to avoid convenience fee
+                            </p>
+                        </div>
+                    </div>
+
+
+                }
+
+            </div>
+
+            <div class="col m4 s12">
+                <div class="payment-reminder">
+                    <div class="section-wrapper hide-on-med-and-down">
+                        <div class="card outlined reminder">
+                            <div class="circle-icon-small gradiant-border-small"><i class="vi-energywizard"></i></div>
+                            <aside>
+                                <h5>CA Number <strong>@Model.AccountNumber</strong></h5>
+                                @if (SecurityDepositAmount != null)
+                                {
+                                    <h4>
+                                        ₹
+                                        @if (Model.SecurityDeposit != "0")
+                                        {
+                                            @Model.SecurityDeposit
+                                        }
+                                        else
+                                        {
+                                            @String.Format("{0}.00", Model.SecurityDeposit)
+                                        }
+                                    </h4>
+                                    <p>
+                                        <span> Security Deposit</span>
+                                    </p>
+                                }
+                                else
+                                {
+                                    <h4>
+                                        ₹
+                                        @if (Model.AmountPayable != "0")
+                                        {
+                                            @Model.AmountPayableshow
+                                        }
+                                        else
+                                        {
+                                            @String.Format("{0}.00", Model.AmountPayableshow)
+                                        }
+                                    </h4>
+                                    <p>
+                                        @if (Model.AmountPayable != "0")
+                                        {
+                                            if (Model.PaymentDueDate == null || Model.PaymentDueDate == "0000-00-00")
+                                            {
+                                                <span style="color: black;"> No Bill Due</span>
+                                            }
+                                            else
+                                            {
+                                                if (Model.AmountPayable != "0")
+                                                {
+
+                                                    if (Model.DueDateGraterthenFourDays)
+                                                    {
+                                                        //Changed by Prashant cause it was throwring error on again parsing it on view
+                                                        <span style="color:red"> Due on @Model.PaymentDueDate</span>
+                                                        @*<span style="color:black">Due on @Model.PaymentDueDate</span>*@
+                                                        @*<span style="color:red"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+
+                                                    }
+                                                    else
+                                                    {
+                                                        //Changed by Prashant cause it was throwring error on again parsing it on view
+                                                        <span style="color:red"> Due on @Model.PaymentDueDate</span>
+                                                        @*<span style="color:black"> Due on @DateTime.ParseExact(Model.PaymentDueDate, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</span>*@
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: black;"> No Bill Due</span>
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span style="color: black;"> No Bill Due</span>
+                                        }
+
+                                    </p>
+                                }
+                            </aside>
+                        </div>
+                    </div>
+                    <div id="divBenefitsContent" style="display:none">
+                        <div class="benifits-new">
+                            @if (BenefitsContentQuickPay != null && BenefitsContentQuickPay.Children != null)
+                            {
+                                foreach (Sitecore.Data.Items.Item data in BenefitsContentQuickPay.Children)
+                                {
+                                    if (data != null)
+                                    {
+                                        <h5>@data.Fields["Heading"]</h5>
+                                        Sitecore.Data.Fields.MultilistField multiselectField = data.Fields["BenefitsLiText"];
+                                        Sitecore.Data.Items.Item[] items = multiselectField != null ? multiselectField.GetItems() : null;
+                                        <ul>
+                                            @if (items != null && items.Length > 0)
+                                            {
+                                                for (int i = 0; i < items.Length; i++)
+                                                {
+                                                    Sitecore.Data.Items.Item benefitItem = items[i];
+                                                    <li><i class="i-tick"></i><p> @benefitItem.Fields["ShortDescription"] </p></li>
+                                                }
+
+                                            }
+                                        </ul>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/Accounts/PayBillRevamp.js"></script>
+<script type="text/javascript" `>
+    $('.payment-method-btn-group').click(function () {
+        if ($('#login_status').val() == 'Guest User') {
+            dataLayer.push({
+                'event': 'bill_payment_method_select',
+                'eventCategory': 'Bill Payment',
+                'eventAction': 'Bill Payment Method Select',
+                'eventLabel': $(".payment-method-item.active").find('span').html(),
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': "@Model.AccountNumber",
+                'page_type': $('head title').text()
+            });
+        }
+        else
+        {
+            dataLayer.push({
+                'event': 'bill_payment_method_select',
+                'eventCategory': 'Bill Payment',
+                'eventAction': 'Bill Payment Method Select',
+                'eventLabel': $(".payment-method-item.active").find('span').html(),
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        }
+
+    })
+</script>
+
+<script type="text/javascript">
+    var paybillrevamprecaptcha;
+    var onloadCallback = function () {
+        paybillrevamprecaptcha = grecaptcha.render('paybillrevamprecaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>

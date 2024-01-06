@@ -1,0 +1,173 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /*<p> @Html.Sitecore().Field("Text", model)</p>*/
+
+    /**/
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+
+    Item rootItem = Sitecore.Context.Database.GetItem(Sitecore.Context.Site.RootPath);
+    var linkurl = "";
+
+    int i = 1;
+	string AccClass="";
+}
+<div class="header-holder">
+    <div class="header-content content-wrapper flx-sb flx-aic">
+        <a href="/" class="logo-holder">
+            @if (rootItem != null)
+            {
+                @Html.Sitecore().ImageField("Logo", rootItem)
+            }
+
+        </a>
+        <div class="menu-holder">
+            <ul class="mobile-menu flx-sb tx-000">
+                @*<li id="mobileSearch"><i class="i-search i-36 cp"></i></li>*@
+                <li id="menuOpener"><i class="i-menu i-36 cp"></i></li>
+            </ul>
+            @*<div class="mobile-search">
+                    <div class="input-wrapper round has-right-icon">
+                        <div class="full lyr-hldr lyr-s-36 lyr-arc cp">
+                            <input class="input anim" placeholder="Search..." name="search" id="search" disabled/>
+                            <div class="lyr" id="mobileSearchClose"><i class="i-close i-36"></i></div>
+                        </div>
+                    </div>
+                </div>*@
+            <div class="menu-options-holder" id="menuHolder">
+                <ul class="menu-wrapper flx-aic">
+                    @if (model != null)
+                    {
+                        if (model.GetChildren() != null)
+                        {
+                            foreach (Item item in model.GetChildren())
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+
+                                if (linkvalue != null)
+                                {
+                                    linkurl = linkvalue.GetFriendlyUrl();
+                                }
+
+                                if (item.HasChildren)
+                                {
+									if(i==1)
+									{
+										AccClass="menuDataCenter";
+									}
+									else
+									{
+										AccClass="menuServices";
+									}
+                                    <li class="dd-menu-holder" id="@AccClass">
+                                        @if (linkurl == "")
+                                        {
+                                            <a href="javascript:void(0)" class="dd-menu-lable adl-accordion-action"
+                                               data-accordion-skip-lh="1200"
+                                               data-accordion-holder="menuHolder"
+                                               data-accordion-target="@AccClass"
+                                               data-accordion-content="dd-menu-holder">
+                                                <span>@Html.Sitecore().Field("ShortTitle", item)</span>
+                                                <i class="i-arrow-d"></i>
+                                            </a>
+                                            i++;
+                                        }
+                                        else
+                                        {
+                                            <a href="@linkurl" class="dd-menu-lable adl-accordion-action"
+                                               data-accordion-skip-lh="1200"
+                                               data-accordion-holder="menuHolder"
+                                               data-accordion-target="@AccClass"
+                                               data-accordion-content="dd-menu-holder">
+                                                <span>@Html.Sitecore().Field("ShortTitle", item)</span>
+                                                <i class="i-arrow-d"></i>
+                                            </a>
+                                            i++;
+                                        }
+
+                                        <ul class="dd-menu-list">
+                                            @foreach (Item subItem in item.GetChildren())
+                                            {
+                                                Sitecore.Data.Fields.LinkField linkValue = subItem.Fields["Link"];
+                                                var itemlink = linkValue.GetFriendlyUrl();
+                                                if (itemlink != null)
+                                                {
+                                                    CheckboxField checkbox = subItem.Fields["IsExternalLink"];
+                                                    if (checkbox != null && checkbox.Checked)
+                                                    {
+                                                        <li><a href="@itemlink" class="menu-closer" target="_blank">@Html.Sitecore().Field("ShortTitle", subItem)</a></li>
+                                                    }
+                                                    else
+                                                    {
+                                                        <li><a href="@itemlink" class="menu-closer">@Html.Sitecore().Field("ShortTitle", subItem)</a></li>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <li><a href="#" class="menu-closer">@Html.Sitecore().Field("ShortTitle", subItem)</a></li>
+
+
+                                                }
+                                                
+                                            }
+                                            <ll class="brand-gradient brand-gradient-thin"></ll>
+                                        </ul>
+
+                                    </li>
+                                }
+
+                                else
+                                {
+
+                                    if (linkurl != null)
+                                    {
+                                        CheckboxField checkbox = item.Fields["IsExternalLink"];
+                                        if (checkbox != null && checkbox.Checked)
+                                        {
+
+                                            <li><a href="@linkurl" target="_blank" class="menu-closer">@Html.Sitecore().Field("ShortTitle", item)</a></li>
+                                        }
+                                        else
+                                        {
+                                            <li><a href="@linkurl" class="menu-closer">@Html.Sitecore().Field("ShortTitle", item)</a></li>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <li><a href="#" class="menu-closer">@Html.Sitecore().Field("ShortTitle", item)</a></li>
+
+                                    }
+
+                                }
+
+                            }
+                        }
+                    }
+                    @*
+                        <li class="search-box-holder">
+                            <div class="input-wrapper round has-right-icon">
+                                <div class="full lyr-hldr lyr-s-20 lyr-arc">
+                                    <input class="input anim" placeholder="Search..." name="search" id="search" disabled/>
+                                    <div class="lyr"><i class="i-search i-20"></i></div>
+                                </div>
+                            </div>
+                        </li>
+                    *@
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

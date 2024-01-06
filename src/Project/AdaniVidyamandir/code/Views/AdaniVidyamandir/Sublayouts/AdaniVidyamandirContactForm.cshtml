@@ -1,0 +1,105 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration
+@using Sitecore.AdaniVidyamandir.Website
+@model Sitecore.AdaniVidyamandir.Website.Models.VidyaMandirContactModel
+@{
+    // var id = Sitecore.Context.Database.GetItem("about-us").Url();
+    //  var id = "about-us";
+    //  string RedirectUrl = Request.Url.Scheme + "://" + Request.Url.Host;
+    //  var pagename = Sitecore.Links.LinkManager.GetItemUrl(Sitecore.Context.Item);
+    var msgTpye = Sitecore.Context.Database.GetItem("{5EED1B9F-CE29-4007-8C6C-00372E784295}");
+
+
+
+
+}
+<section class="section_padding bg-gray">
+<div class="container">
+<div class="row no-gutters">
+<div class="col-lg-6 mb-lg-0 mb-4 address-section">
+<h2>Contact Us</h2>
+<h5 class="mb-0"><strong>Address</strong></h5>
+<div class="mb-3 medium">B/h. Adani CNG Pump,<br /> Off S.G. Highway,
+Makarba,<br /> Ahmedabad – 380051</div>
+<h5 class="mb-0 d-none">Phone</h5>
+<div class="mb-3 medium d-none">1800 000 00000</div>
+<h5 class="mb-0"><strong>Mail</strong></h5>
+<div class="mb-3 medium"><a href="info@adanividyamandir.com">info@adanividyamandir.com</a></div>
+</div>
+<div class="col-lg-6">
+<h3 class="section-subheading pl-4 mb-4">Write to us</h3>
+<div class="pl-4 form-section">
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "contact_form", name = "contact_form", @class = "contact-form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+    @Html.HiddenFor(m => m.FormName, new { @Value = HttpContext.Current.Request.Url.AbsolutePath })
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group" style="background:#fff;">
+                @Html.TextBoxFor(model => model.Name, new { @class = "form-control", required = "required", placeholder = "Name", id = "cname" })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "help-block" }, "p")
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.TextBoxFor(model => model.EmailID, new { @class = "form-control", type = "email", required = "required", placeholder = "Email", id = "cmailid" })
+                @Html.ValidationMessageFor(model => model.EmailID, "", new { @class = "help-block" }, "p")
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <select class="form-control" id="cmessageType" name="MessageType">
+                    <option value="">Subject of Message</option>
+                    @foreach (var itemMessage in msgTpye.Children.ToArray())
+                    {
+                        var getMessage = Html.Sitecore().Field("SubjectName", itemMessage);
+                        <option value="@getMessage">@getMessage</option>
+
+                    }
+                </select>
+
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.TextBoxFor(model => model.MobileNo, new { @class = "form-control", id = "ccontactno", type = "number", required = "required", placeholder = "Contact Number", maxlength = 10 })
+
+                @Html.ValidationMessageFor(model => model.MobileNo, "", new { @class = "help-block" }, "p")
+
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="form-group" style="background:#fff;">
+                @Html.TextAreaFor(model => model.Message, new { @class = "form-control", id = "cmessage", rows = "3", required = "required", placeholder = "Message" })
+
+            </div>
+        </div>
+        <div class="form-group ml-4">
+            <p class="txt-orange" id="docErrorMessage">@ViewBag.Message</p>
+        </div>
+        <div class="col-md-4 mb-3">
+			<div class="form-group m-0"></div>
+            <div id="recaptcha1">
+
+            </div>
+          
+        </div>
+		  @Html.HiddenFor(model => model.reResponse, new { id = "reResponse" })
+            @Html.ValidationMessageFor(model => model.reResponse, "", new { @class = "help-block" }, "p")
+        <div class="col-md-12 mb-3 text-right">
+            <p><button type="submit" id="btnsubmit" name="SubmitApplication" value="submit" class="btn btn-primary">Submit</button></p>
+        </div>
+    </div>
+
+}
+</div>
+    </div>
+</div>
+    </div>
+	</section>
+	

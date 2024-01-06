@@ -1,0 +1,91 @@
+﻿@using Sitecore.Feature.Blogs
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Blogs.Models.BlogItems
+@{
+    if (Model?.BlogItem == null)
+    {
+        return;
+    }
+}
+<section class="section bg-white">
+    <div class="container">
+        <div class="row">
+            <div>
+                @foreach (var item in Model.BlogItem)
+                {
+                    var IDs = @Html.Sitecore().Field(Templates.BlogsArticle.Fields.Category, item.Item);
+                    string[] IDarr = IDs.ToString().Split('|');
+                    var category = "";
+
+                    <table id="content">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="row tile-blogs pb-5">
+                                        <div class="col-lg-3 col-md-3 col-3">
+                                            <a href="@item.Url">@Html.Sitecore().ImageField(Templates.BlogsArticle.Fields.Image, item.Item, 0, 0, "img-fluid")</a>
+                                        </div>
+                                        <div class="col-lg-9 col-md-9 col-9 pt-3">
+                                            @foreach (string id in IDarr)
+                                            {
+                                                if (id != null && id != "")
+                                                {
+                                                    var items = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(id));
+                                                    if (category == "")
+                                                    {
+                                                        category = items.Fields["Title"].Value;
+                                                    }
+                                                    else
+                                                    {
+                                                        category = category + ", " + items.Fields["Title"].Value;
+                                                    }
+                                                }
+                                            }
+
+                                            <h3 class="txt-d-blue pb-3"><a href="@item.Url">@Html.Sitecore().Field(Templates.BlogsArticle.Fields.Title, item.Item)</a></h3>
+                                            <p class="pb-3"><a href="@item.Url">@Html.Sitecore().Field(Templates.BlogsArticle.Fields.Summary, item.Item)</a></p>
+                                            <p class="pb-2"><span>@category</span></p>
+                                            <p><i>@Html.Sitecore().Field(Templates.BlogsArticle.Fields.Date, item.Item, new { format = "MMM dd, yyyy" })&nbsp;&nbsp;|&nbsp;&nbsp;By @Html.Sitecore().Field(Templates.BlogsArticle.Fields.Author, item.Item)</i></p>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+                <div id="pagination"></div>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="/scripts/Realty/jquery-3.1.0.js"></script>
+<script src="/scripts/Realty/jquery.simplePagination.js"></script>
+<script>
+    jQuery(function ($) {
+        var items = $("#content tbody tr");
+        var numItems = items.length;
+        var perPage = 5;
+        // Only show the first 2 (or first `per_page`) items initially.
+        items.slice(perPage).hide();
+        // Now setup the pagination using the `#pagination` div.
+        $("#pagination").pagination({
+            items: numItems,
+            itemsOnPage: perPage,
+            cssStyle: "light-theme",
+            // This is the actual page changing functionality.
+            onPageClick: function (pageNumber) {
+                // We need to show and hide `tr`s appropriately.
+                var showFrom = perPage * (pageNumber - 1);
+                var showTo = showFrom + perPage;
+                // We'll first hide everything...
+                items.hide()
+                    // ... and then only show the appropriate rows.
+                    .slice(showFrom, showTo).show();
+            }
+        });
+    });
+</script>

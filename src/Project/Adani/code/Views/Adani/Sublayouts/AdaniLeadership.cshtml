@@ -1,0 +1,66 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+	var LeaderShipItem = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse("{108D7F25-2486-4759-BE6C-D506CB5EA251}"));
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var linkurl = "";
+    var ImageItemUrl = "";
+    var count = 1;
+	var ShareImageItemUrl = "";
+    var DownloadImageItemUrl = "";
+	Sitecore.Data.Fields.LinkField linkValue = LeaderShipItem.Fields["{00502AB7-ED04-4725-A99F-BCB2EB8B53F5}"];
+	Sitecore.Data.Fields.ImageField DownloadImageItem = ((Sitecore.Data.Fields.ImageField)LeaderShipItem.Fields["{D7A09006-5B28-4950-9903-0F9D4D01188C}"]);
+}
+<html>
+
+<body>
+                        @if (DownloadImageItem != null && DownloadImageItem.MediaItem != null)
+                        {
+                            DownloadImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(DownloadImageItem.MediaItem);
+                        }
+                        @if (linkValue != null)
+                        {
+                            linkurl = linkValue.GetFriendlyUrl();
+                        }
+    <div class="download-pdf">
+        <a href="@linkurl" target="_blank">Download PDF <img class="papa" src="@DownloadImageItemUrl"></a>
+    </div>
+    <div id="container" class="container">
+        <div class="bb-custom-wrapper">
+            <div id="bb-bookblock" class="bb-bookblock">
+                @if (models.Children.Count > 0)
+                {
+                    foreach (Item ModelsItem in models.Children)
+                    {
+
+                        Sitecore.Data.Fields.ImageField ImageItem = ((Sitecore.Data.Fields.ImageField)ModelsItem.Fields["{C9643635-4AC2-471C-8424-20BB7C820A61}"]);
+                        if (ImageItem != null && ImageItem.MediaItem != null)
+                        {
+                            ImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageItem.MediaItem);
+                        }
+                        var divid = "item" + @count;
+                        
+                            <div class="bb-item" id="@divid">
+                                <div class="figure">
+                                    <img src="@ImageItemUrl">
+                                </div>
+                            </div>
+                        
+                        count++;
+                    }
+
+                }
+            </div>
+            <nav>
+                <span id="bb-nav-prev">&larr;</span>
+                <span id="bb-nav-next">&rarr;</span>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

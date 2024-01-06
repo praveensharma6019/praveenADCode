@@ -1,0 +1,117 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore;
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.StringExtensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Fields;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    var j = 0;
+ System.Web.HttpBrowserCapabilities myBrowserCaps = HttpContext.Current.Request.Browser;
+    var IsmobileDevice = myBrowserCaps.IsMobileDevice;
+
+
+}
+
+ @if (IsmobileDevice)
+    {
+        @Html.Sitecore().Placeholder("mobile-video-banner")
+    }
+<section class="exp-airport_section">
+    <div class="container-fluid">
+        <h2 data-aos="fade-up" class="section-heading">@Html.Sitecore().Field("Title", element)</h2>
+        @Html.Sitecore().Field("Body", element)
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            @foreach (Item item in element.GetChildren())
+            {
+                if (i == 0)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">         @Html.Sitecore().ImageField("Image", item)<span>@Html.Sitecore().Field("Title", item)</span></a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">
+                            @Html.Sitecore().ImageField("Image", item)<span>@Html.Sitecore().Field("Title", item)</span>
+                        </a>
+                    </li>
+                }
+                i++;
+            }
+        </ul>
+        <div class="tab-content pt-0" id="myTabContent">
+            @foreach (Item item in element.GetChildren())
+            {
+
+                if (j == 0)
+                {
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="owl-carousel airport-section__carousel airport-section__carousel-4item">
+                            @foreach (Item items in item.GetChildren())
+                            {
+                                
+                                Sitecore.Data.Fields.LinkField linkfld = items.Fields["Link"];
+                                var Link = linkfld.GetFriendlyUrl();
+                               
+                                    <div class="item">
+                                        <a href="@Link">
+                                            @Html.Sitecore().ImageField("Image", items, 0, 0, "img-fluid w-100")
+
+                                            <div>
+                                                <p>  @Html.Sitecore().Field("Title", items)</p>
+
+                                                <span> @Html.Sitecore().Field("Body", items)</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+								
+
+                            }
+
+                        </div>
+                    </div>
+                }
+
+                else
+                {
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <div class="owl-carousel airport-section__carousel airport-section__carousel-4item">
+                            @foreach (Item items in item.GetChildren())
+                            {
+                               
+                                Sitecore.Data.Fields.LinkField linkfld = items.Fields["Link"];
+                                var Link = linkfld.GetFriendlyUrl();
+                                
+                                    <div class="item">
+                                        <a href="@Link">
+                                            @Html.Sitecore().ImageField("Image", items, 0, 0, "img-fluid w-100")
+
+                                            <div>
+                                                <p>      @Html.Sitecore().Field("Title", items)</p>
+
+                                                <span> @Html.Sitecore().Field("Body", items)</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+								   
+                            }
+
+
+                        </div>
+                    </div>
+                }
+                j++;
+            }
+
+        </div>
+    </div>
+</section>

@@ -1,0 +1,76 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.DownloadViewBill
+
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+@if (contextItem != null)
+{
+    <div class="col s12 l8 offset-l1 section-container">
+        <header class="section-header">
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+            <p>@Html.Raw(contextItem["Body"])</p>
+        </header>
+        @*<div class="section-container">
+                <h2>@Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/Bill Statement", "Bill Statement")</h2>
+                <div class="bill-statement section-container section-inner-wrapper card outlined">
+                    <div class="items">
+                        <img src="/electricity_assets/images/billstatement.png">
+                        <div class="item-content">
+                            <h5>
+                                @Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/Download Bill Statement", "Download Bill Statement")
+                            </h5>
+                            <p>@Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/Download your consolidated account details", "Download your consolidated account details.")</p>
+                        </div>
+                    </div>
+                    <button id="downloadLatestBillDetails">@Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/Download", "Download")</button>
+                </div>
+            </div>*@
+
+        <input type="hidden" value="@Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/Download", "Download")" id="hdnDictDownload" />
+        <input type="hidden" value="@Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/BillNo", "Bill No")" id="hdnDictBillNo" />
+        <div class="section-inner-wrapper card brand-gradient remove-gradient outlined border-none-mobile">
+            @Html.Sitecore().Placeholder("switch-account-content")
+
+            @if (!string.IsNullOrEmpty(contextItem["Warning"]))
+            {
+                <div class="message warning warning-info">
+                    <img src="/electricity_assets/assets/icons/info.png" />
+                    <div>
+                        <label>
+                            @Html.Raw(contextItem["Warning"])
+                        </label>
+                    </div>
+
+                </div>
+            }
+
+            <div class="section-header justify-item">
+                <header>
+                    <h5 class="custom-table-heading">@Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/TotalBills", "Total Bills") <span id="DownloadPayBillCount"></span></h5>
+                </header>
+            </div>
+            @Html.HiddenFor(x => x.AccountNumber)
+            @Html.HiddenFor(x => x.MobileNumber)
+            <div class="customer_detail_wrapper customer_detail_list">
+                <table class="customer_detail_list-details" id="tblDownPayBillDataTable">
+                    <thead>
+                        <tr>
+                            <th>@Html.Sitecore().Dictionary("/BillingAndPayment/PaymentHistory/Detail", "Detail")</th>
+                            @*<th>@Html.Sitecore().Dictionary("/BillingAndPayment/DownloadBills/BillNo", "Bill No")</th>*@
+                            <th>@Html.Sitecore().Dictionary("/BillingAndPayment/PaymentHistory/Action", "Action")</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblDownPayBillData">
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination"></div>
+        </div>
+    </div>
+}
+<script src="/Scripts/Accounts/DownloadPayBillRevamp.js"></script>

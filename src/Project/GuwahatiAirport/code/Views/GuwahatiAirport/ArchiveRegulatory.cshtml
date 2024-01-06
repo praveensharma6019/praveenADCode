@@ -1,0 +1,66 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.GuwahatiAirport.Website
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+}
+<div class="container">
+
+    <div class="pb-3">
+        <div class="accordion pt-3" id="formsList">
+            @foreach (var item in parent.Children.ToList())
+            {
+                var selectedItems = ItemExtensions.GetMultiListValueItems(item, Template.Regulatory.Fields.Document_Collection).ToList();
+                bool Archive = item.Fields["Is Archive"].Value == "" ? true : false;
+                if (selectedItems.Where(x => x.Fields["IsVisible"].Value == "").Count() > 0)
+                {
+                    var id = "ans" + i;
+                    var ques = "ques" + (i + 1);
+                    <div class="faqItem">
+                        @if (i == 0)
+                        {
+                            @Html.Raw("<div class='ques' id='" + @ques + "' aria-expanded='true' data-toggle='collapse' data-target='#" + @id + "'>")
+                        }
+                        else
+                        {
+                            @Html.Raw("<div class='ques' id='" + @ques + "' aria-expanded='false' data-toggle='collapse' data-target='#" + @id + "'>")
+                        }
+
+                        @Html.Sitecore().Field(Template.Regulatory.Fields.Title, item)
+                    </div>
+
+                    if (i == 0)
+                    {
+                        @Html.Raw("<div id='" + @id + "' class='accordion-body collapse show' data-parent='#formsList'>")
+                    }
+                    else
+                    {
+                        @Html.Raw("<div id='" + @id + "' class='accordion-body collapse' data-parent='#formsList'>")
+                    }
+                    foreach (var doc in selectedItems.ToList())
+                    {
+
+                        bool IsArchive = doc.Fields["IsVisible"].Value == "" ? false : true;
+                        if (!IsArchive)
+                        {
+                            Sitecore.Data.Fields.LinkField linkField = doc.Fields["Link"];
+                            <ul class="bullets-ul">
+                                <li><a href=" @linkField.GetFriendlyUrl()" target="_blank">@doc.Fields["ShortDescription"]</a></li>
+                            </ul>
+                        }
+
+                    }
+                    @Html.Raw("</div>")
+                    @Html.Raw("</div>")
+                }
+                i++;
+            }
+        </div>
+        <div class="text-right"><a href="@Html.Sitecore().Dictionary("Archive Regulatory/Archive Regulatory Go Back Link", "/Regulatory")" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>@Html.Sitecore().Dictionary("Archive Regulatory/Archive Regulatory Go Back Text", "Go back to Regulatory")</a></div>
+    </div>
+</div>

@@ -1,0 +1,130 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+
+
+
+
+}
+
+
+<form class="search-container__form">
+    <div class="wrapper">
+        <label for="text"><i class="fa fa-search"></i></label><input type="text" id="SearchBox"><input type="button" onclick="Search()" value="X" id="SearchBtn">
+    </div>
+</form>
+<button></button>
+ <div class="search-container__results test"> 
+    <p>Popular Searches</p> 
+     <ul id="SearchResult"> 
+         <li><a href="/lgbia-guwahati-airport/passenger-guide">Passenger Guide</a></li> 
+        <li><a href="/lgbia-guwahati-airport/shop-and-dine/relax">Place to Relax</a></li>
+        <li><a href="/lgbia-guwahati-airport/transport">Cab Services</a></li> 
+         <li><a href="/lgbia-guwahati-airport/shop-and-dine/shop">Duty Free & Shopping</a></li> 
+        <li><a href="/lgbia-guwahati-airport/airport-services/lost-and-found">Lost and Found</a></li> 
+         <ul> 
+ </div>
+<script src="/scripts/GuwahatiAirport/jquery.min.js"></script>
+<script>
+
+    $('#SearchBox').keypress(function (event) {
+       // event.preventDefault();
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            window.location.href ="/lgbia-guwahati-airport/searchresult?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+        }
+
+    });
+
+ function SearchRedirect()
+ {
+ window.location.href ="/lgbia-guwahati-airport/searchresult?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+
+ }
+
+ $('#SearchBox').keypress(function (event) {
+       // event.preventDefault();
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            $('#SearchBtn').click();// Search();
+            event.preventDefault();
+        }
+       
+    });
+
+    function Search() {
+      //  $('#SearchBtn').submit();
+
+        var itemId = $('#SearchBox').val();
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/GuwahatiAirport/GetSearchResult",
+            context: this,
+            success: function (objects) {
+                // alert("s1");
+                console.log(objects);
+                $('#SearchResult').html('');
+                var html = "";
+
+                for (var i = 0; i < objects.length; i++) {
+                    var value = objects[i]["Value"];
+                    if (value.indexOf("New Local Datasource Folder") > 0) {
+
+                    }
+                    else {
+                        if (value.indexOf("lgbia-guwahati-airport/Home") > 0)
+                            value = value.replace("/lgbia-guwahati-airport/Home/", "");
+
+						if(!value.startsWith("/"))
+									value = "/" + value;
+									
+									
+                        html = html + " <li><a href='" + value + "'>" + objects[i]["Key"] + "</a></li>";}
+                }
+                $('#SearchResult').html(html);
+                return false;
+
+            }
+        });
+
+    }
+
+
+    //$('#SearchBtn').on('submit', function (e) {
+    //    alert("1");
+    //    e.preventDefault();
+    //    //  e.stopPropagation(); // only neccessary if something above is listening to the (default-)event too
+
+    //    var itemId = $('#SearchBox').val();
+    //    $.ajax({
+    //        method: "POST",
+    //        data: { itemId: itemId },
+    //        url: "/api/GuwahatiAirport/GetSearchResult",
+    //        context: this,
+    //        success: function (objects) {
+    //            // alert("s1");
+    //            console.log(objects);
+    //            $('#SearchResult').html('');
+    //            var html = "";
+
+    //            for (var i = 0; i < objects.length; i++) {
+    //                html = html + " <li><a href='" + objects[i]["Value"] + "'>" + objects[i]["Key"] + "</a></li>";
+
+    //            }
+    //            $('#SearchResult').html(html);
+    //            return false;
+    //            //$("#City").html(""); // clear before appending new list
+    //            //$.each(cities, function (i, city) {
+    //            //    $("#City").append(
+    //            //        $('<option></option>').val(city.CityId).html(city.CityName));
+    //            //});
+    //        }
+    //    });
+    //});
+</script>

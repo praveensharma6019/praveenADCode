@@ -1,0 +1,54 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+
+
+@model RenderingModel
+@{
+    /**/
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+@foreach (var child in models.Children.ToList())
+{
+    var childitems = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+    var completedate = child.Fields["SchduleTime"].Value;
+    var formatedcompletedate = DateTime.ParseExact(completedate, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+    var year = formatedcompletedate.ToString("HH:mm");
+
+    var childitemss = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+    var completedates = child.Fields["EstimatedTime"].Value;
+    var formatedcompletedates = DateTime.ParseExact(completedates, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+    var years = formatedcompletedates.ToString("HH:mm");
+
+
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-bordered bg-white">
+                <tbody class="txt-xs">
+                    <tr>
+                        <td><strong>Flight No.</strong></td>
+                        <td><strong>Origin (on Arrival page)/Destination (On Departure page)</strong></td>
+                        <td><strong>Schedule Time</strong></td>
+                        <td><strong>Estimated Time</strong></td>
+                        <td><strong>Type (Dom/Int)</strong></td>
+                        <td><strong>Terminal</strong></td>
+                        <td><strong>Status</strong></td>
+                    </tr>
+                    <tr>
+                        <td>@Html.Sitecore().Field("FlightNo", child)</td>
+                        <td>@Html.Sitecore().Field("FlightOrigin", child)</td>
+                        <td>@year</td>
+                        <td>@years</td>
+                        <td>@Html.Sitecore().Field("Type", child)</td>
+                        <td>@Html.Sitecore().Field("TerminalType", child)</td>
+                        <td>@Html.Sitecore().Field("FlighStatus", child)</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

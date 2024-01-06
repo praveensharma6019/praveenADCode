@@ -1,0 +1,85 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    var i = 0;
+
+    var param = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var key = param.Where(x => x.Key == "Image").FirstOrDefault().Value;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.PageContext.Database.GetItem(key);
+
+    var BackimgId = param.Where(x => x.Key == "background-image").FirstOrDefault().Value;
+    var BackImg = Sitecore.Mvc.Presentation.RenderingContext.Current.PageContext.Database.GetItem(BackimgId);
+}
+<section class="section media-coverage news-container" id="mediacoverage">
+    <!--<div class="bg-images">@Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, BackImg)</div>-->
+    <div class="container">
+		<h3 class="sectionHeading similarproject">@DictionaryPhraseRepository.Current.Get("/sitecore/content/Realty/Global/Dictionary/Media Coverage/Media Coverage Title", "Media Coverage")</h3>
+        
+        <div class="large-12 columns">
+            <div class="round-nav multi-item-carousel owl-carousel owl-theme" id="gallery1">
+                @foreach (var img in elements.ToList())
+                {
+                    var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                    var style = img.Item.ImageUrl(field, new MediaUrlOptions());
+					<div class="item">
+						<div class="border-box">
+							
+							<div class="image-box">
+								<a class="popup" href="@style"><img src="@style" class="image img-fluid property-tile" alt="Media Coverage" /></a>
+							</div>
+							<div>
+								<div class="row">
+									<div class="col-12">
+										<div class="property-hd">
+											<h4>@img.Item.Fields["MediaTitle"]
+												<span class="m-t-12">@img.Item.Fields["MediaDescription"]</span>
+											</h4>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+                    
+                }
+            </div>
+        </div>
+
+        @*@{i = 0;}
+            @foreach (var img in datasource.Children.ToList())
+            {
+
+                var field = img.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                var style = img.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                <!--Img Popup-->
+                <div class="modal video" id="@img.DisplayName.ToString().Replace(" ","")" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <button type="button" class="close" data-dismiss="modal">x</button>
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <img src="@style" class="img-fluid">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Img Popup 1 -->
+                i++;
+            }*@
+        <!-- /Img Popup6 -->
+    </div>
+</section>
+<!-- /Media Coverage Block -->

@@ -1,0 +1,220 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+
+@model Sitecore.Feature.Accounts.Models.ENachRegistrationModel
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Sitecore.Data.Items.Item datasourceItem = Sitecore.Context.Database.GetItem(datasource);
+}
+
+@if (Session["EnachRegistrationSuccess"] != null && Session["EnachRegistrationSuccess"].ToString() == "1")
+
+{
+    Session["EnachRegistrationSuccess"] = null;
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            //debugger;
+
+            dataLayer.push({
+
+                'event': "e_nach_registration_initiate",
+
+                'eventCategory': "AEML Services",
+
+                'eventAction': "E Nach Registration Initiate",
+
+                'eventLabel': "CA Number Submit",
+
+                'business_user_id': $('#BusinessUserId').val(),
+
+                'login_status': $('#login_status').val(),
+
+                'ca_number': $('#GACANumber').val(),
+
+                'page_type': $('head title').text()
+
+            });
+
+        });
+
+
+    </script>
+}
+
+@*@if (Session["EnachRegistrationFailure"] != null && Session["EnachRegistrationFailure"].ToString() == "2")
+
+{
+    Session["EnachRegistrationFailure"] = null;
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            //debugger;
+
+            dataLayer.push({
+
+                'event': "e_nach_registration_error",
+
+                'eventCategory': "AEML Services",
+
+                'eventAction': "E Nach Registration Error",
+
+                'eventLabel': "Entered Account no is invalid. Please enter a valid 9 digit Account No.",
+
+                'business_user_id': $('#BusinessUserId').val(),
+
+                'login_status': $('#login_status').val(),
+
+                'ca_number': $('#CANumber').val(),
+
+                'page_type': $('head title').text()
+
+            });
+
+        });
+
+
+    </script>
+}*@
+
+@if (contextItem != null && datasourceItem != null)
+{
+    <div class="col s12 l8 offset-l1 QuickBillPaySection">
+        <header class="section-header">
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+        </header>
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmeNachRegistration" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="submit-new-request">
+                <div class="section-container">
+                    <div class="card brand-gradient section-inner-wrapper outlined card-with-form">
+                        <h2>@Html.Sitecore().Dictionary("/ENACH/Register for E-NACH", "Register for E-NACH")</h2>
+                        @if (!Model.IsvalidatAccount)
+                        {
+                            <p>@Html.Sitecore().Dictionary("/ENACH/Register/AccountNo", "Please enter your 9 digit account number")</p>
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", required = "required", @maxlength = "9", @type = "number", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                @Html.ValidationMessageFor(x => x.AccountNo, "", new { @class = "help-block" }, "p")
+                                <label class="active" for="AccountNo">@Html.Sitecore().Dictionary("/ENACH/Register/Consumer Account Number", "Consumer Account Number")</label>
+                                <p class="field-validation-error" id="lblAccountNoerror" style="display:none"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <div class="captcha_box" id="enachRegistrationCaptcha">
+                                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                        <div class="row captcha_box" style="padding-left:10px;">
+                                            <div class="col-lg-12">
+                                                <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                <p class="field-validation-error" id="lblCaptchaerror" style="display:none"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h-right btn-group">
+                                <button type="submit" class="waves-effect waves-light btn enachValidate" name="ValidateAccount" value="@Html.Sitecore().Dictionary("/ENACH/Register/Validate Account Button text", "Validate")">
+                                    @Html.Sitecore().Dictionary("/ENACH/Button/Proceed", "Proceed")
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                <label class="active" for="AccountNo">@Html.Sitecore().Dictionary("/ENACH/Register/Consumer Account Number", "Consumer Account Number")</label>
+                            </div>
+                        }
+                        @if (Model.IsvalidatAccount)
+                        {
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                                <label class="active" for="CustomerName">@Html.Sitecore().Dictionary("/ENACH/Register/Registered Customer Name", "Registered Customer Name")</label>
+                                @Html.ValidationMessageFor(x => x.Name, "", new { @class = "help-block" }, "p")
+                            </div>
+                            <div class="form-field" id="chkBoxField">
+                                <div class="checkbox-field">
+                                    <label>
+                                        @Html.CheckBoxFor(x => x.isPPISet, new { @class = "form-check-input ml-0 filled-in" })
+                                        @*<input type="checkbox" class="filled-in" checked="checked" />*@
+                                        <span> @Html.Sitecore().Dictionary("/ENachRegistration/PPIFlagMessage", "Do you wish to avail Prompt Payment Incentive (PPI)?")</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="h-right btn-group">
+                                <button type="submit" class="btn-flat" name="Reset" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Reset", "Reset")"
+                                        data-gaevent="e_nach_registration_verify_details"
+                                        data-gaeventCategory="AEML Services"
+                                        data-gaeventAction="E Nach Registration Verify details"
+                                        data-gaeventLabel="Reset">
+                                    @Html.Sitecore().Dictionary("/ENACH/Button/Reset", "Reset")
+                                </button>
+                                <button type="submit" class="waves-effect waves-light btn" name="Submit" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Submit", "Submit")"
+                                        data-gaevent="e_nach_registration_verify_details"
+                                        data-gaeventCategory="AEML Services"
+                                        data-gaeventAction="E Nach Registration Verify details"
+                                        data-gaeventLabel="Validate">
+                                    @Html.Sitecore().Dictionary("/ENACH/Button/Proceed", "Proceed")
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="section-container">
+                    @Html.Raw(datasourceItem["Body"])
+                </div>
+            </div>
+        }
+    </div>
+    <script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+    <script>
+        var enachRegistrationCaptcha;
+        var onloadCallback = function () {
+            enachRegistrationCaptcha = grecaptcha.render('enachRegistrationCaptcha', {
+                'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+                'theme': 'light'
+            });
+        };
+
+        $('.enachValidate').click(function () {
+            var isValid = true;
+            if ($('#AccountNo').val() == '') {
+                $('#lblAccountNoerror').show().html('Please validate captcha to continue');
+                isValid = false;
+            } else {
+                $('#lblAccountNoerror').hide().html('');
+            }
+
+            var enachcaptcharesponse = grecaptcha.getResponse(enachRegistrationCaptcha);
+            if (!enachcaptcharesponse) {
+                $('#lblCaptchaerror').show().html('Please validate captcha to continue');
+                isValid = false;
+            }
+            else {
+                $('#lblCaptchaerror').hide().html('');
+            }
+
+            return isValid;
+        });
+
+
+
+
+
+        $(document).ready(function () {
+            $("input[name=isPPISet]:nth-child(2)").appendTo("#chkBoxField");
+        });
+    </script>
+}

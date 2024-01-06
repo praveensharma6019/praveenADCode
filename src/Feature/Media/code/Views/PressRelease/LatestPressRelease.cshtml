@@ -1,0 +1,109 @@
+﻿@using Sitecore.Feature.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model IEnumerable<Sitecore.Data.Items.Item>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<div class="pageContent">
+    <div class="container">
+        <!-- Section -->
+        <div class="panel">
+            @*<div class="row align-items-center form-inner-box">
+                 <div class="col-lg-2"><label>Sort by</label></div>
+                 <div class="col-lg-4">
+                     <select class="form-control" id="year" name="year">
+                         <option value="0">Select Year</option>
+                         <option value="2018">2018</option>
+                         <option value="2017">2017</option>
+                         <option value="2016">2016</option>
+                         <option value="2015">2015</option>
+                         <option value="2014">2014</option>
+                     </select>
+                 </div>
+                 <div class="col-lg-4">
+                     <select class="form-control" id="month" name="month">
+                         <option value="0">All</option>
+                         <option value="1">Jan</option>
+                         <option value="2">Feb</option>
+                         <option value="3">Mar</option>
+                         <option value="4">Apr</option>
+                         <option value="5">May</option>
+                         <option value="6">Jun</option>
+                         <option value="7">Jul</option>
+                         <option value="8">Aug</option>
+                         <option value="9">Sep</option>
+                         <option value="10">Oct</option>
+                         <option value="11">Nov</option>
+                         <option value="12">Dec</option>
+                     </select>
+                 </div>
+                <div class="col-lg-2">
+                         <button type="submit" class="btn btn-primary">Go</button>
+                     </div>
+                </div>*@
+            <div class="py-2"></div>
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    @if (Model.ToList().Count > 0)
+                    {
+                        <table class="table table-borderless table-white table-hover mb-0 tableOuter" id="news">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th width="12%">Date</th>                                    
+                                    <th>Headlines</th>
+                                    <th>Description</th>
+                                    <th>Download</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var child in Model.ToList())
+                                {
+                                    var itemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+                                    <tr>
+                                        <td>
+                                            @Html.Sitecore().Field(Templates.NewsArticle.Fields.Date, child, new
+                                       {
+                                           format = "MMM dd, yyyy"
+                                       })
+                                        </td>
+                                        <td>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Title, child)</td>
+                                        <td>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Summary, child)</td>
+                                        @*<td><a href="@itemURL" class="txt-orange" title=""><i class="fas fa-download"></i>&nbsp;&nbsp;View</a></td>*@
+                                        <td class="txt-orange"><em class="fas fa-download"></em>@Html.Sitecore().Field(Templates.NewsArticle.Fields.viewDownloadLink, child, new { @class = "txt-orange" }) </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h4>No records available.</h4>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<script type="text/javascript">
+        $(document).ready(function () {
+            $.fn.dataTable.ext.search.push(
+                function (settings, data, dataIndex) {
+                    var year = $('#year').val();
+                    var month = $('#month option:selected').text();
+                    if (month != "All" && year != null) { if (data[0].indexOf(year) != -1 && data[0].indexOf(month) != -1) { return true; } }
+                    else {
+                        if (data[0].indexOf(year) != -1 || data[0].indexOf(month) != -1) { return true; }
+                    }
+                    return false;
+                });
+            // DataTable
+            var table = $("#news").DataTable();
+            // Event listener to the two range filtering inputs to redraw on input
+            $('#month, #year').change(function () {
+                table.draw();
+            });
+            $("#news_length").hide();
+            $('#news_filter').css("margin", "12px");
+            //$("form-control").css("")
+        });
+    </script>*@

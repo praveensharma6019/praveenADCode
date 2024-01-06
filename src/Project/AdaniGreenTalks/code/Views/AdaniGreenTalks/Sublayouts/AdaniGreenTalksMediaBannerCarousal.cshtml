@@ -1,0 +1,69 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = datasource != null ? Sitecore.Context.Database.GetItem(datasource) : null;
+    string imgurl = "#";
+    string altText = "";
+    string btnUrl = "javascript:void(0)";
+
+}
+
+@if (model != null)
+{
+
+    <div class="@Html.Sitecore().Field(Constant.Class, model)">
+        <div class="container">
+            <div class="top">
+                <h3>@Html.Sitecore().Field(Constant.MediaTitle, model)</h3>
+            </div>
+            @if (model.HasChildren)
+            {
+                <div class="btm scrollable">
+
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.MediaImage]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+                        Sitecore.Data.Fields.LinkField linkField = item.Fields[Constant.ButtonLink];
+                        if (!String.IsNullOrEmpty(linkField.Url))
+                        {
+                            btnUrl = linkField.GetFriendlyUrl();
+                        }
+                        <div class="item">
+                            <img src="@imgurl" alt="@altText">
+                            <div class="desc">
+                                <h5>@Html.Sitecore().Field(Constant.MediaTitle, item)</h5>
+                                <p>@Html.Sitecore().Field(Constant.MediaDescription, item)</p>
+                                @if (!String.IsNullOrEmpty(Html.Sitecore().Field(Constant.ButtonTitle, item).ToString()))
+                                {
+                                    <a class="read_more" href="@btnUrl">@Html.Sitecore().Field(Constant.ButtonTitle, item)</a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="arrows">
+                    @Html.Sitecore().Field(Constant.SVGLeft, model)
+                    @Html.Sitecore().Field(Constant.SVGRight, model)
+                </div>
+            }
+
+        </div>
+    </div>
+}

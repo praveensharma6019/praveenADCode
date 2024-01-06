@@ -1,0 +1,87 @@
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+@{
+    var contextSite = RenderingContext.Current.ContextItem;
+    //  var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    // var parent = Sitecore.Context.Database.GetItem(datasource);
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+}
+
+<div class="container">
+    @foreach (var item in Model.NavItems)
+    {
+        var ddlSource = Sitecore.Context.Database.GetItem(item.Item.ID);
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                @Html.DropDownList("customcare", new SelectList(ddlSource.Children, "Id", "Name"), new
+           {
+               @id = "Id",
+               @class = "form-control",
+               @style = "width:200px",
+               @onchange= "abs()"
+           })
+                @*<select class="form-control ddlcall">
+                        @foreach (var child in ddlSource.Children.ToList())
+                        {
+
+                            <option>@Html.Sitecore().Field("Title", @child)</option>
+
+                        }
+                    </select>*@
+            </div>
+        </div>
+    }
+</div>
+<script>
+
+
+    function abs() {
+        alert("dasd")
+
+
+        var itemId = $(this).length;
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId},
+            url: "api/feature/Navigation/GetCustomerCare",
+            context: this,
+                       success: function (cities) {
+                alert("s");
+                //$("#City").html(""); // clear before appending new list
+                //$.each(cities, function (i, city) {
+                //    $("#City").append(
+                //        $('<option></option>').val(city.CityId).html(city.CityName));
+                //});
+            }
+        });
+    }
+</script>
+
+
+
+
+
+<div class="my-3 py-3"></div>
+<div class="panel bg-white container">
+    <h4 class="txt-orange mb-3">Customer Care Center</h4>
+    <div>
+        <h5 class="pb-2">Address:</h5>
+        <p class="text-uppercase">HARMONY MEDICAL AND GENERAL STORES, NAND SMRUTI, SHOP NO. 5, PLOT NO. 15, OPP. KUKREJA TOWERS, VALLABH BAUG LANE EXTN., MUMBAI - 400077-</p>
+        <br>
+        <h5 class="pb-2">Address:</h5>
+        <p class="text-uppercase">Shreeji Electronics, 05, Ground floor, Ashish Hingwala Lane Extension, MUMBAI - 400071-</p>
+        <br>
+        <h5 class="pb-2">Address:</h5>
+        <p class="text-uppercase">Solutions 1, Bhaveshwar Market, M.G. Road, MUMBAI - 400077-</p>
+        <br>
+        <h5 class="pb-2">Address:</h5>
+        <p class="text-uppercase">Spark Infocom, 129, 1st Floor, Platinum Mall, Opp. Ghatkopar Railyway Station, Jawahar road, MUMBAI - 400077-</p>
+    </div>
+</div>
+</div>

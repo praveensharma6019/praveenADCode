@@ -1,0 +1,64 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    int i = 1;
+    int j = 1;
+}
+
+@if (elements != null)
+{
+    var itemList = elements.GetChildren().ToList();
+    <section class="bg-black position-relative py-5 d-none" id="projectgallery">
+        <div class="bg-images">@Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, elements)</div>
+        <div class="container" data-aos="fade-up">
+            <h4 class="sub-heading position-relative txt-white txt-center pl-4 mb-4">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h4>
+            <div class="owl-carousel owl-middlezoom">
+                @foreach (var item in itemList)
+                {
+                    <div class="item" data-toggle="modal" data-target="#modalgallery-@i">
+                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item)
+                        <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</p>
+                    </div>
+                    i++;
+                }
+            </div>
+        </div>
+    </section>
+
+    foreach (var item in itemList)
+    {
+        var innerItem = item.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{F0369E1A-9030-4A05-A09C-EF09B664ED27}"));
+        if (innerItem != null && innerItem.Count() > 0)
+        {
+            <div class="modal events-modal" id="modalgallery-@j">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <div class="modal-body">
+                            <div class="owl-carousel events-item">
+                                @foreach (var inner in innerItem)
+                                {
+                                    <div class="item">
+                                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, inner, cssClass: "img-fluid")
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        j++;
+    }
+}

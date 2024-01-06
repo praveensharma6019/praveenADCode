@@ -1,0 +1,30 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.HasBannerSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasBannerSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+}
+
+@if (model != null)
+{
+    foreach (var item in model.Axes.GetDescendants())
+    {
+        <div class="col-lg-3 col-md-6 txt-center">
+
+            @Html.Sitecore().Field(Templates._HasMedia.Fields.HighResolutionImage, item)
+            <p>@Html.Sitecore().Field(Templates._HasMedia.Fields.Title, item)</p>
+        </div>
+    }
+}
+

@@ -1,0 +1,129 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "";
+    string altText = "";
+    string sectionClass = "";
+    int i = 1;
+    string linkurl = "";
+    string thumburl = "";
+}
+
+@if (model != null && model.HasChildren)
+{
+
+
+    foreach (Item item in model.GetChildren())
+    {
+        if (i % 2 == 0)
+        {
+            sectionClass = "dc-details-bg";
+        }
+        else
+        {
+            sectionClass = "";
+        }
+
+        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+        if (imgField != null && imgField.MediaItem != null)
+        {
+            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            altText = imgField.Alt;
+        }
+
+        Sitecore.Data.Fields.LinkField linkvalue = item.Fields["MediaLink"];
+        if (linkvalue != null)
+        {
+            linkurl = linkvalue.GetFriendlyUrl();
+        }
+
+        <div class="section-holder @sectionClass" id="@Html.Sitecore().Field("SubTitle", item)">
+            <div class="content-wrapper">
+                <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                <div class="full d-txt desc">@Html.Sitecore().Field("MediaDescription", item)</div>
+                <div class="data-center-details full">
+                    @if (imgurl != "" && sectionClass == "dc-details-bg")
+                    {
+                        <div class="dc-col dc-img-holder">
+                            <img src="@imgurl" alt="@altText" class="res-img">
+                        </div>
+                    }
+                    <ul class="dc-col dc-list">
+                        @if (item.HasChildren)
+                        {
+                            foreach (Item subItem in item.GetChildren())
+                            {
+                                var cssClass = subItem.Fields["Class"].ToString();
+                                Sitecore.Data.Fields.ImageField imgField1 = ((Sitecore.Data.Fields.ImageField)subItem.Fields["MediaThumbnail"]);
+                                if (imgField1 != null && imgField1.MediaItem != null)
+                                {
+                                    thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField1.MediaItem);
+
+                                }
+                        <li>
+                            @if (!string.IsNullOrWhiteSpace(cssClass))
+                            {
+                                <div class="icon-holder">
+                                    <i class="i-50 @Html.Sitecore().Field("Class", subItem)"></i>
+                                </div>
+                            }
+                            else
+                            {
+                                if (thumburl != "")
+                                {
+                                    <div class="icon-holder">
+                                        <i class="i-50"><img src="@thumburl" /></i>
+                                    </div>
+                                }
+                            }
+                            
+                            <div class="full">
+                                <p class="h3 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", subItem)</p>
+                                <p class="full">@Html.Sitecore().Field("MediaDescription", subItem)</p>
+                            </div>
+                        </li>
+                                }
+                            }
+                        @if (linkurl != "")
+                        {
+                            <li><a href="@linkurl" class="btn">Know More</a></li>
+                        }
+
+
+                        </ul>
+                        @if (imgurl != "" && sectionClass != "dc-details-bg")
+                        {
+                            <div class="dc-col dc-img-holder">
+                                <img src="@imgurl" alt="@altText" class="res-img">
+                            </div>
+                        }
+
+                    </div>
+            </div>
+        </div>
+        i++;
+    }
+
+
+
+
+
+}

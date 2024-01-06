@@ -1,0 +1,143 @@
+﻿@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration;
+
+@model Sitecore.AGELPortal.Website.Models.PortalAddUserModel
+@{
+    Layout = null;
+    var name = Model?.name;
+    var email = Model?.email;
+    var mobile = Model?.mobile;
+    var userType = Model?.user_type;
+    var site = Model?.site;
+    var vendor = Model?.vendor;
+}
+
+<div class="container">
+	<div class="section-header">
+		<h3>Add User</h3>
+	</div>
+	<div class="breadcrumbs">
+		<a href="/AGELPortal/Home/Dashboard/user_managment" class="breadcrumb">User Management</a>
+		<a href="/AGELPortal/Home/Dashboard/add-user" class="breadcrumb">Add User</a>
+	</div>
+    @Html.Sitecore().Placeholder("breadcrumbs")
+	<div class="new-connection-form">
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "add_user_form", name = "add_user_form", @class = "add_user_form", autocomplete="off" }))
+        {
+		<div class="step-1-form">
+			<div class="card brand-gradient outlined card-with-form three-col-form">
+				<div class="card-body">
+					<div class="form-field">
+						<div class="row">
+							<div class="input-field custom col s12 m4">
+                                    @* <select>
+									<option value="" disabled selected>Arpit Tiwari</option>
+									<option value="1">Option 1</option>
+									<option value="2">Option 2</option>
+									<option value="3">Option 3</option>
+								</select>*@
+								<input value="@name" id="name" name="name" required type="text" class="validate" title="Numeric and symbols inputs are not allowed" pattern="^[a-zA-Z ]+$" onkeyup="isEmpty()">
+									<label>Name</label>
+                                    @Html.ValidationMessageFor(model => model.name, "", new { @class = "help-block text-danger" }, "p")
+								</div>
+
+								<div class="col s12 m4">
+									<div class="form-field">
+										<h6>User Type</h6>
+										<div class="field-group">
+											<div class="radio-field">
+												<label>
+													<input class="with-gap" value="1" name="user_type" required type="radio" 
+                                                    @(userType == "adani" ? "checked" : "") checked/>
+													<span>Adani</span>
+												</label>
+											</div>
+											<div class="radio-field">
+												<label>
+													<input class="with-gap" value="2" name="user_type" required type="radio"
+                                                        @(userType == "vendor" ? "checked" : "")  />
+													<span>Vendor</span>
+												</label>
+											</div>
+										</div>
+                                        @Html.ValidationMessageFor(model => model.user_type, "", new { @class = "help-block text-danger" }, "p")
+									</div>
+
+								</div>
+								<div class="input-field custom col s12 m4" id="vendorName">
+									<!-- <input value="@vendor" id="vendor" name="vendor" type="text" class="validate"  onkeyup="isEmpty()" required> -->
+									<input value="@vendor" id="vendor" name="vendor" type="text" class="validate" title="Numeric and symbols inputs are not allowed" pattern="^[a-zA-Z ]+$" onkeyup="isEmpty()">
+									<label class="active" for="vendor">Vendor Name</label>
+                                    <!-- @Html.ValidationMessageFor(model => model.vendor, "", new { @class = "help-block text-danger" }, "p") -->
+								</div>
+									<div class="input-field custom col s12 m4">
+										<select id="site" name="site" required>
+											<option value="Gurgaon">Gurgaon</option>
+											<option value="Mumbai">Mumbai</option>
+											<option value="Ahemdabad">Ahemdabad</option>
+
+
+										</select>
+										<label>Site</label>
+                                    @Html.ValidationMessageFor(model => model.site, "", new { @class = "help-block text-danger" }, "p")
+									</div>
+									<div class="input-field custom col s12 m4">
+										<input value="@mobile" id="mobile" name="mobile" required type="text" class="validate" pattern="\d*"  minlength="10" maxlength="10" title="Only numeric value are allowed 0-9" onkeyup="isEmpty()">
+											<label class="active" for="name">Mobile Number</label>
+                                    @Html.ValidationMessageFor(model => model.mobile, "", new { @class = "help-block text-danger" }, "p")
+										</div>
+										<div class="input-field custom col s12 m4">
+											<input value="@email" id="email" name="email" type="email" required class="validate" title="Please enter a valid email address" pattern="^[a-zA-Z0-9._+-]+&#64;[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$" onkeyup="isEmpty()">
+												<label class="active" for="first_name2">Email ID</label>
+                                    @Html.ValidationMessageFor(model => model.email, "", new { @class = "help-block text-danger" }, "p")
+											</div>
+										</div>
+									</div>
+                        @Html.ValidationMessageFor(model => model.UserValidation, "", new { @class = "help-block text-danger" }, "p")
+									<div class="h-right btn-group">
+										<button id="btn" disabled class="waves-effect waves-light btn">Submit</button>
+
+                            @*<button class="waves-effect waves-light btn">Submit</button>*@
+									</div>
+								</div>
+							</div>
+						</div>
+        }
+					</div>
+				</div>
+
+				<script>
+    function isEmpty() {
+        let Name = document.getElementById("name").value;
+        let vendor = document.getElementById("vendor").value;
+        let site = document.getElementById("site").value;
+        let MobileNumber = document.getElementById("mobile").value;
+        let email = document.getElementById("email").value;
+        
+			var value = $( 'input[name=user_type]:checked' ).val();
+			if(value == "2")
+			{
+				if (Name != "" && vendor != "" && site != "" && MobileNumber != "" && email != "") 
+				{
+				document.getElementById("btn").removeAttribute("disabled");
+				}
+			}
+			else
+			{
+				if (Name != "" && site != "" && MobileNumber != "" && email != "") 
+				{
+					document.getElementById("btn").removeAttribute("disabled");
+				
+				}
+			}
+            
+        
+    }
+				</script>
+				

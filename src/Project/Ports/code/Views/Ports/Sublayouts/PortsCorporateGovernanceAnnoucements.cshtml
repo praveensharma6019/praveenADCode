@@ -1,0 +1,50 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    var sortedItem = parent.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+}
+
+
+<div class="col-lg-4 bg-gradient padd-box">
+   
+    <div class="position-relative d-block p-5 corporate-a">
+        <h3 class="section-heading"> @Html.Sitecore().Field("Title",parent)</h3>
+        <ul class="ul-media-section">
+
+
+            @foreach (var item in sortedItem)
+            {
+            string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+			  Sitecore.Data.Fields.LinkField imageLink = item.Fields["LinkUrl"];
+            var imageLinkUrl = imageLink.GetFriendlyUrl();
+            if (string.IsNullOrEmpty(imageLinkUrl))
+            {
+                <li>
+                    <p><a href="@linkUrl" >@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span></p>
+                </li>
+            }
+            else
+            {
+                <li>
+                    <p><a href="@imageLinkUrl" target="_blank">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span></p>
+                </li>
+            }
+            if (i == 4)
+            {
+                break;
+            }
+            i++;
+        }
+            </ul>
+        @{
+
+        string parentUrl = Sitecore.Links.LinkManager.GetItemUrl(parent);
+    }
+        <p class="text-right"><a href="@parentUrl" class="btn btn-white">View all</a></p>
+    </div>
+</div>

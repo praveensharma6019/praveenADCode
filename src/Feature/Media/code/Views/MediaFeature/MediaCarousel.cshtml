@@ -1,0 +1,127 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+    var mobileMedia = Model.Item.Fields["MobileMediaSelector"].Value;
+    var i = 0;
+    var j = 0;
+}
+
+@*@if (!Sitecore.Context.User.IsAuthenticated)
+    {
+        <div class="bannerContent d-none d-md-block" id="userlogin">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-lg-5 ml-auto">
+                        @Html.Sitecore().Placeholder("banner-login")
+                    </div>
+                </div>
+            </div>
+        </div>
+    }*@
+<!-- Banner Carousel -->
+<div class="owl-carousel" id="homeslider">
+    @foreach (var element in elements)
+    {
+        <div class="item">
+            @{
+                //var style = "background-image: ";
+                var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                var mediaUrl = element.Item.MediaUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                var fixedHeight = Model.Rendering.IsFixedHeight();
+                if (fixedHeight && carouselHeight.HasValue)
+                {
+                    style += "; height:" + carouselHeight + "px;";
+                }
+
+                var ImagePath = "";
+                if (mobileMedia.Count() > i)
+                {
+                    var imageItem = Sitecore.Context.Database.GetItem(new Sitecore.Data.ID(mobileMedia.Split('|')[i].ToString()));
+                    if (imageItem != null)
+                    {
+                        ImagePath = MediaManager.GetMediaUrl(imageItem);
+                    }
+                }
+                i++;
+                Sitecore.Data.Fields.LinkField linkfield = element.Item.Fields[Templates.HasMedia.Fields.Link];
+                var url = linkfield.GetFriendlyUrl();
+            }
+            @if (!string.IsNullOrEmpty(url))
+            {
+                
+                    <a href="@url" target="_blank">
+                        <picture>
+                            <source srcset="@style" media="(min-width: 1779px)">
+                            <source srcset="@style" media="(min-width: 1400px)">
+                            <source srcset="@style" media="(min-width: 1084px)">
+                            <source srcset="@style" media="(min-width:768px)">
+                            <source srcset="@style" media="(min-width:540px)">
+                            <source srcset="@ImagePath" media="(min-width:0)">
+                            <img srcset="@style" src="@style" alt="">
+                        </picture>
+                    </a>
+                
+            }
+            else
+            {
+                <div>
+                    <picture>
+                        <source srcset="@style" media="(min-width: 1779px)">
+                        <source srcset="@style" media="(min-width: 1400px)">
+                        <source srcset="@style" media="(min-width: 1084px)">
+                        <source srcset="@style" media="(min-width:768px)">
+                        <source srcset="@style" media="(min-width:540px)">
+                        <source srcset="@ImagePath" media="(min-width:0)">
+                        <img srcset="@style" src="@style" alt="">
+                    </picture>
+                </div>
+            }
+        </div>
+        j++;
+    }
+</div>
+<!-- /Banner Carousel-->
+
+@if (!Sitecore.Context.User.IsAuthenticated)
+{
+    <!-- Account Box  -->
+    <section class="section bg-pattern-light d-block d-md-none">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-sm-12">
+                    @Html.Sitecore().Placeholder("banner-login")
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Account Box -->
+    <!-- Account Box for mobile users -->
+    @*<section class="section bg-pattern-light d-block d-md-none">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-sm-12">
+                        @Html.Sitecore().Placeholder("login-mobile-Control")
+                    </div>
+                </div>
+            </div>
+        </section>*@
+    <!-- /Account Box for mobile users -->
+}

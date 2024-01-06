@@ -1,0 +1,174 @@
+﻿@using Sitecore.Feature.News
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Mvc.Presentation
+@model IEnumerable<Sitecore.Data.Items.Item>
+
+
+<div class="pageContent">
+    <div class="container">
+        <!-- Section -->
+        <div class="panel">
+            @*<div class="row align-items-center form-inner-box">
+                <div class="col-lg-2"><label>Sort by</label></div>
+                <div class="col-lg-4">
+                    <select class="form-control" id="year" name="year">
+                        <option value="0">Select Year</option>
+                        <option value="2018">2018</option>
+                        <option value="2017">2017</option>
+                        <option value="2016">2016</option>
+                        <option value="2015">2015</option>
+                        <option value="2014">2014</option>
+                    </select>
+                </div>
+                <div class="col-lg-4">
+                    <select class="form-control" id="month" name="month">
+                        <option value="0">All</option>
+                        <option value="1">Jan</option>
+                        <option value="2">Feb</option>
+                        <option value="3">Mar</option>
+                        <option value="4">Apr</option>
+                        <option value="5">May</option>
+                        <option value="6">Jun</option>
+                        <option value="7">Jul</option>
+                        <option value="8">Aug</option>
+                        <option value="9">Sep</option>
+                        <option value="10">Oct</option>
+                        <option value="11">Nov</option>
+                        <option value="12">Dec</option>
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                        <button type="submit" class="btn btn-primary">Go</button>
+                    </div>
+            </div>*@
+            <div class="py-2"></div>
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    @if (Model.ToList().Count > 0)
+                    {
+                        <table class="table table-borderless table-white table-hover mb-0 tableOuter" id="news">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Headlines</th>
+                                    <th scope="col">Publication</th>
+                                    <th scope="col">Download</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var child in Model.ToList())
+                                {
+                                    var itemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+                                <tr>
+                                    <td>
+                                        @Html.Sitecore().Field(Templates.NewsArticle.Fields.Date, child, new
+                                   {
+                                       format = "MMM dd, yyyy"
+                                   })
+                                    </td>
+                                    <td>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Title, child)</td>
+                                    <td>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Publication, child)</td>
+                                    @*<td><a href="@itemURL" class="txt-orange" title=""><i class="fas fa-download"></i>&nbsp;&nbsp;View</a></td>*@
+                                    <td class="txt-orange"><i class="fas fa-download"></i>@Html.Sitecore().Field(Templates.NewsArticle.Fields.viewDownloadLink, child, new { @class = "txt-orange" })</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h4>No news available.</h4>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+@*<script type="text/javascript">
+        $(document).ready(function () {
+            $.fn.dataTable.ext.search.push(
+                function (settings, data, dataIndex) {
+                    var year = $('#year').val();
+                    var month = $('#month option:selected').text();
+                    if (month != "All" && year != null) { if (data[0].indexOf(year) != -1 && data[0].indexOf(month) != -1) { return true; } }
+                    else {
+                        if (data[0].indexOf(year) != -1 || data[0].indexOf(month) != -1) { return true; }
+                    }
+                    return false;
+                });
+            // DataTable
+            var table = $("#news").DataTable();
+            // Event listener to the two range filtering inputs to redraw on input
+            $('#month, #year').change(function () {
+                table.draw();
+            });
+            $("#news_length").hide();
+            $('#news_filter').css("margin", "12px");
+            //$("form-control").css("")
+        });
+    </script>
+
+
+
+
+    <div class="well @RenderingContext.Current.Rendering.GetBackgroundClass()">
+            <h5 class="text-uppercase">@Html.Sitecore().Dictionary("/news/latest news/title", "News")</h5>
+            <ul class="media-list">
+                @foreach (var item in Model)
+                {
+                    <li class="media">
+                        <div class="media-body">
+                            <date>
+                                @Html.Sitecore().Field(Templates.NewsArticle.Fields.Date, item, new
+                                                                                                {
+                                                                                                  format = "MMMM dd, yyyy"
+                                                                                                })
+                            </date>
+                            <h4 class="media-heading">
+                                <a href="@item.Url()">@Html.Sitecore().Field(Templates.NewsArticle.Fields.Title, item)</a>
+                            </h4>
+                        </div>
+                    </li>
+                }
+            </ul>
+            <a href="@Html.Sitecore().CurrentRendering.Item.Url()" class="btn btn-default">
+                @Html.Sitecore().Dictionary("/news/latest news/read more", "Read more")
+            </a>
+        </div>*@
+
+@*<div class="announcement">
+        @foreach (var child in Model.ToList())
+        {
+            var itemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+
+            <div class="panel">
+                <div class="row align-items-center form-inner-box">
+                    <div class="col-sm-4 cert-thumb">
+                        @Html.Sitecore().Field(Templates.NewsArticle.Fields.Image, child)
+                    </div>
+                    <div class="col-sm-8">
+                        <h4 class="txt-orange">@Html.Sitecore().Field(Templates.NewsArticle.Fields.Title, child)</h4>
+                        <h6 class="txt-gray">
+                            @Html.Sitecore().Field(Templates.NewsArticle.Fields.Date, child, new
+                                                          {
+                                                            format = "MMMM dd, yyyy"
+                                                          })
+                        </h6>
+                        <p class="py-3 mh-130">@Html.Sitecore().Field(Templates.NewsArticle.Fields.Summary, child)</p>
+                        <div class="text-left">
+                            <h5><a href="@itemURL" class="btn btnBordered serviceBtn readmore">Read more</a></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>*@
+<!-- /Section -->

@@ -1,0 +1,291 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts.SessionHelper
+@model Sitecore.Feature.Accounts.Models.ByCustomerId
+
+@{
+    var showPopup = Request.QueryString["CreateAdmin"] != null ? Request.QueryString["CreateAdmin"] : "false";
+    var UpdateAdminPopup = Request.QueryString["UpdateAdmin"] != null ? Request.QueryString["UpdateAdmin"] : "false";
+
+    //var popup = Request.QueryString["deleteadmin"] != null ? Request.QueryString["deleteadmin"] : "false";
+
+    string popup = "";
+    if (!string.IsNullOrEmpty(Request.QueryString["deleteadmin"]))
+    {
+        popup = Request.QueryString["deleteadmin"] == null ? "none" : "block";
+    }
+}
+
+@if (Session["NameTransferLogin"] != null && !string.IsNullOrEmpty(Session["NameTransferLogin"].ToString()))
+{
+    using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmNewConnectionApplicationList", @class = "form-signin", enctype = "multipart/form-data" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <section class="py-5 bg-gray" style="margin-top: -2rem;">
+            <div class="container">
+
+                <div class="admin_submit_request mt-4">
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="breadcrumb" style="display:none"><b>Created Admin List</b></div>
+
+                            <div class="row">
+
+                                <div class="col-lg-6 mb-3">
+                                    <div class="text-left">
+                                        <a class="btn btn-primary mb-2 mb-md-0" href="~/NameTransferHome">Back</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 mb-3">
+                                    <div class="text-right">
+                                        <a class="btn btn-primary mb-2 mb-md-0" href="~/NameTransferHome/CreateNameTransferAdmin" id="btn_NameTransferCreateAdmin">Create Admin</a>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="All-Request" role="tabpanel" aria-labelledby="All-Request-tab">
+                                    @if (Model.adminregistrationlist != null)
+                                    {
+                                        <div class="row mt-4">
+                                            <div class="col-lg-12 col-md-12">
+                                                <div class="table-responsive">
+                                                    <table class="table" id="Created_Admin_List_Name_Transfer">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Sr. No</th>
+                                                                <th scope="col">Admin Name</th>
+                                                                <th scope="col">City</th>
+                                                                <th scope="col">Email ID</th>
+                                                                <th scope="col">Mobile Number</th>
+                                                                <th scope="col">Date</th>
+                                                                <th scope="col">Edit Details</th>
+                                                                <th scope="col">Action</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @{
+                                                                var count = 1;
+
+                                                                foreach (var adminlist in Model.adminregistrationlist)
+                                                                {
+                                                                    List<string> xyz = new List<string>();
+                                                                    foreach (var sapcitylist in Model.CityList)
+                                                                    {
+                                                                        adminlist.City = adminlist.City.Replace(sapcitylist.Value, sapcitylist.Text);
+                                                                    }
+
+                                                                    <tr>
+                                                                        <td>@count</td>
+                                                                        <td>@adminlist.Name</td>
+                                                                        <td>@adminlist.City</td>
+                                                                        <td>@adminlist.Email</td>
+                                                                        <td>@adminlist.MobileNumber</td>
+                                                                        <td>@adminlist.CreatedDate.Value.ToString("dd-MM-yyyy")</td>
+                                                                        <td><a href="/NameTransferHome/CreateNameTransferAdmin?Aids=@adminlist.Id.ToString()" id="btn_NameTransferAdminList">EDIT</a></td>
+                                                                        @if (adminlist.AdminStatus == "UNBLOCK")
+                                                                        {
+                                                                            <td class="BLOCK-admin">
+                                                                                <a href="javascript:;" data-id="@adminlist.Id" data-st class="btn btn-primary mb-2 mb-md-0" id="btn_AdminBLOCK" title="BLOCK">BLOCK</a>
+                                                                            </td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td class="Unblock-Admin">
+                                                                                <a href="javascript:;" data-id="@adminlist.Id" data-st class="btn btn-primary mb-2 mb-md-0" id="btn_AdminUnblock" title="UNBLOCK">UNBLOCK</a>
+                                                                            </td>
+                                                                        }
+
+
+
+                                                                    </tr>
+                                                                    count = count + 1;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    }
+}
+
+@if (showPopup == "true")
+{
+    <div id="message_modal" class="modal fade show" role="dialog" style="display:block; padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                    <button type="button" id="btn_cancle" onclick="toggleText()" class="close" data-dismiss="modal">X</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-sm-12 col-form-label txt-green">Admin created successfully.</label>
+                    </div>
+                </div>
+                <button type="button" id="btn_Popupok" onclick="toggleText()" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+            </div>
+
+        </div>
+    </div>
+}
+@if (UpdateAdminPopup == "true")
+{
+    <div id="message_modal" class="modal fade show" role="dialog" style="display:block; padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                    <button type="button" id="btn_cancle" onclick="toggleText()" class="close" data-dismiss="modal">X</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label class="col-sm-12 col-form-label txt-green">Admin Updated successfully.</label>
+                    </div>
+                </div>
+                <button type="button" id="btn_Popupok" onclick="toggleText()" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+
+<div id="name_transfer_BLOCK_admin" class="modal fade show" role="dialog" style="display:none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Block Admin</p>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <p>Are you sure you want to block this admin?</p></br>
+                    </div>
+                    <div class="col-lg-12 col-md-12">
+                        <button value="Yes" id="BLOCK_name_transfer_admin_yes" data-dismiss="modal" class="btn btn-primary mb-2 mb-md-0" style="width:80px;" tabindex="0">Yes</button>
+                        <input type="hidden" name="QueryStringNameTransferId" id="QueryStringID" value="@Request.QueryString["deleteadmin"]">
+                        <button class="btn btn-primary mb-2 mb-md-0" id="BLOCK_name_transfer_admin_no" data-dismiss="modal" style="width:80px;" tabindex="0">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="name_transfer_Unblock_admin" class="modal fade show" role="dialog" style="display:none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Unblock Admin</p>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <p>Are you sure you want to Unblock this admin?</p></br>
+                    </div>
+                    <div class="col-lg-12 col-md-12">
+                        <button value="Yes" id="Unblock_name_transfer_admin_yes" data-dismiss="modal" class="btn btn-primary" style="width:80px;" tabindex="0">Yes</button>
+                        <input type="hidden" name="QueryStringNameTransferId" id="QueryStringID" value="@Request.QueryString["deleteadmin"]">
+                        <button class="btn btn-primary" id="Unblock_name_transfer_admin_no" data-dismiss="modal" style="width:80px;" tabindex="0">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Unblock_admin_success" class="modal fade show" role="dialog" style="display:none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <p>Admin Unblocked successfully.</p>
+                    </div>
+                    <div class="col-lg-12 col-md-12">
+                        <button value="Yes" id="Unblock_admin_success_OK" data-dismiss="modal" class="btn btn-primary" style="width:80px;" tabindex="0">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Block_admin_success" class="modal fade show" role="dialog" style="display:none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <p>Admin blocked successfully.</p>
+                    </div>
+                    <div class="col-lg-12 col-md-12">
+                        <button value="Yes" id="Block_admin_success_OK" data-dismiss="modal" class="btn btn-primary" style="width:80px;" tabindex="0">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function toggleText() {
+        var x = document.getElementById("message_modal");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<link href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" />
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        $('#Created_Admin_List_Name_Transfer').DataTable();
+    });
+</script>
+
+
+
+

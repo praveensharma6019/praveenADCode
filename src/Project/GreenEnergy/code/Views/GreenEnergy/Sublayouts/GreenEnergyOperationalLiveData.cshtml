@@ -1,0 +1,363 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using System.Configuration
+@using Microsoft.WindowsAzure.Storage
+@using Microsoft.WindowsAzure.Storage.Blob
+@using System.IO;
+@{
+
+    string connection = ConfigurationManager.ConnectionStrings["GreenEnergyAPIDataConnection"].ConnectionString;
+    string containerString = "garvhaistagecontainer";
+    string fileName = "";
+    string oldContent = "";
+    CloudStorageAccount storage = null;
+    CloudBlobClient client = null;
+    CloudBlobContainer container = null;
+    CloudBlockBlob blob = null;
+
+}
+
+
+<section class="position-relative py-5 bg-fixedblock">
+    <div class="bg-images"><img alt="" src="-/media/23A5233A5CB549F78F4615C426B55FD9.ashx" /></div>
+    <div class="container">
+
+        @{
+
+            //calling to get Operational Capacity data
+
+            fileName = "Operationaldata.txt";
+            storage = CloudStorageAccount.Parse(connection);
+            client = storage.CreateCloudBlobClient();
+            container = client.GetContainerReference(containerString);
+            blob = container.GetBlockBlobReference(fileName);
+            oldContent = "";
+            try
+            {
+
+                if (!blob.Exists())
+                {
+                    oldContent = "";
+                }
+                else
+                {
+                    using (StreamReader reader = new StreamReader(blob.OpenRead()))
+                    {
+                        oldContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            var OCsplitArray = oldContent.Split('#');
+
+            var OCsplittedValue = OCsplitArray[0];
+            var OCsplittedDate = OCsplitArray[1];
+            var OCfinalTime = DateTime.Parse(OCsplittedDate).ToShortTimeString();
+            var OCfinalDate = DateTime.Parse(OCsplittedDate).ToString("dd/MM/yyyy");
+
+        }
+
+        <div class="row my-3">
+            <div class="col-lg-6 p-stats-main">
+                <p class="mb-4"><img alt="" style="width: 40px;" src="-/media/F89D296BCF2E4845A9B58007FCE25A24.ashx" class="mr-3 img-fluid" /><b class="txt-md">Live Data Feeds</b></p>
+                <div class="row">
+                    <div class="col-4">
+                        <div class="plant-stats">
+                            <p>@OCsplittedValue<span>MW</span></p>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="plant-stats-content">
+                            <p>Solar Power Generation Capacity</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="txt-xs text-left mb-0">(as of @OCfinalTime & @OCfinalDate IST)</p>
+            </div>
+        </div>
+        @{
+
+            //calling to get Net Energy data
+
+            fileName = "NetEnergyExportedData.txt";
+            storage = CloudStorageAccount.Parse(connection);
+            client = storage.CreateCloudBlobClient();
+            container = client.GetContainerReference(containerString);
+            blob = container.GetBlockBlobReference(fileName);
+            oldContent = "";
+            try
+            {
+
+                if (!blob.Exists())
+                {
+                    oldContent = "";
+                }
+                else
+                {
+                    using (StreamReader reader = new StreamReader(blob.OpenRead()))
+                    {
+                        oldContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            var NetEnergysplitArray = oldContent.Split('#');
+
+            var NetEnergysplittedValue = NetEnergysplitArray[0];
+            var NetEnergysplittedDate = NetEnergysplitArray[1];
+            var NetEnergyfinalTime = DateTime.Parse(NetEnergysplittedDate).ToShortTimeString();
+            var NetEnergyfinalDate = DateTime.Parse(NetEnergysplittedDate).ToString("dd/MM/yyyy");
+
+        }
+        <div class="row my-3">
+            <div class="col-lg-6 p-stats-main">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="plant-stats">
+                            <p>@NetEnergysplittedValue<span>MWh</span></p>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="plant-stats-content">
+                            <p>Net Units Feed to Grids</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="txt-xs text-left mb-0">(as of @NetEnergyfinalTime & @NetEnergyfinalDate IST)</p>
+            </div>
+        </div>
+        @{
+
+            //calling to get CUF data
+
+            fileName = "CUFData.txt";
+            storage = CloudStorageAccount.Parse(connection);
+            client = storage.CreateCloudBlobClient();
+            container = client.GetContainerReference(containerString);
+            blob = container.GetBlockBlobReference(fileName);
+            oldContent = "";
+            try
+            {
+
+                if (!blob.Exists())
+                {
+                    oldContent = "";
+                }
+                else
+                {
+                    using (StreamReader reader = new StreamReader(blob.OpenRead()))
+                    {
+                        oldContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            var CUFsplitArray = oldContent.Split('#');
+
+            var CUFsplittedValue = CUFsplitArray[0];
+            var CUFsplittedDate = CUFsplitArray[1];
+            var CUFfinalTime = DateTime.Parse(CUFsplittedDate).ToShortTimeString();
+            var CUFfinalDate = DateTime.Parse(CUFsplittedDate).ToString("dd/MM/yyyy");
+
+        }
+
+        <div class="row my-3">
+            <div class="col-lg-6 p-stats-main">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="plant-stats">
+                            <p>@CUFsplittedValue<span>%</span></p>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="plant-stats-content">
+                            <p>Capacity Utilisation Factor</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="txt-xs text-left mb-0">(as of @CUFfinalTime & @CUFfinalDate IST)</p>
+            </div>
+        </div>
+
+        @{
+
+            //calling to get PR data
+
+            fileName = "PRData.txt";
+            storage = CloudStorageAccount.Parse(connection);
+            client = storage.CreateCloudBlobClient();
+            container = client.GetContainerReference(containerString);
+            blob = container.GetBlockBlobReference(fileName);
+            oldContent = "";
+            try
+            {
+
+                if (!blob.Exists())
+                {
+                    oldContent = "";
+                }
+                else
+                {
+                    using (StreamReader reader = new StreamReader(blob.OpenRead()))
+                    {
+                        oldContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            var PRsplitArray = oldContent.Split('#');
+
+            var PRsplittedValue = PRsplitArray[0];
+            var PRsplittedDate = PRsplitArray[1];
+            var PRfinalTime = DateTime.Parse(PRsplittedDate).ToShortTimeString();
+            var PRfinalDate = DateTime.Parse(PRsplittedDate).ToString("dd/MM/yyyy");
+
+        }
+
+
+        <div class="row my-3">
+            <div class="col-lg-6 p-stats-main">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="plant-stats">
+                            <p>@PRsplittedValue <span>%</span></p>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="plant-stats-content">
+                            <p>Performance Ratio</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="txt-xs text-left mb-0">(as of @PRfinalTime & @PRfinalDate IST)</p>
+            </div>
+        </div>
+
+        @{
+
+            //calling to get Plant Availability data
+
+            fileName = "PlantAvailabilityData.txt";
+            storage = CloudStorageAccount.Parse(connection);
+            client = storage.CreateCloudBlobClient();
+            container = client.GetContainerReference(containerString);
+            blob = container.GetBlockBlobReference(fileName);
+            oldContent = "";
+            try
+            {
+
+                if (!blob.Exists())
+                {
+                    oldContent = "";
+                }
+                else
+                {
+                    using (StreamReader reader = new StreamReader(blob.OpenRead()))
+                    {
+                        oldContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            var PAsplitArray = oldContent.Split('#');
+
+            var PAsplittedValue = PAsplitArray[0];
+            var PAsplittedDate = PAsplitArray[1];
+            var PAfinalTime = DateTime.Parse(PAsplittedDate).ToShortTimeString();
+            var PAfinalDate = DateTime.Parse(PAsplittedDate).ToString("dd/MM/yyyy");
+
+        }
+        <div class="row my-3">
+            <div class="col-lg-6 p-stats-main">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="plant-stats">
+                            <p>@PAsplittedValue <span>%</span></p>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="plant-stats-content">
+                            <p>Plant availability</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="txt-xs text-left mb-0">(as of @PAfinalTime & @PAfinalDate IST)</p>
+            </div>
+        </div>
+        @{
+
+            //calling to get Energy Yield data
+
+            fileName = "EnergyYieldData.txt";
+            storage = CloudStorageAccount.Parse(connection);
+            client = storage.CreateCloudBlobClient();
+            container = client.GetContainerReference(containerString);
+            blob = container.GetBlockBlobReference(fileName);
+            oldContent = "";
+            try
+            {
+
+                if (!blob.Exists())
+                {
+                    oldContent = "";
+                }
+                else
+                {
+                    using (StreamReader reader = new StreamReader(blob.OpenRead()))
+                    {
+                        oldContent = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            var EYsplitArray = oldContent.Split('#');
+
+            var EYsplittedValue = EYsplitArray[0];
+            var EYsplittedDate = EYsplitArray[1];
+            var EYfinalTime = DateTime.Parse(EYsplittedDate).ToShortTimeString();
+            var EYfinalDate = DateTime.Parse(EYsplittedDate).ToString("dd/MM/yyyy");
+
+        }
+        <div class="row my-3">
+            <div class="col-lg-6 p-stats-main">
+                <div class="row">
+                    <div class="col-4">
+                        <div class="plant-stats">
+                            <p>@EYsplittedValue <span>MWh/MWp</span></p>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="plant-stats-content">
+                            <p>Energy Yield</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="txt-xs text-left mb-0">(as of @EYfinalTime & @EYfinalDate IST)</p>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,320 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+
+        @@font-face {
+            font-family: Adani-Regular;
+            src: url(/fonts/Adani-Regular.woff);
+        }
+
+        * {
+            font-family: 'Adani-Regular';
+        }
+
+        .body {
+            margin: 0;
+        }
+
+        .inner-container {
+            position: relative;
+            width: 100%;
+            height: 90.555rem;
+            display: flex;
+            background-color: #000000;
+            align-items: flex-start;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .background-image {
+            width: 100%;
+            height: 100%;
+        }
+
+        table {
+            /*width: 768px;*/
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 3px solid #2f8cb6;
+            position: relative;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            /*background-color: #fff;*/
+        }
+
+        tr.heding th {
+            text-align: center;
+            font-size: 20px;
+            width: 25%;
+        }
+
+        tr.text-data td {
+            text-align: center;
+        }
+
+
+
+
+        p.in-no {
+            margin-top: -74rem;
+            /* margin-left: 4rem; */
+            font-size: 18px;
+        }
+
+
+
+
+        p.in-date {
+            font-size: 18px;
+            /* margin-left: 4rem; */
+        }
+
+
+
+
+        .certificate-cont {
+            border-top: 5px solid #2f8cb6;
+            position: absolute;
+            margin-left: 4rem;
+            margin-top: 3rem;
+            border-bottom: 5px solid #2f8cb6;
+        }
+
+
+
+
+        p.text-cont {
+            font-size: 28px;
+            width: 710px;
+            text-align: center;
+            margin: 2rem;
+        }
+
+
+
+
+        .table-column {
+            /* margin-top: 17rem; */
+            /* margin-left: 4rem; */
+            /*width: fit-content;*/
+            margin-left: 50px;
+            margin-top: -137px;
+            margin-right: 50px;
+            /*margin: 0 50px 0 50px !important;*/
+        }
+
+
+
+
+        .tabel-pdf h4 {
+            font-size: 18px;
+        }
+
+
+
+
+        .text-footer {
+            text-align: center;
+            /* margin-top: 9rem; */
+        }
+
+
+
+
+        .text-thank {
+            text-align: center;
+            margin-top: 4rem;
+            font-size: 25px;
+        }
+
+
+
+
+        tr.text-data {
+            font-size: 18px;
+        }
+
+
+
+
+        @@media print {
+            body * {
+                visibility: hidden;
+            }
+
+
+
+
+            .main-container,
+            .main-container * {
+                visibility: visible;
+            }
+
+
+
+
+            .main-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+
+                .main-container, .main-container * {
+                    visibility: visible;
+                }
+
+            .main-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+
+<body class="body">
+    <div class="inner-container" style="page-break-after: always;" id="maintab">
+        <img class="background-image" src="-/media/19DD88EBB62C43719936FDEBF323D1C3.ashx" alt="background image" />
+    </div>
+</body>
+
+<script>
+    $(document).ready(function () {
+        let solrcer = sessionStorage.getItem("selcerdata");
+        let invoicenosess = sessionStorage.getItem("invoiceno");
+        let invoicedatesess = sessionStorage.getItem("invoicedate");
+        let hdnBtn = sessionStorage.getItem("hdnBtn");
+        const data = JSON.parse(solrcer);
+        let tableno = 0;
+        var newarray = [];
+
+        if (hdnBtn == '1') {
+            invoicenosess = 'XXXXX';
+            invoicedatesess = 'XX.XX.XXXX';
+        }
+        else {
+            invoicedatesess = formatDate(invoicedatesess);
+        }
+
+        while (data.length > 0) {
+            chunk = data.splice(0, 22)
+            newarray.push(chunk);
+        }
+        var strinvoice = '<b>Invoice No. : </b>' + invoicenosess + '</p><p class=" in -date"><b>Invoice Date : </b>' + invoicedatesess + '</p>';
+        if (invoicenosess == '') {
+            strinvoice = '';
+        }
+        for (i = 0; i < newarray.length; i++) {
+            if (i == 0) {
+                $("#maintab").after('<div class="inner-container" style="page-break-after:always" id="tabelpage' + i + '"><img class="background-image" src="-/media/4C1F883C667B4DFFA8F4F9498788EE2B.ashx" alt="background image"><div class="table-column"><div class="tabel-pdf" id="tabel-pdf"><p class="in-no"><b>Invoice No. : </b>' + invoicenosess + '</p><p class="in-date"><b>Invoice Date : </b>' + invoicedatesess + '</p><h4><b>Warranty Table:</b></h4><table id="tabele' + i + '" style="margin-top:12px"><thead><tr class="heding"><th>Sr. No.</th><th>Pallet Id</th><th>Module Serial Number</th><th>Performance Warranty valid till*</th></tr></thead><tbody id="tbodayid' + i + '"></tbody></div>');
+            }
+            else {
+                let j = i - 1;
+                $("#tabelpage" + j).after('<div class="inner-container" style="page-break-after:always" id="tabelpage' + i + '"><img class="background-image" src="-/media/4C1F883C667B4DFFA8F4F9498788EE2B.ashx" alt="background image"><div class="table-column"><div class="tabel-pdf" id="tabel-pdf"><p class="in-no"><b>Invoice No. : </b>' + invoicenosess + '</p><p class="in-date"><b>Invoice Date : </b>' + invoicedatesess + '</p><h4><b>Warranty Table:</b></h4><table id="tabele' + i + '" style="margin-top:12px"><thead><tr class="heding"><th>Sr. No.</th><th>Pallet Id</th><th>Module Serial Number</th><th>Performance Warranty valid till*</th></tr></thead><tbody id="tbodayid' + i + '"></tbody></div>');
+            }
+            newarray[i].forEach((item, index) => {
+                let rowelement = document.createElement('tr');
+                rowelement.className = "text-data";
+
+                const srNoCell = document.createElement('td');
+                srNoCell.textContent = index + 1 + (i * 22);
+                rowelement.appendChild(srNoCell);
+
+                const palletIdCell = document.createElement('td');
+                palletIdCell.textContent = item.palletId;
+                rowelement.appendChild(palletIdCell);
+
+                const moduleSerialNumberCell = document.createElement('td');
+                moduleSerialNumberCell.textContent = item.moduleSerialNumber;
+                rowelement.appendChild(moduleSerialNumberCell);
+
+                const performanceWarrantyTillCell = document.createElement('td');
+                performanceWarrantyTillCell.textContent = item.performanceWarrantyTill;
+                rowelement.appendChild(performanceWarrantyTillCell);
+                tableno++;
+                $('#tbodayid' + i).append(rowelement);
+            });
+            $("#tabele" + i).after('<div class="text-thank"><h3>Thank you for choosing Adani Solar.</h3></div><div class="text-footer"><p>This is system generated. No signature needed</p></div>');
+        }
+        sessionStorage.clear();
+      
+        return true;
+    });
+
+
+    function stringToDate(_date, _format, _delimiter) {
+        var formatLowerCase = _format.toLowerCase();
+        var formatItems = formatLowerCase.split(_delimiter);
+        var dateItems = _date.split(_delimiter);
+        var monthIndex = formatItems.indexOf("mm");
+        var dayIndex = formatItems.indexOf("dd");
+        var yearIndex = formatItems.indexOf("yyyy");
+        var month = parseInt(dateItems[monthIndex]);
+        month -= 1;
+        var formatedDate = new Date(dateItems[yearIndex], month, dateItems[dayIndex]);
+        return formatedDate;
+    }
+    function formatDate(dateString) {
+        var date = new Date(dateString);
+        var month = String(date.getMonth() + 1).padStart(2, '0'); // Adding 1 because month is zero-based
+        var day = String(date.getDate()).padStart(2, '0');
+        var year = String(date.getFullYear());
+
+        return day + '-' + month + '-' + year;
+    }
+    $(window).on("load", function () {
+        setTimeout(submitAction, 1000);
+    });
+    function submitAction() {
+        var str = new FormData();
+        var htmlstring = encodeURIComponent(document.documentElement.outerHTML);
+        console.log(htmlstring);
+        str.append('HtmlString', htmlstring);
+        $.ajax({
+            url: "/api/AdaniSolar/SubmitAction",
+            method: "POST",
+            processData: false,
+            contentType: false,
+            data: str,
+            cache: false,
+            success: function (data) {
+                var dataurl = 'data:application/pdf;base64,' + data.sendbillresponse + '';
+                var arr = dataurl.split(','),
+                    mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]),
+                    n = bstr.length,
+                    u8arr = new Uint8Array(n);
+                while (n--) {
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                var ViewBillFile = new File([u8arr], "ViewBillingInformation.pdf", { type: mime });
+                var pdffile_url = URL.createObjectURL(ViewBillFile);
+                var link = document.createElement('a');
+                link.href = pdffile_url;
+                link.download = "Module warranty.pdf";
+                link.click();
+
+            },
+            error: function (data) {
+               // alert(data.status);
+            }
+        });
+
+    }
+
+</script>
+
+</html>

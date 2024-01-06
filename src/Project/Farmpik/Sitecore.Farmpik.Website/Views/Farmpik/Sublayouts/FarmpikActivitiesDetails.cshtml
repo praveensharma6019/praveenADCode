@@ -1,0 +1,61 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@using Sitecore.Farmpik.Website;
+@using System.Linq;
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+
+    MultilistField selectedImagesItems = contextItem.Fields[Constant.ImagesList];
+    var selectedImagesCount = selectedImagesItems.GetItems().Count();
+    string scrollImagesClass = string.Empty;
+    if (selectedImagesCount > 1)
+    {
+        scrollImagesClass = "scroll";
+    }
+
+    MultilistField selectedVideosItems = contextItem.Fields[Constant.VideosList];
+    var selectedVideosCount = selectedVideosItems.GetItems().Count();
+    string scrollVideoClass = string.Empty;
+    if (selectedVideosCount > 1)
+    {
+        scrollVideoClass = "scroll";
+    }
+}
+<div class="view">
+    <div class="text-container">
+        <h5>@contextItem.Fields[Constant.Heading]</h5>
+        <p class="dflex fs12"><span class="mr7"><img src="-/media/80A7CD2CB8744B9DA875A7196F8CD9CA"></span> <span>@contextItem.Fields[Constant.VisibleDate]</span></p>
+        <p class="dflex fs12 mb30"><span class="mr7"><img src="-/media/F0084EEE4D2E4F0AB5A950F6D2FAFD3F"></span><span>@contextItem.Fields[Constant.ActivityLocation]</span></p>
+        <p>@Html.Raw(@contextItem.Fields[Constant.Description])</p>
+    </div>
+    <div class="img-block @scrollVideoClass">
+        @foreach (var subitem in selectedVideosItems.GetItems())
+        {
+            Sitecore.Data.Fields.LinkField itemslinkvalues = subitem.Fields[Constant.VideoUrl];
+            var itemslinks = itemslinkvalues.GetFriendlyUrl();
+            <video class="image" controls poster="/-/media/Project/Farmpik/DashboardAPI/image/Group_logo">
+                <source src="@itemslinks" type="video/mp4" />
+            </video>
+        }
+    </div>
+    <div class="text-container">
+        @Html.Raw(@contextItem.Fields[Constant.ShortDescription])
+    </div>
+    <div class="img-block @scrollImagesClass">
+        @foreach (var subitem in selectedImagesItems.GetItems())
+        {
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)subitem.Fields[Constant.Image]);
+            var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            <img class="small-image" src="@imgurl" />
+        }
+    </div>
+    <div class="text-container">
+        @Html.Raw(@contextItem.Fields[Constant.SubDescription])
+    </div>
+</div>

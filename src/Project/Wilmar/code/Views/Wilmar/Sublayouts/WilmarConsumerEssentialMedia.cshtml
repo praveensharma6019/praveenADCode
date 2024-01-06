@@ -1,0 +1,72 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<section class="section  position-relative d-block bg-gray">
+    <div class="container position-relative">
+        <h2 class="text-left sectionHeading">@Html.Sitecore().Field("Title", elements)</h2>
+        @Html.Sitecore().Field("Body", elements)
+    </div>
+</section>
+
+
+
+<section class="bg-gray inner-project">
+    <div class="">
+        <div class="large-12 columns">
+            <div class="row" id="">
+                @foreach (var item in elements.Children.ToList())
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = item.Fields["LinkUrl"];
+                    var linkUrl = linkvalue.GetFriendlyUrl();
+                    var Linksurl = Request.QueryString["linkUrl"];
+                    var FinalUrl = linkUrl + "#" + Regex.Replace(@Html.Sitecore().Field("Title", item).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                    <div class="col-md-4 pr-0">
+                        <a href="@FinalUrl">
+                            <div class="item">
+                                @Html.Sitecore().ImageField("Image", item, 0, 0, "img -fluid")
+                                <div class="sus-tile">
+                                    <div class="txt-overlay">
+                                        @Html.Sitecore().Field("Title", item)
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+
+                }
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

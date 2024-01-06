@@ -1,0 +1,68 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.getItem(datasource);
+    string webImgUrl = "#";
+    string altText = string.Empty;
+    string thumbimgurl = "#";
+    string thumbaltText = string.Empty;
+}
+
+@if (model != null)
+{
+
+    <div class="cm_detail_banner">
+        @if (model.HasChildren)
+        {
+            foreach (Item item in model.GetChildren())
+            {
+                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                if (imgField != null && imgField.MediaItem != null)
+                {
+                    webImgUrl = FieldExtensions.ImageUrl(imgField);
+                    altText = FieldExtensions.ImageAlternateText(imgField);
+                }
+                else
+                {
+                    webImgUrl = "#";
+                    altText = string.Empty;
+                }
+
+                Sitecore.Data.Fields.ImageField thumbimgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.MediaThumbnail]);
+                if (thumbimgField != null && thumbimgField.MediaItem != null)
+                {
+                    thumbimgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbimgField.MediaItem);
+                    thumbaltText = thumbimgField.Alt;
+                }
+                else
+                {
+                    thumbimgurl = "#";
+                    thumbaltText = string.Empty;
+                }
+
+                <div class="item">
+                    <img src="@webImgUrl" alt="@altText" class="show-on-large">
+                    <img src="@thumbimgurl" alt="@thumbaltText" class="show-on-mob">
+                    <div class="container">
+                        <div class="desc">
+                            <h1>@Html.Sitecore().Field(Constant.MediaTitle, item)</h1>
+                            <p>@Html.Sitecore().Field(Constant.MediaDescription, item)</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+}

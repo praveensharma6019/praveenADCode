@@ -1,0 +1,57 @@
+﻿
+@using System.Text.RegularExpressions
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+
+    var divID = "";
+}
+
+@if (contextItem != null)
+{
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <div class="col s12 l8 offset-l1">
+        <div class="section-wrapper custom_accrdion single-item">
+            <header class="section-header">
+                <h1>@Html.Raw(contextItem["Title"])</h1>
+                <p>@Html.Raw(contextItem["Body"])</p>
+            </header>
+        </div>
+        <div class="section-wrapper custom_accrdion billing-faqs">
+            <div class="accordion">
+                <ul class="collapsible collapsible-accordion help-support">
+                    @foreach (var child in parent.Children.InnerChildren)
+                    {
+                        divID = Regex.Replace(@Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                        <li>
+                            <div class="collapsible-header">
+                                <h2>
+                                    @Html.Sitecore().Field("Title", child)
+                                </h2>
+                            </div>
+                            <div class="collapsible-body" id="customerCareControl">
+                                <!-- <div class="content-format"> -->
+                                <div @*class="text_format"*@ id="@divID">
+                                    @Html.Sitecore().Field("Body", child)
+
+                                    @Html.Sitecore().Placeholder(@Html.Sitecore().Field("Title", child).ToString().Replace(" ", ""))
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sidenavaccord = {
+            init: function () {
+                var elems = document.querySelectorAll('.collapsible');
+                var instances = M.Collapsible.init(elems);
+            }
+        }
+        sidenavaccord.init();
+    </script>
+}

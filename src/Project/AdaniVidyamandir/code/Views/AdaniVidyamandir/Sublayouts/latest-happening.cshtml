@@ -1,0 +1,80 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+var elements = Sitecore.Context.Database.GetItem(datasource);
+var i=0;
+var sortedItem = elements.GetChildren().OrderByDescending(x => x.Fields["Date"].Value);
+}
+<section class="latest_happenings">
+   <div class="section_top_curve">
+      <img alt="" src="-/media/9A918C6789554712ABCAA41919F0EC9A.ashx" class="lazyload" loading="lazy" />
+   </div>
+   @foreach (var item1 in sortedItem)
+   {
+   Sitecore.Data.Fields.ImageField imgFieldss = ((Sitecore.Data.Fields.ImageField)item1.Fields["Image"]);
+   string imgurlss = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgFieldss.MediaItem);
+   <div class="container">
+      <h2 data-aos="fade-down" data-aos-easing="linear" data-aos-duration="1000">Latest Happening <span class="d-block">at Adani Vidya Mandir</span></h2>
+      <div class="row">
+         <div class="col-lg-6 mb-lg-0 mb-5">
+            <div class="latest_happenings--active" data-aos="fade-right" data-aos-easing="linear" data-aos-duration="1500">
+               <a href="/latest-happenings">
+                  <div class="latest_happenings--thumb">
+                     <img alt="Latest Happenings" src="@imgurlss" class="lazyload" loading="lazy" />
+                  </div>
+                  <div class="latest_happenings--desc">
+                     <h4>@Html.Sitecore().Field("Body", item1)</h4>
+                  </div>
+               </a>
+            </div>
+         </div>
+         <div class="col-lg-6">
+            <div class="latest_happenings--sub">
+               @foreach (var item in sortedItem)
+               {
+               Sitecore.Data.Fields.ImageField imgFields = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+               string imgurls = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgFields.MediaItem);
+               <a href="/latest-happenings" class="mb-lg-0 mb-5" data-aos="fade-left" data-aos-easing="linear" data-aos-duration="1500">
+                  <div class="row mb-4">
+                     <div class="col-md-4">
+                        <div class="latest_happenings--sub_thumb">
+                           <img alt="" src="@imgurls" class="lazyload" loading="lazy" />
+                        </div>
+                     </div>
+                     <div class="col-md-8">
+                        <div class="latest_happenings--sub_desc">
+                           <p>@Html.Sitecore().Field("Body", item)</p>
+                        </div>
+                     </div>
+                  </div>
+               </a>
+               i++;
+               if (i == 3)
+               {
+               break;
+               }
+               }
+            </div>
+         </div>
+      </div>
+      <div class="text-center mt-lg-5 mt-4"><a href="/latest-happenings" class="btn btn-dark d-inline-block">All News</a></div>
+   </div>
+   i++;
+   if (i == 4)
+   {
+   break;
+   }
+   }
+   
+   <div class="section_btm_curve"><img alt="" src="-/media/A7F6A935076C428A81CCFADEFF4EBC69.ashx" loading="lazy" /></div>
+</section>
+<!--/Section-->

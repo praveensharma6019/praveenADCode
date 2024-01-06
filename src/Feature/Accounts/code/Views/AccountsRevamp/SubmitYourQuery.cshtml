@@ -1,0 +1,260 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.SubmitYourQuery
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+
+
+<div class="col s12 m8 offset-m1 section-container">
+    <header class="section-header">
+        <h2>@Html.Raw(contextItem["Title"])</h2>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    <div class="card brand-gradient outlined section-inner-wrapper card-with-form">
+
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmSubmitYourQuery" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="input-field custom">
+
+                @Html.DropDownListFor(x => x.CategoryName, new SelectList(Model.TypeofQueryCategoryList, "Value", "Name", Model.CategoryName), new { @class = "form-control", id = "ddlQueryCategory" })
+                <label for="">Select Query Type*</label>
+                <p class="help-text CategoryName-help"></p>
+            </div>
+
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.Discription, new { @class = "form-control reset-control", id = "txtDiscription" })
+                <label for="">@Html.Sitecore().Dictionary("/Account/SubmitYourQuery/Description", "Enter Description*")</label>
+                <p class="help-text Discription-help"></p>
+            </div>
+
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.CompanyName, new { @class = "form-control reset-control", id = "txtCompanyName" })
+                <label for="">@Html.Sitecore().Dictionary("/Account/SubmitYourQuery/CompanyName", "Enter Company Name")</label>
+            </div>
+
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.SubCategory, new { @class = "form-control reset-control", id = "txtSubCategory" })
+                <label for="">@Html.Sitecore().Dictionary("/Account/SubmitYourQuery/SubCategory", "Enter Subcategory")</label>
+            </div>
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.Name, new { @class = "form-control reset-control", id = "txtName" })
+                <label for="">@Html.Sitecore().Dictionary("/Account/SubmitYourQuery/Name", "Name*")</label>
+                <p class="help-text Name-help"></p>
+            </div>
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "txtEmailId", @autocomplete = "off" })
+                <label for="">@Html.Sitecore().Dictionary("/Account/SubmitYourQuery/EmailId", "Email Id")</label>
+                <p class="help-text EmailId-help"></p>
+
+            </div>
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.MobileNo, new { @class = "form-control reset-control", @type = "number", id = "MobileNumber", maxlength = 10, @autocomplete = "off" ,@oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"})
+                <label for="">@Html.Sitecore().Dictionary("/Account/SubmitYourQuery/MobileNo", "Mobile*")</label>
+                <p class="help-text MobileNo-help"></p>
+            </div>
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.Address, new { @class = "form-control reset-control", id = "txtAddress" })
+                <label for="">@Html.Sitecore().Dictionary("/Account/SubmitYourQuery/MobileNo", "Address 1")</label>
+            </div>
+
+            <div class="input-field custom">
+
+                @Html.DropDownListFor(x => x.Area, new SelectList(Model.TypeofAreaList, "Value", "Name", Model.Area), new { @class = "form-control", id = "ddlAreaList" })
+                <label for="">Select Area*</label>
+                <p class="help-text Area-help"></p>
+            </div>
+            <div class="input-field custom">
+
+                @Html.DropDownListFor(x => x.City, new SelectList(Model.TypeofCityList, "Value", "Text", Model.City), new { @class = "form-control", id = "ddlCityList" })
+                <label for="">Select City*</label>
+            </div>
+            <div class="input-field custom">
+                <div class="captcha_box" id="submityourqueryrecaptcha">
+                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                        <div class="row captcha_box" style="padding-left:10px;">
+                            <div class="col-lg-12">
+                                <div class="g-recaptcha"  data-callback="recaptchaCallback" data-sitekey="@Html.Sitecore().Dictionary("/Common/CaptchaKey", "6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf")"></div>
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                <span class="field-validation-error" id="Captchaerror"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-right btn-group">
+                <button type="submit" class="btn btn-primary checkSubmitquery">@Html.Sitecore().Dictionary("/Accounts/Register/Button/Submit", "Submit")</button>
+            </div>
+        }
+    </div>
+</div>
+
+<script type="text/javascript">
+    var submityourqueryrecaptcha;
+    var onloadCallback = function () {
+        submityourqueryrecaptcha = grecaptcha.render('submityourqueryrecaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+
+<script>
+
+    $(".checkSubmitquery").click(function () {
+       
+        var captcharesponse = grecaptcha.getResponse(submityourqueryrecaptcha);
+        
+        var mobilenocheck = new RegExp("^[0-9]{10,10}$");
+        var Emailregex = new RegExp("^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$");
+        var setflag = true;
+        if ($("#ddlQueryCategory").val() == "Select Category") {
+            setflag = false;
+            $('.help-text.CategoryName-help').html("Please Select Category");
+            $('.help-text.CategoryName-help').attr("class", "help-text CategoryName-help field-validation-error");
+            $('#ddlQueryCategory').addClass('validate invalid');
+        }
+        else {
+            $('.help-text.CategoryName-help').html("");
+            $('#ddlQueryCategory').removeClass('validate invalid');
+        }
+        if ($('#txtDiscription').val() == "") {
+            setflag = false;
+            $('.help-text.Discription-help').html("Description is required");
+            $('.help-text.Discription-help').attr("class", "help-text Discription-help field-validation-error");
+            $('#txtDiscription').addClass('validate invalid');
+        }
+        else {
+            $('.help-text.Discription-help').html("");
+            $('#txtDiscription').removeClass('validate invalid');
+        }
+
+        if ($('#txtName').val() == "") {
+            setflag = false;
+            $('.help-text.Name-help').html("Name is required");
+            $('.help-text.Name-help').attr("class", "help-text Name-help field-validation-error");
+            $('#txtName').addClass('validate invalid');
+        }
+        else {
+            $('.help-text.Name-help').html("");
+            $('#txtName').removeClass('validate invalid');
+        }
+
+        if ($('#txtEmailId').val() == "") {
+            setflag = false;
+            $('.help-text.EmailId-help').html("Email Id is required");
+            $('.help-text.EmailId-help').attr("class", "help-text EmailId-help field-validation-error");
+            $('#txtEmailId').addClass('validate invalid');
+        }
+        else if (!Emailregex.test($('#txtEmailId').val())) {
+            $('.help-text.EmailId-help').html("Please enter a valid Email No.");
+            $('.help-text.EmailId-help').attr("class", "help-text EmailId-help field-validation-error");
+            setflag = false;
+            $('#txtEmailId').addClass('validate invalid');
+
+        }
+        else {
+            $('.help-text.EmailId-help').html("");
+            $('#txtEmailId').removeClass('validate invalid');
+        }
+
+        if ($('#MobileNumber').val().trim() == "") {
+            setflag = false;
+            $('.help-text.MobileNo-help').html("Mobile Number is required");
+            $('.help-text.MobileNo-help').attr("class", "help-text MobileNo-help field-validation-error");
+            $('#MobileNumber').addClass('validate invalid');
+        }
+        else if (!mobilenocheck.test($('#MobileNumber').val())) {
+            $('.help-text.MobileNo-help').html("Please enter a valid Mobile No.");
+            $('.help-text.MobileNo-help').attr("class", "help-text MobileNo-help field-validation-error");
+            setflag = false;
+            $('#MobileNumber').addClass('validate invalid');
+        }
+        else {
+            $('.help-text.MobileNo-help').html("");
+            $('#MobileNumber').removeClass('validate invalid');
+        }
+
+        if ($("#ddlAreaList").val() == "Select Area") {
+            setflag = false;
+            $('.help-text.Area-help').html("Please Select Area");
+            $('.help-text.Area-help').attr("class", "help-text Area-help field-validation-error");
+            $('#ddlAreaList').addClass('validate invalid');
+        }
+        else {
+            $('.help-text.Area-help').html("");
+            $('#ddlAreaList').removeClass('validate invalid');
+        }
+
+        if (!captcharesponse) {
+            setflag = false;
+            $('#Captchaerror').html("Please validate captcha to continue");           
+            $('#ddlAreaList').addClass('validate invalid');
+        }
+        else {
+            $('#Captchaerror').html("");
+            $('#Captchaerror').removeClass('validate invalid');
+        }
+
+
+        //Captchaerror
+        if (setflag) {
+            dataLayer.push({
+                'event': "submit_query_form_Success",
+                'eventCategory': "Help & Support",
+                'eventAction': "Submit Query Form Success",
+                'eventLabel': $('select#ddlQueryCategory option:selected').val(),
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+            return true;
+            
+        }
+        else {
+            dataLayer.push({
+                'event': "submit_query_form_error",
+                'eventCategory': "Help & Support",
+                'eventAction': "Submit Query Form Error",
+                'eventLabel': "error message",
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+            
+            if ($('p.field-validation-error').length > 0) {
+                $(document).scrollTop($('p.field-validation-error').offset().top - 200);
+            }
+            return false;
+        }
+    });
+
+    //$("#frmSubmitYourQuery").submit(function (event) {
+
+    //});
+    $('.custom').click(function () {
+        dataLayer.push({
+            'event': 'submit_query_form_interaction',
+            'eventCategory': 'Help & Support',
+            'eventAction': 'Submit Query Form Interaction',
+            'eventLabel': 'Submit',
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+</script>
+
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

@@ -1,0 +1,43 @@
+﻿@*@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+    Sitecore.Data.Fields.ImageField defaultUrl;
+    var isSocialMenu = Model.NavItems.All(i => !string.IsNullOrWhiteSpace(i.Item[Templates.LinkMenuItem.Fields.Icon]));
+    decimal k = 1;
+    bool flag = true;
+}
+
+@foreach (var item in Model.NavItems)
+{
+    if (item.Children != null || @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item).ToString().ToLower() == "businesses")
+    {
+        var count = (decimal)(item.Children.NavItems.Count() / 2);
+        for (var j = 0; j < item.Children.NavItems.Count; j++)
+        {
+            if (j == 0 || Math.Round(count, 0) == k)
+            {
+                if (flag)
+                {
+                    @Html.Raw("<ul class='col-md-3 ft-submenu col-6'><h5><a href='@item.Url'>" + @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item) + "</a></h5>")
+                    flag = false;
+                }
+                else
+                { @Html.Raw("<ul class='col-md-3 ft-submenu col-6'><h5><a href='@item.Url'></a></h5>")}
+        }
+        <li>
+            <a href="@item.Children.NavItems[j].Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Children.NavItems[j].Item)</a>
+        </li>
+        if (Math.Round(count, 0) - 1 == k || item.Children.NavItems.Count == k)
+        {
+            @Html.Raw("</ul>")
+        }
+        k++;
+    }
+}
+}*@

@@ -1,0 +1,97 @@
+﻿
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string url = "";
+string thumburl = "";
+string altText = "";
+string thumbaltText = "";
+
+string srcImageurl = "";
+string srcImageAltText = "";
+string srcMobileImageurl = "";
+string srcMobileImageAltText = "";
+string srcUrl = "";
+string srcAltText = "";
+
+string sectionClass = "";
+}
+<div class="full">
+<div class="hero-section fsl_banner">
+   @if (model != null)
+   {
+			
+      Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaImage"]);
+      Sitecore.Data.Fields.ImageField thumbimgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaThumbnail"]);
+      Sitecore.Data.Fields.ImageField SrcImageField = ((Sitecore.Data.Fields.ImageField)model.Fields["SrcImage"]);
+      Sitecore.Data.Fields.ImageField SrcMobileField = ((Sitecore.Data.Fields.ImageField)model.Fields["SrcMobile"]);
+      Sitecore.Data.Fields.ImageField SrcField = ((Sitecore.Data.Fields.ImageField)model.Fields["Src"]);
+      if ((imgField != null && imgField.MediaItem != null) || (thumbimgField != null && thumbimgField.MediaItem != null))
+      {
+         url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+         altText = imgField.Alt;
+         thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbimgField.MediaItem);
+         thumbaltText = thumbimgField.Alt;   
+      }
+       if (SrcImageField != null && SrcImageField.MediaItem != null)
+      {
+         srcImageurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(SrcImageField.MediaItem);
+         srcImageAltText = SrcImageField.Alt;        
+      }
+       if (SrcMobileField != null && SrcMobileField.MediaItem != null)
+      {
+         srcMobileImageurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(SrcMobileField.MediaItem);
+         srcMobileImageAltText = SrcMobileField.Alt;        
+      }
+       if (SrcField != null && SrcField.MediaItem != null)
+      {
+         srcUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(SrcField.MediaItem);
+         srcAltText = SrcField.Alt;         
+      }
+
+       <figure>
+               <img  src="@url" alt="@altText" class="desktop-img"/>
+               <img src="@thumburl" alt="@thumbaltText" class="mobile-img"/>
+               <picture>
+                  <source media="(min-width: 768px)"  srcset="@srcImageurl">
+                  <source media="(min-width: 280px)"  srcset="@srcMobileImageurl">
+                  <img src="@srcUrl" class="golden-img" alt="@srcAltText">
+               </picture>
+            </figure>
+
+   <div class="hero-content-wrapper">
+      @Html.Sitecore().Placeholder("press-release-breadcrumb")
+      <div class="full">
+         <div class="hero-content">
+            @if (model != null)
+            {
+            Sitecore.Data.Fields.LinkField linkField = model.Fields["ButtonLink"];
+            var btnUrl = linkField.GetFriendlyUrl();
+            string btnTitle = model.Fields["ButtonTitle"].ToString();
+            <h3 class="text_gradient">@Html.Sitecore().Field("MediaTitle", model)</h3>
+                     <h1 class="full hero-heading fm-am">@Html.Sitecore().Field("MediaDescription", model)</h1>
+                     <p class="full hero-desc fm-am">@Html.Sitecore().Field("SubTitle", model)</p>
+            if (!String.IsNullOrEmpty(btnTitle))
+            {
+            <div class="dr_btn_group">
+               @if (btnUrl != null)
+               {
+               <a href="@btnUrl" class="btn dr_inverse_btn">@Html.Sitecore().Field("ButtonTitle", model)</a>
+               }
+               else
+               {
+               <a href="#" class="btn dr_inverse_btn">@Html.Sitecore().Field("ButtonTitle", model)</a>
+               }
+            </div>
+            }
+            }
+         </div>
+      </div>
+   </div>
+      }
+</div>
+</div>
+

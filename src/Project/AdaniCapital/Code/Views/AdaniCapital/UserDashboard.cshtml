@@ -1,0 +1,173 @@
+﻿@model Sitecore.AdaniCapital.Website.Models.LoginInfoModel
+@{
+    ViewBag.TextMeassage = Session["EnquiryMessage"];
+}
+<div class="wrapper-body">
+    <div class="row">
+        @foreach (var loans in Model.getLoansList)
+        {
+            var new_string = "";
+            for (var i = 0; i < Model.MobileNo.Length - 3; i++)
+            {
+                new_string += "X";
+            }
+            new_string += Model.MobileNo.Substring(Model.MobileNo.Length - 3);
+            var lan = loans.loanDetailsList.Select(x => x.loanAccountNumber).FirstOrDefault();
+            <div class="col-lg-4 mb-4 AllLAN @lan" style="display:none;">
+                <div class="box_userprofile box_shadow">
+                    <h1>Welcome, <span class="d-block">@loans.customerName </span></h1>
+                    <p>Customer No<span class="d-block">@loans.customerNumber</span></p>
+                    <p>Mobile No.<span class="d-block">@new_string</span></p>
+                    @if (loans.identificationDetailsList != null)
+                    {
+                        var idList = loans.identificationDetailsList.GroupBy(x => x.identificationNumber).Select(y => y.First()).ToList();
+                        //var t = idList.GroupBy(x => x.identificationNumber).Select(y => y.First());
+                        foreach (var Ids in idList)
+                        {
+                            if (Ids.identificationNumber!= null && Ids.identificationNumber.Length > 3)
+                            {
+                                var new_string2 = "";
+                                for (var i = 0; i < Ids.identificationNumber.Length - 3; i++)
+                                {
+                                    new_string2 += "X";
+                                }
+                                new_string2 += Ids.identificationNumber.Substring(Ids.identificationNumber.Length - 3);
+                                <p>@Ids.identificationType<span class="d-block">@new_string2</span></p>
+                            }
+                        }
+                    }
+					<p class="text-right"><a href="/login/userprofile" class="btn btn-link">View more</a></p>
+                </div>
+            </div>
+        }
+
+        <div class="col-lg-8 mb-4">
+            <div class="box_totaltransactions box_shadow">
+                <h3>Current Loan <div class="form-group float-lg-right">@Html.DropDownListFor(x => x.LoanAccountNumber, new SelectList(Model.AssociatedLANList, "Value", "Text"), htmlAttributes: new { @class = "form-control", required = "required", id = "LanList" })</div></h3>
+                <div class="row w-100">
+                       <div class="col-lg-7 order-lg-1 order-2">
+                           <div class="row piVal">
+                               @foreach (var loans in Model.getLoansList)
+                               {
+                                   var lan = loans.loanDetailsList.Select(x => x.loanAccountNumber).FirstOrDefault();
+                                   <div class="col-sm-6 col-lg-7 mb-3 AllLAN @lan" style="display:none;">
+                                       <h2 class="text-blue Sanctioned INR">@loans.loanDetailsList.Select(x => x.finalSanctionedAmount).FirstOrDefault()</h2>
+                                       <p>Total Sanctioned Amount(₹)</p>
+                                   </div>
+                                   <div class="col-sm-6 col-lg-5 mb-3 AllLAN @lan" style="display:none;">
+                                       <h2 class="text-green INR">@loans.loanDetailsList.Select(x => x.installmentAmount).FirstOrDefault()</h2>
+                                       <p>Installment(₹)</p>
+                                   </div>
+                                   <div class="col-sm-6 col-lg-7 mb-3 AllLAN @lan" style="display:none;">
+                                       <h2 class="text-blue Outstanding INR">@loans.loanDetailsList.Select(x => x.principalOutstanding).FirstOrDefault()</h2>
+                                       <p>Principal Outstanding(₹)</p>
+                                   </div>
+                                   <div class="col-sm-6 col-lg-5 mb-3 AllLAN @lan" style="display:none;">
+                                       <h2 class="text-green">@loans.loanDetailsList.Select(x => x.balanceTenure).FirstOrDefault()/@loans.loanDetailsList.Select(x => x.tenure).FirstOrDefault()</h2>
+                                       <p>EMIs Remaining</p>
+                                   </div>
+                                   <div class="col-12 text-left AllLAN @lan" style="display:none;">
+                                       @*<a href="#" class="btn btn-primary"><img src="" class="mr-3">Check Eligibility</a>*@
+                                       <a href="https://www.billdesk.com/pgidsk/pgmerc/adanicapqp/ADANICAPQPDetails.jsp" target="_blank" class="btn btn-secondary"><img src="" class="mr-3">Quick Pay</a>
+                                   </div>
+                               }
+                           </div>    
+                       </div>
+                       <div class="col-lg-4 ml-auto order-lg-2 order-1 mb-lg-0 mb-4">
+                           <canvas id="utilChart"></canvas>
+                       </div>                    
+                </div>
+            </div>
+        </div>
+        @foreach (var loans in Model.getLoansList)
+        {
+            var lan = loans.loanDetailsList.Select(x => x.loanAccountNumber).FirstOrDefault();
+            <div class="col-lg-8 mb-4 AllLAN @lan" style="display:none;">
+                <div class="box_currentloan box_shadow">
+                    <h3>Current Loan<span class="float-right"><span class="text-green">@loans.loanDetailsList.Select(x => x.productTypeDescription).FirstOrDefault()</span><span class="mx-3">|</span><span>Account: @lan</span></span></h3>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-6">
+                            <p>Loan Amount(₹)<span class="d-block INR">@loans.loanDetailsList.Select(x => x.disbursedAmount).FirstOrDefault()</span></p>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <p>Loan End Date<span class="d-block">@loans.loanDetailsList.Select(x => x.maturityDate).FirstOrDefault()</span></p>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <p>Tenure(Months)<span class="d-block">@loans.loanDetailsList.Select(x => x.balanceTenure).FirstOrDefault()/@loans.loanDetailsList.Select(x => x.tenure).FirstOrDefault()</span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-6">
+                            <p>Current Balance(₹)<span class="d-block INR">@loans.loanDetailsList.Select(x => x.principalOutstanding).FirstOrDefault()</span></p>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <p>Next EMI(₹)<span class="d-block INR">@loans.loanDetailsList.Select(x => x.nextDueInstallmentAmount).FirstOrDefault()</span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 col-sm-6">
+                            <p>Interest Rate<span class="d-block">@loans.loanDetailsList.Select(x => x.effectiveRateOfInterest).FirstOrDefault()%</span></p>
+                        </div>
+                        <div class="col-md-4 col-sm-6">
+                            <p>Next EMI Date<span class="d-block">@loans.loanDetailsList.Select(x => x.nextDueDate).FirstOrDefault()</span></p>
+                        </div>
+                        @*<div class="col-md-4 col-sm-6">
+                            <p class="pt-4"><a href="/login/dashboard/Loan-Details" class="btn-link">View all</a></p>
+                        </div>*@
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <a href="https://www.billdesk.com/pgidsk/pgmerc/adanicapqp/ADANICAPQPDetails.jsp" target="_blank" class="btn btn-secondary">Quick Pay</a>
+                            <a href="/login/dashboard/Payment-Summary?lan=@lan" class="btn btn-secondary">Payment Summery</a>
+                            <a href="/login/ticket-history" class="btn btn-secondary">Raise a Query</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 AllLAN @lan" style="display:none;">
+                <div class="box_quicklinks box_shadow">
+                    <h3>Downloads</h3>
+                    <ul>
+                        <li><span><img src="/-/media/C9B08D1B64634AA1BAB92BDC00B2BC4D.ashx"></span><a href="" data-document="@lan" class="GetWelcome">Welcome Letter</a></li>
+                        <li><span><img src="/-/media/C9B08D1B64634AA1BAB92BDC00B2BC4D.ashx"></span><a href="/login/ticket-history">SOA Report</a></li>
+                        <li><span><img src="/-/media/C9B08D1B64634AA1BAB92BDC00B2BC4D.ashx"></span><a href="" data-document="@lan" class="GetIntCertificate">Interest Certificate</a></li>
+						<li><span><img src="/-/media/C9B08D1B64634AA1BAB92BDC00B2BC4D.ashx"></span><a href="/login/ticket-history">Balance Confirmation Letter</a></li>
+                        @*<li><span><img src="/-/media/C9B08D1B64634AA1BAB92BDC00B2BC4D.ashx"></span><a href="" data-document="lan" class="GetBalConfLetter">Balance Confirmation Letter</a></li>*@
+                        <li><span><img src="/-/media/C9B08D1B64634AA1BAB92BDC00B2BC4D.ashx"></span><a href="" data-document="@lan" class="GetRepaySchedule">Repayment Schedule</a></li>
+                    </ul>
+                </div>
+            </div>
+        }
+
+        <div class="col-lg-8 mb-4">
+            <div class="box_shadow">
+                <div class="owl-carousel offers_carousel">
+                    <div class="item">
+                        <a target="_blank" href="/mobile-app"><img src="/-/media/D6CB88D2303749069C4AC56253DF17EB.ashx"></a>
+                    </div>
+                    <div class="item">
+                        <a target="_blank" href="/Our-Loan-Offerings"><img src="/-/media/06516AA93015440D85A0017C71EC2A61.ashx"></a>
+                    </div>
+                    <div class="item">
+                        <a target="_blank" href="/Our-Loan-Offerings"><img src="/-/media/D4B23AA3880B49DFB6644BBCA9927345.ashx"></a>
+                    </div>
+					<div class="item">
+                        <a target="_blank" href="https://www.adanicapital.in/Farm-Equipments-Loan"><img src="/-/media/671271A6607F4F18A79761075BEF897B.ashx"></a>
+                    </div>
+					<div class="item">
+                        <a target="_blank" href="https://www.adanicapital.in/Apply-For-Loan"><img src="/-/media/CAE8AB921B084CE19FE8CA324C9EB7B8.ashx"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="box_downloadapp box_shadow">
+                <div class="bg-images"><img src="/-/media/3E57E7F1476547BCA61EF947F44C971D.ashx"></div>
+                <div class="box_downloadapp--content">
+                    <h3>Download the Adani Capital app and enjoy the full benefits of our digital partnership program!</h3>
+                    <p><a target="_blank" href="/Become-a-Partner" class="btn btn-dark"><span class="fa fa-handshake mr-2"></span>Become a Partner</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

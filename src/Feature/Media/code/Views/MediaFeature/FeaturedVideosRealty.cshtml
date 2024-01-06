@@ -1,0 +1,76 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var vidlist = Sitecore.Context.Database.GetItem(datasource);
+
+    var Key = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "BannerImage").FirstOrDefault().Value;
+    var Image = Sitecore.Mvc.Presentation.RenderingContext.Current.PageContext.Database.GetItem(Key);
+
+    var OverlayKey = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "OverlayImage").FirstOrDefault().Value;
+    var OverlayImage = Sitecore.Mvc.Presentation.RenderingContext.Current.PageContext.Database.GetItem(OverlayKey);
+
+    var i = 0;
+}
+<section id="featuredvideos">
+    <div class="container-fluid m-0 p-0">
+        <div class="row p-0 m-0">
+            <div class="col-sm-4 p-0 m-0 bg-feature-video">
+                <div class="gallery-item video-left-overlay">
+                    @Html.Sitecore().ImageField(Templates.HasMediaImage.Fields.Image, Image, 0, 0, "img-fluid left-full-img image")
+                    <div class="overlay">
+                        <div class="text">
+                            @Html.Sitecore().ImageField(Templates.HasMediaImage.Fields.Image, OverlayImage)
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8 px-4 py-3 bg-dark-blue">
+                <div class="row video-gallery">
+                    @foreach (var vid in vidlist.Children.ToList())
+                    {
+								string videoid=vid.DisplayName.Replace(" ","");
+                        <div class="col-lg-3 col-sm-3 p-3">
+                            <div class="gallery-item">
+                                @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Thumbnail, vid, 0, 0, "image")
+                                <!-- Video Model -->
+                                <div class="modal video" id="@vid.DisplayName.Replace(" ","")" aria-hidden="true" style="display: none;" data-keyboard="false" data-backdrop="static">
+								
+								
+								
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <!-- Modal Header -->
+                                            <button type="button" class="close" data-dismiss="modal" onclick="CloseModal2('@videoid')">×</button>
+                                            @{
+                                                Sitecore.Data.Fields.LinkField linkField = @vid.Fields[Templates.HasMediaVideo.Fields.VideoLink];
+                                                var NavigateUrl = linkField.Url;
+                                            }
+                                            <!-- Modal body -->
+                                            <div class="modal-body">
+                                                <iframe width="100%" height="350" src="@NavigateUrl" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /Video Model -->
+                                <div class="overlay" data-toggle="modal" data-target="#@vid.DisplayName.Replace(" ","")">
+                                    <div class="text">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, vid)</div>
+                                </div>
+                            </div>
+                        </div>
+                                                    i++;
+                                                }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

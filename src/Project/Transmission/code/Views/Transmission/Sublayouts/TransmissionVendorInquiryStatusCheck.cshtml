@@ -1,0 +1,70 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Transmission.Website
+@model Sitecore.Transmission.Website.Models.TransmissionVendorModel
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "vendorInqStatus", name = "vendorInqStatus", @class = "vendor-form", enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            Enter Vendor Inquiry No-
+            @Html.TextBoxFor(model => model.RegistrationNo, new { @class = "form-control", required = "required", placeholder = "eg:9876543210", id = "vendorInqNo" })
+            @Html.ValidationMessageFor(model => model.RegistrationNo, "", new { @class = "help-block" }, "p")
+
+        </div>
+    </div>
+    @if (!string.IsNullOrEmpty(Model.CurrentStatus))
+    {
+        <div class="col-md-12">
+            <div class="form-group mb-0">
+                @if (Model.CurrentStatus.ToLower() == "pending for review")
+                {
+                    <p class="txt-orange" id="docstatusMessage">Your Inquiry is pending for Review Process.</p>
+                }
+                else if (Model.CurrentStatus.ToLower() == "rejected at level 1" || Model.CurrentStatus.ToLower() == "rejected at level 2" || Model.CurrentStatus.ToLower() == "rejected after reassessment")
+                {
+                    <p class="txt-orange" id="docstatusMessage">Your Inquiry is Rejected.</p>
+                }
+                else if (Model.CurrentStatus.ToLower() == "pending for review at level 2")
+                {
+                    <p class="txt-orange" id="docstatusMessage">Your Inquiry is pending for approval.</p>
+                }
+                else if (Model.CurrentStatus.ToLower() == "approved at level 2")
+                {
+                    <p class="txt-orange" id="docstatusMessage">Your Enquiry is Approved.</p>
+                }
+                else if (Model.CurrentStatus.ToLower() == "approved after reassessment")
+                {
+                    <p class="txt-orange" id="docstatusMessage">Your Enquiry is Approved after Reassessment.</p>
+                }
+                else if (Model.CurrentStatus.ToLower() == "reassess after 6 months")
+                {
+                    <p class="txt-orange" id="docstatusMessage">Your Inquiry is rejected. You can reapply with same Registration number after 6 month.</p>
+                }
+                else
+                {
+                    <p class="txt-orange" id="docstatusMessage">There is some error. Please try again later.</p>
+                }
+            </div>
+        </div>
+    }
+    <div class="col-md-6">
+        <div class="form-group mb-0">
+            <p class="txt-orange" id="docErrorMessage"></p>
+        </div>
+    </div>
+    <div class="col-md-12 mb-3">
+        <div id="recaptcha1"></div>
+    </div>
+    @Html.HiddenFor(model => model.reResponse, new { id = "reResponse" })
+    @Html.ValidationMessageFor(model => model.reResponse, "", new { @class = "help-block" }, "p")
+    <div class="col-md-12 mb-3 text-right">
+        <p><button type="submit" id="Inqbtnsubmit" name="SubmitRegNo" value="submit" class="btn btn-primary">Submit</button></p>
+    </div>
+</div>
+
+}

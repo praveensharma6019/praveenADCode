@@ -1,0 +1,89 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string url = string.Empty;   
+string altText = string.Empty;  
+}
+@if (model != null)
+{
+<div class="section-holder edge-connex-hoder">
+   <div class="content-wrapper">
+      <h2 class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</h2>
+      <p class="full d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</p>
+     
+	 <div class="sustainability-wrapper">
+         <div class="full sustainability-content grid-wrapper">
+            <div class="right-col custom-col">
+               
+			   <div class="dr_slider_frame">
+                  <img src="/-/media/Project/AdaniConneX/Career/Career/slider_frame" alt="image" class=""> 
+                 
+                  <div class="full awards-list owl-carousel dot-bc brand-dots d-txt" id="dr_career_slider">
+                     @if(model.HasChildren)
+                     {
+                     foreach (Item item in model.GetChildren())
+                     {
+                     Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                     if ((imgField != null && imgField.MediaItem != null))
+                     {
+                     url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                     altText = imgField.Alt;											
+                     }
+                     <div>
+                        <figure>                                  
+                           <img src="@url" alt="@altText" class="">
+                        </figure>
+                        <p>@Html.Sitecore().Field("MediaTitle", item)</p>
+                     </div>
+                     }
+                     }                                   
+                  </div>
+
+               </div>
+
+            </div>           
+        
+      <div class="left-col custom-col">
+         <div id="dr_career_text">
+            @if(model.HasChildren)
+            {
+            foreach (Item item in model.GetChildren())
+            {
+            <div>
+               <div class="dr_priority_maxwidth">
+                  <p class="full h2 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                  <p class="full d-txt about-us-para">@Html.Sitecore().Field("MediaDescription", item)
+                  </p>
+               </div>
+            </div>
+            }
+            }
+         </div>
+      </div>
+   </div>
+</div>
+<div class="dr_join_adani">
+   <p class="h3 fm-asb tx-000">Grow your capabilities and enable progress !</p>
+   <div class="dr_inverse_btn">
+      <a href="/careers#uploadCvPopup" class="uploadCvPopupAction btn">Join AdaniConneX</a>
+   </div>
+</div>
+</div>
+        </div>
+}

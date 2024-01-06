@@ -1,0 +1,89 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@using System.Text.RegularExpressions
+@using Sitecore.Data
+@using Sitecore.Data.Items
+@using Sitecore.Data.Fields
+
+
+@{
+    
+  var Title1 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Title1").FirstOrDefault().Value;
+  var Title2 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Title2").FirstOrDefault().Value;
+  var datasource1 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Datasource1").FirstOrDefault().Value;
+  var datasource2 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Datasource2").FirstOrDefault().Value;
+    // var datasource1 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements1 = Sitecore.Context.Database.GetItem(datasource1);
+ var docsColl1 =   elements1.GetChildren().OrderByDescending(x => x[Sitecore.FieldIDs.Updated]).ToList();;
+ 
+   // var datasource2 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements2 = Sitecore.Context.Database.GetItem(datasource2);
+ var docsColl2 =  elements2.GetChildren().OrderByDescending(x => x[Sitecore.FieldIDs.Updated]).ToList();;
+ 
+}
+
+
+
+<section class="pb-5  position-relative d-block">
+<div class="container">
+<div class="row">
+<div class="col-lg-6">
+<h2 class="heading pl-4 mb-4">@Title1</h2>
+<div class="p-4 bg-white">
+<div class="owl-carousel owl-theme single-carousel">
+<div class="item">
+
+<div class="row">
+
+
+
+@foreach (var child in docsColl1.ToList())
+{
+	var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(child);
+	var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+
+<div class="col-md-6 mb-3">
+<ul class="ul-reports">
+    <li><em class="far fa-newspaper mr-2"></em><a href="@url" target="_blank">@Html.Sitecore().Field("Title", child)</a></li>
+</ul>
+</div>
+}
+
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-6">
+<h2 class="heading pl-4 mb-4">@Title2</h2>
+<div class="p-4 bg-white">
+<div class="owl-carousel owl-theme single-carousel">
+<div class="item">
+
+
+<div class="row">
+@foreach (var child in docsColl2.ToList())
+{
+	var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(child);
+	var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+<div class="col-md-6 mb-3">
+<ul class="ul-reports">
+     <li><a href="@url">@Html.Sitecore().Field("Title", child)</a></li>
+</ul>
+</div>
+}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>

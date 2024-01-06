@@ -1,0 +1,99 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+   
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var imgbg = Sitecore.Context.Database.GetItem(paramid["background-image"]);
+
+     var i = 1;
+    var j = 1;
+
+    }
+
+
+<!-- Section -->
+<section class="py-5 d-block position-relative">
+    <div class="bg-images">
+
+        @Html.Sitecore().ImageField(Templates.HasBannerSelectorclubahmd.Fields.Image, imgbg)
+
+    </div>
+    <div class="container">
+        <h2 class="sectionheading font-weight-bold txt-white position-relative"> @Html.Sitecore().ImageField(Templates.HasBannerSelectorclubahmd.Fields.Title, imgbg)</h2>
+        <div class="row mt-5">
+
+            @foreach (var element in elements)
+            {
+
+               
+                    //var style = "background-image: ";
+                    var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                    var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                    var fixedHeight = Model.Rendering.IsFixedHeight();
+                    if (fixedHeight && carouselHeight.HasValue)
+                    {
+                        style += "; height:" + carouselHeight + "px;";
+                    }
+
+               
+                <div class="col-md-4 mb-5 showSingle" target="@i">
+                    <div class="membership-thumb"><img src="@style" class="img-fluid w-100"></div>
+                    <div class="membership-heading">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, element.Item)</div>
+                    <div class="col-sm-12 p-3 bg-white desktop-none txt-center test">
+                        
+                        @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)
+
+                       
+                    </div>
+                </div>
+
+                        i++;
+
+                    }
+        </div>
+
+
+        <div class="row px-3 tooptip .d-none mobile-none">
+
+            @foreach (var element in elements)
+                        {
+                            var divid = "div" + j;
+                            if (j == 1)
+                            {
+            <div class="col-sm-12 p-3 bg-white targetDiv" id="@divid">
+                @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)
+            </div>
+                }
+                else
+                {
+            <div class="col-sm-12 p-3 bg-white targetDiv" id="@divid" style="display:none">
+                @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)
+            </div>
+                }
+                j++;
+            }
+            </div>
+        <div class="row mt-5 btm-links">
+            <div class="col-sm-12">
+                <h3 class="txt-white">Membership Info & Benefits:</h3>
+                <ul class="mb-5">
+                    <li class="txt-white">• Members can avail practically all the facilities free of cost.</li>
+                    <li class="txt-white">• Guest accompanying members have to pay ₹100 as guest entry charges.</li>
+                    <li class="txt-white">• Special discounts on RESTAURANTS, SPA & ROOMS for Members.</li>
+                </ul>
+            </div>
+            <div class="col-sm-12">
+                <p><a href="/faq/" class="mr-3"><img src="-/media/7EFD7CDE926940C49395B89034A184A4.ashx" />FAQs</a>|<a href="/bylaws/" class="ml-auto"><img src="-/media/1620328C0F5944EF8A4F035DFC2A00A3.ashx" />BY LAWS</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /Section -->

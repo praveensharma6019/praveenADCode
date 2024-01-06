@@ -1,0 +1,462 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.AhmedabadAirport.Website.Model.Tender
+<section class="bg-white py-5">
+    <div class="container">
+        <!-- Section -->
+        <div class="pb-3 panel">
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+                <div class="form-group row">
+                    <input id="message" type="hidden" value="@ViewBag.Message" />
+                </div>
+            }
+            @using (Html.BeginForm("Logout", "AhmedabadAirport", FormMethod.Post))
+            {
+
+                <div class="col-12 p-0 pb-3">
+                    <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Logout", "Logout")</button></div>
+                    <div class="clearfix"></div>
+                </div>
+            }
+
+            @if (Model != null)
+            {
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">Name:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.UserName" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">Company Name:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.CompanyName" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">Email:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.Email" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">Mobile:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.Mobile" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">Tender ID:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.NITNo" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">Tender Name:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.TenderName" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    @{
+                        var pqStatus = Model.IsPQVerified == true ? "Approved" : (Model.IsPQVerified == false ? (Model.PQApprovalRequired == true ? "None" : "Rejected") : "None");
+                    }
+					@if (Model.IsPQVerified == true)
+					{
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">PQ Approval Status:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@pqStatus" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+					}
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">PQ Document Upload Status:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.PQDocumentStatus" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="" class="form-label">Tender Document Upload Status:</label>
+                            <div class="">
+                                <input type="text" class="form-control" value="@Model.DocumentStatus" placeholder="" disabled="">
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.PQApprovalRequired == true)
+                    {
+                        <div class="col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label for="" class="form-label">Download PQ Documents:</label>
+                                <div class="">
+                                    <ul>
+                                        @if (Model.tenderPQdocument != null && Model.tenderPQdocument.Count > 0)
+                                        {
+                                            /**/
+                                            foreach (var item in Model.tenderPQdocument)
+                                            {
+                                                <li>@Html.ActionLink(item.FileName, "DownloadFile", new { id = item.Id }, new { @class = "txt-orange" })</li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.IsPQVerified == true || Model.PQApprovalRequired == false)
+                    {
+                        <div class="col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label for="" class="form-label">Download Tender Documents:</label>
+                                <div class="">
+                                    <ul>
+                                        @if (Model.tenderdocument != null && Model.tenderdocument.Count > 0)
+                                        {
+                                            /**/
+                                            foreach (var item in Model.tenderdocument)
+                                            {
+                                                <li>@Html.ActionLink(item.FileName, "DownloadFile", new { id = item.Id }, new { @class = "txt-orange" })</li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="my-lg-3 py-lg-3">
+                <ul class="nav nav-tabs" id="tenderlogin" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#upload_E">Upload Documents</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active show" data-toggle="tab" href="#view_E">View Uploaded Documents</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " data-toggle="tab" href="#change_p">Change Password</a>
+                    </li>
+                </ul>
+                <div class="tab-content bg-white" id="tenderlogin">
+                    <div class="tab-pane fade txt-center py-3" id="upload_E" role="tabpanel">
+                        @*@using (Html.BeginForm("TenderDetails", "AhmedabadAirport", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                            {*@
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmuserupload", @class = "form-signin", @enctype = "multipart/form-data" }))
+                        {
+
+                            @Html.AddUniqueFormId()
+                            @Html.HiddenFor(x => x.TenderId)
+                            @Html.HiddenFor(x => x.TenderName)
+                            @Html.HiddenFor(x => x.NITNo)
+                            @Html.HiddenFor(x => x.FinalSubmit)
+                            @Html.HiddenFor(x => x.PQApprovalRequired)
+                            if (Model.userUpladdocument != null)
+                            {
+                                for (int i = 0; i < Model.userUpladdocument.Count; i++)
+                                {
+                                    @Html.HiddenFor(Model => Model.userUpladdocument[i].EnvelopeType)
+                                }
+                            }
+                            <div class="col-sm-12 txt-left p-0 pt-3">
+                                <p class="txt-xs mx-auto mb-2"><b>Note:</b> File format supported are Doc, PDF, Xlsx, DWG & Jpeg only. Win Zip, Win Rar or 7Zip are not allowed.</p>
+                                <p class="txt-xs mx-auto mb-2">
+                                    File name should not contain any Special Character. Only Space, Dash, Hyphen, Underscore is allowed. Max file upload size is 10MB per file.
+                                </p>
+                                @*<p class="txt-xs mx-auto mb-2">Files should be uploaded in sequence of Envelope I, II &amp; III.</p>*@
+                            </div>
+                            if (Model.IsPQVerified == false && Model.PQApprovalRequired == true)
+                            {
+                                <div class="form-group row  pt-3">
+                                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Envelope-I Label", "PQ Documents"):</label>
+                                    <div class="col-sm-8 col-lg-9">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope11" name="Envelope11" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope12" name="Envelope12" aria-describedby="fileHelp">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope13" name="Envelope13" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope14" name="Envelope14" aria-describedby="fileHelp">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope15" name="Envelope15" aria-describedby="fileHelp">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            if (Model.IsPQVerified == true || Model.PQApprovalRequired == false)
+                            {
+                                <div class="form-group row pt-3">
+                                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                                        @Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Envelope-II Label", "Tender Documents"):
+                                    </label>
+                                    <div class="col-sm-8 col-lg-9">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope21" name="Envelope21" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope22" name="Envelope22" aria-describedby="fileHelp">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope23" name="Envelope23" aria-describedby="fileHelp">
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope24" name="Envelope24" aria-describedby="fileHelp">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <input type="file" onchange="Validate(this)" accept=".jpg,.jpeg,.png,.pdf,.dwg,.doc,.docx,.xls,.xlsx" class="form-control-file" id="Envelope25" name="Envelope25" aria-describedby="fileHelp">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                           
+                            if (Model.FinalSubmit == false)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-10 text-right p-0">
+                                        <input type="submit" class="btn btn-primary" name="SaveDoc" value="Save" id="btnSaveDoc" />
+                                    </div>
+                                    <div class="col-lg-2 text-right p-0">
+                                        <input type="submit" class="btn btn-primary" name="uploadDoc" value="Submit" id="btnuploadDoc" />
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                    </div>
+                    <div class="tab-pane fade txt-center py-4 active show" id="view_E" role="tabpanel">
+
+                        @if (Model.PQApprovalRequired == true)
+                        {
+                            if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+                            {
+
+                                var envelope1data = Model.userUpladdocument.Where(x => x.EnvelopeType == "1").ToList();
+                                <div class="form-group row">
+                                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                                        @Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Envelope-I Label", "PQ Documents"):
+                                    </label>
+                                    <div class="col-sm-8 col-lg-9">
+                                        @foreach (var item in envelope1data)
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-5 txt-left col-10">
+                                                    @Html.ActionLink(item.FileName, "DownloadUserFile", new { id = item.Id })
+                                                </div>
+                                            </div>
+                                            if (Model.FinalSubmit != null)
+                                            {
+                                                if (Model.IsPQVerified != true && Model.FinalSubmit != true)
+                                                {
+                                                    <div type="button" class="close" aria-label="Close">
+                                                        <span aria-hidden="true">
+                                                            @Html.ActionLink("x", "TenderDetailDocumentDelete", new { id = item.Id })
+                                                        </span>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                </div>
+
+                            }
+                            else
+                            {
+                                <div class="form-group row">
+                                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                                        @Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Envelope-I Label", "PQ Documents"):
+                                    </label>
+                                    <div class="col-sm-8 col-lg-9">
+                                        <div class="row">
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        @if (Model.IsPQVerified == true || Model.PQApprovalRequired == false)
+                        {
+                            if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "2"))
+                            {
+                                var envelope2data = Model.userUpladdocument.Where(x => x.EnvelopeType == "2").ToList();
+
+                                <div class="form-group row">
+                                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                                        @Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Envelope-II Label", "Tender Documents"):
+                                    </label>
+                                    <div class="col-sm-8 col-lg-9">
+                                        @foreach (var item in envelope2data)
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-5 txt-left col-10">
+                                                    @Html.ActionLink(item.FileName, "DownloadUserFile", new { id = item.Id })
+                                                </div>
+                                            </div>
+                                            if (Model.FinalSubmit != true)
+                                            {
+                                                <div type="button" class="close" aria-label="Close">
+                                                    <span aria-hidden="true">
+                                                        @Html.ActionLink("x", "TenderDetailDocumentDelete", new { id = item.Id })
+                                                    </span>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-group row">
+                                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                                        @Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Envelope-II Label", "Tender Documents"):
+                                    </label>
+                                    <div class="col-sm-8 col-lg-9">
+                                        <div class="row">
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-5 txt-left col-10">
+                                                <label class="control-label pb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="tab-pane fade py-4 " id="change_p" role="tabpanel">
+                        <div class="row">
+                            <div class="col-lg-5 mr-auto ml-auto">
+                                <div class="card card-outline-secondary">
+                                    <div class="card-header">
+                                        <h3 class="mb-0">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Change Password Label", "Change Password")</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmchangepwd", @class = "form-signin" }))
+                                        {
+
+                                            @Html.AddUniqueFormId()
+                                            <form class="form" role="form" autocomplete="off">
+                                                <div class="form-group">
+                                                    <label for="inputPasswordOld">Old Password</label>
+                                                    @Html.PasswordFor(x => x.OldPassword, new { @class = "form-control reset-control", @autocomplete = "off", id = "OldPassword", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.OldPassword, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inputPasswordNew">New Password</label>
+                                                    @Html.PasswordFor(x => x.Password, new { @class = "form-control reset-control", @autocomplete = "off", id = "NewPassword", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.Password, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="inputPasswordNew">Confirm Password</label>
+                                                    @Html.PasswordFor(x => x.ConfirmPassword, new { @class = "form-control reset-control", @autocomplete = "off", id = "ConfirmPassword", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.ConfirmPassword, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                                <div class="form-group text-right ">
+                                                    @*<button type="submit" class="btn btn-primary" name="changePassword" >Submit</button>*@
+                                                    <input type="submit" class="btn btn-primary" name="changePassword" value="Submit" id="btnsubmitchangepwd" />
+                                                    <button type="submit" class="btn btn-secondary">Cancel</button>
+                                                </div>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Section -->
+    </div>
+</section>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>@ViewBag.MessageBoxTitle</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(ViewBag.Message))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@ViewBag.Message</label>
+                    </div>
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">@ViewBag.MessageBoxButtonText</button>
+        </div>
+
+    </div>
+</div>

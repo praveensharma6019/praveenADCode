@@ -1,0 +1,73 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var imgurl = "";
+    var altText = "";
+    var cssClass = "";
+
+}
+
+
+@if (model != null)
+{
+
+    if (!String.IsNullOrEmpty(@Html.Sitecore().Field("cssClass", model).ToString()))
+    {
+        cssClass = model.Fields["cssClass"].ToString();
+    }
+<div class="section-holder edge-connex-hoder @cssClass">
+    @if (model.HasChildren)
+    {
+        foreach (Item item in model.GetChildren())
+        {
+            @Html.Sitecore().Field("Body", item)
+        }
+    }
+    <div class="content-wrapper" id="sus_social_holder">
+        <div class="full">
+            <p class="full h1 fm-asb tx-000"> @Html.Sitecore().Field("Text", model)</p>
+            <p class="full d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</p>
+        </div>
+
+        <div class="tab-accordion-wrapper">
+            <div class="tab-title-wrp hidden-phone">
+                <ul>
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        @Html.Sitecore().Field("Body", item)
+                    }
+                </ul>
+            </div>
+            @foreach (Item item in model.GetChildren())
+            {
+                if (item.HasChildren)
+                {
+                    foreach (Item subitem in item.GetChildren())
+                    {
+                        @Html.Sitecore().Field("Body", subitem)
+                    }
+                }
+
+            }
+
+        </div>
+    </div>
+</div>
+}
+
+   

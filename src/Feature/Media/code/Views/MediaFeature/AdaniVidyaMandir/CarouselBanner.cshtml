@@ -1,0 +1,60 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+
+<section class="position-relative d-block">
+
+<div class="mainSlider">
+	<div class="owl-carousel owl-theme homeslider">
+		
+		 @foreach (var item in element.GetChildren().ToList())
+                {
+                    Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["DesktopBannerImage"]);
+                    string BannerImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+
+                    Sitecore.Data.Fields.ImageField MobileImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["MobileBannerImage"]);
+                    string MobileImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MobileImageField.MediaItem);
+
+                    Sitecore.Data.Fields.LinkField linkfld = item.Fields["MediaLink"];
+                    var url = linkfld.GetFriendlyUrl();
+		<div class="item">
+		<picture>
+		 @if (!string.IsNullOrEmpty(BannerImageUrl))
+		 {
+				<source srcset="@BannerImageUrl" media="(min-width:540px)"></source>
+			}
+
+			@if (!string.IsNullOrEmpty(MobileImageUrl))
+                            {
+			<source srcset="@MobileImageUrl" media="(min-width: 0)">
+			}
+                            <img alt="" srcset="@BannerImageUrl" src="@BannerImageUrl">
+		</picture>
+		  <div class="home-banner-content">
+				<div class="container">
+					<div data-aos="fade" data-aos-easing="linear" data-aos-duration="1500">	
+					@Html.Sitecore().Field("MediaTitle", item)
+					</div>
+				</div>
+				</div>
+				</div>
+				}
+			
+			 @Html.Sitecore().Placeholder("breadcrumb")
+	</div>
+	</div>
+</section>
+<!--/Banner-->

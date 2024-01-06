@@ -1,0 +1,1005 @@
+﻿@model Sitecore.Feature.Accounts.Models.ITDeclarationsModel
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+<style>
+    .btn, .btn-continue {
+        border-radius: 39px;
+    }
+</style>
+
+@{
+    Sitecore.Data.Items.Item panUpdateItem = Sitecore.Context.Database.GetItem("{5A3CAFDD-6D7E-405E-BDB5-B5F47F4018AF}");
+    var panUpdateUrl = panUpdateItem != null ? Sitecore.Links.LinkManager.GetItemUrl(panUpdateItem) : "#";
+
+    var info = Session.GetAndRemove("ItDeclerationMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+    if (info != null)
+    {
+        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageITDeclerationElectricityRevamp, info);
+    }
+}
+
+<div class="col s12 l8 offset-l1">
+    <!--Page 2 Start-->
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmITDeclarations" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(m => m.Source)
+        if (!(string.IsNullOrEmpty(Model.DeclarationType)))
+        {
+            <div class="section-container custom_accrdion rounded it_declarations">
+                <header class="section-header">
+                    <h1>IT Declarations</h1>
+                    <p>Submit declarations as per Income Tax Act 1961 as applicable to you</p>
+                    @if (!Model.IsvalidatOTP)
+                    {
+                        if (Model.DeclarationType == "1")
+                        {
+                            <h4 class="ModelDeclarationType1">Declaration for linking PAN with AADHAR, u/s 139 AA of Income Tax Act 1961</h4> }
+                        else if (Model.DeclarationType == "2")
+                        {
+                            <h4 class="ModelDeclarationType2">Declaration for applicability of TDS u/s 194Q of Income Tax Act 1961</h4> }
+                        else if (Model.DeclarationType == "3")
+                        {
+                            <h4 class="ModelDeclarationType3">Declaration for filing Income Tax return for previous two years u/s 206AB / 206CCA</h4> }
+                        else if (Model.DeclarationType == "4")
+                        {
+                            <h4 class="ModelDeclarationType4">Submit TDS information</h4>}
+                    }
+
+                </header>
+                <div class="new-connection-form outlined">
+                    <div class="step-1-form active section-container">
+
+
+                        @if (!Model.IsvalidatAccount)
+                        {
+                            <div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap">
+                                @{
+                                    if (UserSession.UserSessionContext != null)
+                                    {
+                                        @Html.Sitecore().Placeholder("switch-account-content")
+                                    }
+
+                                    if (UserSession.UserSessionContext != null)
+                                    {
+                                        if (Model.PANNotLinked)
+                                        {
+                                            @Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")
+                                            <br />
+
+                                            <div class="txt-orange">Click <a href="@panUpdateUrl">here</a> and follow the process to link your PAN Number with your Account</div>
+                                            <div class="h-right btn-group">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                            </div>
+                                        }
+                                        else if (Model.AlreadySubmittedforCurrentFY)
+                                        {
+                                            @Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")
+                                            <br />
+                                            <div class="h-right btn-group">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <input type="hidden" value="@Model.CANumber" />
+                                            @Html.HiddenFor(x => x.CANumber)
+                                            <div class="input-field custom">
+                                                @{
+                                                    string MaskedMobileNumber = !string.IsNullOrEmpty(Model.MobileNumber) ? Model.MobileNumber.Substring(0, 2) + "xxxxx" + Model.MobileNumber.Substring(Model.MobileNumber.Length - 3) : "";
+                                                    <input value="@MaskedMobileNumber" id="MobileNumber" name="MobileNumber" type="text" class="validate" readonly="readonly">
+                                                }
+                                                <label class="active" for="MobileNumber">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                            </div>
+                                            <div class="h-right btn-group">
+                                                <input type="hidden" class="" name="SendOTP" value="Generate OTP">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                                <button type="submit" class="waves-effect btn btn-continue login-btn"
+                                                        data-gaevent="it_declaration_account_validation"
+                                                        data-gaeventCategory="AEML Services"
+                                                        data-gaeventAction="IT Declaration Account Validation"
+                                                        data-gaeventLabel="Step_2">
+                                                    Generate OTP
+                                                </button>
+
+                                            </div>
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <div class="otp-wrapper">
+                                            <label>Validate your Contract Account No. before proceeding for declaration</label>
+                                        </div>
+                                        <div class="input-field custom">
+                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @autocomplete = "off", @type = "number", @maxlength = "9", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                            <label class="active" for="AccountNo">Enter CA Number</label>
+                                            <span class="field-validation-error" id="lblCANumbererror"></span>
+                                            @Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block", id = "CANumbererror" }, "p")
+                                            @*<p id="CAmsg">Please enter your 9 digit consumer account number</p>*@
+                                        </div>
+
+
+                                        <div class="input-field custom">
+                                            <div class="captcha_box">
+                                                <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                    <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                    <div class="row captcha_box" style="padding-left:10px;">
+                                                        <div class="col-lg-12">
+                                                            <div class="g-recaptcha" id="ITDeclerationcaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                            <span class="field-validation-error" id="Captchaerror"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="h-right btn-group">
+                                            <input type="hidden" class="" name="ValidateCA" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Validate Account Button text", "Validate")" />
+
+                                            <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                            <button type="submit" id="btnValidateCA" name="btnValidateCA" class="waves-effect btn btn-continue login-btn">Proceed</button>
+
+                                        </div>
+
+                                        if (Model.PANNotLinked)
+                                        {
+                                            <div class="txt-orange">Click <a href="@panUpdateUrl">here</a> and follow the process to link your PAN Number with your Account</div>
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                        else if (Model.IsvalidatAccount && !Model.IsOTPSend)
+                        {
+                            <div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap">
+                                @{
+                                    if (UserSession.UserSessionContext != null)
+                                    {
+                                        @Html.Sitecore().Placeholder("switch-account-content")
+                                    }
+                                    if (UserSession.UserSessionContext == null)
+                                    {
+                                        <div class="otp-wrapper">
+                                            <label>Validate your Contract Account No. before proceeding for declaration</label>
+                                        </div>
+                                        <div class="input-field custom">
+
+
+                                            @*<input value="100210023" id="first_name2" type="text" class="validate">*@
+                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "", id = "AccountNo", @readonly = "readonly" })
+
+                                            <label class="active" for="first_name2">Enter CA Number</label>
+                                            @*<input value="98******450" id="first_name2" type="text" class="validate valid">*@
+                                            @Html.HiddenFor(m => m.CANumber)
+                                        </div>
+                                        <p class="input-footer-text">Please enter your 9 digit consumer account number</p>
+                                        <div class="input-field custom">
+                                            @{
+                                                string MaskedMobileNumber = !string.IsNullOrEmpty(Model.MobileNumber) ? Model.MobileNumber.Substring(0, 2) + "xxxxx" + Model.MobileNumber.Substring(Model.MobileNumber.Length - 3) : "";
+                                                <input value="@MaskedMobileNumber" id="MobileNumber" name="MobileNumber" type="text" class="validate" readonly="readonly">
+                                            }
+                                            @*@Html.TextBoxFor(x => x.MobileNumber, new { @class = "validate valid", id = "MobileNumber", @readonly = "readonly" })*@
+
+                                            <label class="" for="MobileNumber">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                            <div>@Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block mb-3" }, "p")</div>
+
+                                        </div>
+                                        <p class="input-footer-text">Proceed for OTP authentication</p>
+                                        <div class="h-right btn-group">
+                                            @*<button class="waves-effect waves-light btn">@Html.Sitecore().Dictionary("/SDOpt/Register/Generate OTP", "Generate OTP")</button>*@
+                                            <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                            <button type="submit" class="waves-effect btn btn-continue login-btn" name="SendOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Generate OTP", "Generate OTP")">@Html.Sitecore().Dictionary("/SDOpt/Register/Generate OTP", "Generate OTP")</button>
+
+                                        </div>
+                                    }
+                                    else
+                                    {
+
+                                        <input type="hidden" value="@Model.CANumber" />
+                                        @Html.HiddenFor(x => x.CANumber)
+                                        <div class="input-field custom">
+                                            @{
+                                                string MaskedMobileNumber = !string.IsNullOrEmpty(Model.MobileNumber) ? Model.MobileNumber.Substring(0, 2) + "xxxxx" + Model.MobileNumber.Substring(Model.MobileNumber.Length - 3) : "";
+                                                <input value="@MaskedMobileNumber" id="MobileNumber" name="MobileNumber" type="text" class="validate" readonly="readonly">
+                                            }
+
+
+                                            @*@Html.TextBoxFor(x => x.MobileNumber, new { @class = "validate valid", id = "MobileNumber", @readonly = "readonly" })*@
+
+                                            <label class="active" for="MobileNumber">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                        </div>
+                                        <div class="h-right btn-group">
+                                            <input type="hidden" class="" name="SendOTP" value="Generate OTP">
+                                            <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                            <button type="submit" class="waves-effect btn btn-continue login-btn">Generate OTP</button>
+
+                                            @*<a class="waves-effect waves-light btn btn-flat" href="/it-declarations">Cancel</a>*@
+                                            @*<button class="waves-effect waves-light btn btn-flat">Back</button>
+                                                <button class="waves-effect waves-light btn btn-continue">Submit</button>*@
+                                        </div>
+                                    }
+
+
+                                }
+                            </div>
+                        }
+
+                        else if (Model.IsvalidatAccount && Model.IsOTPSend && !Model.IsvalidatOTP)
+                        {
+                            <div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap">
+                                @{
+                                    if (UserSession.UserSessionContext != null)
+                                    {
+                                        @Html.HiddenFor(x => x.CANumber)
+                                        <div class="input-field custom">
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                            <label class="active" for="first_name2">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                        </div>
+
+                                        <div class="otp-wrapper">
+                                            <label>Enter OTP</label>
+                                            <p> We have sent you an OTP on your mobile number. Please enter to verify</p>
+                                        </div>
+                                        <div class="input-field custom">
+                                            @*<input value="******" id="enter_otp" type="password" class="validate">*@
+                                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "", id = "OTPNumber", @autocomplete = "off", @type = "number", @maxlength = "5", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                            <label class="active" for="enter_otp">@Html.Sitecore().Dictionary("/SDOpt/Register/OTPNumber", "Enter OTP")</label>
+
+                                            <div>@Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block mb-3", id = "ErrorOTPNumber" }, "p")</div>
+                                            <p id="sendOtpMsg" class="field-validation-error" style="display:none">please enter valid OTP.</p>
+                                        </div>
+                                        @*if (!string.IsNullOrEmpty(Model.ReSendMessage))
+                                            {
+                                                <p class="input-footer-text">@Model.ReSendMessage</p>
+                                            }
+                                            <p id="SendOtpmsg" style="display:none">please enter valid OTP.</p>
+                                            <div class="h-right btn-group">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                                <button type="submit" class="waves-effect waves-light btn" name="ReSendOTP" value="@Html.Sitecore().Dictionary("/Accounts/ITDeclarations/ResendOTP", "ResendOTP")">Resend OTP</button>
+                                                <button type="submit" class="waves-effect waves-light btn" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/ValidateOTP", "Validate")">Validate</button>
+                                            </div>*@
+                                    }
+                                    else
+                                    {
+                                        <div class="otp-wrapper">
+                                            <label>Validate your Contract Account No. before proceeding for declaration</label>
+                                        </div>
+                                        <div class="input-field custom">
+                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "validate", id = "AccountNo", @readonly = "readonly" })
+                                            <label class="active" for="AccountNo">Enter CA Number</label>
+                                        </div>
+                                        <p class="input-footer-text">Please enter your 9 digit consumer account number</p>
+                                        @Html.HiddenFor(x => x.CANumber)
+                                        <div class="input-field custom">
+                                            @{
+                                                string MaskedMobileNumber = !string.IsNullOrEmpty(Model.MobileNumber) ? Model.MobileNumber.Substring(0, 2) + "xxxxx" + Model.MobileNumber.Substring(Model.MobileNumber.Length - 3) : "";
+                                                <input value="@MaskedMobileNumber" id="MobileNumber" name="MobileNumber" type="text" class="validate" readonly="readonly">
+                                            }
+                                            @*@Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })*@
+                                            <label class="active" for="first_name2">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                        </div>
+                                        <p class="input-footer-text">Proceed for OTP authentication</p>
+                                        <div class="otp-wrapper">
+                                            <label>Enter OTP</label>
+                                            <p> We have sent you an OTP on your mobile number. Please enter to verify</p>
+                                        </div>
+                                        <div class="input-field custom">
+                                            @*<input value="******" id="enter_otp" type="password" class="validate">*@
+                                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "", id = "OTPNumber", @autocomplete = "off", @type = "number", @maxlength = "5", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                            <label class="active" for="enter_otp">@Html.Sitecore().Dictionary("/SDOpt/Register/OTPNumber", "Enter OTP")</label>
+                                            <div>@Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block mb-3", id = "ErrorOTPNumber" }, "p")</div>
+                                            <p id="sendOtpMsg" class="field-validation-error" style="display:none">please enter valid OTP.</p>
+                                        </div>
+
+                                    }
+
+                                    <div class="input-field custom">
+                                        <div class="captcha_box">
+                                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                <div class="row captcha_box" style="padding-left:10px;">
+                                                    <div class="col-lg-12">
+                                                        <div class="g-recaptcha" id="ITDeclerationcaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                        <span class="field-validation-error" id="Captchaerror"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    if (!string.IsNullOrEmpty(Model.ReSendMessage))
+                                    {
+                                        <p class="input-footer-text">@Model.ReSendMessage</p>
+                                    }
+
+                                    <div class="h-right btn-group">
+                                        <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                        <button type="submit" class="waves-light btn" name="ReSendOTP" value="@Html.Sitecore().Dictionary("/Accounts/ITDeclarations/ResendOTP", "ResendOTP")">Resend OTP</button>
+                                        <button type="submit" class="waves-light btn" id="ValidateOTP" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/ValidateOTP", "Validate")">@Html.Sitecore().Dictionary("/SDOpt/Register/ValidateOTP", "Validate")</button>
+                                    </div>
+                                }
+                            </div>
+
+                        }
+                        else if (Model.IsvalidatOTP)
+                        {
+                            <div class="card brand-gradient outlined card-with-form login-wrap">
+                                @{
+                                    @Html.HiddenFor(m => m.CANumber)
+                                    @Html.HiddenFor(m => m.PANNumber) //Declaration for linking PAN with AADHAR
+                                    if (Model.DeclarationType == "1")
+                                    {
+                                        <div class="header-text">
+                                            <ul>
+                                                <li>
+                                                    <label>Company</label>
+                                                    Adani Electricity Mumbai Limited
+                                                </li>
+                                                <li>
+                                                    <label>Subject</label>
+                                                    Confirmation for linking of PAN with Aadhaar
+                                                </li>
+                                                <li>
+                                                    <label>CA Number</label>
+                                                    @Model.CANumber
+                                                </li>
+                                                <li>
+                                                    <label>Reference</label>
+                                                    Section 139AA of the Income Tax Act, 1961 ('the Act')
+                                                </li>
+                                                <li>
+                                                    <label>Date</label>
+                                                    @DateTime.Now.Date.ToString("dd/MM/yyyy")
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <p class="">In terms of the provisions of section 139AA of the Act, I, hereby confirm that my Permanent Account Number (PAN) <b>@Model.PANNumber</b> has been linked with my Aadhar Number</p>
+                                        <div class="card-body">
+                                            <div class="form-field">
+                                                <h6>Provide Your Aadhaar Number</h6>
+                                                <div class="input-field custom">
+                                                    @Html.TextBoxFor(m => m.AadharNumber, new { @class = "validate valid", id = "AadharNumber", @autocomplete = "off", @maxlength = "12", @type = "number", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", @onkeypress = "onlyNumbers(this.value)" })
+                                                    <span class="field-validation-error" id="AadharNumbererror"></span>
+                                                    <label class="active" for="first_name2">Enter Aadhar Number</label>
+                                                </div>
+                                            </div>
+
+                                            @Html.ValidationMessageFor(x => x.AadharNumber, "", new { @class = "help-block mb-3", @id = "valAadharNumber" }, "p")
+                                            <div class="content-format section-wrapper">
+                                                <h5>Terms & Conditions</h5>
+                                                <ul>
+                                                    <li>The above PAN is already registered with AEML against the CA Number/s mentioned above.</li>
+                                                    <li>Any changes on the above declaration shall be communicated to AEML.</li>
+                                                    <li>
+                                                        If the above declaration is found to be incorrect, then AEML will be liable to deduct / collect TDS / TCS at a
+                                                        higher rate, as applicable, along with interest / penalty, if applicable.
+                                                    </li>
+                                                    <li>The above information is true and correct to the best of my knowledge.</li>
+                                                </ul>
+                                                <h4>
+                                                    I shall indemnify you in case the above disclosure results in false declaration / undertaking.
+                                                </h4>
+                                                <div class="row">
+                                                    <div class="col s12">
+                                                        <label>
+                                                            @*<input type="checkbox" class="filled-in" checked="checked" />*@
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "1", new { id = "AgreeOption_Applicable", @class = "form-check-input with-gap", @checked = "checked", required = "required" })
+                                                            <span>I hereby agree to the terms & conditions.</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col s12 m-t20">
+                                                        <label>
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "2", new { id = "AgreeOption_NotApplicable", @class = "form-check-input with-gap", required = "required" })
+                                                            <span>
+                                                                I hereby state that provision of section 139AA of Income tax 1961, to link PAN number with
+                                                                AADHAAR is not applicable for me / us. Hence request you to deduct / Collect TDS / TCS as per normal rate, if applicable.
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="input-field custom">
+                                                <div class="captcha_box">
+                                                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                        <div class="row captcha_box" style="padding-left:10px;">
+                                                            <div class="col-lg-12">
+                                                                <div class="g-recaptcha" id="ITDeclerationcaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                                <span class="field-validation-error" id="Captchaerror"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="btn-group">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                                @*<input type="submit" class="waves-effect waves-light btn btn-continue" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")" />*@
+                                                <button type="submit" id="btnfirst" class="waves-effect btn btn-continue login-btn" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")">Submit</button>
+                                            </div>
+                                        </div>
+                                    }
+                                    //Declaration for filing Income tax return
+                                    if (Model.DeclarationType == "2")
+                                    {
+                                        <div class="header-text">
+                                            <ul>
+                                                <li>
+                                                    <label>Company</label>
+                                                    Adani Electricity Mumbai Limited
+                                                </li>
+                                                <li>
+                                                    <label>Subject</label>
+                                                    Confirmation for applicability of TDS U/s. 194Q
+                                                </li>
+                                                <li>
+                                                    <label>CA Number</label>
+                                                    @Model.CANumber
+                                                </li>
+                                                <li>
+                                                    <label>Reference</label>
+                                                    Section 194Q of the Income Tax Act, 1961 ('the Act')
+                                                </li>
+                                                <li>
+                                                    <label>Date</label>
+                                                    @DateTime.Now.Date.ToString("dd/MM/yyyy")
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        @Html.ValidationMessageFor(x => x.AadharNumber, "", new { @class = "help-block mb-3" }, "p")
+                                        <div class="card-body">
+                                            <div class="content-format section-wrapper">
+                                                <h5>Terms & Conditions</h5>
+                                                <ul>
+                                                    <li>The above PAN is already registered with AEML against the CA Number/s mentioned above.</li>
+                                                    <li>Any changes on the above declaration shall be communicated to AEML.</li>
+                                                    <li>
+                                                        If the above declaration is found to be incorrect. AEML will be liable to deduct / collect TDS / TCS at
+                                                        higher rate, as applicable along with interest / penalty. If applicable.
+                                                    </li>
+                                                    <li>The above information is true and correct to the best of my knowledge.</li>
+                                                </ul>
+                                                <h4>
+                                                    I shall indemnify you in case the above disclosure results in false declaration / undertaking.
+                                                </h4>
+                                                <div class="row">
+                                                    <div class="col s12">
+                                                        <label>
+                                                            @*<input type="checkbox" class="filled-in" checked="checked" />*@
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "1", new { id = "AgreeOption_Applicable", @class = "form-check-input with-gap", @checked = "checked", required = "required" })
+                                                            <span>I hereby agree to the terms & conditions.</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col s12 m-t20">
+                                                        <label>
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "2", new { id = "AgreeOption_NotApplicable", @class = "form-check-input with-gap", required = "required" })
+                                                            <span>
+                                                                I hereby state that provision of section 139AA of Income tax 1961, to link PAN number with
+                                                                AADHAAR is not applicable for me / us. Hence request you to deduct / Collect TDS / TCS as per normal rate, if applicable.
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="btn-group">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                                <button type="submit" class="waves-effect btn btn-continue login-btn" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")">@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")</button>
+
+
+
+                                            </div>
+                                        </div>
+                                    }
+                                    //Declaration for applicability of TDS
+                                    if (Model.DeclarationType == "3")
+                                    {
+                                        <div class="header-text">
+                                            <ul>
+                                                <li>
+                                                    <label>Company</label>
+                                                    Adani Electricity Mumbai Limited
+                                                </li>
+                                                <li>
+                                                    <label>Subject</label>
+                                                    Declaration for filing of Income Tax Return for previous two years
+                                                </li>
+                                                <li>
+                                                    <label>CA Number</label>
+                                                    @Model.CANumber
+                                                </li>
+                                                <li>
+                                                    <label>Reference</label>
+                                                    Section 206AB/ 206CCA of the Income Tax Act, 1961 ('the Act')
+                                                </li>
+                                                <li>
+                                                    <label>Date</label>
+                                                    @DateTime.Now.Date.ToString("dd/MM/yyyy")
+                                                </li>
+                                                <li>
+                                                    <p>The Acknowledgement Number of Income Tax Returns filed by us for last two Financial years is as follows:</p>
+                                                    <b>Financial Year</b>
+                                                    <b>Acknowledgement number</b>
+                                                    <b>Date of filing return</b>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+
+                                        <div class="card-body">
+                                            <div class="form-field">
+                                                <h6>@Model.FY_3</h6>
+                                            </div>
+                                            <div class="input-field custom">
+                                                @Html.TextBoxFor(m => m.FY_3AcknowledgementNumber, new { @class = "form-control", id = "FY_3AcknowledgementNumber", @autocomplete = "off", @maxlength = "15", @type = "number", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                                <label for="FY_3">@Html.Sitecore().Dictionary("/SDOpt/Register/Acknowledgement number", "Acknowledgement number")</label>
+                                                <span class="field-validation-error" id="FY_3AcknowledgementNumbererror"></span>
+                                                @Html.ValidationMessageFor(x => x.FY_3AcknowledgementNumber, "", new { @class = "help-block", id = "valFY_3AcknowledgementNumber" }, "p")
+                                            </div>
+                                            <div class="input-field custom">
+                                                @Html.TextBoxFor(x => x.FY_3DateOfFilingReturn, new { @class = "form-control", id = "datetimepickerFY_3AcknowledgementNumber", @autocomplete = "off" })
+                                                <label for="FY_3_2">@Html.Sitecore().Dictionary("/SDOpt/Register/Date of filing return", "Date of filing return")</label>
+                                                <span class="field-validation-error" id="FY_3DateOfFilingReturnerror"></span>
+                                                @Html.ValidationMessageFor(x => x.FY_3DateOfFilingReturn, "", new { @class = "help-block", id = "valFY_3DateOfFilingReturn" }, "p")
+                                            </div>
+                                            <div class="form-field">
+                                                <h6>@Model.FY_2</h6>
+                                            </div>
+                                            <div class="input-field custom">
+                                                @Html.TextBoxFor(m => m.FY_2AcknowledgementNumber, new { @class = "form-control", id = "FY_2AcknowledgementNumber", @autocomplete = "off", @maxlength = "15", @type = "number", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                                <label for="FY_2">@Html.Sitecore().Dictionary("/SDOpt/Register/Acknowledgement number", "Acknowledgement number")</label>
+                                                <span class="field-validation-error" id="FY_2AcknowledgementNumbererror"></span>
+                                                @Html.ValidationMessageFor(x => x.FY_2AcknowledgementNumber, "", new { @class = "help-block", id = "valFY_2AcknowledgementNumber" }, "p")
+                                            </div>
+                                            <div class="input-field custom">
+                                                @Html.TextBoxFor(x => x.FY_2DateOfFilingReturn, new { @class = "form-control", id = "datetimepickerFY_2AcknowledgementNumber", @autocomplete = "off" })
+                                                <label for="FY_2_2">@Html.Sitecore().Dictionary("/SDOpt/Register/Date of filing return", "Date of filing return")</label>
+                                                <span class="field-validation-error" id="FY_2DateOfFilingReturn"></span>
+                                                @Html.ValidationMessageFor(x => x.FY_2DateOfFilingReturn, "", new { @class = "help-block", id = "valFY_2DateOfFilingReturn" }, "p")
+                                            </div>
+                                            @Html.ValidationMessageFor(x => x.AadharNumber, "", new { @class = "help-block mb-3" }, "p")
+                                            <div class="content-format section-wrapper">
+                                                <h5>Terms & Conditions</h5>
+                                                <ul>
+                                                    <li>The above PAN is already registered with AEML against the CA Number/s mentioned above.</li>
+                                                    <li>Any changes on the above declaration shall be communicated to AEML.</li>
+                                                    <li>
+                                                        If the above declaration is found to be incorrect, then AEML will be liable to deduct /
+                                                        collect TDS / TCS at a higher rate, as applicable, along with interest / penalty, if applicable.
+                                                    </li>
+                                                    <li>The above information is true and correct to the best of my knowledge.</li>
+                                                    <li>Person who is submitting the declaration is authorized and responsible on behalf of the consumer.</li>
+                                                </ul>
+                                                <h4>
+                                                    I shall indemnify you in case the above disclosure results in false declaration / undertaking.
+                                                </h4>
+                                                <div class="row">
+                                                    <div class="col s12">
+                                                        <label>
+                                                            @*<input type="checkbox" class="filled-in" checked="checked" />*@
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "1", new { id = "AgreeOption_Applicable", @class = "form-check-input with-gap", @checked = "checked", required = "required" })
+                                                            <span>I hereby agree to the terms & conditions.</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col s12 m-t20">
+                                                        <label>
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "2", new { id = "AgreeOption_NotApplicable", @class = "form-check-input with-gap", required = "required" })
+                                                            <span>
+                                                                I hereby state that provision of section 139AA of Income tax 1961, to link PAN number with
+                                                                AADHAAR is not applicable for me / us. Hence request you to deduct / Collect TDS / TCS as per normal rate, if applicable.
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="input-field custom">
+                                                <div class="captcha_box">
+                                                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                        <div class="row captcha_box" style="padding-left:10px;">
+                                                            <div class="col-lg-12">
+                                                                <div class="g-recaptcha" id="ITDeclerationcaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                                <span class="field-validation-error" id="Captchaerror"></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="btn-group">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                                <button type="submit" class="waves-effect btn btn-continue login-btn" id="btnthird" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")">@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")</button>
+
+
+
+                                            </div>
+                                        </div>
+                                    }
+                                    // Submit TDS
+                                    if (Model.DeclarationType == "4")
+                                    {
+                                        <div class="header-text">
+                                            <ul>
+                                                <li>
+                                                    <label>Company</label>
+                                                    Adani Electricity Mumbai Limited
+                                                </li>
+                                                <li>
+                                                    <label>Subject</label>
+                                                    Intimation for deduction of TDS u/s 194Q
+                                                </li>
+                                                <li>
+                                                    <label>CA Number</label>
+                                                    @Model.CANumber
+                                                </li>
+                                                <li>
+                                                    <label>Reference</label>
+                                                    Section 194Q of the Income Tax Act, 1961 ('the Act')
+                                                </li>
+                                                <li>
+                                                    <label>Date</label>
+                                                    @DateTime.Now.Date.ToString("dd/MM/yyyy")
+                                                </li>
+                                                <li>
+                                                    <label>Permanent Account Number (PAN)</label>
+                                                    @Model.PANNumber
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        @Html.ValidationMessageFor(x => x.AadharNumber, "", new { @class = "help-block mb-3" }, "p")
+                                        <div class="card-body">
+                                            <div class="content-format">
+                                                <p>This is to inform you, I/we have deducted TDS as per provision of section 194Q of income tax act 1961. Details are as mentioned below. </p>
+                                                @Html.HiddenFor(model => model.Bill_Amount)
+                                                <div class="row customeamountfield">
+                                                    <div class="col s12 m3">
+                                                        <b>Latest Bill Amount payable (Rs.): </b>
+                                                    </div>
+                                                    <div class="col s12 m2">
+                                                        <div class="input-field custom">
+                                                            @Model.Bill_Amount
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @Html.ValidationMessageFor(x => x.Bill_Amount, "", new { @class = "help-block" }, "p")
+
+                                                <div class="row customeamountfield">
+                                                    <div class="col s12 m3">
+                                                        <b>Amount considered for TDS (Rs.): </b>
+                                                    </div>
+                                                    <div class="col s12 m3">
+                                                        <div class="input-field custom">
+                                                            @Html.TextBoxFor(model => model.Amount_considered_for_TDS, new { @class = "form-control", @type = "number", id = "Amount_considered_for_TDS", @autocomplete = "off", @onchange = "onchangeAmount_considered_for_TDS();" })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                @Html.ValidationMessageFor(x => x.Amount_considered_for_TDS, "", new { @class = "help-block", id = "valAmount_considered_for_TDSerror" }, "p")
+                                                <span class="field-validation-error" id="Amount_considered_for_TDSerror"></span>
+                                                <p class="field-validation-error help-block" id="error_Amount_considered_for_TDS"></p>
+
+                                                <div class="row customeamountfield">
+                                                    <div class="col s12 m3">
+                                                        <b>Applicable TDS Rate (%): </b>
+                                                    </div>
+                                                    <div class="col s12 m2">
+                                                        <div class="input-field custom">
+                                                            0.1
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row customeamountfield">
+                                                    <div class="col s12 m3">
+                                                        <b>TDS Deducted (Rs): </b>
+                                                    </div>
+                                                    <div class="col s12 m2">
+                                                        <div class="input-field custom">
+                                                            <span class="TDSminHight" id="TDS_Deducted"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row customeamountfield">
+                                                    <div class="col s12 m3">
+                                                        <b>Net amount post TDS deduction (Rs): </b>
+                                                    </div>
+                                                    <div class="col s12 m2">
+                                                        <div class="input-field custom">
+                                                            <span class="TDSminHight" id="Net_amount_post_TDS_deduction"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row customeamountfield">
+                                                    <div class="col s12 m3">
+                                                        <b>Date of Bill payment:</b>
+                                                    </div>
+                                                    <div class="col s12 m3">
+                                                        <div class="input-field custom">
+                                                            @Html.TextBoxFor(model => model.POSTING_DATE, new { @class = "form-control reset-control", id = "datetimepickerPOSTING_DATE", @autocomplete = "off" })
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <span class="field-validation-error" id="POSTING_DATESerror"></span>
+                                                @Html.ValidationMessageFor(model => model.POSTING_DATE, "", new { @class = "help-block", id = "valPOSTING_DATESerror" }, "p")
+
+                                                @*<h5>Terms & Conditions</h5>
+        <ul>
+            <li>The above PAN is already registered with AEML against the CA Number mentioned above.</li>
+            <li>Any changes on the above declaration shall be communicated to AEML.</li>
+            <li>
+                if the above declaration is found to be incorrect. AEML will be liable to deduct / collect TDS / TCS at
+                higher rate, as applicable along with interest / penalty. If applicable.
+            </li>
+            <li>The above information is true and correct to the best of my knowledge.</li>
+        </ul>
+        <h4>
+            I shall indemnify you in case the above disclosure results in false declaration/
+        </h4>*@
+                                                <div class="row">
+                                                    <div class="col s12">
+                                                        <label>
+                                                            @*<input type="checkbox" class="filled-in" checked="checked" />*@
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "1", new { id = "AgreeOption_Applicable", @class = "form-check-input with-gap", @checked = "checked", required = "required" })
+                                                            <span>I hereby agree to the terms & conditions.</span>
+                                                        </label>
+                                                    </div>
+                                                    <div class="col s12 m-t20">
+                                                        <label>
+                                                            @Html.RadioButtonFor(model => model.AgreeOption, "2", new { id = "AgreeOption_NotApplicable", @class = "form-check-input with-gap", required = "required" })
+                                                            <span>
+                                                                I hereby state that provision of section 139AA of Income tax 1961, to link PAN number with
+                                                                AADHAAR is not applicable for me / us. Hence request you to deduct / Collect TDS / TCS as per normal rate, if applicable.
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+                                                <br />
+                                                <div class="input-field custom">
+                                                    <div class="captcha_box">
+                                                        <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                            <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                            <div class="row captcha_box" style="padding-left:10px;">
+                                                                <div class="col-lg-12">
+                                                                    <div class="g-recaptcha" id="ITDeclerationcaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                                    @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                                    <span class="field-validation-error" id="Captchaerror"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="btn-group">
+                                                <a class="waves-effect btn-flat login-btn" href="/it-declarations">Cancel</a>
+                                                <button type="submit" class="waves-effect btn btn-continue login-btn" name="Submit" id="btnfour" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")">@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")</button>
+
+                                            </div>
+                                        </div>
+                                    }
+
+                                }
+                            </div>
+                        }
+
+
+
+                    </div>
+
+
+
+                </div>
+            </div>
+
+        }
+
+
+
+        if (string.IsNullOrEmpty(Model.DeclarationType))
+        {
+
+
+            <div class="section-container custom_accrdion rounded">
+                <header class="section-header">
+                    <h2>IT Declarations</h2>
+                    <p>Submit declarations as per Income Tax Act 1961 as applicable to you.</p>
+                </header>
+                @*<div class="new-connection-form outlined">
+                    <div class="step-1-form active section-container">
+                        <div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap">*@
+                @*@if (UserSession.UserSessionContext != null)
+                    {
+                        @Html.Sitecore().Placeholder("switch-account-content")
+                    }*@
+                <ul class="collapsible expandable z-depth-0">
+
+                    <li>
+                        <div class="collapsible-header">
+                            <a href="javascript:void(0)" class="LinkPanLink"
+                               data-gaevent="it_declaration_initiate"
+                               data-gaeventCategory="AEML Services"
+                               data-gaeventAction="IT Declaration Initiate"
+                               data-gaeventLabel="Declaration Selected |Submit declarations as per Income Tax Act 1961 as applicable to you ">
+                                <input class="LinkPanLink" type="submit" value="Declaration for linking PAN with AADHAR, u/s 139 AA of Income Tax Act 1961" name="LinkPAN" onclick="CheckActiveclass('LinkPAN')" />
+                            </a>
+
+                        </div>
+                        <!-- <div class="collapsible-body"> </div>    -->
+                    </li>
+
+                    <li>
+                        <div class="collapsible-header">
+                            @*<a href="#" class="FileITRLink">Declaration for filing Income tax return for previous two years u/s 206AB / 206CCA</a>*@
+                            <a href="javascript:void(0)"
+                               data-gaevent="it_declaration_initiate"
+                               data-gaeventCategory="AEML Services"
+                               data-gaeventAction="IT Declaration Initiate"
+                               data-gaeventLabel="Declaration Selected |Declaration for filing Income tax return for previous two years u/s 206AB / 206CCA">
+                                <input class="" type="submit" value="Declaration for filing Income tax return for previous two years u/s 206AB / 206CCA" name="FileITR" onclick="CheckActiveclass('FileITR')" />
+                            </a>
+                        </div>
+                        <!-- <div class="collapsible-body"> </div>    -->
+                    </li>
+                    <li>
+                        <div class="collapsible-header">
+                            @*<a href="#" class="TDSApplicabilityLink">Declaration for applicability of TDS u/s 194Q of income tax Act 1961</a>*@
+                            @*<a href="javascript:void(0)"*@
+                            <a href="javascript:void(0)"
+                               data-gaevent="it_declaration_initiate"
+                               data-gaeventCategory="AEML Services"
+                               data-gaeventAction="IT Declaration Initiate"
+                               data-gaeventLabel="Declaration Selected |Declaration for applicability of TDS u/s 194Q of income tax Act 1961">
+                                <input class="" type="submit" value="Declaration for applicability of TDS u/s 194Q of income tax Act 1961" name="TDSApplicability" onclick="CheckActiveclass('TDSApplicability')" />
+                            </a>
+                        </div>
+                        <!-- <div class="collapsible-body"> </div>    -->
+                    </li>
+
+                    <li>
+                        <div class="collapsible-header">
+
+                            @*<a href="#" class="SubmitTDSLink">Submit TDS information</a>*@
+                            <a href="javascript:void(0)"
+                               data-gaevent="it_declaration_initiate"
+                               data-gaeventCategory="AEML Services"
+                               data-gaeventAction="IT Declaration Initiate"
+                               data-gaeventLabel="Declaration Selected |Submit TDS information">
+                                <input class="" type="submit" value="Submit TDS information" name="SubmitTDS" onclick="CheckActiveclass('SubmitTDS')" />
+                            </a>
+                        </div>
+                        <!-- <div class="collapsible-body"> </div>    -->
+                    </li>
+                </ul>
+                @*</div>
+                        </div>
+                    </div>*@
+            </div>
+        }
+
+        <div class="custom_accrdion section-container">
+
+            <header class="section-header">
+
+                <h2>Frequently Asked Questions</h2>
+
+            </header>
+
+            <div class="accordion">
+                <ul class="collapsible collapsible-accordion">
+                    <li>
+                        <div class="collapsible-header" tabindex="0">Why linking of PAN with AADHAR is necessary?</div>
+                        <div class="collapsible-body">
+                            <div class="cms-content">
+                                <p>
+                                    As per Section 139AA of the Income-tax Act,1961 (‘the Act’) that every person who has been
+                                    allotted a Permanent Account Number (‘PAN’) shall also be required to link the same with his
+                                    Aadhaar.
+                                </p>
+                                <p>
+                                    If the PAN is not linked with Aadhaar by 31 March 2021, it shall become inoperative immediately.
+                                    Rule 114AAA of the Income-tax Rules (‘the Rules’) provides that in case of a person whose PAN
+                                    has become inoperative, it shall be deemed that he has not furnished, intimated or quoted the
+                                    PAN at all, and he shall be liable for all the consequences under the Act for not furnishing, intimating or quoting the PAN. However, the person can make his PAN operative again by linking his Aadhaar and the PAN shall be operative from the date of intimation of Aadhaar.
+                                    As per the provisions of Section 206AA of the Act, where a payee fails to furnish his PAN to the deductor, tax shall be deducted at a higher rate of:
+                                </p>
+                                <ul>
+                                    <li>rate specified in the relevant provision of the Act or</li>
+                                    <li>at the rates in force or</li>
+                                    <li>at the rate of 20%</li>
+                                </ul>
+                                <p>For more information, please visit <a href="/-/media/Feature/ElectricityNew/PDFs/ITDeclaration/Section 139AA of Income tax act 1961" target="_blank">Section 139AA of the Income-tax Act,1961</a>.</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="collapsible-header">What are the conditions to deduct TDS or collect TCS?</div>
+                        <div class="collapsible-body">
+                            <div class="cms-content">
+                                <p>The tax shall be deducted/collected at source if the payment/collection is made to/from the person satisfying the following conditions:</p>
+                                <ul>
+                                    <li>The person does not file income tax return for both of the previous two Financial Years (FYs) immediately before the FY in which tax is required to be deducted,</li>
+                                    <li>The income tax return (not belated return) filing due date is expired and</li>
+                                    <li>The total amount of TDS and TCS is Rs.50,000 or more in each of these two previous years.</li>
+                                </ul>
+                                <p>It does not apply to a non-resident who does not have a permanent establishment in India. Permanent establishment for this purpose includes a fixed place of business where the enterprise’s business is carried out wholly or partially.</p>
+                                <p>For more information, please visit <a href="/-/media/Feature/ElectricityNew/PDFs/ITDeclaration/Section 206AB 206CCA of Income tax act 1961" target="_blank">Section 206AB and 206CCA of the Income-tax Act,1961</a>.</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="collapsible-header">Who is liable to deduct tax under Section 194Q?</div>
+                        <div class="collapsible-body">
+                            <div class="cms-content">
+                                <p>The tax shall be deducted under Section 194Q by a buyer carrying on a business whose total sales, gross receipts or turnover from the business exceeds Rs. 10 crores during the financial year immediately preceding the financial year in which such goods are purchased. This provision shall be applicable from 01-07-2021.</p>
+                                <p>Thus, the liability to deduct tax under this provision in the financial year 2021-22 shall arise if the turnover of the purchaser was more than Rs. 10 crores in the financial year 2020-21.</p>
+                                <p>For more information, please visit <a href="/-/media/Feature/ElectricityNew/PDFs/ITDeclaration/Section 194Q of income tax act 1961" target="_blank">Section 194Q of the Income-tax Act,1961</a>.</p>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <p>&nbsp;</p>
+            <div class="faq-listing">
+                <ul>
+
+                    <li>
+
+                        <p>Section 139AA of Income tax act 1961</p>
+
+                        <a href="/-/media/Feature/ElectricityNew/PDFs/ITDeclaration/Section 139AA of Income tax act 1961" target="_blank" class="waves-effect waves-light">Read</a>
+
+                    </li>
+
+                    <li>
+
+                        <p>Section 206AB/ 206CCA of Income tax act 1961</p>
+
+                        <a href="/-/media/Feature/ElectricityNew/PDFs/ITDeclaration/Section 206AB 206CCA of Income tax act 1961" target="_blank" class="waves-effect waves-light">Read</a>
+
+                    </li>
+
+                    <li>
+
+                        <p>Section 194Q of income tax act 1961</p>
+
+                        <a href="/-/media/Feature/ElectricityNew/PDFs/ITDeclaration/Section 194Q of income tax act 1961" target="_blank" class="waves-effect waves-light">Read</a>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    }
+</div>
+
+<script type="text/javascript">
+    var ITDeclerationcaptcha;
+    var onloadCallback = function () {
+        ITDeclerationcaptcha = grecaptcha.render('ITDeclerationcaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script src="/Scripts/Accounts/ITDeclarationsRevamp.js"></script>
+
+
+

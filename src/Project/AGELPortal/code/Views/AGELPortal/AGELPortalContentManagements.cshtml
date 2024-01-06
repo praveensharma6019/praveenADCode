@@ -1,0 +1,160 @@
+﻿@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration;
+@using Sitecore.Mvc.Presentation;
+
+@model Sitecore.AGELPortal.Website.Models.PortalAddContentModel
+@{
+    Layout = null;
+    int pageSize = 10;
+    var count = Math.Ceiling(System.Convert.ToDouble(Model.totalRecord) / pageSize);
+    Uri myUri = new Uri(Request.Url.AbsoluteUri);
+    var pageNumber = HttpUtility.ParseQueryString(myUri.Query).Get("page") != null ? System.Convert.ToInt32(HttpUtility.ParseQueryString(myUri.Query).Get("page")) : 1;
+    var currentRecordCount = Model.contents.Count;
+    //var mType = Model?.mType;
+}
+
+<div class="container">
+    <div class="section-header flex-justify">
+        <h3>Content Management</h3>
+        @if (Session["add_content"] != null)
+        {
+            <div id="toast-success" class="modal modal-alert modal-toast custom-toast-success" style="display: block;">
+                <header class="modal-header">
+                    <h4>
+                        <a class="toast-close">
+                            <i class="i-tick"></i>
+                        </a>
+                        @Session["add_content"]
+                    </h4>
+                    <a class="modal-close">
+                        <i class="i-cross"> </i>
+                    </a>
+                </header>
+            </div>
+            Session["add_content"] = null;
+        }
+        <aside>
+            <div class="btn-group btn-equal-size">
+                <div class="btn-no-margin">
+                    <a id="add_content" class="waves-effect waves-light btn modal-trigger" href="/AGELPortal/Home/dashboard/add-content">+ Add</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+    <div class="customer_detail_wrapper customer_detail_list">
+        <table class="customer_detail_list-details">
+            <thead>
+                <tr>
+
+                    <th style="width: 20%;">Title</th>
+                    <th style="width: 20%;">Content Type</th>
+                    <th style="width: 25%;">Category Name</th>
+                    <th style="width: 20%;">Upload Date</th>
+                    <th style="width: 20%;">Status</th>
+                    <th style="width: 15%;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var content in Model.contents)
+                {
+                    <tr id="tr-@content.Id">
+                        <td>
+                            <div class="table-cell">
+                                <label>@content.title</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label style="text-transform:capitalize;">@content.contetn_type</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+
+                                <label>@(Model.GetCategoryName(content.category_id))</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@Convert.ToDateTime(content.modify_date).ToString("dd/MM/yyyy")</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                @if (content.status == true)
+                                {
+                                    <div class="status" id="DivStatus">
+                                        <a href="javascript:void();" data-id="@content.Id" class="change-content-status"> <h3>Published</h3></a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="status2" id="DivStatus">
+                                        <a href="javascript:void();" data-id="@content.Id" class="change-content-status"> <h3>Unpublished</h3></a>
+                                    </div>
+
+                                }
+                                @*<div class="status">
+                    <a href="javascript:void();" data-id="@content.Id" class="change-content-status"> <h3>@(content.status == true ? "Active" : "Inactive")</h3></a>
+                </div>*@
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <div class="table3">
+                                    <a class="edit_content" data-id="@content.Id" href="/AGELPortal/Home/dashboard/add-content?Id=@content.Id"><img src="/images/AGELPortal/edit.svg" alt="edit-img"></a>
+                                    <a class="delete_content" data-id="@content.Id" href="javascript:void();"><img src="/images/AGELPortal/delete.svg" alt="delete-img"></a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination-wrapper">
+        <div class="total-count">
+            @{
+
+                var start = pageNumber > 0 ? (pageNumber - 1) * pageSize : 0;
+                var diff = pageSize - currentRecordCount;
+                var last = pageNumber > 0 ? (pageNumber * pageSize) - diff : currentRecordCount;
+                var totalPages = (int)Math.Ceiling((decimal)Model.totalRecord / (decimal)pageSize);
+            }
+            @(start + 1)-@last of @Model.totalRecord Records
+        </div>
+
+        <div class="pagination">
+            @if (count > 1 && pageNumber > 1)
+            {
+                var pre = pageNumber - 1;
+                <a href="?page=@pre"><i class="i-arrow-l"></i></a>
+            }
+            @if (count > 1)
+            {
+                for (int i = 1; i <= count; i++)
+                {
+                    var _class = (pageNumber == i || pageNumber == 0) ? "current" : "wave-effect";
+                    <a href="?page=@i" class="@_class">@i</a>
+
+                }
+            }
+            @if (pageNumber < totalPages)
+            {
+                if (count > 1)
+                {
+                    var next = pageNumber + 1;
+                    <a href="?page=@next"><i class="i-arrow-r"></i></a>
+                }
+            }
+        </div>
+
+    </div>
+</div>

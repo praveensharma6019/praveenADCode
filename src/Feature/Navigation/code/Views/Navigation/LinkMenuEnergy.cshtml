@@ -1,0 +1,53 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Feature.Navigation
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+<div class="pageContent">
+    <div class="container">
+        <div class="row about-energy">
+            @foreach (var items in parent.Children.ToList())
+            {
+                var replacestr = Regex.Replace(@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, items).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                var id = Guid.NewGuid().ToString();
+                <div class="col-lg-2 col-sm-6" onclick="GetTabContent(this)" id="@replacestr">
+                    <a href="#" class="link-tile">
+                        <span>@Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, items)</span>
+                        <h5><span class="txt-orange">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, items)</span></h5>
+                    </a>
+                </div>
+            }
+        </div>
+        @Html.Sitecore().Placeholder("tab-content")
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function (obj) {
+        var len = $(".energytablinks").length;
+        for (var i = 0; i < len; i++) {
+            if (i == 0) {
+                $(".energytablinks")[i].style.display = "block"
+            }
+            else {
+                $(".energytablinks")[i].style.display = "none"
+            }
+        }
+    });
+    function GetTabContent(obj) {
+        var len = $(".energytablinks").length;
+        var id = obj.id;
+        $("." + id)[0].style.display = "block";
+        for (var i = 0; i < len; i++) {
+            if (id != $(".energytablinks")[i].id) {
+                $(".energytablinks")[i].style.display = "none"
+            }
+        }
+    }
+
+</script>

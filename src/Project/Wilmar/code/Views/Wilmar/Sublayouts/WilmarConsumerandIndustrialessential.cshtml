@@ -1,0 +1,77 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    // var tab = elements.Children;
+    var replacestrs = @elements.DisplayName.ToString();
+}
+
+<section class="section  position-relative d-block bg-gray">
+    <div class="container position-relative">
+        <h2 class="text-left sectionHeading">@Html.Sitecore().Field("Title", elements)</h2>
+        @Html.Sitecore().Field("Body", elements)
+    </div>
+</section>
+
+<section class="bg-gray">
+    <div class="">
+        <div class="large-12 columns">
+            <div class="owl-carousel owl-theme" id="@replacestrs">
+                @foreach (var item in elements.Children.ToList())
+                {
+
+                    var childitems = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(item.ID));
+                    Sitecore.Data.Fields.LinkField linkvalue = childitems.Fields["LinkUrl"];
+                    var linkUrl = linkvalue.GetFriendlyUrl();
+                    var Linksurl = Request.QueryString["linkUrl"];
+                    var FinalUrl = linkUrl + "#" + Regex.Replace(@Html.Sitecore().Field("Title", childitems).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                   
+                    <div class="item">
+                        <a href="@FinalUrl">
+                            @Html.Sitecore().ImageField("Image", childitems, 0, 0, "img -fluid")
+
+                            <div class="sus-tile">
+                                <div class="txt-overlay">
+                                    @Html.Sitecore().Field("Title", childitems)
+                                </div>
+                            </div>
+                        </a>
+</div>
+                   
+                 
+
+
+                }
+            </div>
+
+
+
+        </div>
+    </div>
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,63 @@
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var url = "";
+	var class1 = "";
+}
+
+@if (model != null)
+{
+
+    <section class="bg-white scroll-nav" id="first-section">
+        <div class="container-fluid">
+            <ul>
+                @foreach (var element in model.GetChildren().ToList())
+                {
+				var itemName = element.Name;
+                    if (itemName != null)
+                    {
+                        url = itemName.ToString().Replace(" ", "");
+
+                        if (url == "")
+                        {
+                            <li><a href="#AppBasedCabs">App Based Cabs</a></li>
+                        }
+                        else
+                        {
+                            <li><a href="#@url">@itemName</a></li> }
+
+                    }
+                    else
+                    {
+                        url = "App Based Cabs";
+                        <li><a href="#@url">App Based Cabs</a></li>
+                    }
+                }
+            </ul>
+        </div>
+    </section>
+	<div class="container-fluid bg-white">
+    @foreach (var element in model.GetChildren().ToList())
+    {
+		var itemName = element.Name;
+        if (itemName != null)
+        {
+            url = itemName.ToString().Replace(" ", "");
+
+        }
+        else
+        {
+            url = "";
+        }
+		 class1 = Html.Sitecore().Field("Summary", element).ToString();
+		 
+			<section class="@class1" id="@url">
+				@Html.Sitecore().Placeholder(@url)
+			</section>
+		
+    }
+	</div>
+}

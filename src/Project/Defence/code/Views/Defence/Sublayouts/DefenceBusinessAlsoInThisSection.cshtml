@@ -1,0 +1,51 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    string pagename = Path.GetFileName(Request.Url.AbsolutePath);
+}
+<section class="bg-gray py-5">
+    <div class="container">
+        <h2 class="mb-3 border-l pl-3 txt-lg mb-3">Also in this section</h2>
+        <div class="owl-carousel owl-theme three-item">
+            @foreach (var items in model.GetChildren().ToList())
+            {
+                if (!items.DisplayName.Contains(pagename))
+                {
+                    <div class="item p-2">
+                        @{
+
+
+
+                            Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+
+
+                        }
+
+
+                        <a href="@linkUrl" class="business-tile">
+                            <div class="business-thumb">@Html.Sitecore().ImageField("Image", items, 0, 0)</div>
+                            <div class="business-title">@Html.Sitecore().Field("Title", items)</div>
+
+                            <div class="business-desc">@Html.Sitecore().Field("Summary", items)</div>
+                        </a>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>

@@ -1,0 +1,115 @@
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model  Sitecore.Feature.Accounts.Models.ViewPayBill
+
+@if (Model != null && !string.IsNullOrEmpty(Model.TransactionId))
+{
+    <div class="pageContent">
+        <div class="container">
+            <div class="panel dvContents" id="dvContents">
+                <h5 class="pt-3">Thanks for your payment</h5>
+                <p>Please find below details for your payment reference</p>
+                <br />
+                <h5 class="txt-orange">Your Billing Details</h5>
+                <div class="py-3"></div>
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/TransactionNumber", "Transaction Number")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.TransactionId">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/OrderNumber", "Order Number")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.OrderId">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/AccountNumber", "Account Number")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.AccountNumber">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/Amount", "Amount")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.AmountPayable.TrimStart('0')">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/Transaction Date Label", "Transaction Date")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Model.TransactionDate">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/PaymentStatus", "Payment Status")</label>
+                    <div class="col-sm-8 col-lg-6">
+                        <input type="text" readonly="" class="form-control-plaintext" id="" value="@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/ViewandPayBill/PaymentSuccessText", "SUCCESS")">
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="">
+                @if (Context.User.Identity.IsAuthenticated)
+                { <div class="form-group row">
+                    <div class="col-sm-8 col-lg-6">
+                        <a class="btn btn-primary" href="@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Accounts/My Account/Left Panel/Redirect URL/View and Pay Bill", "/My-Account/ViewPayBill")">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Another Payment")</a>
+						<input type="button" class="btn btn-primary" value="@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/prin", "Print this page")" onclick="PrintDiv()" />
+                    </div>
+                </div>
+                }
+                else
+                {
+
+                    <div class="form-group row">
+                        <div class="col-sm-8 col-lg-6">
+                            <a class="btn btn-primary" href="@Html.Sitecore().Dictionary("/sitecore/content/Electricity/Global/Dictionary/Other Redirect URL/Payment/Online", "/Payment/Online-Payments")">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Another Payment")</a>
+							<input type="button" class="btn btn-primary" value="@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/prin", "Print this page")" onclick="PrintDiv()" />
+                        </div>
+                    </div>
+
+                }
+            </div>
+
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="pageContent">
+        <div class="container">
+            <div class="panel">
+                <h5 class="pt-3">Thanks for your payment</h5>
+                <br />
+                <h5 class="txt-orange">We confirm receipt of your payment and the receipt will be shared via SMS shortly. </h5>
+            </div>
+        </div>
+    </div>
+}
+
+
+<script type="text/javascript">
+    function PrintDiv() {
+        var divContents = document.getElementById("dvContents").innerHTML;
+        var printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<html><head><link href="/styles/Electricity/bootstrap.min.css" rel="stylesheet" /><link href="/styles/Electricity/adani-electricity.css" rel="stylesheet" /><title>Adani Electricity Payment Receipt</title>');
+        printWindow.document.write('</head><body >');
+        printWindow.document.write(divContents);
+        printWindow.document.write('</body></html>');
+		printWindow.document.close();
+        printWindow.focus();
+        setTimeout( function () {
+            printWindow.print();
+            printWindow.close();
+        }, 2000);  
+    }
+</script>

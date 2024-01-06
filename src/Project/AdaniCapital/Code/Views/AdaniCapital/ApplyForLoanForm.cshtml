@@ -1,0 +1,81 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.AdaniCapital.Website.Models.AdaniCapitalApplyforLoanModel
+@{
+    string keyValues = Session["Key"] != null ? "off" : "on";
+    Session["Key"] = null;
+}
+
+
+@if (Model != null)
+{
+    using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "ApplyForLoan_form", name = "ApplyForLoan_form", autocomplete = keyValues, @class = "pl-4 form-section", enctype = "multipart/form-data" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+        @Html.HiddenFor(m => m.FormName, new { @Value = HttpContext.Current.Request.Url.AbsolutePath + "#loan" })
+        @Html.HiddenFor(m => m.LastTabIndex)
+        <div class="row">
+            <div class="col-lg-6 pr-lg-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.FirstName, "First Name*")
+                    @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control", required = "required", id = "apply-fname" })
+                    @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "help-block required" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-6 pl-lg-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LastName, "Last Name*")
+                    @Html.TextBoxFor(model => model.LastName, new { @class = "form-control", required = "required", id = "apply-lname" })
+                    @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "help-block required" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-6 pr-lg-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.EmailID, "Email Id*")
+                    @Html.TextBoxFor(model => model.EmailID, new { @class = "form-control", required = "required", id = "apply-email" })
+                    @Html.ValidationMessageFor(model => model.EmailID, "", new { @class = "help-block required" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-6 pl-lg-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.MobileNo, "Contact No.*")
+                    @Html.TextBoxFor(model => model.MobileNo, new { @class = "form-control", required = "required", maxlength = "10", type = "number", id = "apply-number" })
+                    @Html.ValidationMessageFor(model => model.MobileNo, "", new { @class = "help-block required" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-6 pr-lg-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PinCode, "Pincode*")
+                    @Html.TextBoxFor(model => model.PinCode, new { @class = "form-control", required = "required", id = "zipcode" })
+                    @Html.ValidationMessageFor(model => model.PinCode, "", new { @class = "help-block required" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-6 pl-lg-4">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ProductType, "Product Type*")
+                    @Html.DropDownListFor(x => x.ProductType, new SelectList(Model.ProductsList, "Value", "Text"), "Select Product", htmlAttributes: new { @class = "form-control", required = "required" })
+                    @Html.ValidationMessageFor(x => x.ProductType, "", new { @class = "help-block required" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-6 text-right mb-3 pl-lg-4">
+                <div id="recaptcha1"></div>
+                @Html.HiddenFor(model => model.reResponse, new { id = "Apply-reResponse" })
+                @Html.ValidationMessageFor(model => model.reResponse, "", new { @class = "help-block required" }, "p")
+            </div>
+            <div class="col-lg-6 pl-lg-4">
+                <p id="applyErrorMsg" class="field-validation-error help-block text-danger">@ViewBag.Message</p>
+            </div>
+            <div class="col-lg-12">
+                <div class="text-right">
+                    <button type="submit" value="submit" id="ApplyForLoanSubmitBtn" name="Submit" class="btn btn-gradient">Submit</button>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+

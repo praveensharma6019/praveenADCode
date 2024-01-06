@@ -1,0 +1,49 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+
+    var Title = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Title").FirstOrDefault().Value;
+
+
+}
+
+@if (model != null)
+{
+
+
+
+    <section class="bg-white pt-lg-5 pt-5 airport-section">
+        <div class="container-fluid">
+            <h2 data-aos="fade-up">@Title</h2>
+            <div class="owl-carousel airport-section__carousel airport-section__carousel-3item">
+                @*<h2>For Our Passenger</h2>*@
+                <p data-aos="fade-up">@Html.Sitecore().Field("Summary", model)</p>
+                @foreach (var element in model.GetChildren().ToList())
+                {
+                    if (element.Fields["Title"] != null)
+                    {
+                    <div class="item">
+                        <a href="@element.Url()">
+                            @Html.Sitecore().ImageField("Image", element, 0, 0, "")
+                            <p>@Html.Sitecore().Field("Title", element)</p>
+                        </a>
+                    </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+
+}
+
+
+
+

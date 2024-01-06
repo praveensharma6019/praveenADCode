@@ -1,0 +1,142 @@
+﻿@using Sitecore.ElectricityNew.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model Sitecore.ElectricityNew.Website.Model.EnvelopUserDetails
+@{
+    var envelopeListing = Sitecore.Context.Database.GetItem(Templates.Tender.EnvelopeUserListing);
+}
+
+<div class="pageContent">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "ElectricityNew", FormMethod.Post))
+            {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <!-- Section -->
+        <div class="pb-3">
+            <div>
+                <div class="mr-auto ml-auto">
+                    <div class="card card-outline-secondary">
+                        <div class="card-header">
+                            <h3 class="mb-0">@Html.Sitecore().Dictionary("Electricity/Tender/Create EnvelopeUser Label", "Create Envelope User")</h3>
+                        </div>
+                        <div class="card-body">
+
+                            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreateEnvelopUser", @class = "form-signin", @enctype = "multipart/form-data" }))
+                            {
+                                @Html.AntiForgeryToken()
+
+                                if (ViewBag.SelectedEnvelope != null)
+                                {
+                                    <div class="alert-danger">@ViewBag.SelectedEnvelope</div>
+                                }
+                                if (ViewBag.SelectTenderId != null)
+                                {
+                                    <div class="alert-danger">@ViewBag.SelectTenderId</div>
+                                }
+                                if (ViewBag.SuccessMsg != null)
+                                {
+                                    <div class="alert-success">@ViewBag.SuccessMsg</div>
+                                }
+                                <div class="form-horizontal">
+                                 
+                                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                                 
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @*@Html.LabelFor(model => model.TenderList, htmlAttributes: new { @class = "control-label" })**@
+                                                    @Html.Label("Select Tender", htmlAttributes: new { @class = "control-label" })*
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.DropDownListFor(model => model.SelectTenderId, Model.TenderList, "--Select--")
+                                                    @Html.ValidationMessageFor(model => model.TenderList, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-5 ml-auto">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @*@Html.LabelFor(model => model.EnvelopNameCheckboxs, htmlAttributes: new { @class = "control-label" })**@
+                                                    @Html.Label("Select Envelop", htmlAttributes: new { @class = "control-label" })*
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @for (int i = 0; i < Model.EnvelopNameCheckboxs.Count; i++)
+                                                    {
+                                                        @Html.CheckBoxFor(x => x.EnvelopNameCheckboxs[i].IsChecked)
+                                                        @Html.HiddenFor(x => x.EnvelopNameCheckboxs[i].Value)<span></span>
+                                                        @Html.DisplayFor(x => x.EnvelopNameCheckboxs[i].Name)
+                                                        <br />
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label"> @Html.LabelFor(model => model.Company, htmlAttributes: new { @class = "control-label" })*</label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.Company, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(model => model.Company, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-5 ml-auto">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label" })*
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label"> @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label" })*</label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-5 ml-auto">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.LabelFor(model => model.MobileNo, htmlAttributes: new { @class = "control-label" })*
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.MobileNo, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(model => model.MobileNo, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                   
+
+                                    <div class="form-group">
+                                        <div class="">
+                                            <input type="submit" value="Create" class="btn btn-primary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="card-footer">
+                            <a href="@envelopeListing.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Back To Envelop List", "Back To Envelope User List")</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

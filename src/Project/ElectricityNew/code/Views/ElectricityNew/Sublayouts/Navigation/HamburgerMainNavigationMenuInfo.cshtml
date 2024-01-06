@@ -1,0 +1,53 @@
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (element != null)
+{
+    <ul class="hamburger_section">
+
+        <li>
+            <h5>@Html.Sitecore().Field("Text", element)</h5>
+        </li>
+        @if (element.HasChildren)
+        {
+            int count = 1;
+            foreach (Item item in element.GetChildren())
+            {
+                //var imgurls = Helper.ImageUrl("LinkImage", item);
+                Sitecore.Data.Fields.LinkField linkField = item.Fields["LinkUrl"];
+
+                var url = linkField != null ? linkField.GetFriendlyUrl() : "#";
+                var target = linkField != null ? linkField.Target : "";
+                var classNav = @Html.Sitecore().Field("Class", item).ToString();
+                <li>
+                    <a href="@url" target="@target">
+                        @if ((!string.IsNullOrEmpty(classNav)) && (!string.IsNullOrEmpty(classNav)))
+                        {
+                            <span class="icon-box"><i class="@classNav"></i></span>
+                        }
+                        else
+                        {
+                            <span class="icon-box"><i class=""></i></span>
+                        }
+                        @if (item["IsActive"].ToString() == "1")  // Html.Sitecore().Field("IsActive", item).ToString() == "Know Your Bill"
+                        {
+                            <label> @Html.Sitecore().Field("Title", item)</label><span class="badge sidebar-badge">Must See</span>
+                        }
+                        else
+                        {
+                            <label> @Html.Sitecore().Field("Title", item)</label>
+                        }
+                    </a>
+                </li>
+
+            }
+            count++;
+        }
+
+    </ul>
+}

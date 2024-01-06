@@ -1,0 +1,153 @@
+﻿---
+ID: "f6a5b639-3ca9-48be-a8f8-495f2c5539c5"
+Parent: "cc27e7dc-59d1-48ec-837d-fd098506f532"
+Template: "5f8ae231-9553-4d50-940c-36903546c981"
+Path: "/sitecore/content/AdaniGas/Home/cng/cng-dodo-form"
+DB: master
+SharedFields:
+- ID: "5585a30d-b115-4753-93ce-422c3455deb2"
+  Hint: ShowInNavigation
+  Type: Checkbox
+  Value: 0
+- ID: "b3ba9ea9-d0a1-49df-9f4b-28fa5d353dc8"
+  Hint: JavascriptCodeBottom
+  Value: |
+    $("input:text").keypress(function(event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    return false;
+                }
+            });
+     $('#adanigasdodoform').modal('show');
+    $('input[type=radio][name=PetrolIndustryPrevExp]').change(function() 
+    {
+        if (this.value == 'Yes') 
+    	{
+    		
+            $("#expdiv").show();
+    		if( $("#drpomc").attr("required") == undefined || $("#drpomc").attr("required") == false)
+    		{
+    			$("#drpomc").attr("required", "required");
+    			$("#drpomcyear").attr("required","required");
+    		}
+    
+        }
+        else
+    	{
+    		$("#expdiv").hide();
+    		if($("#drpomc").attr("required") == "required")
+    		{
+    			$("#drpomc").removeAttr('required');
+    			$("#drpomcyear").removeAttr('required');
+    		}
+    				
+    	}
+    });
+    
+    $("#btndodoMobileSubmit").click(function () {
+        $("#errorMsg").text('');
+        $('#btndodoMobileSubmit').attr("disabled", "disabled");
+    
+        var mailid = $("#mobile").val();
+        if (mailid == "") { $("#mobileMsg").text("Mobile is Required"); $("#mobile").focus(); $('#btndodoMobileSubmit').removeAttr("disabled"); return false; }
+        if (!$('#mobile').val().match('[0-9]{10}')) {
+            $("#mobileMsg").text("Please enter 10 digit mobile number.");
+            $('#btndodoMobileSubmit').removeAttr("disabled");
+            return false;
+        }
+    
+        //ajax calling to insert  custom data function
+        $.ajax(
+            {
+                type: "get",
+                dataType: 'JSON',
+                url: '/api/AdaniGas/IsMobileValidateforDODO',
+                data: {
+                    MobileNumber: $("#mobile").val(),
+                },
+                success:
+                    function (data) {
+                        if (data != null && data != undefined && data != "") {
+                            if (data == "Registered") {
+                                $("#mobileMsg").text("Mobile Number is already registered, you can print receipt for the same. Please use another number for registration.");
+                                $('#btndodoMobileSubmit').removeAttr("disabled");
+                                $("#btndodoprintpayment").show();
+                            }
+                            else if (data == "PaymentPending") {
+                                $("#mobileMsg").text("Mobile Number is registered. But Payment is not done. Please pay the amount.");
+                                $("#btndodopaymentSubmit").show();
+                                $("#btndodoprintpayment").hide();
+                            }
+                            else {
+                                $("#mobileMsg").text(data);
+                                $('#btndodoMobileSubmit').removeAttr("disabled");
+                                $("#btndodoprintpayment").hide();
+                            }
+                        }
+                        else {
+                            $("#MobileNumber").val($("#mobile").val());
+                              $("#adanigasdodoform").modal('hide');
+                        }
+                    }
+            });
+        return false;
+    });
+    
+    $("#btndodoprintpayment").click(function () {
+        window.location.href = "/cng/cng-dodo-form/paymentreceipt?mobilenumber=" + $("#mobile").val();
+      return false;
+    });
+- ID: "ba3f86a2-4a1c-4d78-b63d-91c2779c1b5e"
+  Hint: __Sortorder
+  Value: 300
+- ID: "f1a1fe9e-a60c-4ddb-a3a0-bb5b29fe732e"
+  Hint: __Renderings
+  Type: layout
+  Value: |
+    <r xmlns:p="p" xmlns:s="s"
+      p:p="1">
+      <d
+        id="{FE5D7FDF-89C0-4D99-9AA3-B5FBD009C9F3}">
+        <r
+          uid="{E13C5F79-3440-40DC-87A1-178C27525A66}"
+          p:after="r[@uid='{01157FA5-CFA5-488C-81C6-CB01F2839FAE}']"
+          s:cnd=""
+          s:ds=""
+          s:id="{3A9A7DB4-8D93-4CF6-9A33-D3C28E0F80A6}"
+          s:par="Type=Industrial"
+          s:ph="page-layout" />
+      </d>
+    </r>
+Languages:
+- Language: en
+  Versions:
+  - Version: 1
+    Fields:
+    - ID: "0ee2f208-1fee-42fc-8051-6696d49a92bf"
+      Hint: OpenGraphTitle
+      Value: "CNG DODO Form - Adani CNG | Adani Total Gas"
+    - ID: "1b483e91-d8c4-4d19-ba03-462074b55936"
+      Hint: NavigationTitle
+      Value: CNG DODO Form
+    - ID: "25bed78c-4957-4165-998a-ca1b52f67497"
+      Hint: __Created
+      Value: 20190405T093023Z
+    - ID: "a12d5346-87ee-484d-83c5-f1e8e1b99666"
+      Hint: OpenGraphDescription
+      Value: |
+        Adani CNG DODO Form. Get the information about CNG station and Dealer Owned Dealer Operated (DODO) Model.
+        
+    - ID: "bb7a38c0-323c-4f81-8eb9-288abf7c4638"
+      Hint: MetaDescription
+      Value: |
+        Adani CNG DODO Form. Get the information about CNG station and Dealer Owned Dealer Operated (DODO) Model.
+        
+    - ID: "c30a013f-3cc8-4961-9837-1c483277084a"
+      Hint: Title
+      Value: CNG DODO Form
+    - ID: "ca0479ce-0bfe-4522-83de-ba688b380a78"
+      Hint: BrowserTitle
+      Value: "CNG DODO Form - Adani CNG | Adani Total Gas"
+    - ID: "d74f396d-5c5e-4916-bd0a-bfd58b6b1967"
+      Hint: Body
+      Value: 

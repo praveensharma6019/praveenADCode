@@ -1,0 +1,48 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    var i = 0;
+}
+
+<section class="section bg-white" id="team-tile" style="display:none;">
+    <div class="container teams-tiles txt-center">
+        <p class="txt-right"><a href="#teams-tiles-close" class="btn-close" id="teams-tiles-close"><i class="fa fa-window-close"></i></a></p>
+        <div class="row">
+            @foreach (var img in elements.ToList())
+            {
+                var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                var style = img.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                <div class="col-sm-3 px-4 py-4" id="team-@i">
+                    <img src="@style" class="img-fluid" />
+                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)
+                </div>
+                i++;
+            }
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="row t-tiles" id="team-@i" style="display:none">
+            <div class="col-lg-3 txt-center">
+                <img src="images/teams/team-01.png" class="img-fluid">
+                <h3>Mr. Gautam Adani</h3>
+                <h4>Chairman</h4>
+            </div>
+            <div class="col-lg-9 pt-5 pb-5 px-5">
+                <p class="txt-right"><a href="#close" class="btn-close" id="close-01"><i class="fa fa-window-close"></i></a></p>
+                <p class="txt-md px-3">Mr. Gautam Adani,the Chairman and Founder of the Adani Group, has more than 33 years of business experience. Under his leadership, Adani Group has emerged as a global integrated infrastructure player with interest across Resources,Logistics and Energy verticals. Mr Adani’s success story is extraordinary in many ways.</p>
+            </div>
+        </div>
+    </div>
+</section>

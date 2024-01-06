@@ -1,0 +1,97 @@
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.AdaniGreenTalks.Website;
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "#";
+    string altText = "";
+    string imgurl1 = "#";
+    string altText1 = "";
+    int count = 1;
+
+
+
+}
+
+@if (model != null)
+{
+    Sitecore.Data.Fields.ImageField imgField1 = ((Sitecore.Data.Fields.ImageField)model.Fields[Constant.Thumbnail]);
+    if (imgField1 != null && imgField1.MediaItem != null)
+    {
+        imgurl1 = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField1.MediaItem);
+        altText1 = imgField1.Alt;
+    }
+
+
+    <div class="team-section">
+        <div class="container">
+            <div class="heading">
+                <h2>@Html.Sitecore().Field(Constant.SubTitle, model)</h2>
+            </div>
+            @if (model.HasChildren)
+            {
+                foreach (Item item in model.GetChildren())
+                {
+
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.thumbnail]);
+                    if (imgField != null && imgField.MediaItem != null)
+                    {
+                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                        altText = imgField.Alt;
+                    }
+                    else
+                    {
+                        imgurl = "#";
+                        altText = "";
+                    }
+                    if (count % 2 == 0)
+                    {
+
+                        <div class="member-details reverse">
+                            <div class="member-image">
+                                <img src="@imgurl" alt="@altText" />
+                            </div>
+                            <div class="member-info">
+                                <h3>@Html.Sitecore().Field(Constant.Title, item)</h3>
+                                <h5>@Html.Sitecore().Field(Constant.Designation, item)</h5>
+                                
+                                    @Html.Sitecore().Field(Constant.Description, item)
+                               
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+
+                        <div class="member-details">
+                            <div class="member-image">
+                                <img src="@imgurl" alt="@altText" />
+                            </div>
+                            <div class="member-info">
+                                <h3>@Html.Sitecore().Field(Constant.Title, item)</h3>
+                                <h5>@Html.Sitecore().Field(Constant.Designation, item)</h5>
+                               
+                                    @Html.Sitecore().Field(Constant.Description, item)
+                                
+                            </div>
+                        </div>
+                    }
+                    count++;
+                }
+
+            }
+
+
+        </div>
+    </div>
+}

@@ -1,0 +1,296 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Sitecore.Globalization
+@using System
+@using Adani.BAU.Transmission.Foundation.SitecoreHelper.Platform.Helper
+@using Adani.BAU.Transmission.Foundation.SitecoreHelper.Platform.Sanitization
+@model RenderingModel
+@{
+    Layout = null;
+Helper linkHelepr = new Helper();
+}
+
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+
+    Sitecore.Collections.ChildList childList = currentItem.Children;
+    var i = 0;
+    var j = 0;
+}
+<div class="offcanvas airportListOffcanvas offcanvas-bottom" tabindex="-1" id="airportListOffcanvas" aria-labelledby="airportListOffcanvas">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title h5">Select Airport</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body offcanvasNoSpace" id="airportListBody">
+
+    </div>
+</div>
+<footer class="footer_wrapper">
+    <section class="quickLinks">
+        <div class="container">
+            <div class="row">
+                @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0)
+                {
+                    foreach (Item quicklinks in childList["QuickLinks"].Children)
+                    {
+                        <div class="col-sm-12 col-lg-3">
+                            @Html.Sitecore().BeginField("LinkUrl", quicklinks, new { haschildren = true, @class = "quickLinksCol lightRipple", @auto_id = @Html.Sitecore().Field("AutoId", quicklinks) })
+                            @Html.Sitecore().Field("RichText", quicklinks)
+                            <h5>@Html.Sitecore().Field("LinkTitle", quicklinks)</h5>
+                            <p>@Html.Sitecore().Field("RightIconClass", quicklinks)</p>
+                            @Html.Sitecore().EndField()
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+    <div class="container">
+        @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0)
+        {
+            if (linkHelepr.GetCheckboxOption(childList["Seo Contents"].Fields["IsActive"]) == true)
+            {
+
+                foreach (Item parent in childList["Seo Contents"].Children)
+                {
+                    if (linkHelepr.GetCheckboxOption(parent.Fields["IsActive"]) == true)
+                    {
+                        if (parent != null && parent.Children != null && parent.Children.Count > 0)
+                        {
+                            <div class="seoContent">
+
+                                @if (parent.DisplayName != null)
+                                {
+                                    <h5>@parent.DisplayName.ToString()</h5>
+                                }
+                                else
+                                {
+                                    <h5>@parent.Name.ToString()</h5>
+
+                                }
+
+                                <nav>
+                                    @foreach (Item children in parent.Children)
+                                    {
+                                        if (linkHelepr.GetCheckboxOption(children.Fields["IsActive"]) == true)
+                                        {
+                                            @Html.Sitecore().Field("LinkUrl", children)
+                                        }
+                                    }
+                                </nav>
+                            </div>
+                        }
+                    }
+                }
+            }
+        }
+
+        <ul class="footer_nav">
+            @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0)
+            {
+                if (linkHelepr.GetCheckboxOption(childList["Main Navigations"].Fields["IsActive"]) == true)
+                {
+
+                    foreach (Item parent in childList["Main Navigations"].Children)
+                    {
+                        if (linkHelepr.GetCheckboxOption(parent.Fields["IsActive"]) == true)
+                        {
+
+                            if (parent != null && parent.Children != null && parent.Children.Count > 0)
+                            {
+                                <li class="footer_nav_grid">
+                                    @if (parent.DisplayName != null)
+                                    {
+
+                                        <h5 class="footer_link_heading" onclick="footerToggle(this);" auto_id=@Html.Sitecore().Field("AutoId", parent)>
+                                            @parent.DisplayName.ToString()
+                                            <i class="i-arrow-d"></i>
+                                        </h5>
+                                    }
+                                    else
+                                    {
+                                        <h5 class="footer_link_heading" onclick="footerToggle(this);" auto_id=@Html.Sitecore().Field("AutoId", parent)>
+                                            @parent.Name.ToString()
+                                            <i class="i-arrow-d"></i>
+                                        </h5>
+                                    }
+                                    <ul class="footer_link_list">
+                                        @foreach (Item children in parent.Children)
+                                        {
+                                            if (linkHelepr.GetCheckboxOption(children.Fields["IsActive"]) == true)
+                                            {
+
+                                                <li class="footer_link">@Html.Sitecore().Field("LinkUrl", children)</li>
+                                            }
+
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        }
+                        j++;
+                    }
+                }
+            }
+        </ul>
+
+        @*<div class="payment">
+                <ul>
+                    @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0)
+                    {
+                        if (linkHelepr.GetCheckboxOption(childList["Payments"].Fields["IsActive"]) == true)
+                        {
+                            foreach (Item parent in childList["Payments"].Children)
+                            {
+                                if (linkHelepr.GetCheckboxOption(parent.Fields["IsActive"]) == true)
+                                {
+
+                                    <li>
+                                        <a href="@LinkResolver.LinkUrl(parent.Fields["Link"])">
+                                            @Html.Sitecore().Field("Image", parent)
+                                        </a>
+                                    </li>
+                                }
+
+                            }
+                        }
+                    }
+
+                </ul>
+            </div>*@
+
+        <div class="social_link_wrapper flx-list-wrapper">
+
+            <ul class="social_link_list flx-list">
+                @foreach (Item footersocilalink in childList["Footer Social Links"].Children)
+                {
+                    <li>
+                        <a href="@linkHelepr.LinkUrl(footersocilalink.Fields["LinkUrl"])">
+
+                            <svg class="inactive" viewBox="0 0 32 32">
+                                <path d="@Html.Sitecore().Field("RichText", footersocilalink)"></path>
+                            </svg>
+
+
+                        </a>
+                    </li>
+                }
+
+            </ul>
+            @*<ul class="app-download-links">
+                    @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0)
+                    {
+                        if (linkHelepr.GetCheckboxOption(childList["Download"].Fields["IsActive"]) == true)
+                        {
+                            foreach (Item parent in childList["Download"].Children)
+                            {
+                                if (linkHelepr.GetCheckboxOption(parent.Fields["IsActive"]) == true)
+                                {
+
+                                    <li>
+                                        <a href="@LinkResolver.LinkUrl(parent.Fields["Link"])">
+                                            @Html.Sitecore().Field("Image", parent)
+                                        </a>
+
+
+                                    </li>
+
+                                }
+
+                            }
+                        }
+
+                    }
+
+                </ul>*@
+        </div>
+
+        <div class="footer_copyright">
+            <ul class="copyright_links_list">
+                <li>@Translate.Text("copy_right")</li>
+                @if (childList != null && childList.InnerChildren != null && childList.InnerChildren.Count > 0)
+                {
+                    if (linkHelepr.GetCheckboxOption(childList["Footer copyright"].Fields["IsActive"]) == true)
+                    {
+                        foreach (Item parent in childList["Footer copyright"].Children)
+                        {
+                            if (linkHelepr.GetCheckboxOption(parent.Fields["IsActive"]) == true)
+                            {
+
+                                <li> @Html.Sitecore().Field("LinkUrl", parent)</li>
+                            }
+                        }
+                    }
+
+                }
+
+            </ul>
+        </div>
+        <div class="backToTop" onclick="scrollToTop()" style="display: none;">
+
+            <div class="inner">
+
+                <i class="i-arrow-u"></i>
+
+                <span>@Html.Sitecore().Field("__Short description", childList["BottomNav"])</span>
+
+            </div>
+
+        </div>
+    </div>
+</footer>
+@*<div class="bottomNav_fixed d-flex d-md-none">
+        @foreach (Item bottomNav in childList["BottomNav"].Children)
+        {
+            if (linkHelepr.GetCheckboxOption(bottomNav.Fields["IsActive"]) == true)
+            {
+                if (i == 4)
+                {
+                    @Html.Sitecore().BeginField("LinkUrl", bottomNav, new { haschildren = true, @onclick = "selectFooterMenu(this,event);" })
+                    <i class="i-more"></i>
+                    <label>@Html.Sitecore().Field("LinkTitle", bottomNav)</label>
+                    @Html.Sitecore().EndField()
+                }
+                else
+                {
+                    @Html.Sitecore().BeginField("LinkUrl", bottomNav, new { haschildren = true, @onclick = "selectFooterMenu(this,event);" })
+                    <i class="inactive @Html.Sitecore().Field("LeftIconClass", bottomNav)"></i>
+                    <i class="active @Html.Sitecore().Field("RightIconClass", bottomNav)"></i>
+                    <label>@Html.Sitecore().Field("LinkTitle", bottomNav)</label>
+                    @Html.Sitecore().EndField()
+                }
+
+                i++;
+            }
+
+        }
+    </div>*@
+<div class="bottomNav d-flex d-md-none">
+    <div class="bottomNav_child">
+        @{string absoluteurl = System.Web.HttpContext.Current.Request.Url.AbsoluteUri.ReplaceBlank();
+            if (absoluteurl.Contains("mumbai-airport"))
+            {
+                absoluteurl = "Home";
+            }
+        }
+        @foreach (Item bottomNav in childList["BottomNav"].Children)
+        {
+            @Html.Sitecore().BeginField("Link", bottomNav, new { haschildren = true, @class = (absoluteurl.ToLower().Contains(@Html.Sitecore().Field("Title", bottomNav).ToString().ToLower()) ? "active" : "") })
+            if (@Html.Sitecore().Field("Title", bottomNav).ToString() == "Cart")
+            {
+                <span class="badge rounded-pill bg-danger"></span>
+            }
+            <span>
+                @Html.Sitecore().Field("ActiveImage", bottomNav, new { @class = "active", @alt = "" })
+                <svg class="inactive" viewBox="0 0 20 20">
+                    <path d="@Html.Sitecore().Field("ImagePath", bottomNav)"></path>
+                </svg>
+            </span>
+            <label>@Html.Sitecore().Field("Title", bottomNav)</label>
+            @Html.Sitecore().EndField()
+        }
+    </div>
+</div>
+

@@ -1,0 +1,340 @@
+﻿<div class="sf-form-div">
+    @Html.Sitecore().Placeholder("page-form")
+</div>
+
+<div id="modalFormSuccessCorporate" class="modal modal-alert modal-toast custom-toast-success">
+    <header class="modal-header">
+        <h4>
+            <a class="toast-close">
+                <i class="i-tick"></i>
+            </a>
+            Submitted Successfully
+        </h4>
+        <a class="modal-close" id="CorporateFormCloseIcon">
+            <i class="i-cross"> </i>
+        </a>
+    </header>
+    <div class="modal-content">
+        <p id="modalFormSuccessCorporateContent">Your request submitted successfully. we will get back to you soon.</p>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.PhoneField').attr('oninput', 'javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);')
+        $('.PhoneField').attr('maxlength', '10')
+
+        
+
+        var isSuccess = GetParameterValues('IsSuccess');
+        function GetParameterValues(param) {
+            var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < url.length; i++) {
+                var urlparam = url[i].split('=');
+                if (urlparam[0] == param) {
+                    return urlparam[1];
+                }
+            }
+        }
+
+        if ($(".SecondChkBox+span").length > 0) {
+            var text = $(".SecondChkBox+span").text()
+            $(".SecondChkBox+span").html(text);
+        }
+
+        if (isSuccess == 1) {
+            viewSuccessModalMessage();
+        }
+
+        if ($('.sf-form-div').find('.field-validation-error').length > 0) {
+            $('#modalFormSuccessCorporate').remove();
+        }
+
+
+
+        function viewSuccessModalMessage() {
+            window.setTimeout(function () {
+                var elem = document.getElementById('modalFormSuccessCorporate');
+                var instance = M.Modal.init(elem, { dismissible: false });
+                instance.open();
+                if ($('#modalFormSuccessCorporateContent').html().indexOf('</a>') > 0) {
+                    window.setTimeout(function () {
+                        instance.close();
+                    }, 9000);
+                } else {
+                    $('#CorporateFormCloseIcon').hide();
+                    window.setTimeout(function () {
+                        instance.close();
+                    }, 4000);
+                }
+
+            }, 1500);
+            var uri = window.location.href.toString();
+            if (uri.indexOf("?") > 0) {
+                var clean_uri = uri.substring(0, uri.indexOf("?"));
+                window.history.replaceState({}, document.title, clean_uri);
+            }
+        }
+
+        if (readCookie('SFCookie') != null && readCookie('SFCookie') != 'null' && readCookie('SFCookie') != 'undefined') {
+            $(readCookie('SFCookie'))[0].scrollIntoView(true);
+            createCookie("SFCookie", 'null', "");
+        }
+
+
+
+    });
+
+    $('.sf-form-div').find('input[type=submit]').click(function () {
+        //debugger;
+        createCookie("SFCookie", '.sf-form-div', "");
+
+        if ($(this).val() == "Reset") {
+            $('.sf-form-div').find('.field-validation-error').html('');
+            $('.sf-form-div').find('.sitecore-form-field').removeClass('sf-invalid');
+            return false;
+        }
+
+        if ($(this).hasClass('CareersSubmit')) {
+            var isvalid = true;
+
+            if ($('.Firstname').val() == '' || $('.Firstname').val().trim() == '') {
+                $('.Firstname').val('');
+                $('.Firstname').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('First Name is required');
+                isvalid = false;
+            } else {
+                $('.Firstname').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.Lastname').val() == '' || $('.Lastname').val().trim() == '') {
+                $('.Lastname').val('');
+                $('.Lastname').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Last Name is required');
+                isvalid = false;
+            } else {
+                $('.Lastname').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.EmailQuery').val() == '') {
+                $('.EmailQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Email is required');
+                isvalid = false;
+            } else {
+                var regrex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                if (!regrex.test($('.EmailQuery').val())) {
+                    $('.EmailQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please enter Valid Email');
+                    isvalid = false;
+                } else {
+                    $('.EmailQuery').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+                }
+            }
+
+            if ($('.PhoneField').val() == '' || $('.PhoneField').val().trim() == '') {
+                $('.PhoneField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Mobile is required.');
+                isvalid = false;
+            } else {
+                var regrex = /^[6789]\d{9}$/;
+                if (!regrex.test($('.PhoneField').val())) {
+                    $('.PhoneField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please enter a 10 digit valid mobile number');
+                    isvalid = false;
+                } else {
+                    $('.PhoneField').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+                }
+            }
+
+            if ($('select.JobExperienceField option:selected').val() == 'Select') {
+                $('.JobExperienceField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please Select Job Experience');
+                isvalid = false;
+            } else {
+                $('.JobExperienceField').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.AreaofExpField').val() == '' || $('.AreaofExpField').val().trim() == '') {
+                $('.AreaofExpField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Area of Experience is required');
+                isvalid = false;
+            } else {
+                $('.AreaofExpField').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.DateFieldInput').val() == '' || $('.DateFieldInput').val().trim() == '') {
+                $('.DateFieldInput').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('DOB is required');
+                isvalid = false;
+            } else {
+                $('.DateFieldInput').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.DetailsInputField').val() == '' || $('.DetailsInputField').val().trim() == '') {
+                $('.DetailsInputField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Details is required');
+                isvalid = false;
+            } else {
+                $('.DetailsInputField').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.FileUploadField').val() == '' || $('.FileUploadField').val().trim() == '') {
+                $('.FileUploadField').closest('.sf-upload').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Resume is required');
+                isvalid = false;
+            } else {
+                var file = getNameFromPath($('.FileUploadField').val());
+                var flag = false;
+                if (file != null) {
+                    var extension = file.substr((file.lastIndexOf('.') + 1));
+                    switch (extension.toLowerCase()) {
+                        case 'docx':
+                        case 'pdf':
+                            flag = true;
+                            break;
+                        default:
+                            flag = false;
+                    }
+                }
+
+                if (flag == false) {
+                    isvalid = false;
+                    $('.FileUploadField').val('');
+                    if ($('.FileUploadField').closest('.file-upload-wrp').length > 0) {
+                        $('.FileUploadField').closest('.file-upload-wrp').removeClass('show');
+                    }
+                    $('.FileUploadField').closest('.sf-upload').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Only docx and pdf files are allowed.');
+                } else {
+                    $('.FileUploadField').closest('.sf-upload').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+                }
+            }
+
+            if (isvalid) {
+                $('.loader-wrap').show();
+            }
+
+            return isvalid;
+        }
+
+
+        if ($(this).hasClass('InvestorForm')) {
+            var isvalid = true;
+
+            if ($('.fname').val() == '' || $('.fname').val().trim() == '') {
+                $('.fname').val('');
+                $('.fname').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('First Name is required');
+                isvalid = false;
+            } else {
+                $('.fname').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.lname').val() == '' || $('.lname').val().trim() == '') {
+                $('.lname').val('');
+                $('.lname').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Last Name is required');
+                isvalid = false;
+            } else {
+                $('.lname').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('.bemailid').val() == '') {
+                $('.bemailid').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Business Email Id is required');
+                isvalid = false;
+            } else {
+                var regrex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                if (!regrex.test($('.bemailid').val())) {
+                    $('.bemailid').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please enter Valid Email');
+                    isvalid = false;
+                } else {
+                    $('.bemailid').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+                }
+            }
+
+            if ($('.Cname').val() == '' || $('.Cname').val().trim() == '') {
+                $('.Cname').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Company Name is required');
+                isvalid = false;
+            } else {
+                $('.Cname').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if (!($('.FirstChkBox')[0].checked)) {
+                $('.FirstChkBox').closest('.checkbox-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please check Checkbox');
+                isvalid = false;
+            } else {
+                $('.FirstChkBox').closest('.checkbox-field').addClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if (!($('.SecondChkBox')[0].checked)) {
+                $('.SecondChkBox').closest('.checkbox-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please check Checkbox');
+                isvalid = false;
+            } else {
+                $('.SecondChkBox').closest('.checkbox-field').addClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if (isvalid) {
+                $('.loader-wrap').show();
+            }
+
+            return isvalid;
+        }
+    })
+
+    $('.FileUploadField').change(function () {
+        CheckFileExtension();
+    })
+
+    function CheckFileExtension() {
+        var file = getNameFromPath($('.FileUploadField').val());
+        var flag = false;
+        if (file != null) {
+            var extension = file.substr((file.lastIndexOf('.') + 1));
+            switch (extension.toLowerCase()) {
+                case 'docx':
+                case 'pdf':
+                    flag = true;
+                    break;
+                default:
+                    flag = false;
+            }
+        }
+
+        if (flag == false) {
+            isvalid = false;
+            $('.FileUploadField').val('');
+            window.setTimeout(function () {
+                if ($('.FileUploadField').closest('.file-upload-wrp').length > 0) {
+                    $('.FileUploadField').closest('.file-upload-wrp').removeClass('show');
+                }
+            }, 200);
+            
+            $('.FileUploadField').closest('.sf-upload').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Only docx and pdf files are allowed.');
+        } else {
+            $('.FileUploadField').closest('.sf-upload').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+        }
+    }
+
+    function getNameFromPath(strFilepath) {
+        var objRE = new RegExp(/([^\/\\]+)$/);
+        var strName = objRE.exec(strFilepath);
+
+        if (strName == null) {
+            return null;
+        }
+        else {
+            return strName[0];
+        }
+    }
+
+    function createCookie(name, value, days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+        }
+        else var expires = "";
+
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+
+    function readCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) {
+                return c.substring(nameEQ.length, c.length);
+            }
+        }
+        return null;
+    }
+</script>

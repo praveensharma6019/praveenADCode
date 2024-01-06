@@ -1,0 +1,61 @@
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+
+    var isSocialMenu = Model.NavItems.All(i => !string.IsNullOrWhiteSpace(i.Item[Templates.LinkMenuItem.Fields.Icon]));
+}
+<ul class="@(isSocialMenu ? "social-links" : "mobile-none") float-right">
+    @foreach (var item in Model.NavItems)
+    {
+        var liclass = item.IsActive ? "active " : "";
+        if (item.Item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+        {
+            liclass += "divider-left";
+        }
+        <li class="@liclass">
+            <a href="@item.Url" target="@item.Target" title="@item.Item[Templates.Navigable.Fields.NavigationTitle]">
+                @if (!string.IsNullOrWhiteSpace(item.Item[Templates.LinkMenuItem.Fields.Icon]))
+                {
+                    <span class="sprite @item.Item[Templates.LinkMenuItem.Fields.Icon]"></span>
+                }
+                else
+                {
+                    if (item.Item[Templates.LinkMenuItem.Fields.Image] != null)
+                    {
+                        @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, item.Item, 20, 67)
+                    }
+                    else
+                    {
+                        @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                    }
+
+                }
+
+            </a>
+
+        </li>
+
+    }
+</ul>
+@*<ul class="mx-3 quick-links float-right">
+    <li class="topSearch">
+        <a href="#">
+            <span class="searchIcon">
+                <i class="fas fa-search"></i>
+            </span>
+            <span class="searchTxt">&nbsp;&nbsp;@Html.Sitecore().Dictionary("/Realty/Menu/Search Label", "Search")</span>
+        </a>
+    </li>
+</ul>
+
+<ul class="quick-links float-right">
+    <li><a href="mailto:@Html.Sitecore().Dictionary("/Realty/Menu/Info Email", "info@adanirealty.com")"><i class="fas fa-envelope"></i>&nbsp;&nbsp;@Html.Sitecore().Dictionary("/Realty/Menu/Info Email", "info@adanirealty.com")</a></li>
+    <li class="ml-3"><span><i class="fas fa-phone rotate90"></i>&nbsp;&nbsp;@Html.Sitecore().Dictionary("/Realty/Menu/Phone Number", "1800 108 009")</span></li>
+</ul>*@

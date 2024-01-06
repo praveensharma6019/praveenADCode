@@ -1,0 +1,90 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+    bool flag = false;
+
+}
+<div class="col-md-3 col-6">
+    @*<div class="row">*@
+        @foreach (var items in Model.NavItems.ToList())
+        {
+            flag = false;
+            @*<div class="col-sm-3 mb-3 col-6">*@
+            if (items.IsNewTab)
+            {
+                <h5>
+                    <a target="_blank" href="@items.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item)</a>
+                </h5>
+            }
+            else
+            {
+                <h5>
+                    <a href="@items.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item)</a>
+                </h5>
+            }
+            if (items.Children != null)
+            {
+                foreach (var child in items.Children.NavItems)
+                {
+                    if (string.IsNullOrEmpty(child.IconCss))
+                    {
+                        @Html.Raw("<ul class='mobile-none'>")
+                        flag = true;
+                    }
+                    else if (flag == false)
+                    {
+                        @Html.Raw("<ul class='social-links-footer mobile-none'>")
+                        flag = true;
+                    }
+                    if (string.IsNullOrEmpty(child.IconCss))
+                    {
+                        if (child.IsNewTab)
+                        {
+                            <li>
+                                <a target="_blank" href="@child.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, child.Item)</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a href="@child.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, child.Item)</a>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        if (child.IsNewTab)
+                        {
+                            <li>
+                                <a target="_blank" href="@child.Url" target="@child.Target"><span class="@child.Item[Templates.LinkMenuItem.Fields.Icon]"></span></a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a href="@child.Url" target="@child.Target"><span class="@child.Item[Templates.LinkMenuItem.Fields.Icon]"></span></a>
+                            </li>
+                        }
+                    }
+
+                }
+                if (flag == true)
+                {
+                    @Html.Raw("</ul>")
+                    flag = false;
+                }
+            }
+            @*</div>*@
+        }
+        @*<div class="col-md-12 desktop-none txt-center">
+                @Html.Sitecore().Placeholder("socialmenu-footer")
+            </div>*@
+    @*</div>*@
+</div>

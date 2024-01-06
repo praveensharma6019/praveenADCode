@@ -1,0 +1,41 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.ResidentTopProperty.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.ResidentTopProperty.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+
+    var childitems = models.GetChildren().ToList();
+}
+
+<div class="col-lg-4 bg-contact-l-tile py-5">
+
+    <div class="bg-images">
+        @Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Logo, models)
+    </div>
+    <p class="mb-4 txt-center txt-lg txt-white">@Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Title, models)</p>
+    @if (childitems != null && childitems.Count>0)
+    {
+        foreach (var item in childitems)
+        {
+            <div class="row">
+                <div class="col-2">
+                    @Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Logo, item)
+                </div>
+                <div class="col-10">
+                    <h4>@Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Title, item)</h4>
+                    @Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Description, item)
+                    <hr />
+                </div>
+            </div>
+        }
+    }
+</div>

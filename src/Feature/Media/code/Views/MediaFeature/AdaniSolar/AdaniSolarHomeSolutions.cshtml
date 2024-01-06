@@ -1,0 +1,87 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    int i = 1;
+    int j = 1;
+
+
+}
+@if (elements != null)
+{
+<section class="z-index position-relative bg-gray py-5 solutions-tab overflow-hidden" data-aos="fade-up">
+    <div class="scroll-icon scroll-section">
+        <img src="../styles/images/graphic-rotate-2.png"
+             class="img-fluid">
+    </div>
+    <div class="container" data-aos="fade-up">
+        <h2 class="text-center sectionHeading mb-5">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, elements)</h2>
+        <ul class="nav nav-tabs mb-4" id="solution" role="tablist">
+            @{
+                var SolutionList = elements.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{1CB29F74-DD37-40B3-A1E8-549C60D2D03B}"));
+            }
+            @foreach (var solution in SolutionList)
+            {
+                var actv = string.Empty;
+                var selected = string.Empty;
+                if (i == 1)
+                {
+                    actv = "active";
+                    selected = "true";
+                }
+                else
+                {
+                    actv = "";
+                    selected = "false";
+                }
+                <li class="nav-item">
+                    <a class="nav-link @actv" id="tabs-@i" data-toggle="tab" href="#tab-s-@i" role="tab"
+                       aria-controls="tab-s-@i" aria-selected=@selected>
+                        <p>@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, solution)</p>
+                    </a>
+                </li>
+                i++;
+            }
+        </ul>
+        <div class="tab-content" id="solutionstab">
+            @foreach (var solutionData in SolutionList)
+            {
+                var actv = string.Empty;
+                if (j == 1)
+                {
+                    actv = "show active";
+                }
+                else
+                {
+                    actv = "";
+                }
+                <div class="tab-pane fade @actv" id="tab-s-@j" role="tabpanel" aria-labelledby="tabs-@j">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 text-center position-relative">
+                            <div class="floating-element">
+                                @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasPageContent.Fields.Image, solutionData, cssClass: "img-fluid")
+                                @Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, solutionData)
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-5 ml-auto py-5">
+                            @Html.Sitecore().Field(Templates.HasPageContent.Fields.Body, solutionData)
+                            <p><a href="@solutionData.Url()" class="btn btn-gradient">Read more</a></p>
+                        </div>
+                    </div>
+                </div>
+                j++;
+            }
+        </div>
+    </div>
+</section>
+}

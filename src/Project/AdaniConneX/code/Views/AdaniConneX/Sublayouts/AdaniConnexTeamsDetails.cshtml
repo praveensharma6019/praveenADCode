@@ -1,0 +1,60 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+
+    string imgurl = "";
+    string altText = "";
+
+}
+
+
+@if (model != null)
+{
+    
+            Sitecore.Data.Fields.ImageField imgField1 = ((Sitecore.Data.Fields.ImageField)model.Fields["thumbnail"]);
+            if (imgField1 != null && imgField1.MediaItem != null)
+            {
+                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField1.MediaItem);
+                altText = imgField1.Alt;
+            }
+
+            <div class="section-holder ">
+                <div class="content-wrapper">
+@Html.Sitecore().Placeholder("press-release-breadcrumb")
+                    <div class="team-details-wrapper full flx-sb">
+                        <div class="team-img">
+                            @if (imgurl != "")
+                            {
+                                <img src="@imgurl" alt="@altText" class="res-img bdr-r8">
+                            }
+
+                        </div>
+                        <p class="full h1 fm-asb tx-000 tm-s-mobile">@Html.Sitecore().Field("Title", model)</p>
+                        <p class="full d-txt desc tm-s-mobile">@Html.Sitecore().Field("Designation", model)</p>
+                        <ul class="team-details d-txt">
+                            <li class="tm-h-mobile">
+                                <p class="full h1 fm-asb tx-000 tm-h-mobile">@Html.Sitecore().Field("Title", model)</p>
+                                <p class="full d-txt desc tm-h-mobile">@Html.Sitecore().Field("Designation", model)</p>
+                            </li>
+                            @Html.Sitecore().Field("Description", model)
+                        </ul>
+                    </div>
+                </div>
+            </div>       
+
+}

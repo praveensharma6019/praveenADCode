@@ -1,0 +1,88 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+
+    var currentPageitem = RenderingContext.Current.Rendering.Item;
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+}
+
+@if (currentPageitem != null && parent != null)
+{
+    var currentPageName = currentPageitem.DisplayName;
+
+    <div class="col s12 l8 offset-l1">
+        <div class="col s12 m12">
+            <div class="new-connection">
+                <div class="container">
+                    <div class="row section-wrapper">
+                        <div class="col s12">
+                            <header class="section-header">
+                                <h2>@currentPageName</h2>
+                            </header>
+                        </div>
+                        @foreach (var child in parent.Children.InnerChildren)
+                        {
+                            Sitecore.Data.Fields.LinkField linkfld = child.Fields["CTALink"];
+                            var url = linkfld.GetFriendlyUrl();
+                            var urlTarget = linkfld != null ? linkfld.Target : "";
+
+                            if (!string.IsNullOrEmpty(child["Title"]) && !(child.Name.ToLower() == "logout"))
+                            {
+                                <div class="col s12 m4">
+                                    <div class="card">
+
+
+                                        <a href="@url" target="@urlTarget" class="waves-effect">
+                                            <i class="@Html.Sitecore().Field("IconCss", child)"></i>
+                                            <aside>
+                                                <h2>@Html.Sitecore().Field("Title", child)</h2>
+                                                <p> @Html.Sitecore().Field("Short Title", child)</p>
+                                            </aside>
+                                        </a>
+
+                                    </div>
+                                </div>
+                            }
+                            if (currentPageName == "My Account" && child.Name.ToLower() == "logout")
+                            {
+                                if (Sitecore.Context.User.IsAuthenticated && Elemodel != null)
+                                {
+                                    <div class="col s12 m4">
+                                        <div class="card">
+                                            <form action="@Url.Action("logoutrevamp","accountsrevamp")" id="form1" class="form-signin" method="post">
+                                                <a onclick="document.getElementById('form1').submit();" class="waves-effect">
+                                                    <i class="@Html.Sitecore().Field("IconCss", child)">
+                                                        <img src="/electricity_assets/images/Logout.svg" alt="Logout">
+                                                    </i>
+                                                    <aside>
+                                                        <h2>@Html.Sitecore().Field("Title", child)</h2>
+                                                        <p> @Html.Sitecore().Field("Short Title", child)</p>
+                                                    </aside>
+                                                </a>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

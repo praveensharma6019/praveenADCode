@@ -1,0 +1,89 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource).FieldHasValue(Templates.HasMediaSelector.Fields.IsBanner);
+    var j = 0;
+}
+
+
+@*<!-- Banner Carousel -->
+    <div class="owl-carousel" id="bannerCarousel">
+        @foreach (var element in elements)
+        {
+            <div class="slideItem">
+                @{
+                    //var style = "background-image: ";
+                    var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                    var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                    var fixedHeight = Model.Rendering.IsFixedHeight();
+                    if (fixedHeight && carouselHeight.HasValue)
+                    {
+                        style += "; height:" + carouselHeight + "px;";
+                    }
+                }
+                <div class="bannerImg"><img src="@style"></div>
+                <div class="bannerContent">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-8 col-lg-6">
+                                <h1 class="mt-3">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, element.Item)</h1>
+                                <p class="my-3"> @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)</p>
+                                <div>
+                                    @{
+                                        var itemURL = Sitecore.Links.LinkManager.GetItemUrl(element.Item);
+                                    }
+                                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Link, element.Item, new { @class = "btn btn-secondary btn-lg", @alt = "Find out More" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <!-- /Banner Carousel-->*@
+
+
+<section class="section-growth">
+    @foreach (var element in elements)
+    {
+
+        //var style = "background-image: ";
+        var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+        var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+        var fixedHeight = Model.Rendering.IsFixedHeight();
+        if (fixedHeight && carouselHeight.HasValue)
+        {
+            style += "; height:" + carouselHeight + "px;";
+        }
+        <div class="container">
+            <div class="row mt-5">
+                <div class="col-md-12 mx-auto text-left mt-5">
+                    <h3 class="sectionTitle"> @Html.Sitecore().Field(Templates.HasMedia.Fields.Title, element.Item)</h3>
+                    <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-growthgoodness"><img src="@style" class="img-fluid w-100"></div>
+        j++;
+    }
+</section>

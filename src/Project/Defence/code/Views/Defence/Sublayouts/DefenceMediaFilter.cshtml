@@ -1,0 +1,195 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    List<string> regyear = new List<string>();
+    var j = 0;
+    var flag = 0;
+    var sortedparent = parent.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+    string linkUrl = "#";
+}
+
+
+<section class="py-5 bg-gray">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 ml-auto">
+                <div class="form-group">
+
+                    <select class="form-control btn-gradient" id="btn-mrelease">
+
+                        @foreach (var child in sortedparent.ToList())
+                        {
+                            var childitems = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+                            var completedate = child.Fields["Date"].Value;
+                            var formatedcompletedate = DateTime.ParseExact(completedate, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+                            var year = formatedcompletedate.ToString("yyyy");
+
+                            if (i == 0)
+                            {
+                                regyear.Add(year);
+
+                                <option>@year</option>
+                            }
+                            else
+                            {
+                                foreach (var appendyear in regyear)
+                                {
+
+                                    if (appendyear == year)
+                                    {
+                                        flag++;
+                                        break;
+                                    }
+                                }
+                                if (flag == 0)
+                                {
+                                    regyear.Add(year);
+                                    <option>@year</option>
+                                }
+                                else
+                                {
+                                    flag = 0;
+                                }
+                            }
+                            i++;
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="media-r-parent">
+
+
+            @foreach (var tabyear in regyear)
+            {
+                if (j == 0)
+                {
+                    <div id="@tabyear" class="row media-r @tabyear">
+                        <div class="col-md-12 mt-3">
+                            <div class="media-date">
+                                <p>@tabyear</p>
+                            </div>
+                        </div>
+
+                        @{
+                            var mediaFilterByYear = parent.Children.Where(x => x.Fields["IsVisible"].Value == "1" && x.Fields["Date"].Value.Contains(tabyear)).OrderByDescending(x => x.Fields["Date"].Value);
+
+                        }
+
+                        @foreach (var mediaList in mediaFilterByYear)
+                        {
+                            //Sitecore.Data.Fields.LinkField linkfield = mediaList.Fields["LinkUrl"];
+                            //var url = linkfield.GetFriendlyUrl();
+                            linkUrl = Sitecore.Links.LinkManager.GetItemUrl(mediaList);
+                            Sitecore.Data.Fields.LinkField imageLink = mediaList.Fields["LinkUrl"];
+                            var imageLinkUrl = imageLink.GetFriendlyUrl();
+                            <div class="col-md-12">
+                                @* <div class="media-release-box">
+
+                                        <h3>
+                                            @if (string.IsNullOrEmpty(imageLinkUrl))
+                                            {
+                                                <a href="@linkUrl">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                            }
+                                            else
+                                            {
+                                                <a href="@imageLinkUrl" target="_blank">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                            }
+
+
+                                        </h3>
+                                        <p><span>@Html.Sitecore().Field("Date", mediaList, new { format = "MMM dd, yyyy" }) @Html.Sitecore().Field("Author", mediaList)</span></p>
+                                    </div>
+                                *@
+
+                                <div class="media-release-box">
+                                    <div class="row">
+                                        <div class="col-md-11">
+                                            <h3>
+                                                @if (string.IsNullOrEmpty(imageLinkUrl))
+                                                {
+                                                    <a href="@linkUrl">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@imageLinkUrl" target="_blank">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                                }
+
+                                            </h3>
+                                            <p><span>@Html.Sitecore().Field("Date", mediaList, new { format = "MMM dd, yyyy" }) @Html.Sitecore().Field("Author", mediaList)</span></p>
+                                        </div>
+                                        <div class="col-md-1 icon_row">
+                                            <a target="_blank" href="@imageLinkUrl">
+                                                <img src="-/media/B74CDCDF6E5144B2B40F24C19879C772.ashx" alt="" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+
+
+                    </div>
+                }
+                else
+                {
+
+                    <div id="@tabyear" class="row media-r @tabyear" style="display:none">
+                        <div class="col-md-12 mt-3">
+                            <div class="media-date">
+                                <p>@tabyear</p>
+                            </div>
+                        </div>
+
+                        @{
+                            var mediaFilterByYear = parent.Children.Where(x => x.Fields["IsVisible"].Value == "1" && x.Fields["Date"].Value.Contains(tabyear)).OrderByDescending(x => x.Fields["Date"].Value);
+
+                        }
+
+                        @foreach (var mediaList in mediaFilterByYear)
+                        {
+                            //Sitecore.Data.Fields.LinkField linkfield = mediaList.Fields["LinkUrl"];
+                            //var url = linkfield.GetFriendlyUrl();
+                            linkUrl = Sitecore.Links.LinkManager.GetItemUrl(mediaList);
+                            Sitecore.Data.Fields.LinkField imageLink = mediaList.Fields["LinkUrl"];
+                            var imageLinkUrl = imageLink.GetFriendlyUrl();
+                            var anchorHref = "";
+                            <div class="col-md-12">
+                                <div class="media-release-box">
+
+                                    <h3>
+                                        @if (string.IsNullOrEmpty(imageLinkUrl))
+                                        {
+                                            anchorHref = linkUrl;
+                                            <a href="@linkUrl">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                        }
+                                        else
+                                        {
+                                            anchorHref = imageLinkUrl;
+                                            <a href="@imageLinkUrl" target="_blank">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                        }
+
+                                    </h3>
+                                    <p><span>@Html.Sitecore().Field("Date", mediaList, new { format = "MMM dd, yyyy" })</span></p>
+                                </div>
+                            </div>
+
+                        }
+
+
+                    </div>
+                }
+
+            }
+        </div>
+     
+    </div>
+</section>

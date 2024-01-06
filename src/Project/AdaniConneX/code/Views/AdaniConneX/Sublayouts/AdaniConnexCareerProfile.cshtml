@@ -1,0 +1,54 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string url = string.Empty;   
+string altText = string.Empty;  
+string bgurl = string.Empty;   
+string bgaltText = string.Empty;
+}
+@if (model != null)
+{
+      Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["ProfileImage"]);
+      if ((imgField != null && imgField.MediaItem != null))
+      {
+      url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+      altText = imgField.Alt;								  						 
+      }
+      Sitecore.Data.Fields.LinkField linkField = model.Fields["LinkedInUrl"];
+      string Linkurl = linkField.GetFriendlyUrl();
+ <div class="section-holder">
+            <div class="content-wrapper">
+                 @Html.Sitecore().Placeholder("press-release-breadcrumb")
+                <div class="dr_row dr_pb_5">
+                    <div class="dr_col_3">
+                        <img src="@url" alt="@altText"/>
+                    </div>
+                    <div class="dr_col_9">
+                        <h1 class="full hero-heading fm-asb h1">@Html.Sitecore().Field("Heading",model)</h1>
+                        <h4 class="fm-asb">@Html.Sitecore().Field("Summary",model)</h4>
+                        <p>By <a href="@Linkurl" target="_blank" class="lightblue h-underline">@Html.Sitecore().Field("Name",model)</a> - @Html.Sitecore().Field("Designation",model)</p>
+                    </div>
+                </div>
+
+               @Html.Sitecore().Field("Content",model)
+               
+
+            </div>
+        </div>
+}

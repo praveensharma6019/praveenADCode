@@ -1,0 +1,58 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource).FieldHasValue(Templates.HasMediaSelector.Fields.IsBanner);
+}
+
+
+
+<!-- Section -->
+<section class="py-5 d-block position-relative">
+
+    @foreach (var element in elements)
+    {
+       
+    <div class="bg-images">@Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, element.Item) </div>
+        <div class="container">
+            <div class="row pt-5">
+                <div class="col-md-6">
+                    <h2 class="sectionheading font-weight-bold txt-white">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, element.Item)</h2>
+                    
+                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)
+                    @*<h3 class="great-vibes-new txt-white mt-5 pt-5 quote-before mb-4">Luxury is<br> a state of mind</h3>
+        <div class="row">
+            <div class="col-sm-8">
+                <p class="txt-white">said to Lwren Scott and with endless greens and serenity unlike anywhere else. The Belvedere Golf & Country Club is the oasis of luxury set in the largest integrated township of Gujarat. Spread over nearly 100 acres, it is the largest lifestyle club in the entire state and one of the largest in the country. </p>
+            </div>
+            <div class="col-sm-4 p-0"><img src="images/splash-b-logo.png" class="img-fluid"></div>
+        </div>*@
+                </div>
+                <div class="col-md-6">
+                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Thumbnail, element.Item, new { @class = "img-fluid" })
+                    @*<img src="images/p-about-collage.png" class="img-fluid">*@
+                </div>
+            </div>
+        </div>
+            }
+    </section>
+<!-- /Section -->
+

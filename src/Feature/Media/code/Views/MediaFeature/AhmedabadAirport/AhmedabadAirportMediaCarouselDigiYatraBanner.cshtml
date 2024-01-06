@@ -1,0 +1,108 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var homeItem = Sitecore.Context.Site;
+    var current = Sitecore.Context.Item;
+    List<Sitecore.Data.Items.Item> breadcrumbs1 = new List<Sitecore.Data.Items.Item>();
+
+
+
+    while (current != null)
+    {
+        if (current.Fields["Title"] != null)
+        {
+            breadcrumbs1.Add(current);
+
+            if (current.Fields["Title"].Value == "Ahmedabad Airport" || current.Fields["Title"].Value == "")
+            {
+                break;
+            }
+        }
+        current = current.Parent;
+    }
+
+    breadcrumbs1.Reverse();
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+	var bCount = breadcrumbs1.Count();
+	Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)model.Fields["BannerImage"]);
+    string BannerImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+	Sitecore.Data.Fields.LinkField linkfld = model.Fields["ExploreLink"];
+    var url = linkfld.GetFriendlyUrl();
+	Sitecore.Data.Fields.LinkField videolinkfld = model.Fields["VideoLink"];
+    var videourl = videolinkfld.GetFriendlyUrl();
+}
+<div class="hero-banner">
+    <div class="container-fluid">
+
+      <div class="banner-wrapper">
+        <div class="content">
+		@Html.Sitecore().Field("Title", model)
+      <!-- <h1>Unlock Seamless -->
+        <!-- Airport Experience</h1> -->
+        <!-- <span>Just with your Face</span> -->
+        <video autoPlay muted playsInline loop class="d-sm-none d-block">
+          <source src="@videourl" type="video/mp4">
+          <source src="@videourl" type="video/ogg">
+        </video>
+        <ul  class="social-img">
+          <li class="digi-logo">
+            <a href="@url" target="_blank"> <img src="@BannerImageUrl" alt="DigiYatra"></a>
+          </li>
+           <li>
+             <ul class="app-store-logo">
+			 @foreach (var item in model.GetChildren().ToList())
+			 {
+				Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BannerImage"]);
+				string ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+				Sitecore.Data.Fields.LinkField storelink = item.Fields["ExploreLink"];
+				var storeurl = storelink.GetFriendlyUrl();
+				<li><a href="@storeurl" target="_blank"> <img src="@ImageUrl" alt="DigiYatra"></a></li>
+			 }
+              </ul>
+           </li>
+        </ul>
+      </div>
+      <video autoplay  muted playsInline loop class="d-sm-block d-none" id="digi-yatra-v">
+        <!-- <source src={jsonData?.[0]?.VideoSrc} type="video/mp4" /> -->
+        <source src="@videourl" type="video/mp4">
+        <source src="@videourl" type="video/ogg">
+      </video>
+      </div>
+
+    </div>
+  </div>
+
+<section class="mainSlider test ">
+    <div class="">
+        <div class="breadcrumb-sl-inner bg-white">
+            <div class="container-fluid">
+                <ul>
+                    <li><a href="/svpia-ahmedabad-airport">Ahmedabad airport</a></li>
+                    @for (i = 1; i < breadcrumbs1.Count(); i++)
+                    {
+					if(i == bCount -1)
+						{
+						 <li><span>@breadcrumbs1[i].Fields["Title"].Value</span></li>
+						}
+						else
+						{
+                        <li><a href="@breadcrumbs1[i].Url()">@breadcrumbs1[i].Fields["Title"].Value</a></li>
+						}
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>

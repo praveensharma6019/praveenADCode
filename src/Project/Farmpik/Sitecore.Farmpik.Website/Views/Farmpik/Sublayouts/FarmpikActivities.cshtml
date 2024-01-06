@@ -1,0 +1,143 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Farmpik.Website;
+@using System.Globalization;
+@model RenderingModel
+@{
+    var activityCardsFolder = Sitecore.Context.Database.GetItem(Constant.ActivityCardsFolder);
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var i = 1;
+    var j = 1;
+}
+<div class="content">
+    @if (contextItem.ID == Sitecore.Data.ID.Parse(Constant.RecentActivityPageID))
+    {
+        foreach (var item in activityCardsFolder.GetChildren().OrderByDescending(x => x.Fields[Constant.ActivityDate].Value))
+        {
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.ActivityImage]);
+            var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            DateTime currentDate = DateTime.Now;
+            var itemDate = item.Fields[Constant.ActivityDate].Value;
+            DateTime timestamp = DateTime.ParseExact(itemDate, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
+            if (currentDate >= timestamp)
+            {
+                <div class="activity" id="activity-@i">
+                    <div class="act-head">
+                        <img src="@imgurl" class="img" />
+                        <div class="act-title">
+                            <h5>@item.Fields[Constant.Heading]</h5>
+                            @if (!string.IsNullOrEmpty(item.Fields[Constant.AuthorDetails].Value))
+                            {
+                                <p>@item.Fields[Constant.AuthorDetails]</p>
+                            }
+                        </div>
+                    </div>
+
+                    <ul class="act-content">
+                        <li><span><img src="-/media/80A7CD2CB8744B9DA875A7196F8CD9CA" /></span> <span>@item.Fields[Constant.VisibleDate]</span></li>
+                        @if (!string.IsNullOrEmpty(item.Fields[Constant.ActivityLocation].Value))
+                        {
+                            <li><span><img src="-/media/F0084EEE4D2E4F0AB5A950F6D2FAFD3F" /></span><span>@item.Fields[Constant.ActivityLocation]</span></li>
+                        }
+                        <li>@Html.Raw(@item.Fields[Constant.ShortDescription])</li>
+                        @{
+                            Sitecore.Data.Fields.LinkField linkUrl = item.Fields[Constant.ActivitiesViewMore];
+                            var linkbtnUrl = linkUrl.GetFriendlyUrl();
+                            <li>
+                                <button onclick="buttonClick(this.id)" type="button" class="ActivityViewDetail" id="@item.ID">
+                                    View Details
+                                </button>
+                            </li>
+                        }
+
+                    </ul>
+
+                </div>
+                i++;
+            }
+
+        }
+    }
+    else
+    {
+        foreach (var item in activityCardsFolder.GetChildren().OrderBy(x => x.Fields[Constant.ActivityDate].Value))
+        {
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.ActivityImage]);
+            var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            DateTime currentDate = DateTime.Now;
+            var itemDate = item.Fields[Constant.ActivityDate].Value;
+            DateTime timestamp = DateTime.ParseExact(itemDate, "yyyyMMddTHHmmssZ", CultureInfo.InvariantCulture);
+            if (currentDate < timestamp)
+            {
+                <div class="activity" id="activity-@j">
+                    <div class="act-head">
+                        <img src="@imgurl" class="img" />
+                        <div class="act-title">
+                            <h5>@item.Fields[Constant.Heading]</h5>
+                            @if (!string.IsNullOrEmpty(item.Fields[Constant.AuthorDetails].Value))
+                            {
+                                <p>@item.Fields[Constant.AuthorDetails]</p>
+                            }
+                        </div>
+                    </div>
+
+                    <ul class="act-content">
+                        <li><span><img src="-/media/80A7CD2CB8744B9DA875A7196F8CD9CA" /></span> <span>@item.Fields[Constant.VisibleDate]</span></li>
+                        @if (!string.IsNullOrEmpty(item.Fields[Constant.ActivityLocation].Value))
+                        {
+                            <li><span><img src="-/media/F0084EEE4D2E4F0AB5A950F6D2FAFD3F" /></span><span>@item.Fields[Constant.ActivityLocation]</span></li>
+                        }
+                        <li>@Html.Raw(@item.Fields[Constant.ShortDescription])</li>
+                    </ul>
+
+                </div>
+                j++;
+            }
+
+        }
+    }
+</div>
+<footer>
+    <a id="ViewMore">+ View More</a>
+</footer>
+<script>
+
+    isAppReady = false;
+    window.addEventListener("flutterInAppWebViewPlatformReady", function (event) { isAppReady = true; });
+
+    function buttonClick(clicked_Id) {
+        if (isAppReady) {
+            var callBackData = getUrlDetails(clicked_Id);
+            window.flutter_inappwebview.callHandler('callbackHandler', callBackData);
+        }
+    }
+
+    function getUrlDetails(itemId) {
+        var urlDetails;
+        $.ajax({
+            type: "GET",
+            data: { ItemId: itemId },
+            dataType: 'json',
+            url: "/api/FarmpikActivity/GetRecentActivity",
+            contentType: "application/json",
+            async: false,
+            success: function (data) {
+                if (data.length == 0) {
+                    urlDetails = "No data found";
+                }
+                else {
+                    urlDetails = data;
+                }
+            },
+            error: function (data) {
+                alert(data.status);
+            }
+        });
+        return JSON.parse(urlDetails);
+    }
+</script>
+

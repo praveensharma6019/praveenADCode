@@ -1,0 +1,50 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+}
+@if (elements != null)
+{
+    var ItemList = elements.GetChildren().ToList();
+
+    <section class="bg-gradient py-5 bg-img">
+        <div class="bg-images">
+            @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, elements)
+        </div>
+        <div class="container" data-aos="fade-up">
+            <h3 class="sub-heading position-relative txt-white txt-center mb-3">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h3>
+            @if (elements.FieldHasValue(Templates.HasMedia.Fields.Description))
+            {
+                <p class="txt-center mb-3 txt-white txt-md">
+                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, elements)
+                </p>
+            }
+            <div class="row">
+                @foreach (var item in ItemList)
+                {
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="productkey-main">
+                            <div class="keyf-img">
+                                @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item, cssClass: "img-fluid")
+                            </div>
+                            <div class="keyf-desc">
+                                <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

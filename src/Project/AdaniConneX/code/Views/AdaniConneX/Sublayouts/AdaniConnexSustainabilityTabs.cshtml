@@ -1,0 +1,104 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var imgurl = "";
+    var altText = "";
+
+    int i = 1;
+
+    var sectionClass = "";
+
+}
+
+
+@if (model != null)
+{
+    <div class="section-holder">
+        <div class="content-wrapper">
+            <div class="full">
+                <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</p>
+                <p class="full d-txt desc custom-sustainability-p">@Html.Sitecore().Field("MediaInfo", model)</p>
+            </div>
+            @if (model.HasChildren)
+            {
+                <ul class="data-center-list grid-wrapper grid-layout-2">
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+
+                        if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", item).ToString()))
+                        {
+                            sectionClass = item.Fields["Class"].ToString();
+                        }
+                        <li>
+                            @if (i == 1)
+                            {
+                                <div class="card-box">
+
+                                    <div class="item-type-1 scrollTo" data-scroll-to="@sectionClass">
+                                        <div class="card-media">
+                                            @if (imgurl != "")
+                                            {
+                                                <img src="@imgurl" alt="@altText" class="" />
+                                            }
+
+                                            <div class="s2-content">
+                                                <p class="fm-asb fs-28">@Html.Sitecore().Field("MediaTitle", item)</p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+i++;
+                            }
+                            else
+                            {
+                                <div class="card-box card-media-top scrollTo" data-scroll-to="@sectionClass">
+                                    <div class="card-media ">
+                                        @if (imgurl != "")
+                                        {
+                                            <img src="@imgurl" alt="@altText" class="" />
+                                        }
+                                        <div class="s2-content">
+                                            <p class="fm-asb fs-28">@Html.Sitecore().Field("MediaTitle", item)</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+i++;
+                            }
+
+                        </li>
+
+                    }
+                </ul>
+            }
+
+        </div>
+    </div>
+
+
+
+}
+

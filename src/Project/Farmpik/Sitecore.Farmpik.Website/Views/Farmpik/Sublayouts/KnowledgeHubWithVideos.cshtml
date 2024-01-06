@@ -1,0 +1,46 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@using Sitecore.Farmpik.Website;
+@using System.Linq;
+
+@{
+    var dataSource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Sitecore.Data.Items.Item dataSourceItem = Sitecore.Context.Database.GetItem(dataSource);
+
+
+    MultilistField selectedVideosItems = dataSourceItem.Fields[Constant.BaseVideosList];
+    var selectedVideosCount = selectedVideosItems.GetItems().Count();
+    string scrollVideoClass = string.Empty;
+    if (selectedVideosCount > 1)
+    {
+        scrollVideoClass = "scroll";
+    }
+    var heading = dataSourceItem.Fields[Constant.Heading].Value;
+}
+
+<div class="text-container">
+    @if (!string.IsNullOrEmpty(heading))
+    {
+        <h5>@heading</h5>
+    }
+    @Html.Raw(@dataSourceItem.Fields[Constant.Description])
+</div>
+
+@if (selectedVideosCount > 0)
+{
+    <div class="img-block @scrollVideoClass">
+        @foreach (var videoItem in selectedVideosItems.GetItems())
+        {
+            Sitecore.Data.Fields.LinkField itemslinkvalues = videoItem.Fields[Constant.VideoUrl];
+            var itemslinks = itemslinkvalues.GetFriendlyUrl();
+            <video class="image" controls poster="/-/media/Project/Farmpik/DashboardAPI/image/Group_logo">
+                <source src="@itemslinks" type="video/mp4" />
+            </video>
+        }
+    </div>
+}

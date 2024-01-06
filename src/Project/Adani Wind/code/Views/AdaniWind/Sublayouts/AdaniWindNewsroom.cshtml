@@ -1,0 +1,75 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	var NewsroomList = model.Children.Where(x=>x.TemplateID.ToString()=="{0A5BA944-A486-4EEB-9553-239DF051D06F}").ToList();
+	var MediaUrl=""; 
+    var MediaAlt="";
+	var Linkurl="#";
+	
+}
+<section class="newsroom service-img">
+        <div class="container">
+            <div class="row service-row d-none">
+                <div class="newsroom-input">
+                    <div class="dropdown-container">
+					<div class="newroom-month">
+                        <label class="lable-MY" for="">Month</label>
+                        <select class="lable-MY-select">
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <!-- Add more months as needed -->
+                        </select>
+					</div>
+					<div class="newroom-year">
+                        <label class="lable-MY" for="">Year</label>
+                        <select class="lable-MY-select">
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <!-- Add more years as needed -->
+                        </select>
+					</div>
+                    </div>
+                    </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="newsroom service-img">
+        <div class="container">
+            <div class="row service-row">
+			@foreach(var child in NewsroomList)
+			{    
+			    Sitecore.Data.Fields.LinkField linkfield =((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]); 
+				if(linkfield != null) 
+				{ 
+					Linkurl = linkfield.GetFriendlyUrl();
+				}
+
+				Sitecore.Data.Fields.ImageField MediaImage = ((Sitecore.Data.Fields.ImageField)child.Fields["ImageSource"]);
+				if (MediaImage != null && MediaImage.MediaItem != null)
+				{
+					MediaUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MediaImage.MediaItem);
+					MediaAlt = MediaImage.Alt;
+				}
+				var NewsDate = DateTime.Parse(@Html.Sitecore().Field("Date",child).ToString());
+				<a href="@Linkurl" class="col-sm-4 mb-5 newscard">
+					<div class="card newsroom-card">
+						<img src="@MediaUrl" class="card-img-top" alt="@MediaAlt">
+						<div class="card-body">
+							<p class="card-date">@NewsDate.ToString("MMM dd, yyyy")</p>
+							<p class="card-text">@Html.Sitecore().Field("Heading",child)</p>
+						</div>
+					</div>
+				</a>
+			}
+            </div>
+        </div>
+    </section>

@@ -1,0 +1,40 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants();
+
+    <section class="bg-gray">
+        <div class="container">
+            <div class="bootleggers owl-carousel" id="pop-gallery">
+                @foreach (var item in itemList)
+                {
+                    if (item.FieldHasValue(Templates.HasMediaImage.Fields.Image))
+                    {
+                        Sitecore.Data.Fields.ImageField imageField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+
+                        string imageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imageField.MediaItem);
+                        
+                        <a class="item popup" href="@imageUrl">
+                            @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, item)
+                        </a>
+                    }
+                }
+
+            </div>
+        </div>
+    </section>
+}

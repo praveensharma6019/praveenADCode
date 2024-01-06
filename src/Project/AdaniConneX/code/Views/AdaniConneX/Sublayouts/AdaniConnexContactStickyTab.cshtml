@@ -1,0 +1,233 @@
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var sendEmail = "false";
+    Sitecore.Data.ID pageContextID = Sitecore.Data.ID.Parse(@Sitecore.Context.Item.ID);
+    Sitecore.Data.Items.Item pageContext = Sitecore.Context.Database.GetItem(pageContextID);
+    Sitecore.Data.Fields.MultilistField multiselectField = pageContext?.Fields["{1326C5B4-F98B-4D72-8645-8315499FB1D3}"];
+    if (multiselectField != null)
+    {
+        Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+        if (items.Length > 0)
+        {
+            foreach (var item in items)
+            {
+                if (item.DisplayName == "ContactUs")
+                {
+
+                    sendEmail = "true";
+                }
+            }
+        }
+
+    }
+
+}
+
+<form id="ContactUsFormTag">
+    <div class="contact-us-mobile"><span class="btn fm-asb mobileContactFormPopup" id="contactUsBtnmobile">Contact Us</span></div>
+    <div class="contact-us-floating" id="contactUsHolder">
+        <div class="contact-us-btn anim" id="contactUsBtn"><span class="btn fm-asb">Contact Us</span></div>
+        <div class="contact-backdrop" id="contactUsBackdrop"></div>
+        <div class="contact-us-form anim" id="contact-us">
+            <header>
+                <span class="close-modal">
+                    <i class="i-close contact-closebtn i-20"></i>
+                </span>
+                <p class="h2 fm-asb tx-000">Contact Us</p>
+            </header>
+            <div class="contact-inputs">
+                <div class="input-wrapper floating">
+                    <input class="input anim"
+                           tabindex="1"
+                           id="name"
+                           name="name"
+                           data-has-validation="enable"
+                           data-input-required="required" />
+                    <label for="name" class="label anim">Name*</label>
+                </div>
+            </div>
+            <div class="grid-wrapper grid-layout-2 contact-inputs">
+                <div class="grid">
+                    <div class="input-wrapper floating">
+                        <input id="email"
+                               tabindex="2"
+                               name="email"
+                               class="input anim"
+                               data-has-validation="enable"
+                               data-input-required="required"
+                               data-input-regex='^(([^<>()[\]\\.,;:\s@@"]+(\.[^<>()[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$' />
+                        <label for="email" class="label anim">Email*</label>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="input-wrapper floating">
+                        <input id="mobile"
+                               tabindex="3"
+                               name="mobile"
+                               class="input anim"
+                               maxlength="10"
+                               inputmode="numeric"
+                               data-has-validation="enable"
+                               data-input-required="required"
+                               data-input-regex="^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[789]\d{9}$" />
+                        <label for="mobile" class="label anim">Contact Number*</label>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-inputs">
+                <div class="input-wrapper floating">
+                    <input class="input anim"
+                           tabindex="4"
+                           id="contact_company"
+                           name="contact_company"
+                           data-has-validation="enable"
+                           data-input-required="required" />
+                    <label for="contact_company" class="label anim">Company Name*</label>
+                </div>
+            </div>
+            <div class="contact-inputs">
+                <div class="input-wrapper floating">
+                    <textarea id="message"
+                              tabindex="5"
+                              name="message"
+                              maxlength="200"
+                              class="input anim"
+                              data-has-validation="enable"
+                              data-input-required="required"></textarea>
+                    <label for="message" class="label anim">Message*</label>
+                </div>
+            </div>
+            <div class="contact-inputs">
+                <div class="chckbx-wrpr">
+                    <input type="checkbox" tabindex="6" name="remember" id="remember" />
+                    <label for="remember">By checking this box, you agree to the existing <a href="/privacy-policy">privacy policy</a> of Adani Group websites.</label>
+                </div>
+            </div>
+            <div class="contact-inputs">
+                <div id="ContactUsrecaptcha" style=" transform: scale(0.7); transform-origin: left;" class="captcha">
+                </div>
+            </div>
+            <div class="contact-inputs">
+                <div class="input-wrapper floating">
+                    <p id="contact-error" class="error-message anim error"></p>
+                </div>
+            </div>
+            <div class="contact-inputs ac">
+                <input type="hidden" id="sendEmailContactWeb" name="sendEmailContactWeb" value="@sendEmail" />
+                <input type="hidden" id="FormType" name="FormType" value="ContactUs" />
+                <input type="button" id="contactFormSubmit" class="btn small" value="Submit" />
+            </div>
+        </div>
+    </div>
+</form>
+<div class="popup-box" id="mobileContactFormPopup">
+    <div class="backdrop" id="mobileContactFormPopupClose"></div>
+    <div class="popup-content">
+        <span class="close-modal" onclick="closeModal()">
+            <i class="i-close i-20"></i>
+        </span>
+        <form id="mobileContactUsFormTag">
+            <div class="full" id="mobileContactForm">
+                <p class="h2 fm-asb tx-000 ac" id="mobileformTitle">Contact Us</p>
+                <div class="contact-inputs">
+                    <div class="input-wrapper floating">
+                        <input class="input anim"
+                               tabindex="1"
+                               id="mobilename"
+                               name="name"
+                               data-has-validation="enable"
+                               data-input-required="required" />
+                        <label for="mobilename" class="label anim">Name*</label>
+                    </div>
+                </div>
+                <div class="grid-wrapper grid-layout-2 contact-inputs">
+                    <div class="grid">
+                        <div class="input-wrapper floating">
+                            <input id="mobileemail"
+                                   tabindex="2"
+                                   name="email"
+                                   class="input anim"
+                                   data-has-validation="enable"
+                                   data-input-required="required"
+                                   data-input-regex='^(([^<>()[\]\\.,;:\s@@"]+(\.[^<>()[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$' />
+                            <label for="mobileemail" class="label anim">Email*</label>
+                        </div>
+                    </div>
+                    <div class="grid">
+                        <div class="input-wrapper floating">
+                            <input id="mobilecontact"
+                                   tabindex="3"
+                                   name="mobile"
+                                   class="input anim"
+                                   maxlength="10"
+                                   inputmode="numeric"
+                                   data-has-validation="enable"
+                                   data-input-required="required"
+                                   data-input-regex="^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[789]\d{9}$" />
+                            <label for="mobilecontact" class="label anim">Contact Number*</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-wrapper grid-layout-2 contact-inputs">
+                    <div class="grid">
+                        <div class="input-wrapper floating">
+                            <input class="input anim"
+                                   tabindex="4"
+                                   id="mobilecontact_company"
+                                   name="contact_company"
+                                   data-has-validation="enable"
+                                   data-input-required="required" />
+                            <label for="mobilecontact_company" class="label anim">Company Name*</label>
+                        </div>
+                    </div>
+                    <div class="grid">
+                        <div class="input-wrapper floating">
+                            <textarea id="mobilemessage"
+                                      tabindex="5"
+                                      name="message"
+                                      maxlength="200"
+                                      class="input anim"
+                                      data-has-validation="enable"
+                                      data-input-required="required"></textarea>
+                            <label for="mobilemessage" class="label anim">Message*</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-inputs">
+                    <div class="chckbx-wrpr">
+                        <input type="checkbox" tabindex="6" name="remember" id="mobileremember" />
+                        <label for="mobileremember">By checking this box, you agree to the existing <a href="/privacy-policy">privacy policy</a> of Adani Group websites.</label>
+                    </div>
+                </div>
+                <div class="contact-inputs">
+                    <div id="mobileContactUsrecaptcha" style=" transform: scale(0.7); transform-origin: left;" class="captcha">
+                    </div>
+                </div>
+                <div class="contact-inputs">
+                    <div class="input-wrapper floating">
+                        <p id="mobilecontact-error" class="error-message anim error"></p>
+                    </div>
+                </div>
+                <div class="contact-inputs ac">
+                    <input type="hidden" id="sendEmailContactMobile" name="sendEmailContactMobile" value="@sendEmail" />
+                    <input type="hidden" id="mobileFormType" name="FormType" value="ContactUs" />
+                    <input type="button" id="mobilecontactFormSubmit" class="btn small" value="Submit" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

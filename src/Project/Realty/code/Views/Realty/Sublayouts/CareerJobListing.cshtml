@@ -1,0 +1,269 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+
+
+
+<section class="bg-gray top-property section realty-profile career-hd">
+    <div class="container">
+        @{
+            var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+            var parent = Sitecore.Context.Database.GetItem(datasource);
+            var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+            var dptlisting = Sitecore.Context.Database.GetItem(paramid["dptlisting"]);
+
+            var locationlisting = Sitecore.Context.Database.GetItem(paramid["locationList"]);
+
+
+            var departmentID = Request.QueryString["dpt"];
+            if (departmentID == "" || departmentID == null)
+            {
+                Response.Redirect("~/career");
+            }
+            //replace # with &
+            var replacestring = departmentID.Replace("{amp;", "&amp;");
+            var icity = 0;
+            var ijob = 0;
+            string[] IDarr = { };
+            //get location and insert it into string list
+
+            List<String> allLocations = new List<String>();
+            List<String> renderjoblocationvalue = new List<String>();
+            foreach (var city in locationlisting.Children.ToList())
+            {
+                var ct = Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, city);
+                allLocations.Add(ct.ToString());
+            }
+            var Items = parent.Children.OrderByDescending(x => x.Statistics.Created);
+            var jobCollection = parent.Children;
+            List<string> Rlocationid = new List<string>();
+            List<string> RlocationCount = new List<string>();
+        }
+        <form method="get">
+
+            <div class="row">
+                <div class="col-sm-4 ml-auto">
+                    <h3 class="txt-right txt-d-blue">Select Department</h3>
+                    <div class="form-group mt-3">
+
+                        <select class="form-control" id="dpt" name="dpt" onchange="this.form.submit()">
+                            @foreach (var category in dptlisting.Children.ToList())
+                            {
+
+                                var DptTitle = Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, category);
+
+                                if (DptTitle.ToString() == replacestring.ToString())
+                                {
+                                    <option selected>@DptTitle</option>
+                                }
+                                else
+                                {
+                                    <option>@DptTitle</option>
+                                }
+                            }
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row">
+
+            <!-- Nav tabs -->
+            @*@foreach (var child in Items.ToList())
+        {
+
+
+            var IsVisible = child.Fields["IsVisible"].Value;
+
+            if (IsVisible == "1")
+            {
+
+
+                var renderjoblocationsid = Html.Sitecore().Field("Location", child).ToString();
+                IDarr = renderjoblocationsid.ToString().Split('|');
+
+                foreach (string id in IDarr)
+                {
+                    var getvalue = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(id));
+                    renderjoblocationvalue.Add(getvalue.Name);
+                }
+                var renderdepartment = Html.Sitecore().Field("Department", child).ToString();
+
+                foreach (var rcity in renderjoblocationvalue)
+                {
+
+                    foreach (var allcity in allLocations)
+                    {
+                        if (rcity.Contains(allcity) && (renderdepartment.ToString() == replacestring.ToString()))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" href="#jobs-@rcity">@rcity</a>
+                            </li>
+                        }
+                    }
+
+                }
+            }
+        }*@
+
+            @if (jobCollection.Count != 0)
+            {
+                <ul class="nav nav-tabs w-100 openings-tab">
+                    @{
+
+                        var getlocation = jobCollection.Where(x => x.Fields["Department"].Value == replacestring && x.Fields["IsVisible"].Value == "1");
+                        foreach (var getjobcity in getlocation)
+                        {
+                            var renderjoblocationsid = (Html.Sitecore().Field("Location", getjobcity).ToString());
+                            string[] splittedId = renderjoblocationsid.Split('|');
+
+                            foreach (string id in splittedId)
+                            {
+                                if (Rlocationid.Contains(id))
+                                {
+                                    int getindexRlocationId = Rlocationid.IndexOf(id);
+                                    //get value from rlocationcount and update it
+                                    string getcount = RlocationCount[getindexRlocationId].ToString();
+                                    getcount = (Convert.ToInt32(getcount) + 1).ToString();
+                                    RlocationCount.RemoveAt(getindexRlocationId);
+                                    RlocationCount.Insert(getindexRlocationId, getcount);
+
+                                }
+                                else
+                                {
+                                    Rlocationid.Add(id);
+                                    RlocationCount.Add("1");
+                                }
+                            }
+                        }
+                        if (Rlocationid.Count != 0)
+                        {
+                            for (int z = 0; z < Rlocationid.Count; z++)
+                            {
+                                var getvalue = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(Rlocationid[z].ToString()));
+                                var rcity = getvalue.Name;
+                                var rcitycount = RlocationCount[z].ToString();
+                                if (z == 0)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link active" data-toggle="tab" href="#jobs-@rcity">@rcity (@rcitycount)</a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-toggle="tab" href="#jobs-@rcity">@rcity (@rcitycount)</a>
+                                    </li>
+                                }
+                            }
+                        }
+
+                    }
+                </ul>
+            }
+
+            else
+            {
+                <div class="row bg-white p-3">
+                    <p>No records Found</p>
+                </div>
+            }
+            @{
+
+                if (Rlocationid.Count == 0)
+                {
+                    <div class="row bg-white p-3">
+                        <p>No records Found</p>
+                    </div>
+                }
+            }
+
+
+
+            <!-- Tab panes -->
+            <div class="tab-content mt-3 w-100">
+                @if (jobCollection.Count != 0)
+                {
+                    foreach (var rid in Rlocationid)
+                    {
+                        var groupbyjobs = jobCollection.Where(x => x.Fields["Department"].Value == replacestring && x.Fields["Location"].Value.Contains(rid) && x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Statistics.Created);
+
+                        var getvalue = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(rid));
+                        var rcity = getvalue.Name;
+                        if (icity == 0)
+                        {
+
+                            <div class="tab-pane container active" id="jobs-@rcity">
+                                <div class="accordion career">
+                                    <div class="card mb-0">
+
+                                        @foreach (var jobrecord in groupbyjobs)
+                                        {
+                                            var idParent = "#collapse" + ijob;
+                                            var idChild = "collapse" + ijob;
+
+                                            <div class="card-header collapsed" data-toggle="collapse" data-parent="jobs-@rcity" href="@idParent">
+                                                <a class="card-title">
+                                                    @Html.Sitecore().Field("Title", jobrecord)
+                                                </a>
+                                            </div>
+                                            <div id="@idChild" class="card-body collapse" data-parent="jobs-@rcity">
+                                                @Html.Sitecore().Field("Description", jobrecord)
+                                            </div>
+                                            <p class="p-2"></p>
+                                            ijob++;
+                                        }
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="tab-pane container fade" id="jobs-@rcity">
+                                <div class="accordion career">
+                                    <div class="card mb-0">
+
+                                        @foreach (var jobrecord in groupbyjobs)
+                                        {
+                                            var idParent = "#collapse" + ijob;
+                                            var idChild = "collapse" + ijob;
+
+                                            <div class="card-header collapsed" data-toggle="collapse" data-parent="jobs-@rcity" href="@idParent">
+                                                <a class="card-title">
+                                                    @Html.Sitecore().Field("Title", jobrecord)
+                                                </a>
+                                            </div>
+                                            <div id="@idChild" class="card-body collapse" data-parent="jobs-@rcity">
+                                                @Html.Sitecore().Field("Description", jobrecord)
+                                            </div>
+                                            <p class="p-2"></p>
+                                            ijob++;
+                                        }
+
+
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+                        icity++;
+                    }
+
+                }
+
+
+            </div>
+        </div>
+        </div>
+    </section>
+
+    <script>
+
+
+    </script>

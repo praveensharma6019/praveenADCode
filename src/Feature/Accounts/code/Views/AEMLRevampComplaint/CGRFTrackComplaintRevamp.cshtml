@@ -1,0 +1,138 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.TrackComplaintModel
+@{
+    var editComplaintURL = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaintPageRevamp)).Url();
+    var editCGRFComplaintURL = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPageRevamp).Url();
+}
+<div class="collapsible-header center">
+    <a data-gaevent="register_complaint"
+       data-gaeventCategory="Help & Support"
+       data-gaeventAction="Register Complaint"
+       data-gaeventLabel="Track CGRF Complaints"
+       href="javascript:void(0)">Track CGRF Complaints</a>
+</div>
+<div class="collapsible-body TrackCollapsibleBody">
+    <h2>Track CGRF Complaints</h2>
+    <div class="card brand-gradient outlined section-inner-wrapper card-with-form border-none-mobile">
+        <div class="cgrf-complaint">
+            <aside>
+                <a href="/complaint-registration/complaint-registration-file-cgrf-complaint" class="waves-effect waves-light btn-flat">File CGRF Complaint</a>
+            </aside>
+        </div>
+
+        @if (Model.ComplaintList != null && Model.ComplaintList.Count > 0)
+        {
+            var count = 0;
+            int paginationCount = 1;
+            <div class="help-support">
+                <h5>Total Complaints: @Model.ComplaintList.Count</h5>
+            </div>
+            <div class="div-table" id="CGRFPaginationDiv">
+                <input type="hidden" id="paginationTableDiv" value="CGRFPaginationDiv" />
+                <input type="hidden" id="paginationDataSelector" value="#CGRFTrackComplaintsUL>li" />
+                <input type="hidden" id="paginationNumberElementSelector" value="#CGRFTrackComplaintPaginationNumber" />
+                <input type="hidden" id="paginationScrollToElementSelector" value="TrackCollapsibleBody .help-support" />
+                <input type="hidden" id="paginationPageSize" value="10" />
+                <ul class="hide-on-med-and-down">
+                    <li class="table-title">
+                        <ul>
+                            <li>
+                                <h6>
+                                    <span>COMPLAINT DETAILS</span>
+                                </h6>
+
+                            </li>
+                            <li>
+                                <h6>
+                                    <span>STATUS</span>
+                                </h6>
+                            </li>
+                        </ul>
+
+                    </li>
+                </ul>
+                <ul id="CGRFTrackComplaintsUL">
+                    @foreach (var app in Model.ComplaintList.Where(x => x.ComplaintLevel.ToLower() == "cgrf"))
+                    {
+                        DateTime createdDate = DateTime.Parse(app.CreatedDate.ToString());
+                        var createdDate1 = createdDate.ToString("dd.MM.yyyy");
+                        string divstyle = "none";
+                        if (paginationCount == 1)
+                        {
+                            divstyle = "block";
+                        }
+                        else
+                        {
+                            divstyle = "none";
+                        }
+                        <li data-id="@paginationCount" style="display:@divstyle">
+                            <ul>
+                                <li>
+                                    <h6>
+                                        <span class="hide-on-med-and-up">Complaint Details:</span>
+                                        <aside>@app.ComplaintCategory</aside>
+                                    </h6>
+                                    <div class="list">
+                                        <lable>Complaint No.:</lable>
+                                        <aside>@app.ComplaintRegistrationNumber</aside>
+                                    </div>
+                                    <div class="list">
+                                        <lable>Submitted on.:</lable>
+                                        <aside>@createdDate1</aside>
+                                    </div>
+                                    <div class="list">
+                                        <lable>Description:</lable>
+                                        <aside>@app.ComplaintDescription</aside>
+                                    </div>
+                                    <div class="list">
+                                        <lable>
+                                            View Application:
+                                        </lable>
+                                        <aside>
+                                            @if (app.ComplaintLevel.ToLower() == "cgrf")
+                                            {
+                                                <a href="@editCGRFComplaintURL?ComplaintNumber=@app.ComplaintId" class="orange" title="View Application">@Html.Sitecore().Dictionary("/ComplaintRegistration/View button text", "View")</a>
+                                            }
+                                            @*else
+                                                {
+                                                    <a href="@editComplaintURL?ComplaintNumber=@app.ComplaintId" class="green" title="View Application">@Html.Sitecore().Dictionary("/ComplaintRegistration/View button text", "View")</a>
+                                                }*@
+                                        </aside>
+                                    </div>
+                                </li>
+                                <li>
+                                    <h6>
+                                        <span class="hide-on-med-and-up">Status:</span>
+                                        <aside class="success">@app.ComplaintStatusDescription</aside>
+                                    </h6>
+                                </li>
+                            </ul>
+                        </li>
+                        count++;
+                        if (count / (paginationCount * 10) == 1)
+                        {
+                            paginationCount = paginationCount + 1;
+                        }
+                    }
+
+                </ul>
+            </div>
+            <ul class="pagination" id="CGRFTrackComplaintPaginationNumber"></ul>
+        }
+        else
+        {
+            <div class="no-reading">
+                <i class="vi-no-reading"></i>
+                <h5>@Html.Sitecore().Dictionary("/Account/Complaintsregister/complaints Message", "Awesome! Looks like there are no unresolved complaints.")</h5>
+            </div>
+        }
+    </div>
+</div>
+<script src="~/Scripts/Accounts/ElectricityRevampCustomPagination.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        DrawPaginationNumber(1, '#CGRFPaginationDiv');
+    })
+</script>

@@ -1,0 +1,61 @@
+﻿@using Sitecore.Feature.Blogs
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Blogs.Models.BlogItems
+@{
+    if (Model?.BlogItem == null)
+    {
+        return;
+    }
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+<section class="section impact-stories">
+    <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasPageContent.Fields.Image, models)</div>
+    <div class="container position-relative">
+        <h3 class="text-center sectionHeading">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, models)</h3>
+        <p class="txt-md">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Body, models)</p>
+    </div>
+</section>
+<section class="">
+    <div class="large-12 columns">
+        <div class="owl-carousel owl-theme" id="sustanibility">
+
+            @foreach (var item in Model.BlogItem)
+            {
+                // if (item.Item.Fields["BlogType"].Value.ToString() == "Featured")
+                {
+                    var IDs = @Html.Sitecore().Field(Templates.BlogsArticle.Fields.Category, item.Item);
+                    string[] IDarr = IDs.ToString().Split('|');
+                    var category = "";
+                    <div class="item">
+                        @foreach (string id in IDarr)
+                        {
+                            if (id != null && id != "")
+                            {
+                                var items = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(id));
+                                if (category == "")
+                                {
+                                    category = items.Fields["Title"].Value;
+                                }
+                                else
+                                {
+                                    category = category + ", " + items.Fields["Title"].Value;
+                                }
+                            }
+                        }
+                        @Html.Sitecore().ImageField(Templates.BlogsArticle.Fields.Image, item.Item)
+                        <div class="@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.BGCSS,item.Item)">
+                            <h3>@Html.Sitecore().Field(Templates.BlogsArticle.Fields.Title, item.Item)</h3>
+                            <p>@Html.Sitecore().Field(Templates.BlogsArticle.Fields.Summary, item.Item)</p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>

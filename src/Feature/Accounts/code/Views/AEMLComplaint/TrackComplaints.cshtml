@@ -1,0 +1,140 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.TrackComplaintModel
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaintPage);
+    var editComplaintURL = item.Url();
+
+    var item2 = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalHomePage);
+    var complaintPortalHomePage = item2.Url();
+}
+<section class="py-5 bg-gray" style="margin-top: -2rem;">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "Accounts", FormMethod.Post))
+        {
+            <div class="row">
+                <div class="col-sm-6 pb-3 text-left">
+                    <p><span><b>Welcome, </b></span><b class="txt-orange">@UserSession.AEMLComplaintUserSessionContext.LoginName <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                </div>
+                <div class="col-sm-6 pb-3">
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit">
+                            @Html.Sitecore().Dictionary("/ComplaintRegistration/Logout", "Logout")
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        }
+        <hr />
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "filterByStatusForm", name = "filterByStatusForm" }))
+        {
+            <div class="row" style="padding: 0rem 0rem;">
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                <div class="panel w-100" style="margin-top: 2rem !important;">
+                    <h3 class="mb-2 txt-orange txt-md">Change date range and get application:</h3>
+                    <div class="row w-100">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-group no-gutters">
+                                <label for="inputID1" class="form-label mb-2">
+                                    @Html.Sitecore().Dictionary("/ComplaintRegistration/StartDate", "Start Date")
+                                </label>
+                                <div class="w-100">
+                                    @Html.TextBoxFor(x => x.StartDate, new { @class = "form-control reset-control", id = "datetimepickerLECStartDate", required = "required" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-group no-gutters">
+                                <label for="inputID1" class="form-label mb-2">
+                                    @Html.Sitecore().Dictionary("/ComplaintRegistration/EndDate", "End Date")
+                                </label>
+                                <div class="w-100">
+                                    @Html.TextBoxFor(x => x.EndDate, new { @class = "form-control reset-control", id = "datetimepickerLECEndDate", required = "required" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 text-left">
+                            <label class="d-block">&nbsp;</label>
+                            <input type="submit" value="Get Applications" class="btn btn-primary mt-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="w-100">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="mr-2">Filter By Status</label>
+                            @Html.DropDownList("Status", new List<SelectListItem>
+                                                                   {
+                                                                      new SelectListItem{ Text="All", Value = "" ,Selected = true},
+                                                                      new SelectListItem{ Text="Saved", Value = "1" },
+                                                                      new SelectListItem{ Text="Submitted", Value = "2" } },
+                                                                      //new SelectListItem{ Text="Approved", Value = "3" },
+                                                                      //new SelectListItem{ Text="Rejected", Value = "4" } },
+                                                new { @onchange = "onChnageFun(this.value)", @class= "form-control w-auto d-inline-block" })
+                        </div>
+                        @*<div class="col-md-6 text-right">
+                                <input class="form-control w-auto d-inline-block mr-2" id="searchCONStatusApp" type="text" placeholder="Search..">
+                                @Html.ActionLink("Export", "LECApplicationsExport", new { }, new { @class = "btn btn-secondary cexport" })
+                            </div>*@
+                    </div>
+                    <div class="scroll_table">
+                        <table class="table table-striped border text-center bg-white">
+                            <thead>
+                                <tr>
+                                    <th>Sr. No</th>
+                                    <th>Complaint Number</th>
+                                    <th>Complaint Category</th>
+                                    <th>Complaint Sub Category</th>
+                                    <th>Complaint Description</th>
+                                    <th>Applied Date</th>
+                                    <th>Status</th>
+                                    <th>View</th>
+                                </tr>
+                            </thead>
+                            <tbody id="CONApps">
+                                @{
+                                    var count = 1;
+                                    foreach (var app in Model.ComplaintList)
+                                    {
+                                        DateTime createdDate = DateTime.Parse(app.CreatedDate.ToString());
+                                        var createdDate1 = createdDate.ToString("dd.MM.yyyy");
+                                        <tr>
+                                            <td>@count</td>
+                                            <td>@app.ComplaintIdSAP</td>
+                                            <td>@app.ComplaintCategory</td>
+                                            <td>@app.ComplaintSubCategory</td>
+                                            <td>@app.ComplaintDescription</td>
+                                            <td>@createdDate1</td>
+                                            <td>@app.ComplaintStatusName</td>
+                                            <td>
+                                                <a href="@editComplaintURL?ComplaintNumber=@app.Id" class="tender-btn txt-underline" title="View Application">@Html.Sitecore().Dictionary("/ComplaintRegistration/View button text", "View")</a>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                    }
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        }
+        <div class="text-right"><a href="@complaintPortalHomePage" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back</a></div>
+    </div>
+</section>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.filterByStatusForm.submit();
+    }
+</script>

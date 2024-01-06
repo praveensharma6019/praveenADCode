@@ -1,0 +1,217 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using System.Globalization;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    string linkUrl = "#";
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    List<string> regyear = new List<string>();
+    var j = 0;
+    var flag = 0;
+    var sortedparent = parent.Children.InnerChildren;
+}
+
+
+<section class="py-5 bg-gray">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 ml-auto">
+                <div class="form-group">
+
+                    <select class="form-control btn-gradient" id="btn-mrelease">
+                        @foreach (var child in sortedparent.OrderByDescending(x => x.Fields[Templates.SolarPageTypeNews.Fields.Date].Value).ToList())
+                        {
+
+                            var childitems = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+                            var completedate = child.Fields["Date"].Value;
+                            var formatedcompletedate = DateTime.ParseExact(completedate, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+                            var year = formatedcompletedate.ToString("yyyy");
+
+                            if (i == 0)
+                            {
+                                regyear.Add(year);
+
+                                <option>@year</option>
+                            }
+                            else
+                            {
+                                foreach (var appendyear in regyear)
+                                {
+
+                                    if (appendyear == year)
+                                    {
+                                        flag++;
+                                        break;
+                                    }
+                                }
+                                if (flag == 0)
+                                {
+                                    regyear.Add(year);
+                                    <option>@year</option>
+                                }
+                                else
+                                {
+                                    flag = 0;
+                                }
+                            }
+                            i++;
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="media-r-parent">
+
+            @foreach (var tabyear in regyear)
+            {
+                if (j == 0)
+                {
+                    <div id="@tabyear" class="row media-r @tabyear">
+                        <div class="col-md-12 mt-3">
+                            <div class="media-date">
+                                <p>@tabyear</p>
+                            </div>
+                        </div>
+
+                        @{
+                            var mediaFilterByYear = parent.Children.Where(x => x.Fields[Templates.SolarPageTypeNews.Fields.Date].Value.Contains(tabyear)).OrderByDescending(x => x.Fields[Templates.SolarPageTypeNews.Fields.Date].Value);
+                        }
+
+                        @foreach (var mediaList in mediaFilterByYear)
+                        {
+                            var itemList = mediaList.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{390333C8-751B-4332-84A3-6360B969A19F}"));
+
+                            linkUrl = Sitecore.Links.LinkManager.GetItemUrl(mediaList);
+                            Sitecore.Data.Fields.LinkField imageLink = mediaList.Fields["LinkUrl"];
+                            var imageLinkUrl = imageLink.GetFriendlyUrl();
+                            <div class="col-md-12">
+
+                                <div class="media-release-box">
+                                    <div class="row">
+                                        <div class="col-md-11">
+                                            <h3>
+                                                @*@if (string.IsNullOrEmpty(imageLinkUrl))
+                                                {
+                                                    <a href="@linkUrl">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="@imageLinkUrl" target="_blank"> @Html.Sitecore().Field("Title", mediaList)</a>
+                                                }*@
+                                                @if (string.IsNullOrEmpty(imageLinkUrl))
+                                                {
+                                                    <a>   @Html.Sitecore().Field("Title", mediaList)</a>
+                                                }
+                                                else
+                                                {
+                                                    <a> @Html.Sitecore().Field("Title", mediaList)</a>
+                                                }
+                                            </h3>
+                                            <p><span>@Html.Sitecore().Field("Date", mediaList, new { format = "MMM dd, yyyy" })</span></p>
+											@if(itemList.Count() < 2)
+											{
+												foreach (var item in itemList)
+												{
+													LinkField URL = item.Fields["Link"];
+													if (URL.TargetItem != null)
+													{
+														var innerChield = URL.TargetItem;
+														<p class="dateTime margin-0 media-c">
+															@foreach (var docs in innerChield.Children.ToList())
+															{
+																var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+																var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+																<a class="pressLink" href="@url" target="_blank">@docs.Name</a>
+															}
+														</p>
+													}
+													else if(URL.LinkType.ToLower() == "external")
+														{
+															<p class="dateTime margin-0 media-c">
+															<a class="pressLink" href="@URL.Url" target="_blank">@Html.Sitecore().Field("NavigationTitle", item)</a>
+														</p>
+														}
+												}
+											}
+                                            else
+											{
+												<p class="dateTime margin-0 media-c">
+												@foreach (var item in itemList)
+												{
+													LinkField URL = item.Fields["Link"];
+													if(URL.LinkType.ToLower() == "external")
+														{
+															<a class="pressLink" href="@URL.Url" target="_blank">@Html.Sitecore().Field("NavigationTitle", item)</a>
+														}
+												}
+												</p>
+											}
+                                        </div>
+                                        <div class="col-md-1 icon_row">
+                                            <a target="_blank" href="@imageLinkUrl">
+                                                <img src="-/media/24E9B8FCA2414A8F8D51847CF551B5A0.ashx" alt="" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+
+                    <div id="@tabyear" class="row media-r @tabyear" style="display:none">
+                        <div class="col-md-12 mt-3">
+                            <div class="media-date">
+                                <p>@tabyear</p>
+                            </div>
+                        </div>
+
+                        @{
+                            var mediaFilterByYear = parent.Children.Where(x => x.Fields[Templates.SolarPageTypeNews.Fields.Date].Value.Contains(tabyear)).OrderByDescending(x => x.Fields[Templates.SolarPageTypeNews.Fields.Date].Value);
+                        }
+
+                        @foreach (var mediaList in mediaFilterByYear)
+                        {
+                            linkUrl = Sitecore.Links.LinkManager.GetItemUrl(mediaList);
+                            Sitecore.Data.Fields.LinkField imageLink = mediaList.Fields["LinkUrl"];
+                            var imageLinkUrl = imageLink.GetFriendlyUrl();
+                            <div class="col-md-12">
+                                <div class="media-release-box">
+
+                                    <h3>
+                                        @if (string.IsNullOrEmpty(imageLinkUrl))
+                                        {
+                                            <a href="@linkUrl">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@imageLinkUrl" target="_blank">   @Html.Sitecore().Field("Title", mediaList)</a>
+                                        }
+                                    </h3>
+                                    <p><span>@Html.Sitecore().Field("Date", mediaList, new { format = "MMM dd, yyyy" })</span></p>
+                                </div>
+                            </div>
+
+                        }
+
+                    </div>
+                }
+
+            }
+        </div>
+        <div class="col-md-12 d-none">
+            <p class="text-center arrow m-loadMore">Explore more<i class="fa fa-chevron-down ml-2"></i></p>
+        </div>
+    </div>
+</section>

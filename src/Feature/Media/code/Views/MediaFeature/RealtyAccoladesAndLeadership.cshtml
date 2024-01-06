@@ -1,0 +1,78 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+    var i = 0;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var img = paramid.Count() != 0 ? Sitecore.Context.Database.GetItem(paramid["background-image"]) : null;
+
+    var teamcount = Sitecore.Context.Database.GetItem(paramid["leadership-team"]);
+    //var teamcount = Sitecore.Context.Database.GetItem(team.ID);
+    Sitecore.Data.ID SubTitleTemp = new Sitecore.Data.ID("{A1F260C7-8EB4-4E87-A654-DC4DFD309F06}");
+}
+
+<section class="section bg-teams pb-5">
+    @if (img != null)
+    {
+        <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, img)</div>
+    }
+    <div class="container">
+        <div class="row">
+            @foreach (var child in models.Children.ToList())
+            {
+
+                <div class="col-lg-6 teams txt-center pt-5 pb-5 col-md-6" id="@child.DisplayName.Replace(" ", "").ToLower()">
+                    <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasMediaImage.Fields.Image, child)</div>
+                    @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Thumbnail, child, 0, 0, "imgt")
+                    <h3 class="pb-4 pt-2">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, child)</h3>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@Html.Sitecore().Placeholder("accolades")
+<section class="section bg-white" id="team-tile" style="display:none;">
+    <div class="container teams-tiles txt-center">
+        <div id="thumbs" class="owl-carousel owl-theme">
+            @foreach (var child in teamcount.Children.ToList())
+            {
+
+                <div class=" item">
+                    @Html.Sitecore().ImageField(Templates.HasMediaImage.Fields.Image, child, 0, 0, "img-fluid")  @*img-fluid")*@
+                    <h3>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, child)</h3>
+                    <h4>@Html.Sitecore().Field(SubTitleTemp, child)</h4>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="container">
+        <div id="big" class="owl-carousel owl-theme">
+            @{ i = 0;}
+            @foreach (var child in teamcount.Children.ToList())
+            {
+                <div class="row item t-tiles">
+                    <div class="col-lg-3 txt-center">
+                        @Html.Sitecore().ImageField(Templates.HasMediaImage.Fields.Image, child, 0, 0, "img-fluid")
+                        <h3>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, child)</h3>
+                        <h4>@Html.Sitecore().Field(SubTitleTemp, child)</h4>
+                    </div>
+                    <div class="col-lg-9 pt-5 pb-5 px-5 mt-5">
+                        @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, child)
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+<!-- /teams tiles -->

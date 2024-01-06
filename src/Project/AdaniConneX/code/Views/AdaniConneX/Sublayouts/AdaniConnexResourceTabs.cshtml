@@ -1,0 +1,200 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    /*
+     * 
+     *  var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+     * Below parameters are passed from AdaniConnexResourceTabs Rendering
+     * var Webinar = paramid["Webinar"] != null ? Sitecore.Context.Database.GetItem(paramid["Webinar"]) : null;
+     * var PressRelease = paramid["PressRelease"] != null ? Sitecore.Context.Database.GetItem(paramid["PressRelease"]) : null;
+     * 
+     * var Blog = paramid["Blog"] != null ? Sitecore.Context.Database.GetItem(paramid["Blog"]) : null;
+    */
+
+    /*
+     * 
+     * Records of Webinar, PressRelease and Blog are sorted in Descending order of DATE field of record
+     * Note: Records are only visible when it's ISVISIBLE field is checked/marked/ticked
+     * 
+    */
+
+    var Webinar = Sitecore.Context.Database.GetItem("{5CADCB45-527B-4974-9F7B-1E49E786E2E4}");
+    var PressRelease = Sitecore.Context.Database.GetItem("{676A407B-5F02-4313-AFE7-D061E0425752}");
+    var Blog = Sitecore.Context.Database.GetItem("{8360C34D-499B-4ABD-8B69-E7DB469A7C08}");
+
+    List<Item> sortedWebinar = Webinar.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList() ;
+    List<Item> sortedPressRelease = PressRelease.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList();
+    List<Item> sortedBlog = Blog.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value).ToList();
+    var linkurl = "";
+    var imgurl = "";
+    var altText = "";
+    var len = sortedWebinar.Count;
+    if (len < sortedPressRelease.Count)
+    {
+        len = sortedPressRelease.Count;
+    }
+
+    if (len < sortedBlog.Count)
+    {
+        len = sortedBlog.Count;
+    }
+
+
+
+    }
+
+    @if (model != null)
+    {
+
+        <div class="section-holder ">
+            <div class="content-wrapper">
+                <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</p>
+                <div class="full d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</div>
+                <ul class="full resource-list grid-wrapper gird-layout-3">
+                    @for (var j = 0; j < len; j++)
+                    {
+                        
+                        if (j <= sortedWebinar.Count)
+                        {
+                            var item = sortedWebinar[j];
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+                            {
+                                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                altText = imgField.Alt;
+                            }
+
+                            Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+
+                            if (linkvalue != null)
+                            {
+                                 linkurl = linkvalue.GetFriendlyUrl();
+                            }
+                            <li class="grid">
+                                <div class="card-box card-media-top small-card">
+                                    @if (imgurl != "")
+                                    {
+                                        <div class="card-media">
+                                            <img src="@imgurl" alt="@altText" class="">
+                                        </div>
+                                    }
+                                        <div class="card-content">
+                                            <div class="feature-icon">
+                                                <i class="i-play i-20"></i>
+                                            </div>
+                                            <p class="full  fs-16">Webinar | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                            <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+                                            @if (linkurl != "")
+                                            {
+                                                <a href="@linkurl" class="link h-underline tx-008">Watch Now</a>
+                                            }
+                                            else
+                                            {
+                                                <a href="#" class="link h-underline tx-008">Watch Now</a>
+                                            }
+
+                                        </div>
+                                </div>
+                            </li>
+                    }
+
+                    if (j <= sortedPressRelease.Count)
+                    {
+                        var item = sortedPressRelease[j];
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+
+                        Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+
+                        if (linkvalue != null)
+                        {
+                             linkurl = linkvalue.GetFriendlyUrl();
+                        }
+                            <li class="grid">
+                                <div class="card-box card-media-top small-card">
+                                    @if (imgurl != "")
+                                    {
+                                        <div class="card-media">
+                                            <img src="@imgurl" alt="@altText" class="">
+                                        </div>
+                                    }
+
+                                        <div class="card-content">
+                                            <div class="feature-icon">
+                                                <i class="i-pdf i-20"></i>
+                                            </div>
+                                            <p class="full  fs-16">Press Release | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                            <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+                                            @if (linkurl != "")
+                                            {
+                                            <a href="@linkurl" class="link h-underline tx-008">Read More</a>
+                                            }
+                                            else
+                                            {
+                                            <a href="#" class="link h-underline tx-008">Read More</a>
+                                            }
+                                            
+                                        </div>
+                                </div>
+                            </li>
+                        }
+
+                        if (j <= sortedBlog.Count)
+                        {
+                            Item item = sortedBlog[j];
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+                            {
+                                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                altText = imgField.Alt;
+                            }
+
+                            Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+
+                            if (linkvalue != null)
+                            {
+                                 linkurl = linkvalue.GetFriendlyUrl();
+                            }
+                            <li class="grid">
+                                <div class="card-box card-media-top small-card">
+                                    @if (imgurl != "")
+                                    {
+                                        <div class="card-media">
+                                            <img src="@imgurl" alt="@altText" class="">
+                                        </div>
+                                    }
+                                        <div class="card-content">
+                                            <div class="feature-icon">
+                                                <i class="i-automation i-20"></i>
+                                            </div>
+                                            <p class="full  fs-16">Blog | @Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                            <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+                                            @if (linkurl != "")
+                                            {
+                                            <a href="@linkurl" class="link h-underline tx-008">Read More</a>
+                                            }
+                                            else
+                                            {
+                                                <a href="#" class="link h-underline tx-008">Read More</a>
+                                            }
+                                            
+                                        </div>
+                                </div>
+                            </li>
+                        }
+                    }
+
+                </ul>
+            </div>
+        </div>
+        }
+   

@@ -1,0 +1,51 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Resources.Media
+@using Sitecore.AdaniHousing.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var contextItem = Sitecore.Context.Item;
+    var DesktopBannerImage = Helper.ImageUrl("BannerImage", contextItem);
+    var MobileBannerImage = Helper.ImageUrl("MobileBannerImage", contextItem);
+    var BannerImageTag = Helper.ImageTagUrl("BannerImage", contextItem);
+}
+<section class="hero_banner_container">
+    @Html.Sitecore().Field("DesclaimerText", contextItem)
+    <div class="owl-carousel inner-banner">
+        <div class="item">
+            <picture>
+                <source srcset="@DesktopBannerImage" media="(min-width:540px)">
+                @if (!string.IsNullOrEmpty(MobileBannerImage))
+                {
+                    <source srcset="@MobileBannerImage" media="(min-width:0)">
+                }
+                @Html.Raw(BannerImageTag)
+            </picture>
+            <div class="banner-content">
+                <div class="container">
+                    <div>
+                        @if (!String.IsNullOrWhiteSpace(Html.Sitecore().Field("MediaTitle", contextItem).ToString()))
+                        {
+                            <h1>@Html.Sitecore().Field("MediaTitle", contextItem)</h1>
+                        }
+                        @if (!String.IsNullOrWhiteSpace(Html.Sitecore().Field("SubTitle", contextItem).ToString()))
+                        {
+                            <h2>@Html.Sitecore().Field("SubTitle", contextItem)</h2>
+                        }
+                        @if (!String.IsNullOrWhiteSpace(Html.Sitecore().Field("MediaSummary", contextItem).ToString()))
+                        {
+                            <p>@Html.Sitecore().Field("MediaSummary", contextItem)</p>
+                        }
+                        @Html.Sitecore().Field("MediaDescription", contextItem)
+                        @if (!String.IsNullOrWhiteSpace(contextItem.Fields["MediaLink"].Value))
+                        {
+                            var url = Helper.LinkUrl(contextItem.Fields["MediaLink"]);
+                            <a href="@url">Know more <span class="fa fa-angle-right"></span></a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!--/section-->

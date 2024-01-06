@@ -1,0 +1,64 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+	
+	 var journeytype = Sitecore.Context.Database.GetItem("{E880B8A9-B5D1-414B-93B6-04CBC1CE73D5}");
+    var terminal = Sitecore.Context.Database.GetItem("{1FFD80A1-99CC-486E-A17B-7B4EEAADA84C}");
+    var Category = Sitecore.Context.Database.GetItem("{00AAA397-C4B6-414C-A2BC-F0C7272CB181}");
+
+    var i = 0;
+    var j = 0;
+    var divID = "";
+    var k = 0;
+	var count=0;
+	var bgcolor="";
+}
+
+
+<section class="bg-white section" id="first-section">
+<div class="container-fluid">
+	<h2 class="pb-4" style="font-weight:500;">Choose from top brands</h2>
+	<div class="table-responsive" id="FilterContainer">
+		  <table class="table table-bordered">
+			<thead>
+			  <tr>
+				<th class="Outlet">Outlet</th>
+				<th class="Offer">Offer</th>
+			  </tr>
+			</thead>
+			<tbody>
+				@foreach (var item in parent.GetChildren().ToList())
+				{
+					
+					count++;
+					var TernimalClass= item.Fields["Ternimal"].ToString();
+					
+					Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+					var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+					if(count%2==0)
+					{
+						bgcolor="background-color:#fff";
+					}
+					else{
+						bgcolor="background-color:#f8f8f8";
+					}
+
+					var bothClass=@Html.Sitecore().Field("Class", item);
+
+					<tr>
+						<td class="Outlet" ><div class="OutletImage"><img alt="Shop" src="@imgurl"></div></td>
+						<td class="Offer">@Html.Sitecore().Field("MediaDescription", item)</td>
+					</tr>
+
+				}
+				
+			</tbody>
+		  </table>
+	</div>
+</div></section>

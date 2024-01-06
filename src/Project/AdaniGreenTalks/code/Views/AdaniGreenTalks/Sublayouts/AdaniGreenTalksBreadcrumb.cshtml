@@ -1,0 +1,31 @@
+﻿
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    Item currentItem = Sitecore.Context.Item;
+    var ancestors = currentItem.Axes.GetAncestors().ToList();
+    ancestors.Add(currentItem);
+    ancestors = ancestors.Skip(3).ToList();
+    var last = ancestors.LastOrDefault();
+    int i = 0;
+}
+
+<div class="web-bredcrumb w-100 d-none d-md-block">
+    <ul class="breadcrumb">
+        @foreach (Item ancestor in ancestors)
+        {
+            i++;
+            if (i == ancestors.Count)
+            {
+                <li class="breadcrumb-item active" aria-current="page">@ancestor.DisplayName</li>
+            }
+            else
+            {
+                var pageUrl = Sitecore.Links.LinkManager.GetItemUrl(ancestor);
+                <li class="breadcrumb-item"><a href="@pageUrl">@ancestor.DisplayName</a></li>
+            }
+        }
+    </ul>
+</div>

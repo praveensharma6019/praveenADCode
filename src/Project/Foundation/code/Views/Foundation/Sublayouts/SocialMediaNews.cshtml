@@ -1,0 +1,111 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Dictionary.Repositories;
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<section class="py-5 bg-white">
+    <div class="container">
+        @if (element != null)
+        {
+            Item fitem = element.GetChildren().ToArray()[0];
+            LinkField link = (LinkField)fitem.Fields["MediaVideoLink"];
+            <h2 class="heading pl-4 mb-4">@Html.Sitecore().Field("Text", element)</h2>
+            <div class="row mb-5 d-none d-lg-flex">
+                <div class="col-md-6">
+                    <div class="video-section" data-toggle="modal" data-target="#@fitem.Name">
+                        @Html.Sitecore().Field("MediaThumbnail", fitem, new { style = "width: 100%;" })
+                        @*<img alt="" src="/-/media/Project/Ports/About/1.jpg?la=en&amp;hash=2218D4B32C2E93BA56DA5FD0AC14913B" style="width: 100%;" />*@
+                    </div>
+                    <!-- The Modal -->
+                    <div class="modal video" id="@fitem.Name">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                    <div class="embed-container"><iframe src="@link.GetFriendlyUrl()" frameborder="0"></iframe></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        @foreach (Item item in element.GetChildren())
+                        {
+                            LinkField vlink = (LinkField)item.Fields["MediaVideoLink"];
+                            if (item.ID != fitem.ID)
+                            {
+                                <div class="col-lg-6">
+                                    <div class="video-section" data-toggle="modal" data-target="#@item.Name">
+                                        @Html.Sitecore().Field("MediaThumbnail", item, new { style = "width: 100%;" })&nbsp;
+                                    </div>
+                                    <!-- The Modal -->
+                                    <div class="modal video" id="@item.Name">
+                                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                                            <div class="modal-content">
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                <!-- Modal body -->
+                                                <div class="modal-body">
+                                                    <div class="embed-container"><iframe src="@vlink.GetFriendlyUrl()" frameborder="0"></iframe></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5 d-lg-none d-flex">
+                @foreach (Item item in element.GetChildren())
+                {
+                    LinkField vlink = (LinkField)item.Fields["MediaVideoLink"];
+                    <div class="col-md-6 mb-3">
+                        <div class="video-section" data-toggle="modal" data-target="#m-@item.Name">
+                            <img alt="" src="/-/media/Project/Ports/About/1.jpg?la=en&amp;hash=2218D4B32C2E93BA56DA5FD0AC14913B" style="width: 100%;" />
+                        </div>
+                        <!-- The Modal -->
+                        <div class="modal video" id="m-@item.Name">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                        <div class="embed-container"><iframe src="@vlink.GetFriendlyUrl()" frameborder="0"></iframe></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        }
+        <div class="row">
+            <div class="col-lg-4 mb-3">
+                <iframe src="@DictionaryPhraseRepository.Current.Get("/SocialFeed/FBAdaniGroup", "")" width="350" height="400" style="border:none;overflow:hidden;" scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+            </div>
+            <div class="col-lg-4 mb-3">
+                <iframe src="@DictionaryPhraseRepository.Current.Get("/SocialFeed/FBAdaniFoundation", "")" width="350" height="400" style="border:none;overflow:hidden;" scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+            </div>
+            <div class="col-lg-4 mb-3">
+                <div class="scroll-socialmedia border">
+                    <a class="twitter-timeline" href="@DictionaryPhraseRepository.Current.Get("/SocialFeed/TwitterAdaniOnline", "")">Tweets by AdaniOnline</a>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-3">
+                <div class="scroll-socialmedia border">
+                    <iframe src="@DictionaryPhraseRepository.Current.Get("/SocialFeed/LinkedInAdaniF", "")" width="350" height="400" style="border:none;overflow:hidden;" scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!--/Section-->

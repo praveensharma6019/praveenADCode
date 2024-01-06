@@ -1,0 +1,163 @@
+@using Sitecore.AdaniGreenTalks.Website
+@using AdaniGreenTalks = Sitecore.AdaniGreenTalks.Website
+@using System.Linq;
+@using System.Globalization;
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current?.Rendering?.DataSource;
+    Item model = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.getItem(datasource);
+	var sortedModel = model.Children.OrderByDescending(x => x.Fields["Media Date"].Value);
+	
+	var latestYear = "";
+    var latestYearChildItem = sortedModel.FirstOrDefault();
+    var latestYearChildDate = latestYearChildItem.Fields["Media Date"].Value;
+    var formatedDate = DateTime.ParseExact(latestYearChildDate, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+    latestYear = formatedDate.ToString("yyyy");
+	
+	List<string> regyear = new List<string>();
+
+	var i = 0;
+	var flag = 0;
+	var imgurl ="" ;
+	var altText="";
+}
+<div class="action-bottom-section media-videos">
+    <div class="container goal-stories">
+		<div class="heading">
+            <div class="f-wrap">
+                <div class="left">
+					<h2 class="top-heading">@Html.Sitecore().Field("Title",model)</h2>
+                </div>
+                <div class="right">
+                    <div class="filter-wrap">
+                        <div class="sort">Sort By: <span>@latestYear</span></div>
+                            <ul>
+								<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+								<path d="M25 27c.675 0 1.222.544 1.222 1.214v8.563h8.564c.628 0 1.146.478 1.208 1.097L36 38c0 .675-.544 1.222-1.214 1.222h-8.564v8.564c0 .628-.477 1.146-1.096 1.208L25 49a1.218 1.218 0 0 1-1.222-1.214l-.001-8.564h-8.563a1.214 1.214 0 0 1-1.208-1.096L14 38c0-.675.544-1.222 1.214-1.222l8.563-.001v-8.563c0-.628.478-1.146 1.097-1.208L25 27z" style="mix-blend-mode:multiply" transform="rotate(-45 -18.006 42.814)" fill="#555" fill-rule="evenodd"></path>
+								</svg>
+								<h4 style="display: none;">Sort By</h4>
+								@foreach (var child in sortedModel)
+								{
+									var completedate = child.Fields["Media Date"].Value;
+									var formatedcompletedate = DateTime.ParseExact(completedate, "yyyyMMdd'T'HHmmss'Z'", CultureInfo.InvariantCulture);
+									var year = formatedcompletedate.ToString("yyyy");
+
+									if (i == 0)
+									{
+										regyear.Add(year);
+										<li data-title="year-@year">@year</li>
+									}
+									else
+									{
+										foreach (var appendyear in regyear)
+										{
+											if (appendyear == year)
+											{
+												flag++;
+												break;
+											}
+										}
+										if (flag == 0)
+										{
+											regyear.Add(year);
+											<li data-title="year-@year">@year</li>
+										}
+										else
+										{
+											flag = 0;
+										}
+									}
+									i++;
+								}
+                            </ul>
+                    </div>
+                    <div class="filter-overLay"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cm-story-wrap">
+		@foreach (var selectedYear in regyear)
+        {
+			if (selectedYear == latestYear)
+			{
+				<div class="row story-cards" data-name="year-@selectedYear">
+				@{
+					var selectedYearChildList = sortedModel.Where(x => x.Fields["Media Date"].Value.Contains(selectedYear));
+				}
+				@foreach (var item in selectedYearChildList)
+				{
+					Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaThumbnail"]);
+					if (imgField != null && imgField.MediaItem != null) 
+					{ 
+						imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+						altText = imgField.Alt; 
+					} 
+					Sitecore.Data.Fields.LinkField linkField1 = item.Fields["CTALink"];
+					var btnUrl = linkField1.GetFriendlyUrl();
+					<div class="col-12 col-md-6 col-lg-4 item">
+						<a href="@btnUrl">
+							<div class="video-thumb">
+								<img src="@imgurl" alt='@item.Fields["MediaTitle"]' class="video-thumb-img">
+								<img src="/-/media/project/adanigreentalks/themes/images/player.png" alt="play" class="play-img">
+						   </div>
+
+							<div class="desc">
+								<h3>@item.Fields["MediaTitle"]</h3>
+								<p>@Html.Sitecore().Field("SubTitle",item)</p>
+							</div>
+						</a>
+					</div>
+				} 
+				</div>
+			}
+			else
+			{
+				<div class="row story-cards" data-name="year-@selectedYear" style="display:none">
+				@{
+					var selectedYearChildList = sortedModel.Where(x => x.Fields["Media Date"].Value.Contains(selectedYear));
+				}
+				@foreach (var item in selectedYearChildList)
+				{
+					Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaThumbnail"]);
+					if (imgField != null && imgField.MediaItem != null) 
+					{ 
+						imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+						altText = imgField.Alt; 
+					} 
+					Sitecore.Data.Fields.LinkField linkField1 = item.Fields["CTALink"];
+					var btnUrl = linkField1.GetFriendlyUrl();
+					<div class="col-12 col-md-6 col-lg-4 item">
+						<a href="@btnUrl">
+							<div class="video-thumb">
+								<img src="@imgurl" alt='@item.Fields["MediaTitle"]' class="video-thumb-img">
+								<img src="/-/media/project/adanigreentalks/themes/images/player.png" alt="play" class="play-img">
+						   </div>
+
+							<div class="desc">
+								<h3>@item.Fields["MediaTitle"]</h3>
+								<p>@Html.Sitecore().Field("SubTitle",item)</p>
+							</div>
+						</a>
+					</div>
+				}
+				</div>				
+			} 
+		}			
+        </div>
+    </div>
+</div>
+

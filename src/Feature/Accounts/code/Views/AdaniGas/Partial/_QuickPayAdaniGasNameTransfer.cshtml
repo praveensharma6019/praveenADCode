@@ -1,0 +1,502 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.ByCustomerId
+
+@{
+    //var checkquerystring = Request.QueryString["id"] != null || Model.id != null;
+
+    var checkquerystring = "";
+    if (Model.id != null)
+    {
+        checkquerystring = Model.id.ToString();
+    }
+    else if (Request.QueryString["id"] != null)
+    {
+        checkquerystring = Request.QueryString["id"];
+    }
+
+}
+<div class="col-md-12 col-lg-12">
+    @if (ViewBag.NoInfo != null)
+    {
+        <p>@ViewBag.NoInfo</p>
+    }
+    else
+    {
+        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "paymentprocess", @class = "form-signin" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(m => m.ApplicationType)
+            @Html.HiddenFor(m => m.MobileNumber)
+            @Html.HiddenFor(m => m.FirstName)
+            @Html.HiddenFor(m => m.MiddleName)
+            @Html.HiddenFor(m => m.LastName)
+            @Html.HiddenFor(m => m.id)
+            @Html.HiddenFor(m => m.AddAdditionalPayment)
+            <div class="row">
+                @Html.HiddenFor(x => x.CustomerID)
+                @if (Model.PreStatus == "Additional_Details/document/Payment_Required" || Model.PreStatus == "Application_Submited_But_Payment_Required")
+                {
+                    @*<section class="name-transfer submit_request">
+                        <div class="container">
+                            <div class="row">*@
+                    <div class="col-6 bg-white mb-4 p-3">
+                        <div class="col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label for="">Payable Amount</label>
+                                @Html.TextBoxFor(m => m.AddAdditionalPayment, new { @class = "form-control reset-control", id = "AddAdditionalPayment", disabled = "disabled" })
+                                @Html.ValidationMessageFor(m => m.AddAdditionalPayment, "", new { @class = "help-block" }, "p")
+                                <small id="" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label for=""><b>Bill Details</b></label>
+                                @*<p> Processing Amount: <span class="col-lg-2 col-md-2">@Model.ProcessingAmount</span></p>*@
+                                <p> GST: <span class="col-lg-2 col-md-2">@Model.GSTAmount</span></p>
+                                <p> Outstanding amount: <span class="col-lg-2 col-md-2">@Model.Amount</span></p>
+                                <p> Total:<span class="col-lg-2 col-md-2">@Model.AddAdditionalPayment</span> </p>
+                            </div>
+                        </div>
+
+                        @if (Model.AddAdditionalPayment <= 0)
+                        {
+                            <div class="row">
+                                <div class="col-lg-12 mt-3 text-left">
+                                    <input type="submit" name="createRequest" id="createRequest" value="Submit" class="btn btn-primary" />
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-12">
+                                <label for="">SELECT PAYMENT METHOD<span class="required">*</span></label>
+                                <div class="row mt-3">
+                                    <div class="col-lg-12 payment-radio-grp">
+                                        <div class="row">
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-check">
+                                                    <label class="form-check-label">
+                                                        @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.HDFC, new { required = "required", @checked = "checked" })
+                                                        <img src="~/-/media/Project/AdaniGas/PaymentGateway/hdfc" class="pay_box">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-check">
+                                                    <label class="form-check-label">
+                                                        <input type="checkbox" id="opg" name="opg" value="otherpg" onclick="showOtherPG();" />
+                                                        <img src="/-/media/Project/AdaniGas/PaymentGateway/Other" class="pay_box">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-check opg pr-0" style="display: none;">
+                                                    <label class="form-check-label">
+                                                        @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.Paytm, new { required = "required" })
+                                                        <img src="/-/media/Project/AdaniGas/PaymentGateway/paytm" class="pay_box">
+                                                    </label>
+                                                    <p style="font-size:10px;">Pay Using Paytm Postpaid, Paytm Wallet, UPI, NB and Cards</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-check opg" style="display: none;">
+                                                    <label class="form-check-label">
+                                                        @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.BillDesk, new { required = "required" })
+                                                        <img src="/-/media/Project/AdaniGas/PaymentGateway/BillDesk" class="pay_box">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-check opg" style="display: none;">
+                                                    <label class="form-check-label">
+                                                        @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.PayUMoney, new { required = "required" })
+                                                        <img src="/-/media/Project/AdaniGas/PaymentGateway/payU" class="pay_box">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2 col-md-6">
+                                                <div class="form-check opg" style="display: none;">
+                                                    <label class="form-check-label">
+                                                        @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.BBPS, new { required = "required" })
+                                                        <img src="/-/media/Project/AdaniGas/PaymentGateway/Bharat-Pay" class="pay_box">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 bg-white">
+                                    <p class="txt-orange py-3">Convenience Charges (if applicable)</p>
+                                    <div class="paymentTbl" id="paytmTable" style="display: none">
+                                        <div class="table-responsive">
+                                            <table id="paytmTableTG" class="table table-bordered bg-white">
+                                                <tbody>
+                                                    <tr>
+                                                        <td colspan="2">Net Banking</td>
+                                                        <td>Nil</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Credit Card/Debit Card</td>
+                                                        <td>Visa/Master/Amex/Diners</td>
+                                                        <td>Nil</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="paymentTbl" id="hdfcTable">
+                                        <div class="table-responsive">
+                                            <table id="paytmTableTG" class="table table-bordered bg-white min-650">
+                                                <tbody>
+                                                    <tr>
+                                                        <th class="tg-yw4l" colspan="2">Net Banking</th>
+                                                        <th class="tg-031e"><b> Nil </b></th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="tg-yw4l">Credit Card</td>
+                                                        <td class="tg-yw4l">Visa/Master</td>
+                                                        <td class="tg-yw4l">
+                                                            <b>Amount less than Rs.10,000 - Nil</b><br />Amount more than Rs.10,000 - 0.70% + Tax
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                                        <td class="tg-yw4l">Amex/Diners</td>
+                                                        <td class="tg-yw4l">
+                                                            <b>Amount less than Rs.10,000 - Nil</b><br />Amount more than Rs.10,000 - 0.90% + Tax
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="tg-yw4l">Debit Card</td>
+                                                        <td class="tg-yw4l">Visa/Master</td>
+                                                        <td class="tg-yw4l">
+                                                            <b> Nil </b>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="paymentTbl" id="payUTable" style="display: none">
+                                        <div class="table-responsive">
+                                            <table id="payUTableTG" class="table table-bordered bg-white min-650">
+                                                <tr>
+                                                    <th class="tg-s6z2" colspan="2">Net banking</th>
+                                                    <th class="tg-031e"><b>Nil</b></th>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-031e">Credit Card</td>
+                                                    <td class="tg-yw4l">Visa/Master/Amex/Diners</td>
+                                                    <td class="tg-031e"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-031e">Credit Card</td>
+                                                    <td class="tg-yw4l">Visa/Master</td>
+                                                    <td class="tg-031e">Amount more than Rs.10,000 - 0.90% + ST</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-031e">Credit Card</td>
+                                                    <td class="tg-yw4l">Amex/Diners</td>
+                                                    <td class="tg-031e">Amount more than Rs.10,000 - 1 % or Rs. 10 whichever is higher + ST</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-baqh" colspan="2">Debit Card</td>
+                                                    <td class="tg-yw4l"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-baqh" colspan="2">Debit Card</td>
+                                                    <td class="tg-yw4l">Amount more than Rs.10,000 - 1% + ST</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div id="bdeskTable" class="paymentTbl" style="display: none">
+                                        <div class="table-responsive">
+                                            <table id="bdeskTableTG" class="table table-bordered bg-white min-650">
+                                                <tr>
+                                                    <th class="tg-yw4l" colspan="2">Net Banking</th>
+                                                    <th class="tg-031e"><b>HDFC/ICICI Bank  Amount less than Rs.667 - Nil </b><br /> Amount more than Rs.667 - 1.50% + ST<br /> Other Banks - Nil</th>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                                    <td class="tg-yw4l">Visa/Master/ Amex/Diners</td>
+                                                    <td class="tg-yw4l"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                                    <td class="tg-yw4l">Visa/Master/ Amex/Diners</td>
+                                                    <td class="tg-yw4l">Amount more than Rs.10,000 - 0.90% + ST</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 mt-3 text-right">
+                                    @*<a href="#" class="btn btn-primary">Pay</a>*@
+                                    @*<input type="submit" class="btn btn-primary" name="paynow" value="Pay" id="paynow" />*@
+                                    <input type="submit" name="Additionalpaynow" id="paynow" value="Pay" class="btn btn-primary" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    @*</div>
+                            </div>
+                        </section>*@
+                }
+                else
+                {
+                    <div class="col-lg-10 col-md-10" style="display:none">
+                        <div class="form-group text-right">
+                            <a href="/name-transfer?id=@checkquerystring">Back</a>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="">Payable Amount</label>
+                            @Html.TextBoxFor(m => m.PayableTotalAmount, new { @class = "form-control reset-control", id = "PayableTotalAmount", disabled = "disabled" })
+                            @Html.ValidationMessageFor(m => m.PayableTotalAmount, "", new { @class = "help-block" }, "p")
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>Bill Details</b></label>
+
+                            <table id="Bill_Details_Name_Transfer" class="table table-bordered bg-white">
+                                <thead>
+                                    <tr>
+                                        <th>Processing Amount:</th>
+                                        <th>GST:</th>
+                                        <th>Outstanding amount:</th>
+                                        <th>Total:</th>
+                                    </tr>
+
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>@Model.ProcessingAmount</td>
+                                        <td>@Model.GSTAmount</td>
+                                        <td>@Model.OutstandingAmount</td>
+                                        <td>@Model.PayableTotalAmount</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            @*<p> Processing Amount: <span class="col-lg-2 col-md-2">@Model.ProcessingAmount</span></p>
+                                <p> GST: <span class="col-lg-2 col-md-2">@Model.GSTAmount</span></p>
+                                <p> Outstanding amount: <span class="col-lg-2 col-md-2">@Model.Amount</span></p>
+                                <p> Total:<span class="col-lg-2 col-md-2">@Model.PayableTotalAmount</span> </p>*@
+                        </div>
+                    </div>
+
+                    if (Model.PayableTotalAmount <= 0)
+                    {
+                        <div class="row">
+                            <div class="col-lg-12 mt-3 text-right">
+                                <input type="submit" name="createRequest" id="createRequest" value="Submit" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-lg-12">
+                            <label for="">SELECT PAYMENT METHOD<span class="required">*</span></label>
+                            <div class="row mt-3">
+                                <div class="col-lg-12 payment-radio-grp">
+                                    <div class="row">
+                                        <div class="col-lg-2 col-md-6">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.HDFC, new { required = "required", @checked = "checked" })
+                                                    <img src="~/-/media/Project/AdaniGas/PaymentGateway/hdfc" class="pay_box">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <input type="checkbox" id="opg" name="opg" value="otherpg" onclick="showOtherPG();" />
+                                                    <img src="/-/media/Project/AdaniGas/PaymentGateway/Other" class="pay_box">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6">
+                                            <div class="form-check opg pr-0" style="display: none;">
+                                                <label class="form-check-label">
+                                                    @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.Paytm, new { required = "required" })
+                                                    <img src="/-/media/Project/AdaniGas/PaymentGateway/paytm" class="pay_box">
+                                                </label>
+                                                <p style="font-size:10px;">Pay Using Paytm Postpaid, Paytm Wallet, UPI, NB and Cards</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6">
+                                            <div class="form-check opg" style="display: none;">
+                                                <label class="form-check-label">
+                                                    @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.BillDesk, new { required = "required" })
+                                                    <img src="/-/media/Project/AdaniGas/PaymentGateway/BillDesk" class="pay_box">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6">
+                                            <div class="form-check opg" style="display: none;">
+                                                <label class="form-check-label">
+                                                    @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.PayUMoney, new { required = "required" })
+                                                    <img src="/-/media/Project/AdaniGas/PaymentGateway/payU" class="pay_box">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-6">
+                                            <div class="form-check opg" style="display: none;">
+                                                <label class="form-check-label">
+                                                    @Html.RadioButtonFor(m => m.quickPayNameTransfer.PaymentGateway, (int)EnumPayment.GatewayType.BBPS, new { required = "required" })
+                                                    <img src="/-/media/Project/AdaniGas/PaymentGateway/Bharat-Pay" class="pay_box">
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-right:100px">
+                            <div class="col-lg-12 text-right">
+                                @*<a href="#" class="btn btn-primary">Pay</a>*@
+                                @*<input type="submit" class="btn btn-primary" name="paynow" value="Pay" id="paynow" />*@
+                                <input type="submit" name="paynow" id="paynow" value="Pay" class="btn btn-primary" />
+                            </div>
+                        </div>
+
+                        <div class="row col-12">
+                            <div class="col-sm-12 bg-white">
+                                <p class="txt-orange py-3">Convenience Charges (if applicable)</p>
+                                <div class="paymentTbl" id="paytmTable" style="display: none">
+                                    <div class="table-responsive">
+                                        <table id="paytmTableTG" class="table table-bordered bg-white">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="2">Net Banking</td>
+                                                    <td>Nil</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Credit Card/Debit Card</td>
+                                                    <td>Visa/Master/Amex/Diners</td>
+                                                    <td>Nil</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="paymentTbl" id="hdfcTable">
+                                    <div class="table-responsive">
+                                        <table id="paytmTableTG" class="table table-bordered bg-white min-650">
+                                            <tbody>
+                                                <tr>
+                                                    <th class="tg-yw4l" colspan="2">Net Banking</th>
+                                                    <th class="tg-031e"><b> Nil </b></th>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-yw4l">Credit Card</td>
+                                                    <td class="tg-yw4l">Visa/Master</td>
+                                                    <td class="tg-yw4l">
+                                                        <b>Amount less than Rs.10,000 - Nil</b><br />Amount more than Rs.10,000 - 0.70% + Tax
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                                    <td class="tg-yw4l">Amex/Diners</td>
+                                                    <td class="tg-yw4l">
+                                                        <b>Amount less than Rs.10,000 - Nil</b><br />Amount more than Rs.10,000 - 0.90% + Tax
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="tg-yw4l">Debit Card</td>
+                                                    <td class="tg-yw4l">Visa/Master</td>
+                                                    <td class="tg-yw4l">
+                                                        <b> Nil </b>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="paymentTbl" id="payUTable" style="display: none">
+                                    <div class="table-responsive">
+                                        <table id="payUTableTG" class="table table-bordered bg-white min-650">
+                                            <tr>
+                                                <th class="tg-s6z2" colspan="2">Net banking</th>
+                                                <th class="tg-031e"><b>Nil</b></th>
+                                            </tr>
+                                            <tr>
+                                                <td class="tg-031e">Credit Card</td>
+                                                <td class="tg-yw4l">Visa/Master/Amex/Diners</td>
+                                                <td class="tg-031e"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="tg-031e">Credit Card</td>
+                                                <td class="tg-yw4l">Visa/Master</td>
+                                                <td class="tg-031e">Amount more than Rs.10,000 - 0.90% + ST</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="tg-031e">Credit Card</td>
+                                                <td class="tg-yw4l">Amex/Diners</td>
+                                                <td class="tg-031e">Amount more than Rs.10,000 - 1 % or Rs. 10 whichever is higher + ST</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="tg-baqh" colspan="2">Debit Card</td>
+                                                <td class="tg-yw4l"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="tg-baqh" colspan="2">Debit Card</td>
+                                                <td class="tg-yw4l">Amount more than Rs.10,000 - 1% + ST</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div id="bdeskTable" class="paymentTbl" style="display: none">
+                                    <div class="table-responsive">
+                                        <table id="bdeskTableTG" class="table table-bordered bg-white min-650">
+                                            <tr>
+                                                <th class="tg-yw4l" colspan="2">Net Banking</th>
+                                                <th class="tg-031e"><b>HDFC/ICICI Bank  Amount less than Rs.667 - Nil </b><br /> Amount more than Rs.667 - 1.50% + ST<br /> Other Banks - Nil</th>
+                                            </tr>
+                                            <tr>
+                                                <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                                <td class="tg-yw4l">Visa/Master/ Amex/Diners</td>
+                                                <td class="tg-yw4l"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                                <td class="tg-yw4l">Visa/Master/ Amex/Diners</td>
+                                                <td class="tg-yw4l">Amount more than Rs.10,000 - 0.90% + ST</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    }
+
+                }
+            </div>
+        }
+    }
+</div>

@@ -1,0 +1,79 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Items
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var NavigateUrl = "";
+    var NavigateUrls = "";
+}
+
+<!-- Banner -->
+<div class="mainSlider">
+@if (Request.Browser.IsMobileDevice)
+    {
+        if (Request.Browser.ScreenPixelsWidth < 768)
+        {
+            @Html.Sitecore().Placeholder("mobile-video-banner")
+        }
+
+    }
+    else
+    {
+    <div class="owl-carousel owl-theme homeslider d-md-block d-none">
+        @foreach (var item in elements.Children.ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaLink"];
+            NavigateUrl = linkField.Url;
+
+            Sitecore.Data.Fields.LinkField linkFields = item.Fields["MediaVideoLink"];
+            NavigateUrls = linkFields.GetFriendlyUrl();
+
+
+
+            <div class="item @NavigateUrl" data-videosrc="@NavigateUrl">
+                @if(!String.IsNullOrEmpty(Html.Sitecore().Field("MediaVideoLink", item).ToString()))
+                {
+                <a href="@NavigateUrls">
+                    @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Thumbnail, item, 0, 0, "image-fluid")
+                </a>
+                }
+				 @if(String.IsNullOrEmpty(Html.Sitecore().Field("MediaVideoLink", item).ToString()))
+				 {
+                @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Thumbnail, item, 0, 0, "image-fluid")
+				}
+                @if (String.IsNullOrEmpty(Html.Sitecore().Field("MediaLink", item).ToString()) && !String.IsNullOrEmpty(Html.Sitecore().Field("MediaDescription", item).ToString()))
+                {<div class="slider-content">
+                        <div>
+                            <div class="container">
+                                @Html.Sitecore().Field("MediaDescription", item)
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+
+        }
+    </div>
+    
+	}
+    <div class="container position-relative">
+        <div class="scroll-down">
+            <a href="#first-section"><span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span></a>
+        </div>
+    </div>
+</div>
+
+		  </div>
+
+

@@ -1,0 +1,96 @@
+﻿@using Sitecore
+@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.AdaniGas.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@model Sitecore.AdaniGas.Website.Models.CNGCCModel
+
+@using (Html.BeginForm())
+{
+    @Html.ValidationSummary(true)
+    @Html.AntiForgeryToken()
+
+    <section class="section pb-1">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    @*<h3 class="mb-3">Save money by driving a CNG vehicle</h3>*@
+                    <p class="pb-3">One of the initial reasons to buy a CNG car was the cost savings. Here is a little calculator that will estimate your cost savings in a typical year in driving a CNG car vs. a regular petrol / diesel car. Fill in the values with your numbers and click on Calculate Savings to see your Annual Savings. </p>
+                    <p>Shift to CNG and drive savings when you fuel up. Use our calculator to see what that means for your price at the pump.</p>
+
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container" id="calculationdiv">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="bg-white p-4 h-100 calcForm">
+                        <form>
+                            <div class="form-group">
+                                <label for="selectCity" class="form-label">Select City</label>
+                                @Html.DropDownListFor(m => m.selectedLocationForCNGRate, new SelectList(Model.LocationWiseCNGRateList, "Text", "Text"), new { @class = "form-control selCity", id = "locations" })
+                            </div>
+                            <div class="form-group">
+                                <label for="cylinderSize" class="form-label">Fuel Type</label>
+                                <div class="cylSelBox">
+                                    @foreach (var m in Model.FuelTypeList)
+                                    {
+                                        <div class="float-left">
+                                            @Html.RadioButtonFor(mo => mo.selectedFuelType, m.Value)
+                                            <label for="@m.Value"></label><span class="iconText">@m.Text</span>
+                                        </div>
+                                    }
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="form-group">
+                                <label for="cylinderSize" class="form-label">Mileage (Kilometer / litre of fuel)</label>
+                                <div class="row">
+                                    <div class="col-md-7 pr-0 mt-1">
+                                        @Html.EditorFor(m => m.CurrentMileage, new { id = "mileage" })
+                                        @Html.ValidationMessageFor(x => x.CurrentMileage, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                    <div class="col-md-5">
+                                        <span id="selCount" class="txt-orange cylCount"></span> cylinders
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="avgCost" class="d-block form-label">Average running per month</label>
+                                @Html.EditorFor(m => m.AverageRun, new { id = "averagerunning", @class = "form-control cylCost d-inline" })
+                                @Html.ValidationMessageFor(x => x.AverageRun, "", new { @class = "help-block" }, "p")
+                            </div>
+                            <div class="clearfix"></div>
+                        </form>
+                        <div class="pt-2 text-right">
+                            <input type="submit" value="Calculate" id="calculate" class="btn btn-gradient" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="bg-gradient-orange p-4 h-100 position-relative" id="resultBox">
+                        <h5 class="">
+                            Average cost for piped gas <br>
+                            <div class="rupees">
+                                <div class="price" id="Ahmedabad" style="display: block;">@@ <span id="Averagecost">@Model.Averagecost.ToString("0.00")</span> / KG</div>
+                            </div>
+                        </h5>
+                        <div class="Result">
+                            <div class="totalCost mt-3"><p>Total Cost</p>Rs. <span class="estimateCost">  @Model.TotalCost.ToString("0.00")</span></div>
+                            <div class="totalSaving"><p>Total Saving</p>Rs. <span class="estimateSaving">@Model.TotalSaving.ToString("0.00")</span></div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+                <p class="py-3 mt-4">Disclaimer: The CNG Calculator ("calculator") is provided as a reference tool only and without warranties of any kind either express or implied. Adani Total Gas Ltd. makes no warranties or representations with respect to errors or omissions that maybe contained in the calculator, the accuracy of the calculator contents, or that the calculator is virus-free. The risk of use of the calculator is solely upon the user. Under no circumstances will Adani Total Gas Ltd. Limited be liable for any direct, indirect, special, incidental or consequential damages arising out of your accessing, browsing, or using, or your inability to access, browse, or use the calculator.</p>
+            </div>
+        </div>
+    </section>
+}

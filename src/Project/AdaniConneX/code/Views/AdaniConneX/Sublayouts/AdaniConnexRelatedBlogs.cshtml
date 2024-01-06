@@ -1,0 +1,94 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+	var contextItem=Sitecore.Context.Item;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+	var sortedModel = model.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+	var TitleBlogs = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["title"];
+    string imgurl = "";
+    string altText = "";
+}
+   <div class="section-holder edge-connex-hoder dr_leaderspeak">
+      <div class="content-wrapper grid-wrapper grid-layout-2">
+         <p class="full h1 fm-asb tx-000 custom-module-headng ">@TitleBlogs</p>
+            <ul class="data-center-list list-mobile award-section">
+              <div class="full awards-list owl-carousel dot-bc brand-dots d-txt" id="leaderspeak_slider_blogs">
+					@foreach (Item item in sortedModel)
+                    {
+					
+						if(@Html.Sitecore().Field("Title",contextItem).ToString()!=@Html.Sitecore().Field("Title",item).ToString())
+						{
+							Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+							if (imgField != null && imgField.MediaItem != null)
+							{
+								imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+								altText = imgField.Alt;
+							}
+							Sitecore.Data.Fields.LinkField linkField1 = item.Fields["LinkUrl"];
+							var btnUrl = linkField1.GetFriendlyUrl();
+							var request = HttpContext.Current.Request;
+							var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                            var webUrl = baseUrl + btnUrl;
+
+								<div>
+			
+									  <div class="item-group blog-module award-item">
+										  <div class="item">
+											  <div class="item-image card-media">
+												<img src="@imgurl" alt="@altText">
+											  </div>
+											  <div class="item-content">
+												  <div class="date">@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</div>
+												  <h4>@Html.Sitecore().Field("Title",item)  </h4>
+												  
+												  <div class="item-footer">
+													  @if (linkField1.LinkType == "internal")
+													  {
+														<a href="@btnUrl" class="h-underline">Read More</a>
+													  }
+													  else
+													  {
+														<a target="_blank"  href="@btnUrl" class="h-underline">Read More</a>
+													  }
+													  <div class="share-icon">
+														  <i class="i-share i-20"></i>
+														  <ul class="share-option">
+															  <li>
+																<a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl">
+																<i class="i-email i-14"></i>
+																</a>
+															  </li>
+															  <li>
+																<a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl">
+																  <i class="i-linkdin i-20"></i>
+																</a>
+															  </li>
+															</ul>
+														</div>
+															   
+												  </div>
+											  </div>
+										  </div>
+									  </div>
+								</div>
+						}
+                    }           
+              </div>
+            </ul>
+      </div>
+   </div>
+
+ 

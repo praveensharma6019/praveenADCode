@@ -1,0 +1,291 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.EditProfile
+
+<div class="card brand-gradient section-inner-wrapper outlined card-with-form">
+    @Html.Sitecore().Placeholder("switch-account-content")
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmEditProfile" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+
+        <input type="hidden" id="frmEditProfileEmail" value="@Model.Email" />
+        <input type="hidden" id="frmEditProfileMobile" value="@Model.MobileNumber" />
+        <input type="hidden" id="frmEditProfileLandline" value="@Model.LandlineNumber" />
+        <input type="hidden" id="frmEditProfileDOB" value="@Model.DateofBirth" />
+        <input type="hidden" id="frmEBill" value="@Model.EBill.ToString()" />
+
+        <div class="submit-new-request">
+            <div class="input-field custom" style="display:none;">
+                @Html.TextBoxFor(x => x.AccountNumber, new { id = "AccountNo", @readonly = "readonly" })
+                <label class="active" for="AccountNo">@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/CA Number", "CA Number")</label>
+            </div>
+            <div class="input-field custom">
+                @Html.TextBoxFor(x => x.LoginName, new { id = "LoginName", @readonly = "readonly" })
+                <label class="active" for="LoginName">@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Login Name", "Login Name")</label>
+            </div>
+            <div class="input-field custom  @Html.ValidationErrorFor(x => x.Email, "has-error")">
+                @Html.TextBoxFor(x => x.Email, new { @class = "form-control", id = "Email", required = "required" })
+                <label class="active" for="Email">@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Email", "Enter Email")</label>
+                @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                <p class="field-validation-error" id="EditProfileValidEmailValidation" style="display:none"></p>
+            </div>
+            <div class="input-field custom @Html.ValidationErrorFor(x => x.MobileNumber, "has-error")">
+                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", id = "MobileNumber", maxlength = 10, required = "required" })
+                <label class="active" for="MobileNumber">@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Mobile No", "Enter Mobile Number")</label>
+                @if (Model != null && Model.isOTPSent)
+                {
+                    @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block otp-black-text" }, "p")
+                }
+                else
+                {
+                    @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                }
+                <p class="field-validation-error" id="EditProfileValidMobileValidation" style="display:none"></p>
+            </div>
+            <div class="input-field custom @Html.ValidationErrorFor(x => x.LandlineNumber, "has-error")">
+                @Html.TextBoxFor(x => x.LandlineNumber, new { @class = "form-control", id = "LandlineNumber", @type = "number" })
+                <label class="active" for="LandlineNumber">
+                    @Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Landline No", "Landline No.")
+                </label>
+                @Html.ValidationMessageFor(x => x.LandlineNumber, "", new { @class = "help-block" }, "p")
+                <p id="Landline" class="field-validation-error" style="display:none;"></p>
+            </div>
+            <div class="input-field custom input-has-icon">
+                @Html.TextBoxFor(x => x.DateofBirth, new { @class = "form-control  DateofBirthCalender", id = "txtDateofBirth" })
+                <label for="txtDateofBirth">@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Date of Birth", "Date of Birth")</label>
+                <div class="input-icon DateofBirthCalender">
+                    <i class="vi-calender i-24"></i>
+                </div>
+                @Html.ValidationMessageFor(x => x.DateofBirth, "", new { @class = "help-block" }, "p")
+                <p class="field-validation-error" id="EditProfileValidDOBValidation" style="display:none"></p>
+            </div>
+            <div class="form-field">
+                <div class="checkbox-field" id="chkBoxField">
+                    <label>
+                        @Html.CheckBoxFor(x => x.EBill, new { @class = "form-check-input filled-in", id = "EBill" })
+                        <span>@Html.Raw(Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/EBill", "E-Bill (I want to received my electricity bill by email on above mentioned email id.)"))</span>
+                    </label>
+                </div>
+            </div>
+
+            @if (Model != null)
+            {
+                if (Model.isOTPSent)
+                {
+                    <div class="otp-wrapper col-s12">
+                        <label>@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP", "Enter OTP")</label>
+                        <p>@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP Help Text", "We have sent you an OTP on your mobile number. Please enter to verify")</p>
+                    </div>
+                    <div class="input-field custom @Html.ValidationErrorFor(x => x.OTPNumber, "has-error")">
+                        @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber" })
+                        @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                        <label class="active" for="OTPNumber"> @Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP", "Enter OTP")</label>
+                    </div>
+                    <div class="h-right btn-group">
+                        <button type="submit" name="ValidateOTP" id="save" class="waves-effect btn btn-continue login-btn" value="@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Validate OTP", "Validate OTP")">
+                            @Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Validate OTP", "Validate OTP")
+                        </button>
+                    </div>
+
+                }
+                else
+                {
+                    <div class="input-field custom">
+                        <div class="captcha_box" id="recaptchaEditMainContent">
+                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                <div class="row captcha_box" style="padding-left:10px;">
+                                    <div class="col-lg-12">
+                                        <div class="g-recaptcha" data-callback="recaptchaEditMainContent" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        <p class="field-validation-error" id="lblCaptchaerror" style="display:none"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-right btn-group">
+                        <button type="button" id="cancel" onclick="ResetPage()"
+                                data-gaevent="my_profilt_section_edit_profile"
+                                data-gaeventCategory="My Account"
+                                data-gaeventAction="My Profile Section Edit Profile"
+                                data-gaeventLabel="Reset" value="@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Reset", "Reset")" class="waves-effect waves-light btn-flat">
+                            @Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Reset", "Reset")
+                        </button>
+                        <button type="submit" name="submit" id="save"
+                                data-gaevent="my_profilt_section_edit_profile"
+                                data-gaeventCategory="My Account"
+                                data-gaeventAction="My Profile Section Edit Profile"
+                                data-gaeventLabel="Submit"
+                                value="@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Submit", "Submit")" class="waves-effect waves-light btn frmEditProfileSubmit">
+                            @Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Submit", "Submit")
+                        </button>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="h-right btn-group">
+                    <button type="button" id="cancel" onclick="ResetPage()" value="@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Reset", "Reset")" class="waves-effect waves-light btn-flat">@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Reset", "Reset")</button>
+                    <button type="submit" name="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Submit", "Submit")" class="waves-effect waves-light btn frmEditProfileSubmit">@Html.Sitecore().Dictionary("/Accounts/My Account/Profile/Edit Profile/Button/Submit", "Submit")</button>
+                </div>
+            }
+
+        </div>
+    }
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>
+<script type="text/javascript">
+    var recaptchaEditMainContent;
+    var onloadCallback = function () {
+        recaptchaEditMainContent = grecaptcha.render('recaptchaEditMainContent', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+
+    $(document).ready(function () {
+
+        $('#txtDateofBirth').datepicker({
+            format: 'dd/mm/yyyy',
+            maxDate: new Date(),
+            yearRange: 40
+        });
+
+        $('.DateofBirthCalender').click(function () {
+            $("#txtDateofBirth").datepicker("open");
+        });
+
+    });
+
+    $('.frmEditProfileSubmit').click(function () {
+        var ischanged = false;
+
+        if (IsFormFieldValid()) {
+            var isCheckBoxChecked = "";
+            if ($('#frmEditProfile #EBill')[0].checked) {
+                isCheckBoxChecked = "true";
+            } else {
+                isCheckBoxChecked = "false";
+            }
+
+            if ($('#frmEditProfile #Email').val() != $('#frmEditProfileEmail').val()) {
+                ischanged = true;
+            }
+            if ($('#frmEditProfile #MobileNumber').val() != $('#frmEditProfileMobile').val()) {
+                ischanged = true;
+            }
+            if ($('#frmEditProfile #LandlineNumber').val() != $('#frmEditProfileLandline').val()) {
+                ischanged = true;
+            }
+            if ($('#frmEditProfile #txtDateofBirth').val() != $('#frmEditProfileDOB').val()) {
+                ischanged = true;
+            }
+            if (isCheckBoxChecked != $('#frmEBill').val().toLowerCase()) {
+                ischanged = true;
+            }
+
+        }
+
+        return ischanged;
+    });
+
+    function IsFormFieldValid() {
+        var isValid = true;
+        var edcaptcharesponse = grecaptcha.getResponse(recaptchaEditMainContent);
+
+        if ($('#frmEditProfile #Email').val() == "") {
+            $('#EditProfileValidEmailValidation').show().html('Please Enter Email ID');
+            isValid = false;
+        } else {
+            if (validateEmail($('#frmEditProfile #Email').val())) {
+                $('#EditProfileValidEmailValidation').hide().html('');
+            } else {
+                isValid = false;
+                $('#EditProfileValidEmailValidation').show().html('Please Enter Valid Email ID');
+            }
+        }
+        if ($('#frmEditProfile #MobileNumber').val() == "") {
+            $('#EditProfileValidMobileValidation').show().html('Please Enter Mobile Number');
+            isValid = false;
+        } else {
+            if (validateMobileNo($('#frmEditProfile #MobileNumber').val())) {
+                $('#EditProfileValidMobileValidation').hide().html('');
+            } else {
+                $('#EditProfileValidMobileValidation').show().html('Please Enter Valid Mobile Number');
+                isValid = false;
+            }
+        }
+        if (!edcaptcharesponse) {
+            $('#lblCaptchaerror').show().html('Please validate captcha to continue');
+            isValid = false;
+        }
+        else {
+            $('#lblCaptchaerror').hide().html('');
+        }
+
+
+
+        if ($('#frmEditProfile #LandlineNumber').val() == null || $('#frmEditProfile #LandlineNumber').val() == "") {
+            $("p#Landline").html("").removeClass('shown').hide();
+        } else {
+            var regrex = /^\d{6,9}$/;
+            if (regrex.test($('#frmEditProfile #LandlineNumber').val())) {
+                $("p#Landline").html("").removeClass('shown').hide();
+            } else {
+                $("p#Landline").html("Please enter a valid Landline Number").addClass('shown').show();
+                isValid = false;
+            }
+        }
+
+
+        //if ($('#frmEditProfile #txtDateofBirth').val() != "") {
+        //    var from = $('#frmEditProfile #txtDateofBirth').val().split("/"); // DD/MM/YYYY
+
+        //    var day = from[0];
+        //    var month = from[1];
+        //    var year = from[2];
+        //    var age = 18;
+
+        //    var mydate = new Date();
+        //    mydate.setFullYear(year, month - 1, day);
+
+        //    var currdate = new Date();
+        //    var setDate = new Date();
+
+        //    setDate.setFullYear(mydate.getFullYear() + age, month - 1, day);
+        //    if ((currdate - setDate) > 0) {
+        //        $('#EditProfileValidDOBValidation').hide().html('');
+        //    } else {
+        //        $('#EditProfileValidDOBValidation').show().html('You must be 18 years of age');
+        //        isValid = false;
+        //    }
+        //}
+
+        return isValid;
+    }
+
+
+    //Email Validation
+    function validateEmail(email) {
+        var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regex.test(email);
+    }
+
+    //Mobile number number validation
+    function validateMobileNo(mobile) {
+        if (mobile.match(/^[6789]\d{9}$/)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+</script>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>

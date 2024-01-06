@@ -1,0 +1,84 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.DeRegisterAccount
+
+
+@if (Session["DeRegisterAccountInternallyRevampSuccess"] != null && Session["DeRegisterAccountInternallyRevampSuccess"].ToString() == "2")
+{
+
+    Session["DeRegisterAccountInternallyRevampSuccess"] = null;
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //debugger;
+            dataLayer.push({
+                'event': "unlink_account_success",
+                'eventCategory': "My Account",
+                'eventAction': "Manage Connections | Unlink Account | success",
+                'eventLabel': "NA",
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        });
+    </script>
+
+}
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmDeRegisteredAccount" }))
+{
+    if (!string.IsNullOrEmpty(Model.CurrentAccountNumber) && !string.IsNullOrEmpty(Model.CurrentAccountItemID))
+    {
+        <a class="waves-effect waves-light btn-small outlined"
+           data-gaevent="manage_connections_unlink_account_initiate"
+           data-gaeventCategory="My Account"
+           data-gaeventAction="Manage Connections | Unlink Account Initiate"
+           data-gaeventLabel="NA"
+           href="javascript:void(0)" onclick="viewModalMessage();" style="margin-top: 30px; color: #333; border: 1px solid #333; padding: 0 20px">Unlink Account</a>
+
+        <div class="modal-wrapper-custom">
+            <div id="modalDeRegisteredAccount" class="modal modal-alert">
+                <h4>
+                    Are you sure, you want to unlink below account?
+                </h4>
+                <div class="modal-content">
+                    <p>@Model.CurrentAccountName</p>
+                    <p>CA Number @Model.CurrentAccountNumber</p>
+                </div>
+                @Html.ActionLink("Yes", "DeRegisterAccountInternallyRevamp", "AccountsRevamp", new { ItemId = Model.CurrentAccountItemID }, new { @class = "waves-effect waves-light btn btn-m-full outlined UnlinkSuccess", @style = "color: #0d67ca !important; margin-right: 15px;" })
+                @*@Html.ActionLink("Yes", "DeRegisterAccountInternallyRevamp", "AccountsRevamp", new { ItemId = Model.CurrentAccountItemID }, new { onclick = "return confirm('Are you sure you wish to de-registerd this Account Number?')", @class = "waves-effect waves-light btn btn-m-full outlined", @style = "color: #0d67ca !important; margin-right: 15px;" })*@
+                @*<a class="waves-effect waves-light btn modal-trigger outlined" href="#add-cat" style="color: #0d67ca !important; margin-right: 15px;">Yes</a>*@
+                <a class="waves-effect waves-light btn modal-close"
+                   data-gaevent="manage_connections_unlink_account_later"
+                   data-gaeventCategory="My Account"
+                   data-gaeventAction="Manage Connections | Unlink Account | Later"
+                   data-gaeventLabel="NA"
+                   style="color:#fff" href="javascript:void(0)">Not Now</a>
+            </div>
+        </div>
+        <script type="text/javascript">
+            function viewModalMessage() {
+                var elem = document.getElementById('modalDeRegisteredAccount');
+                var instance = M.Modal.init(elem, { dismissible: false });
+                instance.open();
+            }
+
+
+            $(".UnlinkSuccess").click(function () {
+
+                dataLayer.push({
+                    'event': "manage_connections_unlink_account_confirmation",
+                    'eventCategory': "My Account",
+                    'eventAction': "'Manage Connections | Unlink Account |Confirmation",
+                    'eventLabel': "NA",
+                    'business_user_id': $('#BusinessUserId').val(),
+                    'login_status': $('#login_status').val(),
+                    'ca_number': $('#GACANumber').val(),
+                    'page_type': $('head title').text()
+                });
+
+            })
+        </script>
+    }
+}

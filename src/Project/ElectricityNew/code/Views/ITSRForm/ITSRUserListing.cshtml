@@ -1,0 +1,96 @@
+﻿@model List<Sitecore.Electricity.Website.ITSR_Login>
+@using Sitecore.Electricity.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var itemListing = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormListing);
+
+    var formListing = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormListing);
+    var CreateUsersFormItem = Sitecore.Context.Database.GetItem(Templates.ITSR.CreateUsersFormItem);
+}
+<div class="pageContent">
+    <div class="container">
+
+        <div class="col-12 p-0 pb-3">
+            <div class="float-right">
+                @using (Html.BeginForm("Logout", "ITSRForm", FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button>
+                }
+            </div>
+            <div class="txt-right">
+                <a href="@CreateUsersFormItem.Url()" class="btn btn-primary mr-2">@Html.Sitecore().Dictionary("Electricity/Tender/Create User", "Create User")</a>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="col-12 p-0 pb-3">
+            <h2 class="txt-orange">@Html.Sitecore().Dictionary("Electricity/Tender/user Listing", "List of existing users")</h2>
+        </div>
+
+        <div class="table-responsive tableOuter listing-table">
+            <table class="table table-borderless table-white table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Mobile</th>
+                        <th scope="col">UserName</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Is Active</th>
+                        <th scope="col">Created Date</th>
+                        <th scope="col">Disable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.Name</td>
+                            <td>@user.Email</td>
+                            <td>@user.Mobile</td>
+                            <td>@user.UserId</td>
+                            <td>@user.UserRole</td>
+                            <td>@user.IsActive</td>
+                            <td>
+                                @if (user.Created_Date != null)
+                                {
+                                    user.Created_Date.Value.ToString("dd/MM/yyyy");
+                                }
+                                else
+                                {
+                                    <span>-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsActive == true)
+                                {
+                                    @Html.ActionLink("Disable", "DisableUser", new { id = user.Id }, new { onclick = "return confirm('Do you really want to disable this User')" })
+                                }
+                                else
+                                {
+                                    @Html.ActionLink("Enable", "EnableUser", new { id = user.Id }, new { onclick = "return confirm('Do you really want to activate this User again')" })
+
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    
+        <div class="card-footer txt-right">
+            <a href="@itemListing.Url()" class="btn btn-link">@Html.Sitecore().Dictionary("Electricity/Tender/Back To form Text", "Back To form List")</a>
+        </div>
+    </div>
+    <!-- /Tenders -->
+</div>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.selectedTender.submit();
+    }
+</script>  

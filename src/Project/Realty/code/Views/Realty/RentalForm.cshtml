@@ -1,0 +1,164 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Realty.Website
+@using System.Web.Mvc;
+@model Sitecore.Realty.Website.Model.RentalFormModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    string dataValidity = Session["Message"] != null ? Session["Message"].ToString() : string.Empty;
+}
+<section class="bg-gray position-relative d-block section property-booking form-rental-enquiry">
+    <div class="container">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs d-md-flex d-none" id="navtabs">
+            <li class="nav-item active">
+                <a class="nav-link active" data-toggle="tab" href="#menu1"><i>1</i>Rental Enquiry Form</a>
+            </li>
+        </ul>
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "formRealtyRental", @class = "form-signin", enctype = "multipart/form-data" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+            @Html.HiddenFor(m => m.ResponseURL, new { @Value = "/Rental-Form/ThankYou" })
+            <div class="tab-content">
+                <div class="tab-pane active" id="menu1">
+                    <button class="d-md-none d-block collapsed" data-toggle="collapse" data-target="#your-details"><i>1</i>Enter Your Details</button>
+                    <div class="collapse show" id="your-details">
+                        <div class="px-lg-4 py-5 p-3 personal-details">
+                            @if (!string.IsNullOrEmpty(Model.ReturnViewMessage))
+                            {
+                                <p class="col-md-7 txt-orange text-danger" id="errorSection">
+                                    @Model.ReturnViewMessage
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="col-md-7" id="errorSection">
+
+                                </p>
+                            }
+                            <div class="row">
+                                @*<div class="form-group ml-4">
+                                        <p class="txt-orange" id="docErrorMessage"></p>
+                                    </div>*@
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Name<span class="text-danger">*</span></label>
+                                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.Name, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Contact No<span class="text-danger">*</span></label>
+                                        @Html.TextBoxFor(x => x.ContactNo, new { @class = "form-control", type = "number", required = "required", maxlength = "10", oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                        @Html.ValidationMessageFor(x => x.ContactNo, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Email Id<span class="text-danger">*</span></label>
+                                        @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control", required = "required",
+                                       onkeyup = "var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toLowerCase(); this.setSelectionRange(start, end);"
+                                        })
+                                        @Html.ValidationMessageFor(x => x.EmailId, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Occupation<span class="text-danger">*</span></label>
+                                        @Html.TextBoxFor(x => x.Occupation, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.Occupation, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>                                
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Apartment Size<span class="text-danger">*</span></label>
+                                        @Html.DropDownListFor(x => x.selectedApartmentSize, Model.allApartmentSizeList, new { @class = "form-control multiselectallow",multiple="multiple", required = "required" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Apartment Type<span class="text-danger">*</span></label>
+                                        @Html.DropDownListFor(x => x.selectedApartmentType, Model.allApartmentTypeList, new { @class = "form-control multiselectallow", multiple = "multiple", required = "required", @onblur = "drpValidate(this)" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Location<span class="text-danger">*</span></label>
+                                        @Html.TextBoxFor(x => x.Location, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.Location, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Budget<span class="text-danger">*</span></label>
+                                        @Html.TextBoxFor(x => x.Budget, new { @class = "form-control", required = "required", maxlength = "10", oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                        @Html.ValidationMessageFor(x => x.Budget, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+								<div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Remarks</label>
+                                        @Html.TextAreaFor(model => model.Remarks, new { @class = "form-control", id = "Remarks", rows = "3", placeholder = "Remarks" })
+                                        @Html.ValidationMessageFor(x => x.Remarks, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group required">
+                                        <label for="">Reference from</label>
+                                        @Html.TextBoxFor(x => x.ReferenceFrom, new { @class = "form-control"})
+                                        @Html.ValidationMessageFor(x => x.ReferenceFrom, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-12 px-lg-5 mb-4">
+                                    <div class="form-group">
+                                        <label for="">If Broker, please fill details</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group">
+                                        <label for="">Name</label>
+                                        @Html.TextBoxFor(x => x.BrokerName, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(x => x.BrokerName, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-6 px-lg-5 mb-4">
+                                    <div class="form-group">
+                                        <label for="">Contact No</label>
+                                        @Html.TextBoxFor(x => x.BrokerContactNo, new { @class = "form-control", type = "number", maxlength = "10", oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                        @Html.ValidationMessageFor(x => x.BrokerContactNo, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 mb-3 px-lg-5">
+                                    <div class="form-group">
+										<label for="">Captcha<span class="text-danger">*</span></label>
+                                        <div id="recaptcha1"></div>
+                                        @Html.HiddenFor(model => model.reResponse, new { id = "Rental-reResponse" })
+                                        @Html.ValidationMessageFor(model => model.reResponse, "", new { @class = "help-block required" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-12 px-lg-5 text-lg-right">
+                                    <button type="submit" class="btn btn-primary mb-3 mb-sm-0" name="SubmitRentalForm" id="SubmitRentalForm" value="SubmitRentalForm">Submit <i class="fa fa-angle-right ml-2"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+
+    </div>
+</section>
+
+@*<script type="text/javascript">
+    $(function () {
+        $(".multiselect").multiselect();
+    });
+</script>*@

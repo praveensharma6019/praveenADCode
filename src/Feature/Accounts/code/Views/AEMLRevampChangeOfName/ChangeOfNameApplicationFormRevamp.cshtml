@@ -1,0 +1,1515 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ChangeOfNameApplicationFromModel
+<style>
+    .disabled {
+        pointer-events: none;
+    }
+</style>
+<div class="collapsible-header hide center">
+    <a href="javascript:void(0)">Existing Account Details</a>
+</div>
+<div class="collapsible-body">
+    <h2>Existing Account Details</h2>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCONApplication", @class = "form-signin", enctype = "multipart/form-data" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.HiddenFor(m => m.Aklasse)
+        @Html.HiddenFor(m => m.IsLEC)
+        @Html.HiddenFor(m => m.AccountNo)
+        @Html.HiddenFor(m => m.MeterNumber)
+        @Html.HiddenFor(m => m.ConnectionType)
+        @Html.HiddenFor(m => m.ExistingMobileNumber)
+        @Html.HiddenFor(m => m.ExistingEmailId)
+        @Html.HiddenFor(m => m.MobileNo)
+        <input type="hidden" value="@Model.formActiveId" name="formActiveId" id="formActiveId" />
+        <div class="existing-acc-detail section-wrapper">
+            <div class="card brand-gradient outlined">
+                <ul>
+                    <li>
+                        <span>Account Number</span> @Model.AccountNo
+                    </li>
+                    <li>
+                        <span>Meter Number</span>  @Model.MeterNumber
+                    </li>
+                    <li>
+                        <span>Connection Type</span>@Model.ConnectionType
+                    </li>
+                    <li>
+                        <span>Registered Customer Name</span>  @Model.ConsumerName
+                    </li>
+                    <li>
+                        <span>Mobile Number</span>  @Model.ExistingMobileNumber
+                    </li>
+                    <li>
+                        <span>Email ID</span> @Model.ExistingEmailId
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <h2>Submit your name change request in 3 simple steps:</h2>
+        <div class="step-progress-bar stepper-wrapper">
+            <div class="section-wrapper">
+                <ul class="stepper-header" id="stepper-holder" data-stepper-content-wrapper="stepperContent" data-stepper-content-holder="stepper-content-body">
+                    <li class="complete stepper-action active-step" data-id="1" data-content-target="content1">
+                        1. Premise
+                        <span></span>
+                    </li>
+                    <li class="stepper-action" data-id="2" data-content-target="content2">
+                        2. Details
+                        <span></span>
+                    </li>
+                    <li class="stepper-action" data-id="3" data-content-target="content3">
+                        3. Documents
+                        <span></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="stepper-content" id="stepperContent">
+            <div class="active stepper-content-body" id="content1">
+                <div class="new-connection-form">
+                    <div class="step-1-form section-wrapper">
+                        <div class="card outlined card-with-form">
+                            <div class="card-header">
+                                <h6>Select Premise</h6>
+                                <a href="#generalguideline" class="waves-effect modal-trigger">Check Guidelines</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-field">
+                                    <div class="input-field custom">
+                                        @Html.DropDownListFor(m => m.SelectedPremiseType, new SelectList(Model.PremiseTypeSelectList, "Value", "Text", Model.SelectedPremiseType), "Select", new
+                                        {
+                                            @class = "form-control",
+                                            id = "ddlPremiseType"@*, required = "required"*@})
+                                        <label>Select Applicable Premise</label>
+                                        <p class="field-validation-error" id="ddlPremiseType" style="display:none;"></p>
+                                        @*@Html.ValidationMessageFor(m => m.SelectedPremiseType)*@
+                                    </div>
+                                </div>
+                                <div class="btn-group" id="sub">
+                                    <button type="button" class="waves-effect waves-light btn btn-continue next-step continueSecondStep" @*onclick="goToStepNo('stepper-holder', 2);"*@>Continue</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="stepper-content-body hide" id="content2">
+                <div class="new-connection-form">
+                    @if (Model.SelectedPremiseType != null)
+                    {
+                        <div class="step-2-form section-wrapper">
+                            <div class="card outlined card-with-form">
+                                <div class="card-header">
+                                    <h6>Enter Details</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-field">
+                                        <h6>Applicant Type</h6>
+                                        <div class="field-group">
+                                            @if (Model.SelectedPremiseType == "009")
+                                            {
+                                                <div class="radio-field">
+                                                    <label for="ApplicantTypeIndividual">
+                                                        @Html.RadioButtonFor(model => model.ApplicantType, "1", new { id = "ApplicantTypeIndividual", @class = "with-gap rbApplicantType", @checked = "checked" })
+                                                        <span>Individual</span>
+                                                    </label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="radio-field">
+                                                    <label for="ApplicantTypeIndividual">
+                                                        @Html.RadioButtonFor(model => model.ApplicantType, "1", new { id = "ApplicantTypeIndividual", @class = "with-gap rbApplicantType" })
+                                                        <span>Individual</span>
+                                                    </label>
+                                                </div>
+                                            }
+
+                                            @if (Model.SelectedPremiseType != "009")
+                                            {
+                                                <div class="radio-field">
+                                                    <label for="ApplicantTypeJointOccupancy">
+                                                        @Html.RadioButtonFor(model => model.ApplicantType, "3", new { id = "ApplicantTypeJointOccupancy", @class = "with-gap rbApplicantType" })
+                                                        <span>Joint Occupancy (Single Applicant)</span>
+                                                    </label>
+                                                </div>
+                                                <div class="radio-field">
+                                                    <label for="ApplicantTypeJoint">
+                                                        @Html.RadioButtonFor(model => model.ApplicantType, "2", new { id = "ApplicantTypeJoint", @class = "with-gap rbApplicantType" })
+                                                        <span>Joint</span>
+                                                    </label>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    @if (Model.SelectedPremiseType != "009" && Model.SelectedPremiseType != "028" && Model.SelectedPremiseType != "034" && Model.SelectedPremiseType != "036")
+                                    {
+                                        <div class="form-field">
+                                            <h6>Registered customer still living</h6>
+                                            <div class="field-group">
+                                                <div class="radio-field">
+                                                    <label for="ApplicantLivingYes">
+                                                        @Html.RadioButtonFor(model => model.IsStillLiving, "Yes", new { id = "ApplicantLivingYes", @class = "with-gap rbIsStillLiving" })
+                                                        <span>Yes</span>
+                                                    </label>
+                                                </div>
+                                                <div class="radio-field">
+                                                    <label for="ApplicantLivingNo">
+                                                        @Html.RadioButtonFor(model => model.IsStillLiving, "No", new { id = "ApplicantLivingNo", @class = "with-gap rbIsStillLiving" })
+                                                        <span>No</span>
+                                                    </label>
+                                                </div>
+                                                @Html.ValidationMessageFor(x => x.IsStillLiving, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="form-field">
+                                        <h6>Applicant Details</h6>
+                                        @if (Model.ApplicantType == "2")
+                                        {
+
+                                            <div class="row field-flex">
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.Name1Joint, new { @maxlength = "50" })
+                                                    <label for="">Full Name (Applicant 1)<span class="required">*</span></label>
+                                                    <p class="field-validation-error" id="Name1Joint" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.Name2Joint, new { @maxlength = "50" })
+                                                    <label for="">Full Name (Applicant 2)<span class="required">*</span></label>
+                                                    <p class="field-validation-error" id="Name2Joint" style="display:none;"></p>
+                                                </div>
+                                            </div>
+
+                                        }
+                                        else if (Model.SelectedTitle == "0006")
+                                        {
+                                            <div class="row field-flex">
+                                                <div class="input-field custom col s12 m4">
+                                                    @Html.DropDownListFor(m => m.SelectedTitle, new SelectList(Model.TitleSelectList, "Value", "Text", "0006"), "Select", new
+                                                    {
+                                                        id = "ddlTitle"
+                                               })
+                                                    <label>Select Title <span class="required">*</span></label>
+                                                    @Html.ValidationMessageFor(x => x.TitleSelectList)
+                                                    <p class="field-validation-error" id="ddlTitle" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m8">
+                                                    @Html.TextBoxFor(x => x.OrganizationName, new
+                                                    {@*required = "required",*@@maxlength = "50"
+})
+                                                    <label for="">Name of Organization<span class="required">*</span></label>
+                                                    <p class="field-validation-error" id="OrganizationName" style="display:none;"></p>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="row field-flex">
+                                                <div class="input-field custom col s12 m4">
+                                                    @Html.DropDownListFor(m => m.SelectedTitle, new SelectList(Model.TitleSelectList, "Value", "Text", Model.SelectedTitle), "Select", new
+                                                    {
+                                                        id = "ddlTitle"@*, required = "required"*@})
+                                                    <label>Select Title <span class="required">*</span></label>
+                                                    @Html.ValidationMessageFor(x => x.TitleSelectList)
+                                                    <p class="field-validation-error" id="ddlTitle" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m8">
+                                                    @Html.TextBoxFor(x => x.FirstName, new
+                                                    {@*required = "required",*@@maxlength = "50"
+})
+                                                    <label for="">First Name <span class="required">*</span></label>
+                                                    <p class="field-validation-error" id="FirstName" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.MiddleName, new { @maxlength = "50" })
+                                                    <label for="">Middle Name</label>
+                                                    <p class="field-validation-error" id="MiddleName" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.LastName, new
+                                                    {@*required = "required",*@@maxlength = "50"
+})
+                                                    <label for="">Last Name <span class="required">*</span></label>
+                                                    <p class="field-validation-error" id="LastName" style="display:none;"></p>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+                                    @if (Model.SelectedPremiseType == "00026")  //to skip this step added 00
+                                    {
+                                        <div class="form-field">
+                                            <h6>Address Correction required</h6>
+                                            <div class="field-group">
+                                                <div class="radio-field">
+                                                    <label for="IsAddressCorrectionRequiredNo">
+                                                        @Html.RadioButtonFor(model => model.IsAddressCorrectionRequired, "No", new { id = "IsAddressCorrectionRequiredNo", @class = "with-gap" })
+                                                        <span>No</span>
+                                                    </label>
+                                                </div>
+                                                <div class="radio-field">
+                                                    <label for="IsAddressCorrectionRequiredYes">
+                                                        @Html.RadioButtonFor(model => model.IsAddressCorrectionRequired, "Yes", new { id = "IsAddressCorrectionRequiredYes", @class = "with-gap" })
+                                                        <span>Yes</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        if (Model.IsAddressCorrectionRequired == "Yes")
+                                        {
+                                            <div class="form-field">
+                                                <h6>Applicant's Present / Correspondence Address :</h6>
+                                                <div class="row field-flex">
+                                                    <div class="input-field custom col s12 m6">
+                                                        @Html.TextBoxFor(x => x.HouseNumber, new
+                                                        {
+                                                            @maxlength = "10"@*, required = "required"*@})
+
+                                                        <label for="">House Number <span class="required">*</span></label>
+                                                        <p class="field-validation-error" id="HouseNumber" style="display:none;"></p>
+                                                    </div>
+                                                    <div class="input-field custom col s12 m6">
+                                                        @Html.TextBoxFor(x => x.Street, new
+                                                        {
+                                                            @maxlength = "30"@*, required = "required"*@})
+
+                                                        <label for="">Street <span class="required">*</span></label>
+                                                        <p class="field-validation-error" id="Street" style="display:none;"></p>
+                                                    </div>
+                                                    <div class="input-field custom col s12 m6">
+                                                        @Html.TextBoxFor(x => x.Landmark, new
+                                                        {
+                                                            @maxlength = "30"@*, required = "required"*@})
+
+                                                        <label for="">Landmark <span class="required">*</span></label>
+                                                        @Html.ValidationMessageFor(x => x.Landmark, "", new { @class = "help-block" }, "p")
+                                                        <p class="field-validation-error" id="Landmark" style="display:none;"></p>
+                                                    </div>
+                                                    <div class="input-field custom col s12 m6">
+                                                        @Html.TextBoxFor(x => x.Area, new
+                                                        {
+                                                            @maxlength = "50"@*, required = "required"*@})
+
+                                                        <label for="">Area <span class="required">*</span></label>
+                                                        <p class="field-validation-error" id="Area" style="display:none;"></p>
+                                                    </div>
+                                                    <div class="input-field custom col s12 m6">
+                                                        @Html.DropDownListFor(m => m.SelectedSuburb, new SelectList(Model.SuburbSelectList, "Value", "Text"), "Select", new
+                                                        {@*required = "required"*@})
+                                                        <label for="">Suburb <span class="required">*</span></label>
+                                                        <p class="field-validation-error" id="ddlSelectedSuburb" style="display:none;"></p>
+                                                    </div>
+                                                    <div class="input-field custom col s12 m6">
+                                                        @Html.DropDownListFor(m => m.SelectedCity, new SelectList(Model.CitySelectList, "Value", "Text"), "Select", new
+                                                        {@*required = "required"*@})
+                                                        <label for="">City <span class="required">*</span></label>
+                                                        <p class="field-validation-error" id="ddlSelectedCity" style="display:none;"></p>
+                                                    </div>
+                                                    <div class="input-field custom col s12 m6">
+                                                        @Html.DropDownListFor(m => m.SelectedPincode, new SelectList(Model.PincodeSelectList, "Value", "Text"), "Select", new
+                                                        {@*required = "required"*@})
+                                                        <label for="">Pincode <span class="required">*</span></label>
+                                                        <p class="field-validation-error" id="ddlSelectedPincode" style="display:none;"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    <div class="form-field">
+                                        <h6>Contact Details</h6>
+                                        <div class="row">
+                                            <div class="input-field custom col s12 m6">
+                                                @Html.TextBoxFor(x => x.EmailId, new
+                                                {@*required = "required",*@@maxlength = "50"
+})
+                                                <label for="">Email <span class="required">*</span></label>
+                                                <p class="field-validation-error" id="EmailId" style="display:none;"></p>
+                                            </div>
+                                            <div class="input-field custom col s12 m6">
+                                                @Html.TextBoxFor(x => x.Landline)
+                                                <label for="">Landline Number</label>
+                                                <p class="field-validation-error" id="Landline" style="display:none;"></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="input-field custom col s12 m6">
+                                                @Html.TextBoxFor(x => x.MobileNo, new
+                                           { @readonly = "readonly" })
+                                                <label for="">Mobile Number <span class="required">*</span></label>
+                                                <p class="field-validation-error" id="MobileNo" style="display:none;"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-field">
+                                        <h6>Billing Details</h6>
+                                        <div class="row">
+                                            <div class="input-field custom col s12 m6">
+                                                @Html.DropDownListFor(m => m.SelectedBillLanguage, new SelectList(Model.BillLanguageSelectList, "Value", "Text", Model.SelectedBillLanguage), "Select", new
+                                                {@*required = "required"*@})
+                                                <label>Bill Language <span class="required">*</span></label>
+                                                <p class="field-validation-error" id="SelectedBillLanguage" style="display:none;"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-field">
+                                        <h6>Bill Format :</h6>
+                                        <div class="field-group">
+                                            <div class="radio-field">
+                                                <label class="form-check-label" for="IsPaperlessNo">
+                                                    @Html.RadioButtonFor(model => model.IsPaperlessBilling, "No", new
+                                                    {
+                                                        id = "IsPaperlessNo"@*, required = "required"*@,
+@class = "with-gap"
+})
+                                                    <span>   E-Bill + Hard Copy of Bill </span>
+                                                </label>
+                                            </div>
+                                            <div class="radio-field">
+                                                <label class="form-check-label" for="IsPaperlessYes">
+                                                    @Html.RadioButtonFor(model => model.IsPaperlessBilling, "Yes", new
+                                                    {
+                                                        id = "IsPaperlessYes"@*, required = "required"*@,
+@class = "with-gap"
+})
+                                                    <span> Paperless ** </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="message warning warning-info" style="font-size:12px;">
+                                            <aside>
+                                                <i class="i-info"></i>
+                                            </aside>
+                                            <p>
+                                                ** Enjoy ₹10 off on your electricity bill every month
+                                            </p>
+                                        </div>
+                                    </div>
+                                    @if (Model.SelectedPremiseType == "034")
+                                    {
+                                        <div class="form-field">
+                                            <h6>Applicant's Present / Correspondence Address :</h6>
+                                            <div class="row field-flex">
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.LandlordName, new
+                                                    {
+                                                        @maxlength = "20"@*, required = "required"*@})
+
+                                                    <label for="">Name of Owner <span class="required">*</span></label>
+                                                    <p class="field-validation-error" id="LandlordName" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.LandlordMobile, new
+                                                    {
+                                                        @maxlength = "10"@*, required = "required"*@})
+
+                                                    <label for="">Mobile No <span class="required">*</span></label>
+                                                    <p class="field-validation-error" id="LandlordMobile" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.LandlordLandline, new { @maxlength = "11" })
+                                                    <label for="">Landline No</label>
+                                                    <p class="field-validation-error" id="LandlordLandline" style="display:none;"></p>
+                                                </div>
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.LandlordEmail, new { @maxlength = "30" })
+                                                    <label for="">Email</label>
+                                                    <p class="field-validation-error" id="LandlordEmail" style="display:none;"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="form-field">
+                                        <h6>Do you wish to transfer the Security Deposit from the exisiting account?</h6>
+                                        <div class="field-group">
+                                            <div class="radio-field">
+                                                <label class="form-check-label" for="IsContinueWithExistingSDNo">
+                                                    @Html.RadioButtonFor(model => model.IsContinueWithExistingSD, "No", new
+                                                    {
+                                                        id = "IsContinueWithExistingSDNo"@*, required = "required"*@,
+@class = "with-gap rbIsContinueWithExistingSD"
+})
+                                                    <span>No</span>
+                                                </label>
+                                            </div>
+                                            <div class="radio-field">
+                                                <label class="form-check-label" for="IsContinueWithExistingSDYes">
+                                                    @Html.RadioButtonFor(model => model.IsContinueWithExistingSD, "Yes", new
+                                                    {
+                                                        id = "IsContinueWithExistingSDYes"@*, required = "required"*@,
+@class = "with-gap rbIsContinueWithExistingSD"
+})
+                                                    <span>Yes</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (Model.IsContinueWithExistingSD == "Yes")
+                                    {
+                                        <div class="form-field">
+                                            <div class="row">
+                                                <input type="hidden" value="@Model.ExistingSecurityDepositeAmount" id="hdnExistingSecurityDepositeAmount" />
+                                                <h6>Security Deposit Amount in the exisiting account is: Rs. @Model.ExistingSecurityDepositeAmount</h6>
+                                                <div class="input-field custom col s12 m6">
+                                                    @Html.TextBoxFor(x => x.SecurityDepositeAmount, new
+                                                    {
+                                                        @class = "form-control"@*, required = "required"*@})
+
+                                                    <label for="">Security Deposit Amount</label>
+                                                    @Html.ValidationMessageFor(x => x.SecurityDepositeAmount, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="message warning warning-info" style="font-size:14px;">
+                                            <p class="txt-sm incentiveMsg">Please Note: The amount mentioned above shall be transferred & maintained as a “Security Deposit” in the new account, once the Change of Name request is processed. Additional security deposit, if applicable, shall be added in the 1st bill generated for the new account.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="message warning warning-info" style="font-size:14px;">
+                                            <div class="cms-content">
+                                                Please Note:
+                                                <ul>
+                                                    <li>The security deposit payable for the new account shall be calculated once the processing of the “Change of Name” request is complete. The calculated amount shall be included in the 1st bill generated for the new account.</li>
+                                                    <li>As per MERC Regulations-2021 & clauses under 13.1 and 13.2 of the said Regulations all electricity consumers in the state are now required to maintain a Security Deposit with their electricity distribution license, equivalent to twice the average of last 12 months Bill amount (Recorded in the period of April to Mar of immediately Preceding FY).</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="input-field custom">
+                                        @Html.TextAreaFor(x => x.ConsumerRemark, new { @class = "materialize-textarea", @maxlength = "800", id = "remark" })
+                                        <label for="remark">Enter Your Remarks</label>
+                                        <p class="field-validation-error" id="ConsumerRemark" style="display:none;"></p>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="button" class="waves-effect waves-light btn-flat backSecondStep">Back</button>
+                                        <button type="button" class="waves-effect waves-light btn btn-continue continueThirdStep">
+                                            Continue
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="stepper-content-body hide" id="content3">
+                <div class="new-connection-form">
+                    @if (Model.SelectedPremiseType != null)
+                    {
+                        <div class="step-3-form section-wrapper">
+                            <div class="card outlined card-with-form">
+                                <div class="card-header">
+                                    <h6>Upload Documents</h6>
+                                    <a href="#docsupload" class="waves-effect modal-trigger">Check Guidelines</a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-field">
+                                        @{
+                                            var ExistingIDDocument = Model.GetExistingDocuments != null ? Model.GetExistingDocuments.Where(x => x.DocumentTypeCode.Trim() == "ID").ToList() : null;
+                                        }
+                                        @if (Model.IDDocumentsList.Count > 0 || Model.IDDocumentsListOnly1.Count > 0)
+                                        {
+                                            <h6>Proof Of Identity Document</h6>
+                                            {
+                                                var i1 = 1;
+                                                if (Model.IDDocumentsList.Count > 0)
+                                                {
+                                                    foreach (var doc in Model.IDDocumentsList)
+                                                    {
+                                                        var IDDocument = ExistingIDDocument.Where(d => d.DocumentType == doc.DocType).FirstOrDefault();
+                                                        var fileupload1 = "file_" + System.Convert.ToString(doc.DocType);
+                                                        var downloadDoc = "download_ID";
+                                                        var docname = "docnumber_" + System.Convert.ToString(doc.DocType);
+                                                        if (doc.IsMandatory)
+                                                        {
+                                                            var mad = "mand_" + doc.DocType;
+                                                            @Html.HiddenFor(m => doc.IsMandatory, new { id = mad })
+                                                        }
+                                                        var madname = "manddocname_" + System.Convert.ToString(doc.DocType);
+                                                        @Html.HiddenFor(m => doc.DocName, new { id = madname })
+                                                        <div class="row field-flex">
+                                                            <div class="input-field custom col s12 m4">
+                                                                @doc.DocName
+                                                                @if (doc.IsMandatory)
+                                                                {
+                                                                    <span class="required">*</span>
+                                                                }
+                                                            </div>
+                                                            <div class="input-field custom col s12 m8">
+                                                                @if (IDDocument != null && IDDocument.DocumentNumber != null)
+                                                                {
+                                                                    <input type="text" class="form-control txt-caps" name="docnumber_ID" id="docnumber_ID" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="" value="@IDDocument.DocumentNumber">
+                                                                    <label for="doc_num">Document Number</label>
+                                                                    @Html.ValidationMessageFor(x => x.docnumber_ID, "", new { @class = "help-block" }, "p")
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input type="text" class="form-control txt-caps" name="docnumber_ID" id="docnumber_ID" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="">
+                                                                    <label for="doc_num">Document Number</label>
+                                                                    @Html.ValidationMessageFor(x => x.docnumber_ID, "", new { @class = "help-block" }, "p")
+                                                                }
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col s12 m12">
+                                                                <div class="file-upload-wrp">
+                                                                    <div class="file-field">
+                                                                        <div class="btn000 file-select">
+                                                                            <label class="file-label" for="empList">
+                                                                                <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                            </label>
+                                                                            <input type="file" id="@fileupload1" onchange="ValidateFile(this);" name="@fileupload1" class="form-control cou" />
+                                                                        </div>
+                                                                        <div class="file-path-wrapper select-message">
+                                                                            <i class="i-attach i-20"></i>
+                                                                            <input class="file-path validate" type="text">
+                                                                            <i class="remove-upload i-cross-c i-24"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                    @if (IDDocument != null)
+                                                                    {
+                                                                        <a class="txt-orange @fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = IDDocument.Id })">
+                                                                            <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                        </a>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                                else if (Model.IDDocumentsListOnly1.Count > 0)
+                                                {
+                                                    var IDDocument = ExistingIDDocument == null ? null : ExistingIDDocument.FirstOrDefault();
+                                                    foreach (var d in ExistingIDDocument)
+                                                    {
+                                                        if (Model.IDDocumentsListOnly1.Select(d1 => d1.DocType).Contains(d.DocumentType))
+                                                        {
+                                                            IDDocument = d;
+                                                        }
+                                                    }
+                                                    var fileupload1 = "file_ID";
+                                                    var downloadDoc = "download_ID";
+                                                    var docname = "docnumber_ID";
+                                                    <div class="row field-flex">
+                                                        <div class="input-field custom col s12 m4">
+                                                            @if (IDDocument != null)
+                                                            {
+                                                                if (Model.ApplicantType == "2")
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.SelectedIDDocumentOnly1, new SelectList(Model.IDDocumentsListOnly1, "DocSerialNumber", "DocName", IDDocument.DocumentChecklistSerialNumber), "Select for Applicant 1", new { @class = "form-control", id = "ddlID" })
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.SelectedIDDocumentOnly1, new SelectList(Model.IDDocumentsListOnly1, "DocSerialNumber", "DocName", IDDocument.DocumentChecklistSerialNumber), "Select", new { @class = "form-control", id = "ddlID" })
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                if (Model.ApplicantType == "2")
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.SelectedIDDocumentOnly1, new SelectList(Model.IDDocumentsListOnly1, "DocSerialNumber", "DocName"), "Select  for Applicant 1", new { @class = "form-control", id = "ddlID" })
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.SelectedIDDocumentOnly1, new SelectList(Model.IDDocumentsListOnly1, "DocSerialNumber", "DocName"), "Select", new { @class = "form-control", id = "ddlID" })
+                                                                }
+                                                            }
+                                                            <label>Select Document Type</label>
+                                                        </div>
+                                                        <div class="input-field custom col s12 m8">
+                                                            @if (IDDocument != null && IDDocument.DocumentNumber != null)
+                                                            {
+                                                                <input type="text" class="form-control txt-caps" name="@docname" id="@docname" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="" value="@IDDocument.DocumentNumber">
+                                                                <label for="doc_num">Document Number</label>
+                                                                @Html.ValidationMessageFor(x => x.docnumber_ID, "", new { @class = "help-block" }, "p")
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="text" class="form-control txt-caps" name="@docname" id="@docname" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="">
+                                                                <label for="doc_num">Document Number</label>
+                                                                @Html.ValidationMessageFor(x => x.docnumber_ID, "", new { @class = "help-block" }, "p")
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="file-upload-wrp custom col s12 m12">
+                                                            <div class="file-field">
+                                                                <div class="file-select">
+                                                                    <label class="file-label" for="fileComplaintSupportingDocs">
+                                                                        <i class="i-attach i-20 with-label">Upload / Drag & Drop</i>
+                                                                    </label>
+                                                                    <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="input-file" />
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                            @if (IDDocument != null)
+                                                            {
+                                                                <a class="txt-orange @fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = IDDocument.Id })">
+                                                                    <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                                var ExistingID2Document = Model.GetExistingDocuments != null ? Model.GetExistingDocuments.Where(x => x.DocumentTypeCode.Trim() == "ID2").ToList() : null;
+                                                if (Model.ID2DocumentsList.Count > 0)
+                                                {
+                                                    foreach (var doc in Model.ID2DocumentsList)
+                                                    {
+                                                        var ID2Document = ExistingID2Document.Where(d => d.DocumentType == doc.DocType).FirstOrDefault();
+                                                        var fileupload1 = "file_" + System.Convert.ToString(doc.DocType);
+                                                        var downloadDoc = "download_ID2";
+                                                        var docname = "docnumber_" + System.Convert.ToString(doc.DocType);
+                                                        if (doc.IsMandatory)
+                                                        {
+                                                            var mad = "mand_" + doc.DocType;
+                                                            @Html.HiddenFor(m => doc.IsMandatory, new { id = mad })
+                                                        }
+                                                        var madname = "manddocname_" + System.Convert.ToString(doc.DocType);
+                                                        @Html.HiddenFor(m => doc.DocName, new { id = madname })
+                                                        <div class="row field-flex">
+                                                            <div class="input-field custom col s12 m4">
+                                                                @doc.DocName
+                                                                @if (doc.IsMandatory)
+                                                                {
+                                                                    <span class="required">*</span>
+                                                                }
+                                                                <label>Select Document Type</label>
+                                                            </div>
+                                                            <div class="input-field custom col s12 m8">
+                                                                @if (ID2Document != null)
+                                                                {
+                                                                    <input type="text" class="form-control txt-caps" name="docnumber_ID2" id="docnumber_ID2" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="" value="@ID2Document.DocumentNumber">
+                                                                    <label for="doc_num">Document Number</label>
+                                                                    @Html.ValidationMessageFor(x => x.docnumber_ID2, "", new { @class = "help-block" }, "p")
+                                                                }
+                                                                else
+                                                                {
+                                                                    <input type="text" class="form-control txt-caps" name="docnumber_ID2" id="docnumber_ID2" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="">
+                                                                    <label for="doc_num">Document Number</label>
+                                                                    @Html.ValidationMessageFor(x => x.docnumber_ID2, "", new { @class = "help-block" }, "p")
+                                                                }
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col s12 m8">
+                                                                <div class="file-upload-wrp">
+                                                                    <div class="file-field">
+                                                                        <div class="btn000 file-select">
+                                                                            <label class="file-label" for="empList">
+                                                                                <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                            </label>
+                                                                            <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="form-control cou input-file" />
+                                                                        </div>
+                                                                        <div class="file-path-wrapper select-message">
+                                                                            <i class="i-attach i-20"></i>
+                                                                            <input class="file-path validate" type="text">
+                                                                            <i class="remove-upload i-cross-c i-24"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                @if (ID2Document != null)
+                                                                {
+                                                                    <a class="txt-orange @fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = ID2Document.Id })">
+                                                                        <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                }
+                                                else if (Model.ID2DocumentsListOnly1.Count > 0)
+                                                {
+                                                    var ID2Document = ExistingID2Document.FirstOrDefault();
+                                                    foreach (var d in ExistingID2Document)
+                                                    {
+                                                        if (Model.ID2DocumentsListOnly1.Select(d1 => d1.DocType).Contains(d.DocumentType))
+                                                        {
+                                                            ID2Document = d;
+                                                        }
+                                                    }
+                                                    var fileupload1 = "file_ID2";
+                                                    var downloadDoc = "download_ID2";
+                                                    var docname = "docnumber_ID2";
+                                                    <div class="row field-flex">
+                                                        <div class="input-field custom col s12 m4">
+                                                            <div class="select-wrapper">
+                                                                @if (ID2Document != null)
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.SelectedID2DocumentOnly1, new SelectList(Model.ID2DocumentsListOnly1, "DocSerialNumber", "DocName", ID2Document.DocumentChecklistSerialNumber), "Select for Applicant 2", new { @class = "form-control", id = "ddlID2" })
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.DropDownListFor(m => m.SelectedID2DocumentOnly1, new SelectList(Model.ID2DocumentsListOnly1, "DocSerialNumber", "DocName"), "Select for Applicant 2", new { @class = "form-control", id = "ddlID2" })
+                                                                }
+                                                            </div>
+                                                            <label>Select Document Type</label>
+                                                        </div>
+                                                        <div class="input-field custom col s12 m8">
+                                                            @if (ID2Document != null)
+                                                            {
+                                                                <input type="text" class="form-control txt-caps" name="@docname" id="@docname" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="" value="@ID2Document.DocumentNumber">
+                                                                <label for="doc_num">Document Number</label>
+                                                                @Html.ValidationMessageFor(x => x.docnumber_ID2, "", new { @class = "help-block" }, "p")
+                                                            }
+                                                            else
+                                                            {
+                                                                <input type="text" class="form-control txt-caps" name="@docname" id="@docname" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="">
+                                                                <label for="doc_num">Document Number</label>
+                                                                @Html.ValidationMessageFor(x => x.docnumber_ID2, "", new { @class = "help-block" }, "p")
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col s12 m12">
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="form-control cou input-file" />
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @if (ID2Document != null)
+                                                                {
+                                                                    <a class="txt-orange @fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = ID2Document.Id })">
+                                                                        <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="form-field">
+                                        <h6>Other Required Document</h6>
+                                        <div class="row field-flex">
+                                            @{
+                                                var i = 1;
+                                                var ExistingPHDocument = Model.GetExistingDocuments != null ? Model.GetExistingDocuments.Where(x => x.DocumentTypeCode.Trim() == "PH").ToList() : null;
+                                                if (Model.PHDocumentsList.Count > 0)
+                                                {
+                                                    foreach (var doc in Model.PHDocumentsList.OrderBy(d => d.DocName))
+                                                    {
+                                                        <div class="input-field doc-field custom col s12 m4">
+                                                            @{
+                                                                var PHDocument = ExistingPHDocument.Where(d => d.DocumentType == doc.DocType && d.DocumentDescription == doc.DocName).FirstOrDefault();
+                                                                var fileupload1 = "file_" + System.Convert.ToString(doc.DocType);
+                                                                var downloadDoc = "download_PH";
+                                                                if (doc.IsMandatory)
+                                                                {
+                                                                    var mad = "mand_" + doc.DocType;
+                                                                    @Html.HiddenFor(m => doc.IsMandatory, new { id = mad })
+                                                                }
+                                                                var madname = "manddocname_" + System.Convert.ToString(doc.DocType);
+                                                                @Html.HiddenFor(m => doc.DocName, new { id = madname })
+                                                            }
+                                                            @doc.DocName
+                                                        </div>
+                                                        <div class="col s12 m8">
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidatePHFile(this);" class="form-control cou input-file" />
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @if (PHDocument != null)
+                                                                {
+                                                                    <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = PHDocument.Id })">
+                                                                        <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        i = i + 1;
+                                                    }
+                                                }
+                                                else if (Model.PHDocumentsListOnly1.Count > 0)
+                                                {
+                                                    var PHDocument = ExistingPHDocument.FirstOrDefault();
+                                                    foreach (var d in ExistingPHDocument)
+                                                    {
+                                                        if (Model.PHDocumentsListOnly1.Select(d1 => d1.DocType).Contains(d.DocumentType) && Model.PHDocumentsListOnly1.Select(d1 => d1.DocName).Contains(d.DocumentDescription))
+                                                        {
+                                                            PHDocument = d;
+                                                        }
+                                                    }
+                                                    var fileupload1 = "file_PH";
+                                                    var downloadDoc = "download_PH";
+
+                                                    <div class="input-field doc-field custom col s12 m4">
+                                                        <input type="hidden" value="True" id="mand_PH" />
+                                                        <input type="hidden" value="Photo" id="manddocname_PH" />
+                                                        @if (PHDocument != null)
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedPHDocumentOnly1, new SelectList(Model.PHDocumentsListOnly1, "DocSerialNumber", "DocName", PHDocument.DocumentChecklistSerialNumber), "Select", new { @class = "form-control", id = "ddlPH" })
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedPHDocumentOnly1, new SelectList(Model.PHDocumentsListOnly1, "DocSerialNumber", "DocName"), "Select", new { @class = "form-control", id = "ddlPH" })
+                                                        }
+                                                        <label>Select Document Type</label>
+                                                    </div>
+                                                    <div class="col s12 m8">
+                                                        <div class="file-upload-wrp">
+                                                            <div class="file-field">
+                                                                <div class="btn000 file-select">
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidatePHFile(this);" class="form-control cou input-file" />
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                            @if (PHDocument != null)
+                                                            {
+                                                                <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = PHDocument.Id })">
+                                                                    <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    i = i + 1;
+                                                }
+
+                                                var ExistingODDocument = Model.GetExistingDocuments != null ? Model.GetExistingDocuments.Where(x => x.DocumentTypeCode.Trim() == "OD").ToList() : null;
+                                                if (Model.ODDocumentsList.Count > 0)
+                                                {
+                                                    foreach (var doc in Model.ODDocumentsList)
+                                                    {
+                                                        <div class="input-field doc-field custom col s12 m4">
+                                                            @{
+                                                                var ODDocument = ExistingODDocument.Where(d => d.DocumentType == doc.DocType).FirstOrDefault();
+                                                                var fileupload1 = "file_" + System.Convert.ToString(doc.DocType);
+                                                                var downloadDoc = "download_OD";
+                                                                if (doc.IsMandatory)
+                                                                {
+                                                                    var mad = "mand_" + doc.DocType;
+                                                                    @Html.HiddenFor(m => doc.IsMandatory, new { id = mad })
+                                                                }
+                                                                var madname = "manddocname_" + System.Convert.ToString(doc.DocType);
+                                                                @Html.HiddenFor(m => doc.DocName, new { id = madname })
+                                                            }
+                                                            @doc.DocName
+                                                        </div>
+                                                        <div class="col s12 m8">
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="form-control cou input-file" />
+
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @if (ODDocument != null)
+                                                                {
+                                                                    <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = ODDocument.Id })">
+                                                                        <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        i = i + 1;
+                                                    }
+                                                }
+                                                else if (Model.ODDocumentsListOnly1.Count > 0)
+                                                {
+                                                    var ODDocument = ExistingODDocument.FirstOrDefault();
+                                                    foreach (var d in ExistingODDocument)
+                                                    {
+                                                        if (Model.ODDocumentsListOnly1.Select(d1 => d1.DocType).Contains(d.DocumentType))
+                                                        {
+                                                            ODDocument = d;
+                                                        }
+                                                    }
+                                                    var fileupload1 = "file_OD";
+                                                    var downloadDoc = "download_OD";
+                                                    <div class="input-field doc-field custom col s12 m4">
+                                                        <input type="hidden" value="True" id="mand_OD" />
+                                                        <input type="hidden" value="Any one Ownership Document" id="manddocname_OD" />
+                                                        @if (ODDocument != null)
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedODDocumentOnly1, new SelectList(Model.ODDocumentsListOnly1, "DocSerialNumber", "DocName", ODDocument.DocumentChecklistSerialNumber), "Select Ownership Document", new { @class = "form-control", id = "ddlOD" })
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedODDocumentOnly1, new SelectList(Model.ODDocumentsListOnly1, "DocSerialNumber", "DocName"), "Select Ownership Document", new { @class = "form-control", id = "ddlOD" })
+                                                        }
+                                                        <label>Select Ownership Document</label>
+                                                    </div>
+                                                    <div class="col s12 m8">
+                                                        <div class="file-upload-wrp">
+                                                            <div class="file-field">
+                                                                <div class="btn000 file-select">
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="form-control cou input-file" />
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                            @if (ODDocument != null)
+                                                            {
+                                                                <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = ODDocument.Id })">
+                                                                    <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    i = i + 1;
+                                                }
+
+                                                var ExistingSDDocument = Model.GetExistingDocuments != null ? Model.GetExistingDocuments.Where(x => x.DocumentTypeCode.Trim() == "SD").ToList() : null;
+                                                if (Model.SDDocumentsList.Count > 0)
+                                                {
+                                                    foreach (var doc in Model.SDDocumentsList)
+                                                    {
+                                                        <div class="input-field doc-field custom col s12 m4">
+                                                            @{
+                                                                var SDDocument = ExistingSDDocument.Where(d => d.DocumentType == doc.DocType).FirstOrDefault();
+                                                                var fileupload1 = "file_" + System.Convert.ToString(doc.DocType);
+                                                                var downloadDoc = "download_SD";
+                                                                if (doc.IsMandatory)
+                                                                {
+                                                                    var mad = "mand_" + doc.DocType;
+                                                                    @Html.HiddenFor(m => doc.IsMandatory, new { id = mad })
+                                                                }
+                                                                var madname = "manddocname_" + System.Convert.ToString(doc.DocType);
+                                                                @Html.HiddenFor(m => doc.DocName, new { id = madname })
+                                                            }
+                                                            @doc.DocName
+                                                        </div>
+                                                        <div class="col s12 m8">
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="form-control cou input-file" />
+
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @if (SDDocument != null)
+                                                                {
+                                                                    <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = SDDocument.Id })">
+                                                                        <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        i = i + 1;
+                                                    }
+                                                }
+                                                else if (Model.SDDocumentsListOnly1.Count > 0)
+                                                {
+                                                    var SDDocument = ExistingSDDocument.FirstOrDefault();
+                                                    foreach (var d in ExistingSDDocument)
+                                                    {
+                                                        if (Model.SDDocumentsListOnly1.Select(d1 => d1.DocType).Contains(d.DocumentType))
+                                                        {
+                                                            SDDocument = d;
+                                                        }
+                                                    }
+                                                    var fileupload1 = "file_SD";
+                                                    var downloadDoc = "download_SD";
+                                                    <div class="input-field doc-field custom col s12 m4">
+                                                        <input type="hidden" value="True" id="mand_SD" />
+                                                        <input type="hidden" value="Any one Supporting Document" id="manddocname_SD" />
+                                                        @if (SDDocument != null)
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedSDDocumentOnly1, new SelectList(Model.SDDocumentsListOnly1, "DocSerialNumber", "DocName", SDDocument.DocumentChecklistSerialNumber), "Select Supporting Document", new { @class = "form-control", id = "ddlSD" })
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedSDDocumentOnly1, new SelectList(Model.SDDocumentsListOnly1, "DocSerialNumber", "DocName"), "Select Supporting Document", new { @class = "form-control", id = "ddlSD" })
+                                                        }
+                                                        <label>Select Supporting Document</label>
+                                                    </div>
+                                                    <div class="col s12 m8">
+                                                        <div class="file-upload-wrp">
+                                                            <div class="file-field">
+                                                                <div class="btn000 file-select">
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="form-control cou input-file" />
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                            @if (SDDocument != null)
+                                                            {
+                                                                <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = SDDocument.Id })">
+                                                                    <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    i = i + 1;
+                                                }
+
+                                                var ExistingOTDocument = Model.GetExistingDocuments != null ? Model.GetExistingDocuments.Where(x => x.DocumentTypeCode.Trim() == "OT" || x.DocumentTypeCode.Trim() == "").ToList() : null;
+                                                if (Model.OTDocumentsList.Count > 0)
+                                                {
+                                                    foreach (var doc in Model.OTDocumentsList)
+                                                    {
+                                                        <div class="input-field doc-field custom col s12 m4">
+                                                            @{
+                                                                var OTDocument = ExistingOTDocument.Where(d => d.DocumentType == doc.DocType).FirstOrDefault();
+                                                                var fileupload1 = "file_" + System.Convert.ToString(doc.DocType);
+                                                                var downloadDoc = "download_OT";
+                                                                if (doc.IsMandatory)
+                                                                {
+                                                                    var mad = "mand_" + doc.DocType;
+                                                                    @Html.HiddenFor(m => doc.IsMandatory, new { id = mad })
+                                                                }
+                                                                var madname = "manddocname_" + System.Convert.ToString(doc.DocType);
+                                                                @Html.HiddenFor(m => doc.DocName, new { id = madname })
+                                                            }
+                                                            @doc.DocName
+                                                        </div>
+                                                        <div class="col s12 m8">
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        <input type="file" id="@fileupload1" onchange="ValidateFile(this);" name="@fileupload1" class="form-control cou input-file" />
+
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                                @if (OTDocument != null)
+                                                                {
+                                                                    <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = OTDocument.Id })">
+                                                                        <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        i = i + 1;
+                                                    }
+                                                }
+                                                else if (Model.OTDocumentsListOnly1.Count > 0)
+                                                {
+                                                    var OTDocument = ExistingOTDocument.FirstOrDefault();
+                                                    foreach (var d in ExistingOTDocument)
+                                                    {
+                                                        if (Model.OTDocumentsListOnly1.Select(d1 => d1.DocType).Contains(d.DocumentType))
+                                                        {
+                                                            OTDocument = d;
+                                                        }
+                                                    }
+                                                    var fileupload1 = "file_OT";
+                                                    var downloadDoc = "download_OT";
+                                                    <div class="input-field doc-field custom col s12 m4">
+                                                        <input type="hidden" value="True" id="mand_OT" />
+                                                        <input type="hidden" value="Any one Statutory / Legal Requirement Document" id="manddocname_OT" />
+                                                        @if (OTDocument != null)
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedOTDocumentOnly1, new SelectList(Model.OTDocumentsListOnly1, "DocSerialNumber", "DocName", OTDocument.DocumentChecklistSerialNumber), "Select Other Statutory / Legal Requirement", new { @class = "form-control", id = "ddlOT" })
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.DropDownListFor(m => m.SelectedOTDocumentOnly1, new SelectList(Model.OTDocumentsListOnly1, "DocSerialNumber", "DocName"), "Select Other Statutory / Legal Requirement", new { @class = "form-control", id = "ddlOT" })
+                                                        }
+                                                        <label>Select Supporting Document</label>
+                                                    </div>
+                                                    <div class="col s12 m8">
+                                                        <div class="file-upload-wrp">
+                                                            <div class="file-field">
+                                                                <div class="btn000 file-select">
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    <input type="file" id="@fileupload1" name="@fileupload1" onchange="ValidateFile(this);" class="form-control cou input-file" />
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                            @if (OTDocument != null)
+                                                            {
+                                                                <a class="@fileupload1" target="_blank" href="@Url.Action("DownloadFile",new { id = OTDocument.Id })">
+                                                                    <i class="vi-download-bills"></i> Download Uploaded Document
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    i = i + 1;
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="form-field">
+                                        <div class="checkbox-field">
+                                            <label>
+                                                <input type="checkbox" name="termsCb" id="termsCb" class="filled-in" />
+                                                <span>
+                                                    I agree to the
+                                                    <a href="#termsandconditions" class="waves-effect modal-trigger">Terms & Conditions</a>
+                                                </span>
+                                            </label>
+                                        </div>
+                                        <div class="checkbox-field">
+                                            <label>
+                                                <input type="checkbox" name="confirmCb" id="confirmCb" class="filled-in" />
+                                                <span>
+                                                    I confirm that copies of uploaded documents are
+                                                    self-attested
+                                                </span>
+                                            </label>
+                                        </div>
+                                        <p class="field-validation-error" id="docErrorMessage"></p>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="button" class="waves-effect waves-light btn-flat backThirdStep">Back</button>
+                                        <button type="submit" class="waves-effect waves-light btn btn-continue" name="SaveAsDraft" value="Save as Draft">Save as Draft</button>
+                                        <button type="submit" class="waves-effect waves-light btn btn-continue" name="SubmitApplication" id="SubmitApplication" value="Submit Application">Submit Application</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal-wrapper-custom">
+    <div class="modal modal-alert" id="confirmation_modal">
+        <div class="modal-content">
+            <p class="confirmation_modal_message"></p>
+        </div>
+        <button type="button" class="btn btn-primary" onclick="SubmitApplicationForm();" value="1">Proceed</button>
+        <button type="button" class="btn btn-primary modal-close" value="0">Cancel</button>
+    </div>
+</div>
+
+
+<div class="modal-wrapper-custom">
+    <div class="modal modal-alert" id="message_modal">
+        <div class="modal-content">
+            <p class=""></p>
+        </div>
+        <button type="button" class="modal-close btn">Ok</button>
+    </div>
+</div>
+
+<div class="modal modal-fixed-header" id="generalguideline">
+    <header class="modal-header">
+        <h4>GENERAL GUIDELINES</h4>
+        <aside><i class="i-cross modal-close waves-effect"></i></aside>
+    </header>
+    <div class="modal-content">
+        <p>Application for change of name is processed as per the provision of Maharashtra Electricity Regulatory Commission (Electricity Supply Code and Other Conditions of Supply) Regulations, 2005.</p>
+        <ul>
+            <li>
+                <p><b>Who can apply:</b></p>
+                <p>A connection may be transferred in the name of another person upon application for change of name by the new owner or occupier, in case of:</p>
+                <ul>
+                    <li>Death of the registered consumer OR</li>
+                    <li>Transfer of ownership or occupancy of the premises,</li>
+                </ul>
+            </li>
+            <li>
+                <p><b>General Requirements:</b></p>
+                <ul>
+                    <li>A <b>processing fee of Rs. 70/-(+GST)</b> (for single or three phase meters) and Security Deposit (Equivalent to a bill amount for avg. consumption over the last 12 months) is payable and will be added in the 1st bill generated post processing of the “Change of Name request”</li>
+                    <li>For <b>transfer of existing Security Deposit</b> to the new account of applicant, the applicant must produce the receipt or No objection letter from the transferor.</li>
+                    <li>
+                        Application for change of name shall NOT be processed for:
+                        <ul class="pl-4 mt-2">
+                            <li>A disconnected connection.</li>
+                            <li>A connection which has an overdue payment</li>
+                            <li>An account for which the latest bill has been generated on the basis of estimated consumption or the latest bill is amended.</li>
+                            <li>An account against which if any electricity theft charges have been levelled or the matter is under investigation</li>
+                        </ul>
+                    </li>
+                    <li>Adani Electricity Mumbai Ltd. reserves its right to reject the application in case of insufficient / incomplete documentation and non-fulfilment of formalities.</li>
+                    <li>On successful processing of change of name, existing contract account will be terminated, and new contract account will be generated for new name.</li>
+                </ul>
+            </li>
+            <li>
+                <p><b>Processing of Request:</b></p>
+                <ul>
+                    <li>On submission of the change of name request, you shall receive an SMS communicating a temporary registration no. This number can be used for future reference.</li>
+                    <li>Once the request has been approved &amp; successfully processed, you shall receive a soft copy of the “Welcome Letter” on your registered e-mail ID.</li>
+                    <li>The request should be processed within 4 working days, from the date of submission of the request.</li>
+                    <li>For any support required, pertaining to the submitted request, you can write to <a href="mailto:Helpdes.Mumbaielectricity@adani.com" class="txt-orange">Helpdes.Mumbaielectricity@adani.com</a> or call the toll-free helpline on 19122.</li>
+                </ul>
+            </li>
+
+        </ul>
+
+    </div>
+
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal modal-fixed-header" id="docsupload">
+    <header class="modal-header">
+        <h4>DOCUMENT UPLOAD GUIDELINES</h4>
+        <aside><i class="i-cross modal-close waves-effect"></i></aside>
+    </header>
+    <div class="modal-content">
+        <ul>
+            <li>On selection of the applicable “Premise Type”, the required documents shall be displayed, that need to be uploaded.</li>
+            <li>Document marked with “*” are mandatory to Upload.</li>
+            <li><b>Only PDF, JPG, PNG format</b> files are supported for upload and applicable file size limit for each file is 2 MB.</li>
+            <li>All documents uploaded by the applicant <b>must be self-attested.</b></li>
+            <li>Against the relevant document type uploadec in the “<b>Identity Document</b>” section, kindly enter the correct document number. For eg: If the document uploaded is a “PAN Card”, then your PAN Card no. will be the document number that needs to be entered. <b>Please ensure correctness of this entry, as this number is updated against the respective Adani Electricity account no. in the system.</b></li>
+            <li>Signature of the applicant on the submitted documents should match with that on the uploaded photo ID.</li>
+            <li>
+                While uploading the <b>registered agreement copy</b>, the applicant must ensure that it includes:
+                <ul>
+                    <li>Pages of agreement reflecting buyer and seller’s name</li>
+                    <li>Page of agreement reflecting address of premises</li>
+                    <li>Page of agreement reflecting signature/photos and photo ID of buyer and Seller</li>
+                    <li>Copy of index II</li>
+                </ul>
+            </li>
+            <li>In case the property transfer agreement is not with the present registered customer, <b>chain of agreements</b> from the registered customer to the current applicant must be uploaded.</li>
+            <li>In case of <b>joint ownership (multiple applicants)</b>, applicant should produce NOC from Co- owner/s</li>
+            <li>In case of <b>Joint Occupancy (single applicant)</b>, for Single Applicant's Name to appear on Bill, the Co-Owner's NOC is mandatory.</li>
+            <li>The details of name and address in all the supporting documents must be same.</li>
+            <li>In case of <b>unregistered societies</b>, NOC’s from builder / developer must be on the original letterheads duly stamped and signed.</li>
+            <li>In case the <b>tariff category is other than residential category</b>, the Applicants must submit necessary valid licenses / permission / NOC / compliances from the competent authorities.</li>
+            <li>Applicant is solely and exclusively responsible for the genuineness and correctness of the document/s submitted by him in support of the application and the other documents as indicated at various points herein.</li>
+            <li>In case, any such documents are found to be fraudulent and /or fake and/or forged and/or incorrect and /or invalid/incomplete, then the applicant/consumer shall be solely and exclusively responsible for the criminal proceedings and/or any court proceedings initiated and/or any dispute which arises any time in future and AEML and/or its successors, assignees and/or any employee thereof, shall not be responsible for the same in any manner whatsoever. In such a case, Adani Electricity Mumbai Limited reserves the right to disconnect the connection granted and in case of Change of Name, re-transfer connection in the name of previous registered consumer under this declaration cum undertaking, without any notice.</li>
+        </ul>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal modal-fixed-header" id="termsandconditions">
+    <div class="modal-header">
+        <h4>Terms & Conditions</h4>
+        <aside><i class="i-cross modal-close waves-effect"></i></aside>
+    </div>
+    <div class="modal-content">
+        <p>I /we agree to the abide with the Terms and Conditions mentioned herein below and which are in accordance with provisions of The Electricity Act 2003 hereinafter referred as ‘the Act’ and Maharashtra Electricity Regulatory Commission (Electricity Supply Code and Other Conditions of Supply) Regulations, 2005, hereinafter referred as "the Supply Code" and undertake as under:</p>
+        <ol>
+            <li>That the Applicant/Consumer is not a minor.</li>
+            <li>That in case the applicant is not the sole owner of the premises, no objection certificate has been obtained from the co-owner.</li>
+            <li>To abide by the provisions of the Electricity Act, 2003, all applicable laws, conditions of Supply/Tariff Orders and any other Rules or Regulations as may be notified by the Commission/Authority, as applicable from time to time.</li>
+            <li>That AEML shall be at liberty to adjust the electricity consumption charges due/outstanding along with any other charges against the Consumer Security Deposit paid by the Applicant upon permanent disconnection of supply.</li>
+            <li>To indemnify AEML against all proceedings, claims, demands, costs, damages, expenses that AEML may incur by reason of a fresh electricity connection given to the Applicant.</li>
+            <li>That to the best of applicant’s knowledge, all electrical works done within the premises are as per Central Electricity Authority (Measures relating to Safety and Electricity Supply) Regulations, 2010 as amended from time to time.</li>
+            <li>That the internal wiring at the premises has been tested by a Licensed Electrical Contractor having valid license issued by Licensing Authority, Government of Maharashtra and the test certificate is available with the Applicant and can be produced as may be required at any later stage.</li>
+
+            <li>
+                That the Premises/building/structure has been constructed as per prevalent building Bye- Laws and the total height of the Premises/building/structure-
+                <ul>
+                    <li>does not exceed 15 (fifteen) metres on the date of seeking electricity connection, or</li>
+                    <li>is more than 15 (fifteen) metres and has obtained valid Clearance certificate from appropriate government authority, which is available with the Applicant.</li>
+                </ul>
+            </li>
+            <li>That there is a provision of lift in the Premises and the Applicant has obtained the valid lift fitness certificate from the Electrical Inspector for the lift in the said Premises and the same is available with the Applicant and can be produced as may be required at any later stage.</li>
+            <li>That the Applicant would let the Distribution Licensee disconnect the electric connection under reference, in the event of any default, non-compliance of statutory provisions and in the event of a legally binding directive by Statutory Authority(ies) to effect such an order. This shall be without prejudice to any other rights of the licensee including that of getting its payment as on the date of disconnection.</li>
+            <li>That if the premises applied for is falling under CRZ, Forest area or any other area where any Court of Law/Statutory Authority has prohibited release of power supply, the Applicant shall submit a No Objection Certificate (NoC) to seek electricity connection, from such Authority.</li>
+            <li>That the applicant is solely and exclusively responsible for the genuineness and correctness of the document/s submitted by him in support of the application and the other documents as indicated at various points herein. In case any such documents are found to be fraudulent and /or fake and/or forged and/or incorrect and /or invalid/incomplete, then the applicant/consumer shall be solely and exclusively responsible for the criminal proceedings and/or any court proceedings initiated and/or any dispute which arises any time in future and AEML and/or its successors, assignees and/or any employee thereof, shall not be responsible for the same in any manner whatsoever. In such a case, AEML reserves the right to disconnect the connection granted and in case of Change of Name, re-transfer connection in the name of previous registered consumer under this declaration cum undertaking, without any notice.</li>
+            <li>That all details mentioned in the application form are correct and all applicable customer-end obligations (E.g. Documentary and Payment compliance, Site readiness, Way-Leave permits) are complete and complied in all respects, at the time of applying for new electricity connection, through online/offline mode. In case any of these requirements are not ready, or in case of an objection, AEML reserves the right to cancel the application.</li>
+            <li>That the Applicant will provide a copy of any of above applicable documents to the Distribution Licensee pursuant to the request from any external Government agency, judicial forum or any other authority empowered under statute seeking such information.</li>
+            <li>That Applicant’s industry/trade has not been declared to be releasing obnoxious hazardous/pollutant by any Government agency and that no orders of any court or judicial authority would be breached by running of Applicant’s industry/trade or granting any electricity connection to the same. The Applicant shall indemnify and keep indemnified AEML against any loss of any nature on this accou/nt.</li>
+            <li>The Applicant further agrees to indemnify and hold harmless, AEML and/or its successors and/or its employees, in case of any injury or incident on account of any fault in electrical works in the Premises and from point of supply to the Premises. AEML shall not be held responsible/liable for any mishap or incident occurring at the Premises or from point of supply to the Premises on account of any faulty/defective/inferior quality wiring/installation, right from the time of energizing the new electricity connection. On occurrence of such incident, AEML may disconnect the Applicant’s supply, if continuance of supply to such installation is threat to the life or property. Such disconnected supply shall be reconnected only after rectification of faulty installation and submission of test report from Licensed Electrical Contractor.</li>
+            <li>The applicant further agrees to bear the expenses towards repairing/ replacement of AEML’s assets or works, in case there is sufficient proof that the damage/ fault has been occurred due to faulty electrical work/ wiring in his premises.</li>
+            <li>To pay the electricity consumption bills and all other charges, at the rates set out in the licensee’s Tariff Schedule and the MERC approved Schedule of Charges, as may be in force from time to time, regularly, as and when the same becomes due for payment.</li>
+            <li>To deposit the additional security deposit (as applicable) from time to time, based on the prevailing Orders/rules, directions and Regulations of the Commission.</li>
+            <li>
+                For GSTIN :In compliance of Rule 49 of CGST Rules, 2017, I/We shall forthwith submit with AEML my/our Goods and Service Tax Identification Number or Unique Identity No. a Bill of supply (monthly electricity bill ) shall print Goods and Services Tax Identification Number or Unique Identity Number, if registered, of the consumer
+                <p>For PAN :</p>
+                <ul>
+                    <li>As per Rule 114B of Income Tax Rules 1962 every person is required to quote his PAN in all documents pertaining to the transaction of sale or purchase of any nature for a value exceeding Rs. 2 lacs per transaction for the purpose of clause (c) of sub-section (5) of Section 139A</li>
+                    <li>As per section - 206AA of Income-tax Act, 1961, TDS (if applicable)@@ on Security Deposit Interest will be deducted instead of 10% for non-availability of valid PAN</li>
+                </ul>
+            </li>
+            <li>Applicable only for applied Industrial/Commercial load between 100 and 150 kW: The Applicant authorizes AEML to debit the approved connection charges and applicable security deposit in first electricity bill (as and when enabled by AEML), and undertake to pay the same within the due date. The Applicant / Consumer may opt to pay such Security Deposit by way of a Bank Guarantee.</li>
+            <li>That the Applicant shall not hold AEML liable for delay in providing connection or meeting any Standards of Performance subsequent to grant of connection in case AEML is prevented from doing so on account of any force majeure events/exemptions as specified in the Standards of Performance Regulations, as amended from time to time.</li>
+            <li>That there are no arrears towards energy or related charges outstanding in his/her name and /or on account of the said premises. In the event of aforesaid declaration/undertaking given by the applicant/ consumer is found false in view of any pre-existing liability, the applicant/consumer shall willfully, without demur pay such amount on demand. The Consumer/applicant shall be duty bound to extend full co-operation to AEML while determining and/or identifying the arrears, if any, of the premises or account no, within a period of 60 days. The applicant/consumer shall make payment of the said arrears immediately on demand.</li>
+            <li>The Applicant/Consumer shall identify suitable space agreeable to AEML to install electrical meter and related devices and ensure un-hindered passage to personnel of AEML to access the meter cabin.</li>
+            <li>
+                That the following terms and conditions are complied with respect to space for meter installation:
+                <ul>
+                    <li>
+                        Metering installation is protected from excessive dust and moisture, exposure to direct sunlight, rain and water seepage and vermin. The Applicant/Consumer shall ensure that temperature within the meter room shall not be more than 10°C, above ambient. It should not be in proximity of machineries, heating devices, equipment generating high vibration or magnetic fields and areas prone to fire and toxic hazards.
+                    </li>
+                    <li>
+                        Meters are not located at an elevated area or a depressed area that does not have access by means of a stairway of normal rise. The meters shall not be installed below/in the stair case or in common passage or lobby.
+                    </li>
+                    <li>Board wiring is carried out preferably on Fire retardant plywood, complying IS 5509. In case of non availability of FR plywood, marine plywood complying IS 710 can be used. The plywood shall be of 19 mm thickness and the same shall be provided by an applicant. Typically plywood is available in following sizes (7’x4’ , 7’x3’, 8’x3’, 8’x4’ ).IS mark is printed on the center of either face of the ply for identification.</li>
+                </ul>
+            </li>
+            <li>
+                That the following terms and conditions shall be complied with, for applicant/consumer’s installation beyond the point of supply of AEML:
+                <ul>
+                    <li>The Applicant/Consumer must install appropriately rate MCB with enclosure near the start of the electricity supply and shall not install DP Switch.</li>
+                    <li>The Applicant/Consumer, if having voltage exceeding 250 Volts, shall provide his own earthing system for installation.</li>
+                    The Applicant/Consumer, if having sanctioned load above 2 KW, shall install Earth Leakage protective device
+                </ul>
+            </li>
+            <li>
+                The applicant/consumer shall provide way leave in favour of AEML:
+                <ul>
+                    <li>to lay its cables through his/owner’s land/ property</li>
+                    <li>to access AEML’s equipment and work in its premises in accordance with the applicable provisions of Supply Code or any other Regulations, as prevailing from time to time</li>
+                    <li>to provide permanent Right of Way to AEML personnel along with vehicles and cables and/or apparatus, without any further consent (for now and in future)</li>
+                    <li>for laying, strengthening and maintaining of electrical network and system</li>
+                </ul>
+            </li>
+            <li>That the excavated trenches shall be reinstated by the Applicant/Consumer at his/her own cost when the cable is laid to provide supply to their premises. AEML shall be responsible to reinstate in the event the works is carried out to provide supply to any other customer.</li>
+            <li>That AEML shall have full rights to optimally utilize its assets (Substation/ pillars) in applicant/consumer’s premises and shall not object to laying outgoing feeders (LT/ HT) from their premises as the same arrangement is for making interconnection with outside network which shall further help in arranging alternate supply in case of break down on mains.</li>
+            <li>
+                Additional Term and Conditions for Change-over applications:
+                <ul>
+                    <li>The consumer/applicant shall clear all it's dues with existing distribution licensee and submit the proof.</li>
+                    <li>Changeover is permissible to existing consumer where name and purpose or classification of category for which the electricity has been provided by previous distribution licensee remains same.</li>
+                    <li>The meter reading for final billing shall be taken jointly and signed off by both distribution licensees in presence of the applicant/ it's representative.</li>
+                    <li>In the event the consumer/applicant is not present at the time of final meter reading, the readings taken jointly by the previous distribution licensee and AEML shall be final and binding upon the applicant / consumer. The Final meter reading shall be the opening meter reading for AEML.</li>
+                </ul>
+            </li>
+        </ol>
+        <p>I/We declare and undertake that I/we have complied with all statutory requirements under all Statutes for the time being in force.</p>
+        <p>I/we shall be solely responsible for any issue arising out of any such non-compliance and further I/we do hereby jointly and severally Indemnify AEML, its agents and servants against all claims, proceedings, demands, costs, expenses and consequences whatsoever, which may arise on account of processing my/our application.</p>
+
+
+    </div>
+
+</div>
+
+
+@{
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+}
+
+@if (Elemodel != null)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.main-header').removeAttr('id');
+
+            $('#leftPanelNav li').removeClass('active');
+
+            //last part of current url using regrex
+            //var currentUrl = location.pathname.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+            var currentUrl = 'change-name-on-bill';
+            $('#leftPanelSubMenu a').each(function () {
+                var elementUrl = $(this).attr('href').split('/');
+                elementUrl = elementUrl[elementUrl.length - 1].toLowerCase();
+                if (elementUrl != undefined) {
+                    elementUrl = elementUrl.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+                    if (elementUrl == currentUrl) {
+                        $(this).addClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+                        $(this).closest('li').addClass('active').show();
+                        //$(this).attr("href", "javascript:void(0)");
+                        $(this).attr("disabled", "disabled");
+                    }
+                }
+            })
+
+            $('.collapsible-accordion li.active').siblings().remove();
+        })
+    </script>
+}
+else
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#leftPanelNav li').removeClass('active');
+
+            //last part of current url using regrex
+            //var currentUrl = location.pathname.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+            var currentUrl = 'change-name-on-bill';
+            $('#leftPanelSubMenu a').each(function () {
+                var elementUrl = $(this).attr('href').split('/');
+                elementUrl = elementUrl[elementUrl.length - 1].toLowerCase();
+                if (elementUrl != undefined) {
+                    elementUrl = elementUrl.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+                    if (elementUrl == currentUrl) {
+                        $(this).addClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+                        $(this).closest('li').addClass('active').show();
+                        //$(this).attr("href", "javascript:void(0)");
+                        $(this).attr("disabled", "disabled");
+                    }
+                }
+            })
+
+            $('.collapsible-accordion li.active').siblings().remove();
+
+            if ($('#ddlTitle').closest('.input-field').find('span.field-validation-valid').length > 0) {
+                $('#ddlTitle').closest('.input-field').find('span.field-validation-valid').remove();
+            }
+        });
+    </script>
+}

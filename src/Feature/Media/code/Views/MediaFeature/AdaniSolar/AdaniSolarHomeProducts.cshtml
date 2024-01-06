@@ -1,0 +1,128 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    int i = 1;
+    int j = 1;
+}
+@if (elements != null)
+{
+    <section class="py-5 bg-b block-gradient product-tabs" data-aos="fade-up">
+        <div class="bg-images">
+            @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasPageContent.Fields.Image, elements)
+        </div>
+        <div class="container position-relative">
+            <h2 class="text-center sectionHeading-w text-white mb-5">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, elements)</h2>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                @{
+                    var productItemList = elements.Axes.GetDescendants().Where(x => x.TemplateID == Templates.ProductPage.ID);
+                }
+                @if (productItemList != null)
+                {
+                    foreach (var productItem in productItemList)
+                    {
+                        var actv = string.Empty;
+                        var selected = string.Empty;
+                        <li class="nav-item">
+                            @if (i == 1)
+                            {
+                                actv = "active";
+                                selected = "true";
+                            }
+                            else
+                            {
+                                actv = "";
+                                selected = "false";
+                            }
+                            <a class="nav-link @actv" id="tab-@i" data-toggle="tab" href="#tab-h-@i" role="tab"
+                               aria-controls="tab-h-@i" aria-selected=@selected>
+                                <span>
+                                    @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasPageContent.Fields.Image, productItem, cssClass: "img-fluid")
+                                </span>
+                                @{
+                                    var name = Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, productItem).ToString();
+                                    var sp = name.Split('-');
+                                }
+                                @if (sp.Count() > 2)
+                                {
+                                    <p>@sp[0] <br /> @sp[1]-@sp[2]</p>
+                                }
+                                else
+                                {
+                                    <p>@sp[0] <br /> @sp[1]</p>
+                                }
+                            </a>
+                        </li>
+                        i++;
+                    }
+                }
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                @if (productItemList != null)
+                {
+                    foreach (var productItem in productItemList)
+                    {
+                        var actv = string.Empty;
+                        var productTypeList = productItem.Axes.GetDescendants().Where(x => x.TemplateID == Templates.ProductType.ID);
+                        if (j == 1)
+                        {
+                            actv = "fadeInDown show active";
+                        }
+                        else
+                        {
+                            actv = "";
+                        }
+                        <div class="tab-pane @actv" id="tab-h-@j" role="tabpanel" aria-labelledby="tab-@j">
+                            <div class="row">
+                                <div class="col-lg-7 col-md-7 pt-4">
+                                    @*<h3 class="txt-white txt-lg pr-3">@Html.Sitecore().Field(Templates.ProductPage.Fields.ProductName, productItem)</h3>*@
+                                    @Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, productItem)
+
+                                    @*<div class="row mb-3">
+                                            <div class="col-sm-3">
+                                                <p class="txt-white">Select Module Capacity</p>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-group">
+                                                    <select class="form-control" id="power-select">
+                                                        @foreach (var opt in productTypeList)
+                                                        {
+                                                            var title = Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, opt).ToString();
+                                                            var titleClass = title.ToLower().Replace(" ", "");
+                                                            <option value="@titleClass">@title</option>
+                                                        }
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @foreach (var cell in productTypeList)
+                                        {
+                                            @Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, cell);
+                                        }*@
+
+                                    <p class="mt-4"><a href="@productItem.Url()" class="btn btn-bordered">Read more</a></p>
+                                </div>
+                                <div class="col-lg-5 col-md-5 text-md-right text-center">
+                                    <div class="floating-element float-right">
+                                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.ProductPage.Fields.ProductImage, productItem, cssClass: "img-fluid")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        j++;
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}

@@ -1,0 +1,59 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+
+<section class="bg-gray">
+    <div class="container">
+        <div class="tab-content" id="address-tab-container">
+            <div class="tab-pane fade show active" id="ports" role="tabpanel" aria-labelledby="home-tab">
+                <div class="row mb-5">
+                    <div class="col-md-4">
+                        <form>
+                            <div class="form-group">
+                                <select class="form-control" id="op">
+                                    @if (element.GetChildren() != null)
+                                    {
+                                        <option class="dropdown-item location-select" id="all">Select State</option>
+                                        foreach (Item item in element.GetChildren())
+                                        {
+                                            <option class="dropdown-item location-select" id="@item.Fields["Text"].ToString().Replace(" ","-")">@item.Fields["Text"]</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </form>
+                    </div>                    
+                </div>
+                <div id="add-parent">
+                    @foreach (Item state in element.GetChildren())
+                    {
+                    <div class="row all @state.Fields["Text"].ToString().Replace(" ","-")">
+                        @if (state.GetChildren() != null)
+                        {
+                            foreach (Item item in state.GetChildren())
+                            {
+                                <div class="col-md-4 c-address">
+                                    <h4>@item.Fields["OfficeTitle"]: <span>@item.Fields["OfficeName"]</span></h4>
+                                    <p>@item.Fields["Address"]</p>
+                                    @if(!String.IsNullOrEmpty(item.Fields["Telephone"].ToString()))
+                                    {
+                                        <p>@item.Fields["Telephone"]</p>
+                                    }                                    
+                                    <p><a href="@item.Fields["Email"]">@item.Fields["Email"]</a></p>
+                                </div>
+                            }
+                        }
+                    </div>
+                    }
+
+                </div>                
+            </div>
+        </div>
+    </div>
+</section>

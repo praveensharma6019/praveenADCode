@@ -1,0 +1,157 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Globalization
+@model Sitecore.Feature.Accounts.Models.ElectricityRevamp.ManageConnections
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    //var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    //Sitecore.Data.Items.Item datasourceItem = Sitecore.Context.Database.GetItem(datasource);
+
+}
+
+
+@if (contextItem != null)
+{
+
+
+    <div class="col s12 m8 offset-m1">
+        <section class="section-wrapper">
+            <header class="section-header">
+                <h1>@Html.Raw(contextItem["Title"])</h1>
+                <p>@Html.Raw(contextItem["Body"])</p>
+            </header>
+
+            <div class="section-wrapper custom_accrdion rounded">
+                <div class="accordion">
+                    <ul class="collapsible collapsible-accordion" id="ManageConnectionsLanding">
+                        <li id="RegisteredAccount">
+                            <div class="collapsible-header center">
+                                <a href="javascript:void(0)">@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Link Registered Account", "Link Registered Account")</a>
+                            </div>
+                            <div class="collapsible-body">
+                                <h2>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Link Registered Account", "Link Registered Account")</h2>
+                                @Html.Sitecore().Placeholder("LinkRegisteredAccountForm")
+                            </div>
+                        </li>
+                        <li id="NonRegisteredAccount">
+                            <div class="collapsible-header center">
+                                <a href="javascript:void(0)">@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Link Non-Registered Account", "Link Non-Registered Account")</a>
+                            </div>
+                            <div class="collapsible-body">
+                                <h2>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Link Non-Registered Account", "Link Non-Registered Account")</h2>
+                                @Html.Sitecore().Placeholder("LinkAccountForm")
+                            </div>
+                        </li>
+                        <li class="active" id="LinkedAccount">
+                            <div class="collapsible-header hide center">
+                                <a href="javascript:void(0)">@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Linked Account", "Linked Account")</a>
+                            </div>
+                            <div class="collapsible-body">
+                                <h2>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Linked Account", "Linked Account")</h2>
+                                <div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap border-none-mobile">
+                                    <div class="submit-new-request">
+                                        @Html.Sitecore().Placeholder("switch-account-content")
+                                        <div class="bill-detail-body" id="AccountDetails">
+                                            <h4>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Account Details", "Account Details")</h4>
+                                            <ul>
+                                                <li>
+                                                    <label>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Address", "Address")</label>
+                                                    @{
+                                                        var address = Model.Address.ToLower().Replace("_", " ");
+                                                        TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+                                                        address = info.ToTitleCase(address);
+                                                    }
+                                                    <span>@address</span>
+                                                </li>
+                                                <li>
+                                                    <label>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Meter Number", "Meter Number")</label>
+                                                    <span>@Html.DisplayTextFor(x => x.MeterNumber)</span>
+                                                </li>
+                                                <li>
+                                                    <label>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Tariff Category", "Tariff Category")</label>
+                                                    <span>@Html.DisplayTextFor(x => x.TariffCategory)</span>
+                                                </li>
+                                                <li>
+                                                    <label>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Division", "Division")</label>
+                                                    <span>@Html.DisplayTextFor(x => x.Division)</span>
+                                                </li>
+                                                <li>
+                                                    <label>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Security Deposit", "Security Deposit")</label>
+                                                    <span>@Html.DisplayTextFor(x => x.SecurityDeposit)</span>
+                                                </li>
+                                                <li>
+                                                    <label>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Registered Email ID", "Registered Email ID")</label>
+                                                    <span>@Html.DisplayTextFor(x => x.Email)</span>
+                                                </li>
+                                                <li>
+                                                    <label>@Html.Sitecore().Dictionary("/Accounts/My Account/Manage Connections/Account Details/Registered Mobile Number", "Registered Mobile Number")</label>
+                                                    <span>@Html.DisplayTextFor(x => x.Mobile)</span>
+                                                </li>
+                                            </ul>
+                                            <br />
+                                            @Html.Raw(contextItem["Summary"])
+
+                                            @Html.Sitecore().Placeholder("DeRegisterAccountRevamp")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        @Html.Sitecore().Placeholder("other-info-section")
+    </div>
+
+    <script type="text/javascript">
+        function ResetElement(formId) {
+            var FormIdWithPrefix = jQuery("#" + formId);
+            var resetInputField = FormIdWithPrefix.find(".reset-control");
+            resetInputField.val("");
+            FormIdWithPrefix.find('label').removeClass("active");
+        }
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (readCookie('ActiveManageConnectionsLi') != null) {
+                $('#' + readCookie('ActiveManageConnectionsLi')).addClass('active').siblings().removeClass('active');
+                $('#' + readCookie('ActiveManageConnectionsLi')).siblings().find('.collapsible-header').removeClass('hide');
+                $('#' + readCookie('ActiveManageConnectionsLi')).find('.collapsible-header').addClass('hide');
+                $('#' + readCookie('ActiveManageConnectionsLi')).find('.collapsible-body').show();
+                $('#' + readCookie('ActiveManageConnectionsLi')).siblings().find('.collapsible-body').hide();
+            }
+        })
+
+        $('#ManageConnectionsLanding li').click(function () {
+            createCookie("ActiveManageConnectionsLi", $(this).attr('id'), "");
+        })
+
+        function createCookie(name, value, days) {
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                var expires = "; expires=" + date.toGMTString();
+            }
+            else var expires = "";
+
+            document.cookie = name + "=" + value + expires + "; path=/";
+        }
+
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) {
+                    return c.substring(nameEQ.length, c.length);
+                }
+            }
+            return null;
+        }
+    </script>
+}

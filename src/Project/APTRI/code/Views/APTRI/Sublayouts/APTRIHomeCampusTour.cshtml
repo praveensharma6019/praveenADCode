@@ -1,0 +1,45 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Items;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item elements = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (elements != null)
+{
+    if (elements.HasChildren)
+    {
+        <div class="bootleggers owl-carousel owl-loaded owl-drag h-100 mb-3" id="pop-gallery">
+            <div class="owl-stage-outer">
+                <div class="owl-stage">
+                    @foreach (Item item in elements.GetChildren())
+                    {
+                        //Item items = Sitecore.Context.Item;
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                        string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+
+                        <div class="owl-item">
+                            <div class="item">
+                                <a class="item popup" href="@url">
+                                    @Html.Sitecore().ImageField("MediaImage", item)
+                                    <div class="sus-tile">
+                                        <div class="txt-overlay">
+                                            <h3>@Html.Sitecore().Field("MediaTitle", item)</h3>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    }
+}
+

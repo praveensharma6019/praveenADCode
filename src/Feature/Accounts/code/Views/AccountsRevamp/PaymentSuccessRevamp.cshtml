@@ -1,0 +1,581 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model  Sitecore.Feature.Accounts.Models.ViewPayBill
+
+@{
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+    Sitecore.Data.Items.Item loginPage = Sitecore.Context.Database.GetItem("{C086B381-8CBE-4416-8E16-9733C6E43245}");
+    string loginPageUrl = loginPage != null ? Sitecore.Links.LinkManager.GetItemUrl(loginPage) : "/MyAccount";
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+<div class="col s12">
+
+
+    <div class="payment-progress-module section-container" id="dvContents">
+        @if (Model != null && !string.IsNullOrEmpty(Model.TransactionId))
+        {
+
+            <div class="card outlined section-inner-wrapper payment-confirm1">
+                <div class="row">
+                    <div class="col l8 s12">
+                        <aside class="pay-mob hide-on-large-only">
+
+                            <img class="offer-icon" src="/electricity_assets/images/Payment_Successful_Image.gif" alt="Payment Confirmed">
+
+                            <!-- <i class="vi-payment-confirm"></i> -->
+
+                            <div class="payment-progress-content">
+
+                                <h3 class="text-center-mob">Payment Successful! Thank you!</h3>
+
+                                <p class="text-center-mob">
+
+                                    Your payment of <strong>&#8377 @Model.AmountPayable.TrimStart('0')</strong> is confirmed. You will receive a payment notification via email / SMS shortly.
+
+
+                                </p>
+
+                                <p class="text-center-mob"><span>@Model.TransactionDate</span></p>
+
+                            </div>
+                        </aside>
+                        <aside class="pay-desk">
+                            <img class="offer-icon hide-on-med-and-down" src="/electricity_assets/images/Payment_Successful_Image.gif" alt="Payment Confirmed">
+                            <div class="payment-progress-content">
+                                <h3 class="text-center-mob hide-on-med-and-down">
+                                    Payment Successful! Thank you!
+                                </h3>
+                                <p class="text-center-mob hide-on-med-and-down">
+                                    Your payment of <strong>&#8377 @Model.AmountPayable.TrimStart('0')</strong> is confirmed. You will receive a payment notification via email / SMS shortly.
+                                </p>
+                                <p class="text-center-mob hide-on-med-and-down"><span>@Model.TransactionDate</span></p>
+                                <hr>
+                                <ul>
+                                    <li><span>@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/AccountNumber", "Account Number")</span> @Model.AccountNumber</li>
+                                    <li><span>@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/TransactionNumber", "Transaction ID")</span> @Model.TransactionId</li>
+                                    <li><span>@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/OrderNumber", "Order Number")</span> @Model.OrderId</li>
+                                </ul>
+                                <hr>
+                                <div class="pay-progress-cta-group" data-html2canvas-ignore="true">
+                                    @*<button class="waves-effect waves-light btn outlined btn-000">
+                                            Pay Another Bill
+                                        </button>*@
+
+                                    @*Added condition for logged out user to go on Login Page Discussed with Aadil -- Added By Prashant*@
+                                    @if (Elemodel != null)
+                                    {
+                                        <a class="waves-effect waves-light btn outlined btn-000" href="@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Redirect URL/View and Pay Bill", "/My-Account/view-pay-bill")"
+                                           data-gaevent="pay_another_bill_click"
+                                           data-gaeventCategory="Bill Payment"
+                                           data-gaeventAction="Pay Another Bill Click"
+                                           data-gaeventLabel="NA">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Pay Another Bill")</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="waves-effect waves-light btn outlined btn-000" href="@loginPageUrl?afterpayment=1"
+                                           data-gaevent="pay_another_bill_click"
+                                           data-gaeventCategory="Bill Payment"
+                                           data-gaeventAction="Pay Another Bill Click"
+                                           data-gaeventLabel="NA">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Pay Another Bill")</a>
+                                    }
+
+                                    <button class="waves-effect waves-light btn outlined btn-000" onclick="PrintDiv()"
+                                            data-gaevent="bill_receipt_download"
+                                            data-gaeventCategory="Bill Payment"
+                                            data-gaeventAction="Receipt Download Click"
+                                            data-gaeventLabel="NA">
+                                        Download Receipt
+                                    </button>
+                                </div>
+                                <hr class="visible-phone">
+                            </div>
+                        </aside>
+                    </div>
+                    <div class="col l4 s12 showPDF" style="display:none">
+                        @*<figure class="hide-on-med-and-down pay-desk-image">
+                                <img class="radius-10" src="/electricity_assets/assets/images/loyalty-card.png" alt="BillDesk">
+                            </figure>*@
+                    </div>
+                </div>
+            </div>
+            @*<figure class="hide-on-large-only pay-mob-image">
+                    <img class="radius-10" src="/electricity_assets/assets/images/loyalty-card.png" alt="BillDesk">
+                </figure>*@
+        }
+        else
+        {
+            <div class="card outlined section-inner-wrapper payment-in-progress">
+                <div class="row">
+                    <div class="col l8 s12">
+                        <aside>
+                            <img class="offer-icon" src="/electricity_assets/assets/icons/pay-in-process.svg" alt="Payment In-Process">
+                            <div class="payment-progress-content">
+                                <h3 class="text-center-mob">Payment In-Process</h3>
+                                <p class="text-center-mob">
+                                    Your payment of <strong> &#8377 @Model.AmountPayable.TrimStart('0')</strong> is in Process. You will
+                                    receive payment receipt via email/sms shortly.
+                                </p>
+                                <p class="text-center-mob"><span>@Model.TransactionDate</span></p>
+                                <hr>
+                                <ul>
+                                    <li><span>CA Number</span> @Model.AccountNumber</li>
+                                    <li><span>Bill Number</span> @Model.OrderId</li>
+                                </ul>
+                                <hr>
+                                <div class="pay-progress-cta-group" data-html2canvas-ignore="true">
+                                    @*<button class="waves-effect waves-light btn outlined btn-000">
+                                            Pay Another Bill
+                                        </button>*@
+                                    <a class="waves-effect waves-light btn outlined btn-000" href="@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Redirect URL/View and Pay Bill", "/My-Account/ViewPayBill")"
+                                       data-gaevent="bill_receipt_pay_another_bill"
+                                       data-gaeventCategory="Bill Payment"
+                                       data-gaeventAction="Pay Another Bill Click"
+                                       data-gaeventLabel="NA">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Pay Another Bill")</a>
+
+
+                                    <button class="waves-effect waves-light btn outlined btn-000" onclick="PrintDiv()"
+                                            data-gaevent="bill_receipt_download"
+                                            data-gaeventCategory="Bill Payment"
+                                            data-gaeventAction="Receipt Download Click"
+                                            data-gaeventLabel="NA">
+                                        Download Receipt
+                                    </button>
+                                </div>
+                                <hr class="visible-phone">
+                            </div>
+                        </aside>
+                    </div>
+                    <div class="col l4 s12 showPDF">
+                        @*<figure class="hide-on-med-and-down pay-desk-image">
+                                <img class="radius-10" src="/electricity_assets/assets/images/loyalty-card.png" alt="BillDesk">
+                            </figure>*@
+                    </div>
+                </div>
+            </div>
+            @*<figure class="hide-on-large-only pay-mob-image">
+                    <img class="radius-10" src="/electricity_assets/assets/styles/main.css/images/loyalty-card.png" alt="BillDesk">
+                </figure>*@
+        }
+
+    </div>
+
+</div>
+@if (Model != null && !string.IsNullOrEmpty(Model.TransactionId))
+{
+    <div class="success-wrapper" id="paymentSucess" style="display:none;">
+        <div class="success-header section-container-pdf">
+            <div class="container">
+                <div class="success-header-row1">
+                    <div class="success-logo">
+                        <a href="/" target="_blank">
+                            <img src="/electricity_assets/images/success-logo.png" alt="Logo" />
+                        </a>
+                    </div>
+                    <div class="success-time-date">
+                        <h5>Date & Time</h5>
+                        <h4>@Model.TransactionDate</h4>
+                    </div>
+                </div>
+                <div class="success-header-row2">
+                    <img src="/electricity_assets/images/check.png" alt="Success" />
+                    <h1>Payment Successful! Thank you!</h1>
+                    <p>Your payment of <span>₹@Model.AmountPayable.TrimStart('0')</span> is confirmed. You will recieve a payment notification via email/SMS shortly.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section-container-spacer" style="height: 32px; width: 100%;">&nbsp;</div>
+        <div class="success-body">
+            <div class="success-detail section-container-pdf">
+                <div class="container">
+                    <header class="section-header">
+                        <h2>Payment Details</h2>
+                    </header>
+                    <ul>
+                        <li>CA Number<span>@Model.AccountNumber</span></li>
+                        <li>Transaction ID<span>@Model.TransactionId</span></li>
+                        <li>Order Number<span>@Model.OrderId</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="section-container-spacer" style="height: 32px; width: 100%;">&nbsp;</div>
+            <div class="success-offer section-container-pdf">
+                <div class="container">
+                    <div class="success-offer-item">
+                        <aside>
+                            <div class="success-offer-image">
+                                <img src="/electricity_assets/images/online-discount.png" alt="Online bill payment" />
+                            </div>
+                            <h3>Pay electricity bill on Amazon Pay and<br />get rewards up to ₹150</h3>
+                        </aside>
+                        <a href="https://www.amazon.in/hfc/bill/electricity?billerId=RELI00000MUM01&ref=adani_elec_web" target="_blank">Know More</a>
+                    </div>
+                    <div class="success-offer-item amazon-pay">
+                        <aside>
+                            <div class="success-offer-image">
+                                <img src="/electricity_assets/images/online-cashback.png" alt="Amazon pay cashback" />
+                            </div>
+                            <h3>Get ₹50 cashback on your 1st electricity bill paymentn<br />via Amazon Pay UPI</h3>
+                        </aside>
+                        <a href="https://www.amazon.in/hfc/bill/electricity?billerId=RELI00000MUM01&ref=adani_web_UPI" target="_blank">Know More</a>
+                    </div>
+                </div>
+            </div>
+            <div class="section-container-spacer" style="height: 32px; width: 100%;">&nbsp;</div>
+        </div>
+        <div class="success-footer">
+            <div class="container">
+                <div class="success-footer-social">
+                    <h3>Follow us for latest updates</h3>
+                    <ul>
+                        <li>
+                            <a href="https://www.facebook.com/AdaniElectricityMumbai/" target="_blank" class="waves-effect icon-holder medium-size"><i class="i-facebook i-22"></i></a>
+                        </li>
+                        <li>
+                            <a href="https://twitter.com/Adani_Elec_Mum" target="_blank" class="waves-effect icon-holder medium-size"><i class="i-twitter i-22"></i></a>
+                        </li>
+                        <li>
+                            <a href="https://www.linkedin.com/authwall?trk=ripf&trkInfo=AQES3F8XmxoO0gAAAX9uYJYQH-EmIl4Vem7Jb2FF_OVtNbjO4tZ19JmMmL14-7CiAyZd1oASBjg-gjLzdFXof3tlsWKNdacvVJ-O1O0HisSXjXrS8PiojJ2vgQ1-qZp7y-k_HXI=&originalReferer=http://electricity.dev.local/&sessionRedirect=https%3A%2F%2Fin.linkedin.com%2Fcompany%2Fadani-electricity" target="_blank" class="waves-effect icon-holder medium-size"><i class="i-linkdin i-22"></i></a>
+                        </li>
+                        <li>
+                            <a href="https://www.youtube.com/c/AdaniElectricityMumbaiLimited" target="_blank" class="waves-effect icon-holder medium-size"><i class="i-youtube i-22"></i></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="success-download-app">
+                    <h3>Download Our App</h3>
+                    <ul>
+                        <li>
+                            <a class="barcode-ios">
+                                <img src="/electricity_assets/images/iOS-AppStore.jpg" alt="IOS" />
+                                <span>IOS</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="barcode-android">
+                                <img src="/electricity_assets/images/Android-PlayStore.jpg" alt="Android" />
+                                <span>Android</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+
+        }
+        <style>
+            .success-wrapper:before {
+                content: "";
+                background: transparent linear-gradient(90deg, #21a680 0%, #1f9b8e 10%, #1d919c 20%, #2a80a3 30%, #436ba5 40%, #5c56a7 50%, #744d9d 60%, #8d4492 70%, #a7427f 80%, #c74d5a 90%, #e75936 100%) 0% 0% no-repeat padding-box;
+                -webkit-print-color-adjust: exact;
+                display: block;
+                height: 6px;
+                width: 100%;
+            }
+
+            .success-wrapper .container {
+                max-width: 1120px;
+                padding: 0;
+            }
+
+            .success-header {
+                background: #f2f9ff;
+                -webkit-print-color-adjust: exact;
+                padding-top: 24px;
+                padding-bottom: 24px;
+            }
+
+                .success-header .container,
+                .success-footer .container {
+                    max-width: 1120px;
+                    padding: 0 2rem;
+                }
+
+            .success-header-row1 {
+                margin-bottom: 32px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .success-header-row2 {
+                text-align: center;
+            }
+
+                .success-header-row2 img {
+                    margin-bottom: 24px;
+                    width: 40px;
+                }
+
+                .success-header-row2 h1 {
+                    font-size: 26px;
+                    margin-bottom: 12px;
+                }
+
+                .success-header-row2 p {
+                    font-size: 14px;
+                    line-height: 28px;
+                }
+
+            .success-time-date {
+                text-align: right;
+            }
+
+                .success-time-date h5 {
+                    color: #666;
+                    font-size: 14px;
+                    margin-bottom: 8px;
+                }
+
+                .success-time-date h4 {
+                    font-size: 18px;
+                    line-height: 24px;
+                    font-family: "Roboto-Bold";
+                }
+
+            .success-detail ul {
+                background: #fbfbfb 0% 0% no-repeat padding-box;
+                -webkit-print-color-adjust: exact;
+                border-radius: 12px;
+                display: flex;
+                flex-wrap: wrap;
+                padding: 16px 0;
+            }
+
+                .success-detail ul li {
+                    width: 33.33%;
+                    padding-left: 16px;
+                    padding-right: 16px;
+                    color: #666;
+                    font-size: 12px;
+                }
+
+                    .success-detail ul li span {
+                        display: block;
+                        font-size: 16px;
+                        color: #333;
+                        font-weight: 600;
+                        margin-top: 8px;
+                    }
+
+            .success-offer-item {
+                background: #54ba8e 0% 0% no-repeat padding-box;
+                -webkit-print-color-adjust: exact;
+                border-radius: 20px;
+                padding: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+                .success-offer-item + .success-offer-item {
+                    margin-top: 12px;
+                }
+
+                .success-offer-item.amazon-pay {
+                    background: #a98cdc;
+                    -webkit-print-color-adjust: exact;
+                }
+
+                .success-offer-item aside {
+                    display: flex;
+                    align-items: center;
+                    flex: 1;
+                    padding-right: 16px;
+                }
+
+                    .success-offer-item aside .success-offer-image {
+                        width: 80px;
+                        height: 80px;
+                        margin-right: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    .success-offer-item aside img {
+                        max-width: 100%;
+                    }
+
+                    .success-offer-item aside h3 {
+                        font-size: 20px;
+                        margin: 0;
+                        color: #fff;
+                        font-weight: 600;
+                        line-height: normal;
+                    }
+
+                .success-offer-item a {
+                    background: #fff 0% 0% no-repeat padding-box;
+                    -webkit-print-color-adjust: exact;
+                    border-radius: 80px;
+                    display: inline-block;
+                    padding: 12px 24px;
+                    font-size: 12px;
+                    line-height: normal;
+                    font-weight: 600;
+                    color: #333;
+                    cursor: pointer;
+                }
+
+            .success-footer {
+                background: #f9f9f9;
+                -webkit-print-color-adjust: exact;
+                padding-top: 32px;
+                padding-bottom: 32px;
+            }
+
+                .success-footer .container {
+                    display: flex;
+                    justify-content: space-between;
+                }
+
+                .success-footer h3 {
+                    color: #333;
+                    font-size: 18px;
+                    font-family: "Roboto-Bold";
+                    margin-bottom: 12px;
+                }
+
+            .success-footer-social ul {
+                display: flex;
+            }
+
+                .success-footer-social ul li a i {
+                    color: #787878;
+                }
+
+            .success-download-app ul {
+                display: flex;
+            }
+
+                .success-download-app ul li:not(:last-child) {
+                    margin-right: 16px;
+                }
+
+                .success-download-app ul li a {
+                    text-align: center;
+                }
+
+                    .success-download-app ul li a img {
+                        width: 80px;
+                        height: 80px;
+                    }
+
+                    .success-download-app ul li a span {
+                        display: block;
+                        margin-top: 4px;
+                        color: #666;
+                        font-size: 12px;
+                    }
+
+            .success-wrapper .section-header h2 {
+                font-size: 20px;
+            }
+
+            .success-wrapper .section-header {
+                margin-bottom: 16px;
+            }
+        </style>
+    </div>
+
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+
+<script type="text/javascript">
+    function PrintDiv() {
+        var divContents = document.getElementById("paymentSucess").innerHTML;
+        var printWindow = window.open('', '', 'height=700,width=900');
+        printWindow.document.write('<html><head><link href="/electricity_assets/css/materialize.css" rel="stylesheet" /><link href="/electricity_assets/styles/main.css" rel="stylesheet" /><title>Adani Electricity Payment Receipt</title>');
+        printWindow.document.write('</head><body >');
+        printWindow.document.write(divContents);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(function () {
+            printWindow.print();
+            printWindow.close();
+        }, 2000);
+    }
+</script>
+<script type="text/javascript">
+    $("document").ready(function () {
+         if ($('#login_status').val() == 'Guest User') {
+           dataLayer.push({
+            'event': "bill_payment_success",
+            'eventCategory': "Bill Payment",
+            'eventAction': "Bill Payment Success",
+            'eventLabel': "@Model.AccountNumber",
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': "@Model.AccountNumber",
+            'page_type': $('head title').text()
+        });
+        }
+        else {
+            dataLayer.push({
+            'event': "bill_payment_success",
+            'eventCategory': "Bill Payment",
+            'eventAction': "Bill Payment Success",
+            'eventLabel': "@Model.AccountNumber",
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+        }
+
+    })
+</script>
+@*<script type="text/javascript">
+        function PrintDiv() {
+           // document.querySelector('.showPDF').style.display = "block";
+            var HTML_Width = $(".success-wrapper").width();
+
+            var HTML_Height = $(".success-wrapper).height();
+
+            var top_left_margin = 15;
+
+            var PDF_Width = HTML_Width + (top_left_margin * 2);
+
+            var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+
+            var canvas_image_width = HTML_Width;
+
+            var canvas_image_height = HTML_Height;
+
+            var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+
+            html2canvas($(".success-wrapper")[0], { allowTaint: true }).then(function (canvas) {
+
+                canvas.getContext('2d');
+
+                var imgData = canvas.toDataURL("/electricity_assets/assets/images/loyalty-card.png", 1.0);
+
+                document.querySelectorAll('.collapsible-header.hide').forEach(elem => elem.classList.remove('hide'));
+
+
+
+                var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+
+                pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+
+                for (var i = 1; i <= totalPDFPages; i++) {
+
+                    pdf.addPage(PDF_Width, PDF_Height);
+
+                    pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+
+                }
+
+                pdf.save("Payment Receipt.pdf");
+                //document.querySelector('.showPDF').style.display = "none";
+
+            });
+        }
+    </script>*@

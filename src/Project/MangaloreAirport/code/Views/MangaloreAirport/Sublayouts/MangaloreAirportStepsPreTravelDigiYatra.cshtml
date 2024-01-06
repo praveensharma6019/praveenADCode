@@ -1,0 +1,37 @@
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	var class1 = "";
+}
+<h2 class="section-title">
+    @Html.Sitecore().Field("Title", model)
+</h2>
+<div class="section-row">
+    <div class="UserSteps_user_steps">
+        <ul>
+            @foreach (var stepItem in model.GetChildren().ToList())
+            {
+				class1 = Html.Sitecore().Field("Summary", stepItem).ToString().Replace(" ", "");
+				Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)stepItem.Fields["Image"]);
+				string imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                <li>
+                    <div class="benefits-cards @class1">
+                        <div class="UserStepCard_inner">
+                            <figure>
+                                <img src="@imgurl" alt="Pre-Travel">
+                            </figure>
+                            <aside>
+                                <label>@stepItem.Name</label>
+                                <h3>@Html.Sitecore().Field("Title", stepItem)</h3>
+                                @Html.Sitecore().Field("Body", stepItem)
+                            </aside>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

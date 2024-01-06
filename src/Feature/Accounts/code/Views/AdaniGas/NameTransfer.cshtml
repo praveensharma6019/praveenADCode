@@ -1,0 +1,1204 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.ByCustomerId
+
+@{
+    //var CustomerTypeStyle = Model.CustomerValidationType == "1" ? "display:flex;" : "display:none";
+    //var customerId = Model.CustomerID;
+
+}
+@if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+{
+    <div class="form-group row">
+        <input id="submit_message" type="hidden" value="@Session["Message"].ToString()" />
+    </div>
+}
+<section class="name-transfer">
+    <div class="container">
+        <div>
+
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "name-transfer-step1", @class = "name-transfer-step1", enctype = "multipart/form-data" }))
+            {
+
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(x => x.CustomerName)
+                @Html.HiddenFor(x => x.RegisterdConsumerName)
+                @Html.HiddenFor(x => x.OutstandingAmount)
+                @Html.HiddenFor(x => x.PreStatus)
+                if (Session["NameTransferLogin"] == null)
+                {
+                    <div>
+                        <div class="panel">
+                            <h3>Name Transfer</h3>
+                            <h6 class="text-alert">
+                                <span class="fas fa-exclamation-circle mr-2"></span>Name Transfer for Domestic Customers
+                            </h6>
+
+                            <div class="mt-3">
+                                <div class="row" style="display: none;">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">Select Connection Type<span class="required">*</span></label>
+                                                <br />
+                                                <select name="connection_type" class="form-control btn dropdown-toggle bg-white text-dark border-secondary border" style="height: 50px;" aria-label="Default select example">
+                                                    <option selected="" />Domestic
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (!Model.IsOTPValid)
+                                {
+                                    <div class="row mt-2">
+                                        <div class="col-lg-12 col-md-12">
+                                            <div class="form-group">
+                                                <div class="form-check form-check-inline">
+                                                    @Html.RadioButtonFor(model => model.ProceedWith, "1", new { id = "ProceedWithCustomerId", @class = "rbProceedWith mb-2 mr-2" })
+                                                    <label for="ProceedWithCustomerId">Proceed with Customer ID <b>or</b> Meter Number</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    @Html.RadioButtonFor(model => model.ProceedWith, "2", new { id = "ProceedWithSearch", @class = "rbProceedWith mb-2 mr-2" })
+                                                    <label for="ProceedWithSearch">
+                                                        Search Customer ID based on society & Area
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (Model.ProceedWith != null)
+                                {
+                                    if (Model.IsOTPValid)
+                                    {
+                                        @Html.HiddenFor(m => m.CustomerID)
+                                        @Html.HiddenFor(m => m.MobileNumber)
+
+                                        <div class="row mt-2">
+                                            @if (!string.IsNullOrEmpty(Model.stepOne))
+                                            {
+                                                if (Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-12">
+                                                        <h2><b>Existing Owner Details</b></h2>
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Customer ID </label>
+                                                            @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control reset-control", id = "Customer ID", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Register Consumer Name </label>
+                                                            @Html.TextBoxFor(x => x.CustomerName, new { @class = "form-control reset-control", id = "CustomerName", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Connection Type </label>
+                                                            @Html.TextBoxFor(x => x.ConnectionType, new { @class = "form-control reset-control", id = "ConnectionType", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+
+                                                            <label for="">Meter Number </label>
+                                                            @Html.TextBoxFor(x => x.MeterNumber, new { Value = @Model.MeterNumber, @class = "form-control reset-control", id = "MeterNumber", @autocomplete = "off", @readonly = "readonly" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Entered Mobile Number </label>
+                                                            @Html.TextBoxFor(x => x.PreMobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Email address</label>
+                                                            @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "EmailId", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <div class="form-group">
+                                                            <label for="">Address</label>
+                                                            @Html.TextBoxFor(x => x.CustomerAddress, new { @class = "form-control reset-control", id = "CustomerAddress", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6 mb-3">
+                                                        <div class="form-group">
+                                                            <label for="">Outstanding Amount</label>
+                                                            @Html.TextBoxFor(x => x.OutstandingAmount, new { @class = "form-control reset-control", id = "Amount", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <div class="col-lg-12">
+                                                    @Html.Partial("~/Views/AdaniGas/Partial/_SubmitYourRequestForNameTransfer.cshtml", Model)
+                                                </div>
+                                            }
+                                            @if (Model.stepTwo == true)
+                                            {
+                                                <div>
+                                                    @Html.Partial("~/Views/AdaniGas/Partial/_QuickPayAdaniGasNameTransfer.cshtml", Model)
+                                                </div>
+                                            }
+
+                                        </div>
+
+
+                                    }
+                                    else
+                                    {
+                                        <div class="row" id="step-by-customer-id">
+                                            @if (Model.CustomerIdValidated && Model.IsOTPSent)
+                                            {
+                                                @Html.HiddenFor(m => m.CustomerID)
+                                                @Html.HiddenFor(m => m.MeterNumber)
+                                                @Html.HiddenFor(m => m.MobileNumber)
+                                                @Html.HiddenFor(m => m.CustomerEmailId)
+                                                @Html.HiddenFor(m => m.City)
+                                                @Html.HiddenFor(m => m.Area)
+                                                @Html.HiddenFor(m => m.ApartmentComplex)
+                                                @Html.HiddenFor(m => m.HouseNumber)
+                                                if (Model.ProceedWith == "2")
+                                                {
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by city", "City")</label>
+                                                            @Html.DropDownListFor(x => Model.City, new SelectList(Model.CityList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchAreaOfCity(this.value,'#NewConArea')", @class = "form-control reset-control NewConCity", id = "NewConCity", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by area", "Area")</label>
+                                                            @Html.DropDownListFor(x => Model.Area, new SelectList(Model.AreaList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchSocietyByArea(this.value,'#NewConApartmentComplex')", @class = "form-control reset-control NewConArea", id = "NewConArea", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by Society", "Society")</label>
+                                                            @Html.DropDownListFor(x => Model.ApartmentComplex, new SelectList(Model.ApartmentComplexList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchHouseBySociety(this.value,'#NewConHouseNumber')", @class = "form-control reset-control NewConApartmentComplex", id = "NewConApartmentComplex", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by HouseNumber", "House Number")</label>
+                                                            @Html.DropDownListFor(x => Model.HouseNumber, new SelectList(Model.HouseNumberList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @class = "form-control reset-control NewConHouseNumber", id = "NewConHouseNumber", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Mobile Number", "Enter Mobile Number")</label>
+                                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", id = "MobileNumber", maxlength = "10", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Customer ID <span class="required">*</span></label>
+                                                            @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control reset-control", id = "Customer ID", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            @Html.ValidationMessageFor(x => x.CustomerID, "", new { @class = "help-block" }, "p")
+                                                            @Html.HiddenFor(x => x.CustomerID)
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Meter Number <span class="required">*</span></label>
+                                                            @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control reset-control", id = "CustomerName", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Customer ID </label>
+                                                            @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control reset-control", id = "Customer ID", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Meter Number </label>
+                                                            @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control reset-control", id = "CustomerName", @autocomplete = "off", required = "required", disabled = "disabled" })
+                                                            <small id="" class="form-text text-muted"></small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">Mobile Number</label>
+                                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", id = "MobileNumber", maxlength = "10", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6" style="display:none">
+                                                        <div class="form-group">
+                                                            <label for="">Email Id</label>
+                                                            @Html.TextBoxFor(x => x.CustomerEmailId, new { @class = "form-control", id = "CustomerEmailId", @disabled = "disabled" })
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (Model.ProceedWith == "1")
+                                                {
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@*@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Customer Id", "Enter Customer Id or Meter Number")*@Enter Customer Id <b>or</b> Meter Number <span class="required">*</span></label>
+                                                            @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control", id = "InputByUser", maxlength = "25", required = "required", @autocomplete = "off" })
+                                                            @Html.ValidationMessageFor(x => x.InputByUser, "", new { @class = "help-block" }, "p")
+                                                            @Html.HiddenFor(x => x.InputByUser)
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Mobile Number", "Enter Mobile Number") <span class="required">*</span></label>
+                                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", id = "MobileNumber", maxlength = "10", required = "required", @type = "number", @autocomplete = "off" })
+                                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                                            <label id="mobileValidator" style="color:red;"></label>
+                                                            @Html.HiddenFor(x => x.MobileNumber)
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6" style="display:none">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Email Number", "Enter Email Id") <span class="required">*</span></label>
+                                                            @Html.TextBoxFor(x => x.CustomerEmailId, new { @class = "form-control", id = "REgistrationCustomerEmailId" })
+                                                            @Html.ValidationMessageFor(x => x.CustomerEmailId, "", new { @class = "help-block" }, "p")
+                                                            @Html.HiddenFor(x => x.CustomerEmailId)
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by city", "City") <span class="required">*</span></label>
+                                                            @Html.DropDownListFor(x => Model.City, new SelectList(Model.CityList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchAreaOfCity(this.value,'#NewConArea')", @class = "form-control reset-control NewConCity", id = "NewConCity", required = "required" })
+                                                            @Html.ValidationMessageFor(x => x.City, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by area", "Area") <span class="required">*</span></label>
+                                                            @Html.DropDownListFor(x => Model.Area, new SelectList(Model.AreaList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchSocietyByArea(this.value,'#NewConApartmentComplex')", @class = "form-control reset-control NewConArea", id = "NewConArea", required = "required" })
+                                                            @Html.ValidationMessageFor(x => x.Area, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by Society", "Society") <span class="required">*</span></label>
+                                                            @Html.DropDownListFor(x => Model.ApartmentComplex, new SelectList(Model.ApartmentComplexList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchHouseBySociety(this.value,'#NewConHouseNumber')", @class = "form-control reset-control NewConApartmentComplex", id = "NewConApartmentComplex", required = "required" })
+                                                            @Html.ValidationMessageFor(x => x.ApartmentComplex, "", new { @class = "help-block" }, "p")
+                                                            <p id="SocietyAddress1"></p>
+                                                            <p id="SocietyAddress2"></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by HouseNumber", "HouseNumber") <span class="required">*</span></label>
+                                                            @Html.DropDownListFor(x => Model.HouseNumber, new SelectList(Model.HouseNumberList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchHouseByNumber()", @class = "form-control reset-control NewConHouseNumber", id = "NewConHouseNumber", required = "required" })
+                                                            @Html.ValidationMessageFor(x => x.HouseNumber, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Mobile Number", "Enter Mobile Number") <span class="required">*</span></label>
+                                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", id = "MobileNumber", maxlength = "10", required = "required" })
+                                                            @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-12 col-md-12">
+                                                        <div class="form-group">
+                                                            <label for="" class="badge-pill text-alert"> <b>@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Mobile Number", "If you are not able to find your details from address, Kindly contact customer Care (079 4754 5252 / 079 2762 3264) to know your customer ID. ")</b></label>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            @if (Model.IsOTPSent)
+                                            {
+                                                <div class="">
+                                                    <div class="col-lg-12 col-md-12">
+                                                        <div class="form-group">
+                                                            <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Customer Id", "Enter Valid OTP") <span class="required">*</span></label>
+
+                                                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control", id = "OTPNumber", required = "required", @autocomplete = "off" })
+                                                            @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                                            <div>
+                                                                <span style="font-size: 10px;">@Model.Message</span>
+                                                            </div>
+                                                            <small id="" class="form-text text-muted"></small>
+                                                            <label id="countdown"></label>
+                                                            <input type="button" name="ResendOtps" value="Resend" class="btn btn-primary" id="NameTransferResendOtp" style="display:none" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12 text-right ">
+                                                    <input type="submit" name="ValidateOTP" value="Verify" class="btn btn-primary" @*style="background-color: black; color: white; border-color: black;" *@ />
+                                                    <input type="submit" name="CancelRequest" formnovalidate="formnovalidate" value="Cancel" class="btn btn-secondary" />
+
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.ProceedWith == "1")
+                                                {
+                                                    <div class="col-lg-12 text-right ">
+                                                        <input type="submit" name="validateById" id="validateById" value="Proceed" class="btn btn-primary" @*style="background-color: black; color: white; border-color: black;" *@ />
+                                                        <input type="submit" name="CancelRequest" formnovalidate="formnovalidate" value="Cancel" class="btn btn-secondary" />
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-lg-12 text-right ">
+                                                        <input type="submit" name="validateBySearch" value="Proceed" class="btn btn-primary" @*style="background-color: black; color: white; border-color: black;" *@ />
+                                                        <input type="submit" name="CancelRequest" formnovalidate="formnovalidate" value="Cancel" class="btn btn-secondary" />
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            @if (!Model.IsOTPValid)
+                            {
+                                <div class="col-lg-12 text-center check_app-status" style="color:black;">
+                                    <p><span style="color: #000; font-weight: 800">Application Status</span></p>
+                                    <div><a href="/name-transfer-status-login" style="font-size:18px">Check Status</a></div>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <section class="name-transfer">
+                        <div class="container">
+                            <div class="row">
+
+                                <div class="mt-3">
+                                    <div class="row mt-2">
+                                        <div class="col-lg-10">
+                                            <div class="form-group">
+                                                <label for="">Request No. <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.RequestNumber, new { @class = "form-control reset-control", id = "RequestNo", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.RequestNumber)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label for="">Applicant Name <span class="required"></span></label>
+                                    <div class="row mt-2">
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">First Name <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.FirstName, new
+                                                {
+                                                @class = "form-control reset-control",
+                                                id = "FirstName"
+                                                })
+                                                @Html.HiddenFor(x => x.FirstName)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+
+                                                <label for="">Middle Name </label>
+                                                @Html.TextBoxFor(x => x.MiddleName, new { @class = "form-control reset-control", id = "MiddleName" })
+                                                @Html.HiddenFor(x => x.MiddleName)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+
+                                                <label for="">Last Name <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.LastName, new
+                                                {
+                                                @class = "form-control reset-control",
+                                                id = "LastName"
+                                                })
+                                                @Html.HiddenFor(x => x.LastName)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <input type="submit" class="btn btn-primary w-auto" name="updatenamebyadmin" value="Change Name" ) />
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label for="">Existing Account Details <span class="required"></span></label>
+
+                                    <div class="row mt-2">
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Customer ID <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.CustomerID)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Registerd Consumer Name <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.RegisterdConsumerName, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.RegisterdConsumerName)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Connection Type <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.ConnectionType, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.ConnectionType)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Meter Number <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.MeterNumber)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Mobile Number <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">REGISTERED EMAIL ADDRESS <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.EmailId)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <label for="">Applicant Details <span class="required"></span></label>
+
+                                    <div class="row mt-2">
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">DATE <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.CreatedDate, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.CreatedDate)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">TRANSACTION NUMBER	 <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.RegisterdConsumerName, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.RegisterdConsumerName)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">AMOUNT PAID <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.ConnectionType, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.ConnectionType)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">ADDRESS <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.CustomerAddress, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.CustomerAddress)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">Application Type <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.ApplicationType, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.ApplicationType)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-4">
+                                            <div class="form-group">
+                                                <label for="">SOCIETY TYPE <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.SocietyType, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                                @Html.HiddenFor(x => x.SocietyType)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                                <div class="tab-pane col-lg-12" id="Documents" role="tabpanel" aria-labelledby="Documents-tab">
+                                    <div class="mt-3">
+                                        <b><label class="form-label" for="customFile">Uploaded Document<span class="required"></span></label></b>
+                                    </div>
+                                    @if (Model.ApplicationType != null && Model.ApplicationType == "Builder_Case")
+                                    {
+                                        <div class="row buildercase">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <div class="mt-2">
+                                                        <label class="form-label" for="customFile">Index (or) Sales Deed<span class="required">*</span></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.IndexBuilderId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+                                            @if (Model.DocumentStatus1 != null && Model.DocumentStatus1 == "Rejected Document")
+                                            {
+
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus1</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="IndexBuilderId1" onclick="rejectdocument('@Model.IndexBuilderId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="IndexBuilderId_1" id="IndexBuilderId_1">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus1 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus1</label>
+                                                    </div>
+                                                }
+                                            }
+
+
+                                        </div>
+                                        <div class="row buildercase">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <label class="form-label" for="customFile">Possession Letter from Builder<span class="required">*</span></label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.PossessionletterBuilderId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+                                            @if (Model.DocumentStatus2 != null && Model.DocumentStatus2 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus2</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="PossessionletterBuilderId2" onclick="rejectdocument('@Model.PossessionletterBuilderId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="PossessionletterBuilderId_2" id="PossessionletterBuilderId_2">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus2 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus2</label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="row buildercase">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <label class="form-label" for="customFile">Photo ID Proof of Owner<span class="required">*</span></label>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.PhotoIDBuilderId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+                                            @if (Model.DocumentStatus3 != null && Model.DocumentStatus3 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus3</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="PhotoIDBuilderId3" class="Rejected Document" onclick="rejectdocument('@Model.PhotoIDBuilderId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="PhotoIDBuilderId_3" id="PhotoIDBuilderId_3">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus3 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus3</label>
+                                                    </div>
+                                                }
+                                            }
+
+                                        </div>
+                                        <div class="row buildercase">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <label class="form-label" for="customFile">Co-owner consent with signed photo ID<span class="required">*</span></label>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.CoownerBuilderId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+
+
+                                            @if (Model.DocumentStatus4 != null && Model.DocumentStatus4 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus4</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="CoownerBuilderId4" onclick="rejectdocument('@Model.CoownerBuilderId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="CoownerBuilderId_4" id="CoownerBuilderId_4">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus4 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus4</label>
+                                                    </div>
+                                                }
+                                            }
+
+                                        </div>
+
+                                    }
+                                    @if (Model.ApplicationType != null && Model.ApplicationType == "Demise")
+                                    {
+                                        <div class="row demise">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+
+                                                    <div class="mt-2">
+                                                        <input type="text" class="form-control" value="Death Certificate of Registered customer" readonly="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.DeathCertificateDemiseId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+                                            @if (Model.DocumentStatus5 != null && Model.DocumentStatus5 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus5</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="DeathCertificateDemiseId_5" id="DeathCertificateDemiseId_5">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus5 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus5</label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="row demise">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+
+                                                    <div class="mt-2">
+                                                        <input type="text" class="form-control" value="Documentary proof of natural succession like succession certificate / Probate of will (Originals for verification/affidavit swearing succession cum NOC from other legal heir other than the spouse of registered customer)" readonly="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.DocumentaryDemiseId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+                                            @if (Model.DocumentStatus6 != null && Model.DocumentStatus6 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus6</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="DocumentaryDemiseId_6" id="DocumentaryDemiseId_6">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus6 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus6</label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                    @if (Model.ApplicationType != null && Model.SocietyType != null && Model.SocietyType == "Registered Housing Society")
+                                    {
+                                        <div class="row RegisteredHousing">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+
+                                                    <div class="mt-2">
+                                                        <input type="text" class="form-control" value="Agreement / Purchase / Sale deed with the present registered customers (or) Share certificate of Registered Society" readonly="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.FirstRegisteredHousingSocietypropertyresaleId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+                                            @if (Model.DocumentStatus7 != null && Model.DocumentStatus7 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus7</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="FirstRegisteredHousingSocietypropertyresaleId7" onclick="rejectdocument('@Model.FirstRegisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="FirstRegisteredHousingSocietypropertyresaleId_7" id="FirstRegisteredHousingSocietypropertyresaleId_7">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus7 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus7</label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="row RegisteredHousing">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+
+                                                    <div class="mt-2">
+                                                        <input type="text" class="form-control" value="Latest Municipal tax bill in applicant's name. (or) NOC (Duly stamped - No Objection Certificate) from the registered housing society" readonly="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.SecondRegisteredHousingSocietypropertyresaleId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+                                            @if (Model.DocumentStatus8 != null && Model.DocumentStatus8 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus8</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="SecondRegisteredHousingSocietypropertyresaleId8" onclick="rejectdocument('@Model.SecondRegisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="SecondRegisteredHousingSocietypropertyresaleId_8" id="SecondRegisteredHousingSocietypropertyresaleId_8">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus8 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus8</label>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                    @if (Model.ApplicationType != null && Model.SocietyType != null && Model.SocietyType == "Unregistered Housing Society")
+                                    {
+                                        <div class="row UnregisteredHousing">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <div class="mt-2">
+                                                        <input type="text" class="form-control" value="Agreement / Purchase / Sale deed with the present registered customer" readonly="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.FirstUnregisteredHousingSocietypropertyresaleId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+
+                                            @if (Model.DocumentStatus9 != null && Model.DocumentStatus9 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus9</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="FirstUnregisteredHousingSocietypropertyresaleId9" onclick="rejectdocument('@Model.FirstUnregisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="FirstUnregisteredHousingSocietypropertyresaleId_9" id="FirstUnregisteredHousingSocietypropertyresaleId_9">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus9 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus9</label>
+                                                    </div>
+                                                }
+                                            }
+
+                                        </div>
+                                        <div class="row UnregisteredHousing">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+
+                                                    <div class="mt-2">
+                                                        <input type="text" class="form-control" value="No Objection Certificate (NOC) from the present registered customer (or) Latest Municipal tax bill." readonly="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.SecondUnregisteredHousingSocietypropertyresaleId" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+
+                                            @if (Model.DocumentStatus10 != null && Model.DocumentStatus10 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus10</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="SecondUnregisteredHousingSocietypropertyresaleId10" onclick="rejectdocument('@Model.SecondUnregisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="SecondUnregisteredHousingSocietypropertyresaleId_10" id="SecondUnregisteredHousingSocietypropertyresaleId_10">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus10 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus10</label>
+                                                    </div>
+                                                }
+                                            }
+
+                                        </div>
+                                    }
+                                    @if (Model.isAdditionalDocumentID != null)
+                                    {
+                                        <div class="row">
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+
+                                                    <div class="mt-2">
+                                                        <input type="text" class="form-control" value="Upload Additional Document" readonly="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-4">
+                                                <div class="form-group">
+                                                    <a href="/ShowNameTransferFile?id=@Model.isAdditionalDocumentID" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                                </div>
+                                            </div>
+
+
+
+                                            @if (Model.DocumentStatus0 != null && Model.DocumentStatus0 == "Rejected Document")
+                                            {
+                                                <div class="col-lg-4 col-md-4">
+                                                    <label class="form-label" for="customFile">@Model.DocumentStatus0</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        @*<button id="isAdditionalDocumentID0" onclick="rejectdocument('@Model.isAdditionalDocumentID');">Reject Document</button>*@
+                                                        <button type="button" class="btn btn-primary w-auto" name="isAdditionalDocumentID_0" id="isAdditionalDocumentID_0">Reject Document</button>
+                                                    </div>
+                                                }
+                                                if (Model.DocumentStatus0 == "Re-UploadDocument")
+                                                {
+                                                    <div class="col-lg-4 col-md-4">
+                                                        <label class="form-label" for="customFile">@Model.DocumentStatus0</label>
+                                                    </div>
+                                                }
+                                            }
+
+                                        </div>
+                                    }
+
+                                </div>
+                                @if (Model.PreStatus != "Approved" || Model.PreStatus != "Submitted")
+                                {
+                                    <div>
+                                        <button type="button" class="btn btn-primary w-auto" name="ApproveNameTrnasfer" value="Approve" id="Approve_By_Admin">Approve</button>
+
+                                        <button type="button" class="btn btn-primary w-auto" name="RejectNameTrnasfer" value="Reject" id="Reject_By_Admin">Reject</button>
+
+                                        <button type="button" class="btn btn-primary w-auto" name="UpdateNameTrnasfer" value="Ask for additional Details / Documents" id="Additional_Details_By_Admin">Ask for additional Details / Documents</button>
+                                    </div>
+                                }
+
+
+                            </div>
+                        </div>
+                    </section>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+
+<div id="confirmation_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="confirmation_modal_message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary confirmation_modalbtnYesNO" value="1">Proceed</button>
+                <button type="button" class="btn btn-primary confirmation_modalbtnYesNO" value="0">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="message_modal_message"></p>
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+    </div>
+</div>
+
+<div id="submit_message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                            <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="confirmation_Additional_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="confirmation_modal_Additional_message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary confirmation_Additional_modalbtnYesNO" value="1">Proceed</button>
+                <button type="button" class="btn btn-primary confirmation_Additional_modalbtnYesNO" value="0">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Document_Required_message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal" id="Close_Document_Required_message_modal">X</button>
+            </div>
+            <div class="modal-body">
+                @*<p class="message_modal_message"></p>*@
+                <label for="" class="col-sm-12 col-form-label txt-green">Kindly Provide Required Documents.</label>
+            </div>
+            <button type="button" class="close" data-dismiss="modal" id="Close_Document_Required_message_modals">OK</button>
+        </div>
+    </div>
+</div>
+
+<div id="Document_Size_message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal" id="Close_Document_Size_message_modal">X</button>
+            </div>
+            <div class="modal-body">
+                @*<p class="message_modal_message"></p>*@
+                <label for="" class="col-sm-12 col-form-label txt-green">Please Upload Document Less Than 5MB.</label>
+            </div>
+            <button type="button" class="close" data-dismiss="modal" id="Close_Document_Size_message_modals">OK</button>
+        </div>
+    </div>
+</div>
+
+<div id="Document_Validation_message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal" id="Close_Document_Validation_message_modal">X</button>
+            </div>
+            <div class="modal-body">
+                @*<p class="message_modal_message"></p>*@
+                <label for="" class="col-sm-12 col-form-label txt-green">Please Provide Valid Document.  Only Allowed Extensions Are: .pdf or .jpg </label>
+
+            </div>
+            <button type="button" class="close" data-dismiss="modal" id="Close_Document_Validation_message_modals">OK</button>
+        </div>
+    </div>
+</div>

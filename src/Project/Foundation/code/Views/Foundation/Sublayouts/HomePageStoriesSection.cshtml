@@ -1,0 +1,57 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Collections
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<section class="py-5">
+    <div class="container">
+        <div class="row no-gutters">
+            @if (element != null)
+            {
+                LinkField link= (LinkField)element.Fields["LinkUrl"];
+                <div class="col-lg-4">
+                    <a href="@link.GetFriendlyUrl()">
+                        <div class="stories_sidebar" data-aos="fade-right" data-aos-duration="1000">
+                            <div class="bg-images">
+                                @Html.Sitecore().ImageField("Image", element)
+                                @*<img src="https://via.placeholder.com/150/000000/FFFFFF">*@
+                            </div>
+                            <div class="stories_sidebar_content">
+                                <h2>@Html.Sitecore().Field("Title", element)</h2>
+                                <p>Read more</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+            @if (element.GetChildren() != null)
+            {
+                ChildList item = element.GetChildren();
+                <div class="col-lg-8">
+                    <div class="row no-gutters">
+                        @for (var i = 0; i < 3; i++)
+                        {
+                            <div class="col-lg-4">
+                                <div class="stories_sub_main" data-aos="fade-up" data-aos-duration="1000">
+                                    <div class="stories_sub_child">
+                                        @Html.Sitecore().ImageField("Image", item[i],0,0,"img-fluid")
+                                        @*<img src="https://via.placeholder.com/250x250" class="img-fluid">*@
+                                    </div>
+                                    <div class="stories_sub_child_cont">
+                                        <p class="mb-2"><b>@Html.Sitecore().Field("Title", item[i])</b></p>
+                                        <p>@Html.Sitecore().Field("Summary", item[i])</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

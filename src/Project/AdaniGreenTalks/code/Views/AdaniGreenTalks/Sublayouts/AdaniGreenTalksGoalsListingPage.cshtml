@@ -1,0 +1,59 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    Item contextItem = Sitecore.Context.Item;
+    MultilistField goals = contextItem.Fields["Goals"];
+    string imgurl = "#";
+    string altText = "";
+    string backgroundImgUrl = "#";
+    string backgroundImgAltText = "";
+
+}
+@if (contextItem != null)
+{
+    <div class="green-action-bar">
+        <div class="container">
+            <h3 class="top-heading"> @Html.Sitecore().Field("Title", contextItem)</h3>
+            <p class="description">@Html.Sitecore().Field("Description", contextItem)</p>
+            <div class="wraper goales-service">
+                @foreach (Item item in goals.GetItems())
+                {
+		 var lf = (LinkField)item.Fields["{FE71C30E-F07D-4052-8594-C3028CD76E1F}"];
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.Image]);
+                    if (imgField != null && imgField.MediaItem != null)
+                    {
+                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                        altText = imgField.Alt;
+                    }
+					
+                    Sitecore.Data.Fields.ImageField backgroundImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BackgroundImage"]);
+                    if (backgroundImageField != null && backgroundImageField.MediaItem != null)
+                    {
+                        backgroundImgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(backgroundImageField.MediaItem);
+                        backgroundImgAltText = backgroundImageField.Alt;
+                    }
+
+                    <div class="item">
+						<a href="@lf.GetFriendlyUrl()"><div class="image">
+							<img src="@backgroundImgUrl" alt="@backgroundImgAltText">
+							<div class="circle">
+								<img src="@imgurl" alt="@altText" />
+							</div>
+						</div>
+						<h5>@Html.Sitecore().Field(Constant.ShortTitle, item)</h5></a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

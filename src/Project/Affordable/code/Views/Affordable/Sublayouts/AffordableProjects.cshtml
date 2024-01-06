@@ -1,0 +1,79 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Affordable.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var properties = Sitecore.Context.Site.GetStartItem();
+    var renderproperty = properties.Axes.GetDescendants().Where(x => x.TemplateID == Templates.ProjectProperty.ID).ToList();
+
+
+}
+
+<!-- Projects -->
+<section class="py-5">
+    <div class="container">
+        <h3 class="text-center sectionHeading">Our <span>Projects</span></h3>
+        <div class="owl-carousel owl-theme" id="our-projects">
+            @foreach (var item in renderproperty)
+            {
+                var URLLink = string.Empty;
+                var target = string.Empty;
+
+                URLLink = Sitecore.Links.LinkManager.GetItemUrl(item);
+
+            <div class="Slideitem">
+                <a href="@URLLink" target="@target">
+                    <div class="project-tile">
+                        <div class="project-status">
+                            @{
+                                var itemproperty = item.GetMultiListValueItems(Templates.ProjectProperty.Fields.ProjectStatus).FirstOrDefault();
+                                var itemlocation = item.GetMultiListValueItems(Templates.ProjectProperty.Fields.Location).FirstOrDefault();
+                            }
+                            <p>
+                                @if (itemproperty != null)
+                                {
+
+                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemproperty)
+                                }
+                                else
+                                {
+                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                                }
+                            </p>
+                        </div>
+                        <div class="project-img">
+                            @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid" })
+
+                        </div>
+                        <div class="project-desc">
+                            <div class="row">
+                                <div class="col-6">
+                                    <h3>
+                                        @Html.Sitecore().Field(Templates._HasPageContent.Fields.Title, item)<span>
+                                            @if (itemlocation != null)
+                                            {
+                                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)
+                                            }
+                                            else
+                                            {
+                                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                                            }
+                                        </span>
+                                    </h3>
+                                </div>
+                                <div class="col-6">  @Html.Sitecore().Field(Templates.ProjectProperty.Fields.Logo, item, new { @class = "img-fluid" })</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                    </div>
+            }
+          
+          
+        </div>
+        @*<p class="txt-center mt-5"><a href="/Our-Projects" class="btn btn-primary">View More Projects</a></p>*@
+    </div>
+</section>
+<!-- /Projects -->

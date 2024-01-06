@@ -1,0 +1,143 @@
+﻿
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Ports.Website.Models.PortsGmsLevel0Dashbord
+@using Sitecore.Ports.Website.Models
+@{
+
+    var currentDate = DateTime.Now;
+    var AddGrievance = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceBookingOnBehalf0);
+    var Reply = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceLevel0Reply);
+
+    var item = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceLevel0Dashbord);
+    var Homelink = item.Url();
+}
+<section class="breadcrumb-sub-layout bg-white  pt-5 pb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul class="breadcrumb-sublayout-ul">
+                    @*<li>Home</li>*@
+                    <li>Level0 Dashboard</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 text-right">
+                <p class="user_logout"><a href="/Grievance/Logout"><span class="fa fa-sign-out mr-2"></span>Logout</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="pb-5 bg-white">
+    <div class="container">
+        @if (Session["SuccessMsg0"] != null)
+        {
+            <div class="alert-success mb-4 p-2">@Session["SuccessMsg0"]</div>
+            Session["SuccessMsg0"] = null;
+        }
+        @if (Session["ErrorMsg0"] != null)
+        {
+            <div class="alert-danger mb-4 p-2">@Session["ErrorMsg0"]</div>
+            Session["ErrorMsg0"] = null;
+        }
+        <div class="form_panel bg-l-gray p-4 box-shadow">
+            <h3 class="heading mb-4 pl-3">
+                Dashboard<span class="float-lg-right pt-3 pt-lg-0"><a href="@AddGrievance.Url()" class="btn btn-info">Add Grievance On Behalf</a></span>
+            </h3>
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-level1", id = "form-level1" }))
+            {
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Grievance Status</label>
+                            @*<select class="form-control" name="Status" id="Status">
+                                    <option value="@PortsGMSTemplates.GrievanceStatus.Level0">@PortsGMSTemplates.GrievanceStatus.Level0</option>
+                                </select>*@
+                            <select class="form-control" name="Status" id="Status">
+                                <option value="">Select Grievance Status</option>
+                                <option value="@PortsGMSTemplates.GMSFlags.BookingOpen" @{string sel = Model.Status == PortsGMSTemplates.GMSFlags.BookingOpen ? "Selected" : "";} @sel>@PortsGMSTemplates.GMSFlags.BookingOpen</option>
+                                <option value="@PortsGMSTemplates.GMSFlags.BookingClosed" @{string sel1 = Model.Status == PortsGMSTemplates.GMSFlags.BookingClosed ? "Selected" : "";} @sel1>@PortsGMSTemplates.GMSFlags.BookingClosed</option>
+                                <option value="@PortsGMSTemplates.GMSFlags.Response" @{string sel2 = Model.Status == PortsGMSTemplates.GMSFlags.Response ? "Selected" : "";} @sel2>@PortsGMSTemplates.GMSFlags.Response</option>
+                                <option value="@PortsGMSTemplates.GMSFlags.BookingOnBehalf" @{string sel3 = Model.Status == PortsGMSTemplates.GMSFlags.BookingOnBehalf ? "Selected" : "";} @sel3>@PortsGMSTemplates.GMSFlags.BookingOnBehalf</option>
+                                <option value="@PortsGMSTemplates.GMSFlags.BookingReOpen" @{string sel4 = Model.Status == PortsGMSTemplates.GMSFlags.BookingReOpen ? "Selected" : "";} @sel4>@PortsGMSTemplates.GMSFlags.BookingReOpen</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <label>From</label>
+                            <input type="date" name="FromDate" value="@Model.FromDate" class="form-control" required id="ContentPlaceHolder1_date" placeholder="DD/MM/YYYY">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            <label>To</label>
+                            <input type="date" name="ToDate" value="@Model.ToDate" class="form-control" required id="ContentPlaceHolder1_date" placeholder="DD/MM/YYYY">
+                        </div>
+                    </div>
+                    <div class="col-lg-12 mb-3 text-right">
+                        <button type="submit" class="btn btn-secondary">Search</button>
+                        @*<button name="submit" id="reset" type="submit" class="btn btn-dark">Reset</button>*@
+                        <input name="submit" type="submit" id="reset" class="btn btn-dark" value="Reset" />
+                        @*<button type="button" class="btn btn-dark reset">Reset</button>*@
+                        @*<a href="@Homelink" class="btn btn-dark">Reset</a>*@
+                    </div>
+                </div>
+            }
+            @if (Model.AllBookings.Count > 0)
+            {
+                <div class="">
+                    <div class="">
+                        <table id="bookings" class="table table-bordered table-hover dt-responsive border">
+                            <thead>
+                                <tr>
+                                    <th>Submit On</th>
+                                    <th>Grievance Status</th>
+                                    <th>Grievance No.</th>
+                                    <th>Name</th>
+                                    <th>Company Name</th>
+                                    <th>Contact No</th>
+                                    <th>Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var bData in Model.AllBookings)
+                                {
+
+                                    <tr>
+                                        <td>@bData.Created_Date</td>
+                                        <td>@bData.Status</td>
+                                        <td style="text-transform:uppercase;"><a href="@Reply.Url()?id=@bData.Id">@bData.Id</a></td>
+                                        <td>@bData.Name</td>
+                                        <td>@bData.Company</td>
+                                        <td>@bData.Mobile</td>
+                                        <td>@bData.Email</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- <nav class="text-right mt-4" aria-label="Page navigation example">
+                        <ul class="pagination justify-content-end">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>-->
+                </div>
+            }
+            else
+            {
+                <div class="alert-danger mb-4 p-2">No Grievance Found!</div>
+            }
+
+        </div>
+    </div>
+</section>

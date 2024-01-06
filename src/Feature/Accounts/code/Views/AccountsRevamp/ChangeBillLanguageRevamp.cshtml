@@ -1,0 +1,109 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.ChangeBillLanguage
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+<div class="col s12 l8 offset-l1">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    <div class="section-inner-wrapper card brand-gradient remove-gradient outlined border-none-mobile section-wrapper section-container">
+        @Html.Sitecore().Placeholder("switch-account-content")
+        <div class="step-2-form">
+            <div class="card">
+                <div class="card-body">
+
+                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-changeBillLanguage", id = "frmchangeBillLanguage" }))
+                    {
+                        @Html.AddUniqueFormId()
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-field">
+
+                            <header class="section-header">
+                                <h4 style="font-size: 16px; font-family: Roboto-bold;">@Html.Sitecore().Dictionary("/Services/ChangeBillLanguageRevamp/Choose your billing language", "Choose your billing language")</h4>
+                                <p>
+                                    @Html.Sitecore().Dictionary("/Services/ChangeBillLanguageRevamp/Simply choose the language", " Simply choose the language in which you want to receive your electricity.")
+
+                                </p>
+                            </header>
+
+                            <div class="field-group">
+                                @foreach (var language in Model.BillLanguageList)
+                                {
+                                    <div class="radio-field">
+                                        <div class="radio-field">
+                                            <label>
+
+                                                @Html.RadioButtonFor(model => model.BillLanguageSelected, language.ToString(), new { id = "lang" + language, @class = "with-gap" })
+                                                <span>@language.ToString()</span>
+
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="input-field custom col-sm-7 col-md-7">
+                                <div class="captcha_box" id="recaptchaSettingsChangeLanguage">
+                                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(model => model.Captcha, "has-error")">
+                                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                        <div class="row captcha_box" style="padding-left:10px;">
+                                            <div class="col-lg-12">
+                                                <div class="g-recaptcha" data-callback="recaptchaSettingsChangeLanguage" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                @Html.ValidationMessageFor(model => model.Captcha, "", new { @class = "help-block" }, "p")
+                                                <p class="field-validation-error" id="lblCaptchaerror" style="display:none"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-with-form">
+                                <div class="h-right btn-group">
+                                    <button type="submit"
+                                            data-gaevent="settings_change_language"
+                                            data-gaeventCategory="My Account"
+                                            data-gaeventAction="Settings | Change Language"
+                                            data-gaeventLabel="@Model.BillLanguageSelected"
+                                            class="waves-effect btn login-btn ChangeBillLanguageSubmit">
+                                        Update
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>
+<script type="text/javascript">
+    var recaptchaSettingsChangeLanguage;
+    var onloadCallback = function () {
+        recaptchaSettingsChangeLanguage = grecaptcha.render('recaptchaSettingsChangeLanguage', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+
+    $('.ChangeBillLanguageSubmit').click(function (e) {
+        var response = grecaptcha.getResponse(recaptchaSettingsChangeLanguage);
+        if (response.length == 0) {
+            e.preventDefault();
+            $("#lblCaptchaerror").html("Please validate captcha to continue").show();
+            return false;
+        }
+        else {
+            $("#lblCaptchaerror").html("").hide();
+            return true;
+        }
+    });
+</script>

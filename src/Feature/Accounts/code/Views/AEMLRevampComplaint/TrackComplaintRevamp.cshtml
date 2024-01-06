@@ -1,0 +1,220 @@
+﻿@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.TrackComplaintModel
+
+@{
+    /**/
+
+    var editComplaintURL = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaintPageRevamp)).Url();
+
+    var item1 = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPageRevamp);
+    var editCGRFComplaintURL = item1.Url();
+
+    var escalateToCGRF = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPageRevamp)).Url();
+    var trackCGRF = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalTrackCGRFComplaintPageRevamp)).Url();
+}
+
+    @*<include component="Breadcrumbs">
+            <div class="breadcrumbs">
+                <a href="#" class="breadcrumb">Home</a>
+                <a href="#" class="breadcrumb">Ahmedabad Airport</a>
+                <a href="#" class="breadcrumb">Delhi to Ahmedabad</a>
+            </div>
+        </include>*@
+  
+   
+       
+
+          
+              
+
+<h2>Check Complaint Status</h2>
+                    <div class="card brand-gradient outlined section-inner-wrapper card-with-form">
+                        <div class="carouselComponent">
+
+                        </div>
+                        @*@if (UserSession.UserSessionContext != null)
+                        {
+                            @Html.Sitecore().Placeholder("switch-account-content")
+                        }*@
+                        <div class="help-support">
+                            <h5>Total Complaints: <span class="totalComplaint"></span></h5>
+                        </div>
+                        <div class="customer_detail_wrapper customer_detail_list">
+                            @if (Model.ComplaintList == null || Model.ComplaintList.Count == 0)
+                            {
+                               
+
+                                <div class="card outlined section-inner-wrapper">
+                                     
+                                    <div class="no-reading">
+                                        <i class="vi-no-reading"></i>
+                                        <h5>@Html.Sitecore().Dictionary("/Account/Complaintsregister/complaints Message", "Awesome! Looks like there are no unresolved complaints.")</h5>
+
+                                    </div>
+                                    
+                                </div>
+                            }
+                            else
+                            {
+
+                                <table class="customer_detail_list-details" id="trackComplaintTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:30%">Detail</th>
+                                            <th style="width: 50%">Description</th>
+                                            <th style="width: 20%">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="CONApps">
+                                        @{
+                                            var count = 1;
+                                            foreach (var app in Model.ComplaintList)
+                                            {
+                                                var createdDate1 = "-";
+                                                var modifiedDate1 = "-";
+                                                var tatDate1 = "-";
+
+                                                if (app.CreatedOnSAP != null)
+                                                {
+                                                    DateTime createdDate = DateTime.Parse(app.CreatedOnSAP.ToString());
+                                                    createdDate1 = createdDate.ToString("dd.MM.yyyy");
+                                                }
+                                                if (app.ModifiedOnSAP != null)
+                                                {
+                                                    DateTime modifiedDate = DateTime.Parse(app.ModifiedOnSAP.ToString());
+                                                    modifiedDate1 = modifiedDate.ToString("dd.MM.yyyy");
+                                                }
+                                                if (app.TATDate != null)
+                                                {
+                                                    DateTime tatDate = DateTime.Parse(app.TATDate.ToString());
+                                                    tatDate1 = tatDate.ToString("dd.MM.yyyy");
+                                                }
+                                                <tr>
+                                                    <td>
+                                                        <div class="table-cell border-right">
+                                                            <label>
+
+                                                                @if (app.ComplaintSubCategory == "M52")
+                                                                {
+                                                                    <span>High Consumption Complaint</span>
+                                                                }
+                                                                else if (app.ComplaintSubCategory == "M40")
+                                                                {
+                                                                    <span>New connection complaint</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    @app.ComplaintCategory
+                                                                }
+                                                            </label>
+                                                            <div class="status">Complaint No. @app.ComplaintNumber</div>
+                                                            <div class="status">Submitted on: @createdDate1</div>
+                                                            <div class="status">Expected Resolution on: @tatDate1</div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="table-cell">
+                                                            <label>@app.ComplaintDescription</label>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="table-cell">
+                                                            <label class="orange">
+
+                                                                @if (app.IsIGR != true && app.ComplaintStatusCode == "1" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                                                {
+                                                                    <a href="#" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory,@app.CreatedDate" data-toggle="modal" data-target="#escalatetoICRS_modal" class="escalateToICRS">Level 1</a>
+                                                                }
+                                                                else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintSubCategory == "M20")
+                                                                {
+                                                                    <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="">Level 2: CGRF</a>
+                                                                }
+                                                                else if (app.IsIGR && (app.TATDate != null && Convert.ToDateTime(app.TATDate) < DateTime.Now) && app.ComplaintSubCategory == "M20")
+                                                                {
+                                                                    <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="">Level 2: CGRF</a>
+                                                                }
+                                                                else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintStatusName != "Cancelled" && app.ComplaintSubCategory != "M20" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                                                {
+                                                                    <a href="#" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory" data-toggle="modal" data-target="#escalatetoICRS_modal" class="escalateToICRS">Level 1</a>
+                                                                }
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                count++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+
+
+                            }
+
+                        </div>
+                        <div class="pagination"></div>
+                    </div>
+                    @*<div class="">
+                            <p class="">Note: Once the complaint is closed, escalation can be done to Level-1, Internal Complaint Redressal System (ICRS). For closed ICRS Complaints, escalation can be done to Level-2, Consumer Grievance Redressal Forum(CGRF)</p>
+                        </div>*@
+             
+  
+            
+     
+
+    
+
+<script src="/scripts/ElectricityNew/datatable-min-aeml-revamp.js"></script>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+        var ComplaintTable = $('#trackComplaintTable').DataTable({
+            lengthChange: false,
+            pageLength: 5,
+            searching: false,
+            autoWidth: false,
+            ordering: false,
+            info: false,
+            language: {
+                paginate: {
+                    next: '<i class="i-arrow-r"></i>',
+                    previous: '<i class="i-arrow-l"></i>'
+                }
+            },
+            bPaginate: true
+        });
+        $('#trackComplaintTable_paginate').appendTo('.pagination');
+        var table_length = ComplaintTable.rows().count();
+        if (table_length > 0) {
+            $('.totalComplaint').text(table_length)
+        }
+    });
+
+
+
+
+    function getCGRFDetails() {
+        $.ajax({
+            url: apiSettings + "/AEMLRevampComplaint/CGRFTrackComplaintRevamp",
+            type: 'GET',
+            dataType: 'html',
+            success: function (data) {
+                console.log(data);
+                $(".TrackCollapsibleBody").html(data);
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation--' + errorThrown);
+            }
+        });
+    }
+
+</script>

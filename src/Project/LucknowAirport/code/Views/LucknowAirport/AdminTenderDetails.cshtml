@@ -1,0 +1,322 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.LucknowAirport.Website.Model;
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.LucknowAirport.Website.Model.Tender
+@{
+    string envelopeType = !string.IsNullOrEmpty(ViewBag.Envelopetype) ? ViewBag.Envelopetype : "0";
+    string qrystringval = Request.QueryString["id"];
+    string userid = Request.QueryString["uid"];
+    string redirectURL = Sitecore.Context.Database.GetItem(Templates.Tender.AdminUserTenderListing).Url();
+    if (!string.IsNullOrEmpty(qrystringval))
+    {
+        redirectURL = string.Format(redirectURL + "{0}", "?id=" + qrystringval + "");
+    }
+    string UserType = TenderUserSession.TenderUserSessionContext.UserType;
+}
+<div class="pageContent">
+    <section class="bg-white py-5">
+        <div class="container">
+
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+                <div class="form-group row">
+                    <input id="message" type="hidden" value="@ViewBag.Message" />
+                </div>
+            }
+            @using (Html.BeginForm("Logout", "LucknowAirport", FormMethod.Post))
+            {
+                <div class="col-12 p-0 pb-3">
+                    <div class="float-right mb-4"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Logout", "Logout")</button></div>
+                    <div class="clearfix"></div>
+                </div>
+            }
+            <div class="pb-3 panel">
+                @if (Model != null)
+                {
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="" class="form-label">Name:</label>
+                                <div class="">
+                                    <input type="text" class="form-control" value="@Model.UserName" placeholder="" disabled="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="" class="form-label">Company Name:</label>
+                                <div class="">
+                                    <input type="text" class="form-control" value="@Model.CompanyName" placeholder="" disabled="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="" class="form-label">Email:</label>
+                                <div class="">
+                                    <input type="text" class="form-control" value="@Model.Email" placeholder="" disabled="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="" class="form-label">Mobile:</label>
+                                <div class="">
+                                    <input type="text" class="form-control" value="@Model.Mobile" placeholder="" disabled="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="" class="form-label">Tender ID:</label>
+                                <div class="">
+                                    <input type="text" class="form-control" value="@Model.NITNo" placeholder="" disabled="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for="" class="form-label">Tender Name:</label>
+                                <div class="">
+                                    <input type="text" class="form-control" value="@Model.TenderName" placeholder="" disabled="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="col-12 p-0 pb-3">
+                    <h2 class="txt-orange txt-lg mt-3">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Tender Detail", "Envelope Detail")</h2>
+                </div>
+                <!-- Tenders -->
+
+                @if (envelopeType == "0")
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                            @Html.Sitecore().Dictionary("LucknowAirport/Tender/Envelope-I Label", "PQ Documents"):
+                        </label>
+                        <div class="col-sm-8 col-lg-9">
+                            @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+                            {
+                                var envelope1data = Model.userUpladdocument.Where(x => x.EnvelopeType == "1").ToList();
+                                foreach (var item in envelope1data)
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <label class="control-label pb-3">
+                                                @Html.ActionLink(item.FileName, "DownloadUserFile", new { id = item.Id }, new { @class = "txt-orange txt-underline" })
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="row">
+                                    <div class="col-lg-12 txt-left">
+                                        <label class="control-label pb-3"><a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Not Uploaded Text", "Not Uploaded")</a></label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                            @Html.Sitecore().Dictionary("LucknowAirport/Tender/Envelope-II Label", "Tender Documents"):
+                        </label>
+                        <div class="col-sm-8 col-lg-9">
+                            @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "2"))
+                            {
+                                var envelope2data = Model.userUpladdocument.Where(x => x.EnvelopeType == "2").ToList();
+                                foreach (var item in envelope2data)
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <label class="control-label pb-3">
+                                                @Html.ActionLink(item.FileName, "DownloadUserFile", new { id = item.Id }, new { @class = "txt-orange txt-underline" })
+
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="row">
+                                    <div class="col-lg-12 txt-left">
+                                        <label class="control-label pb-3"><a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Not Uploaded Text", "Not Uploaded")</a></label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    if (envelopeType.Contains("1"))
+                    {
+                        if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+                        {
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                                    @Html.Sitecore().Dictionary("LucknowAirport/Tender/Envelope-I Label", "PQ Documents"):
+                                </label>
+                                <div class="col-sm-8 col-lg-9">
+                                    @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+                                    {
+                                        var envelope1data = Model.userUpladdocument.Where(x => x.EnvelopeType == "1").ToList();
+                                        foreach (var item in envelope1data)
+                                        {
+                                            <div class="row">
+                                                <div class="col-lg-12 txt-left">
+                                                    <label class="control-label pb-3">
+                                                        @Html.ActionLink(item.FileName, "DownloadUserFile", new { id = item.Id }, new { @class = "txt-orange txt-underline" })
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="col-lg-12 txt-left">
+                                                <label class="control-label pb-3"><a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Not Uploaded Text", "Not Uploaded")</a></label>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Envelope-I Label", "PQ Documents"):</label>
+                                <div class="col-sm-8 col-lg-6 txt-left">
+                                    <label class="control-label pb-3"><a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Not Uploaded Text", "Not Uploaded")</a></label>
+                                </div>
+                            </div>
+                        }
+                    }
+                    if (envelopeType.Contains("2"))
+                    {
+                        <div class="form-group row">
+                            <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                                @Html.Sitecore().Dictionary("LucknowAirport/Tender/Envelope-II Label", "Tender Documents"):
+                            </label>
+                            <div class="col-sm-8 col-lg-9">
+                                @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "2"))
+                                {
+                                    var envelope2data = Model.userUpladdocument.Where(x => x.EnvelopeType == "2").ToList();
+                                    foreach (var item in envelope2data)
+                                    {
+                                        <div class="row">
+                                            <div class="col-lg-12 txt-left">
+                                                <label class="control-label pb-3">
+                                                    @Html.ActionLink(item.FileName, "DownloadUserFile", new { id = item.Id }, new { @class = "txt-orange txt-underline" })
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <label class="control-label pb-3">
+                                                <a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Not Uploaded Text", "Not Uploaded")</a>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                @if (envelopeType == "0" || envelopeType.Contains("1"))
+                {
+                    if (Model.PQApprovalRequired == true)
+                    {
+                        if (UserType == "EnvelopeAdmin")
+                        {
+
+                            <div class="form-group">
+                                @if (Model.IsPQVerified == true || Model.PQEnvelopeReviewStatus == true)
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <b class="mr-3">Pre-Qualification Status:Approved</b>
+                                            @Html.ActionLink("Reject", "PQVerificationReject", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-primary" })
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.IsPQVerified == false)
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <b class="mr-3">Pre-Qualification Status:Rejected</b>
+                                            @Html.ActionLink("Approve", "PQVerificationApprove", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-primary" })
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <b class="mr-3">Pre-Qualification Status:None</b>
+                                            @Html.ActionLink("Approve", "PQVerificationApprove", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-primary mr-2" })
+                                            @Html.ActionLink("Reject", "PQVerificationReject", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-secondary" })
+                                        </div>
+                                    </div>
+
+                                }
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group">
+                                @if (Model.IsPQVerified == true)
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <b class="mr-3">Pre-Qualification Status:Approved</b>
+                                            @Html.ActionLink("Reject", "PQVerificationReject", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-primary" })
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.IsPQVerified == false)
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <b class="mr-3">Pre-Qualification Status:Rejected</b>
+                                            @Html.ActionLink("Approve", "PQVerificationApprove", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-primary" })
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row">
+                                        <div class="col-lg-12 txt-left">
+                                            <b class="mr-3">Pre-Qualification Status:None</b>
+                                            @Html.ActionLink("Approve", "PQVerificationApprove", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-primary mr-2" })
+                                            @Html.ActionLink("Reject", "PQVerificationReject", new { uid = userid, tenderid = qrystringval }, new { @class = "btn btn-secondary" })
+                                        </div>
+                                    </div>
+
+                                }
+
+                            </div>
+                        }
+
+                    }
+                }
+            </div>
+            <div class="text-left mt-3">
+                <a href="@redirectURL" class="btn btn-primary">@Html.Sitecore().Dictionary("LucknowAirport/Tender/Back To List Text", "Back To User List")</a>
+            </div>
+            <!-- /Tenders -->
+        </div>
+    </section>
+</div>
+

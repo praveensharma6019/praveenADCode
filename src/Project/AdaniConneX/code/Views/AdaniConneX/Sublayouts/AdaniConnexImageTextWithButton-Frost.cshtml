@@ -1,0 +1,107 @@
+@using Sitecore.Data.Items
+@using Sitecore.Data.Fields
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string imgurl = string.Empty;
+string altText = string.Empty;
+string thumbimgurl = string.Empty;
+string thumbaltText = string.Empty;
+}
+<div class="voice_of_trust">
+<div class="section-holder edge-connex-hoder">
+   <div class="content-wrapper">
+
+   <h2 class="full h1 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", model)</h2>
+
+
+     
+               <div class="full sustainability-content grid-wrapper">
+                  @if (model != null)
+                  {
+                  Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaImage"]);
+                  if (imgField != null && imgField.MediaItem != null)
+                  {
+                  imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                  altText = imgField.Alt;
+                  }
+
+                   Sitecore.Data.Fields.ImageField thumbimgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaThumbnail"]);
+                  if (thumbimgField != null && thumbimgField.MediaItem != null)
+                  {
+                  thumbimgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbimgField.MediaItem);
+                  thumbaltText = thumbimgField.Alt;
+                  }
+                  Sitecore.Data.Fields.LinkField linkField = model.Fields["ButtonLink"];
+                  var btnUrl = linkField.GetFriendlyUrl();
+
+                  Sitecore.Data.Fields.LinkField linkField1 = model.Fields["CTALink"];
+                  var btnUrl1 = linkField1.GetFriendlyUrl();
+
+                  <div class="left-col custom-col">
+                     <div class="full movie-holder"> 
+                        <div class="full image-wrapper" id="sustainabilityVideoHolder">
+                         <div class="hero-section">
+                           <figure>
+                              
+                                 <img src="@imgurl" alt="@altText" class="desktop-img"/>
+                                  <img src="@thumbimgurl" alt="@thumbaltText" class="mobile-img"/>
+                                                        
+                           </figure>
+                        </div>
+                        </div>
+                     </div>
+                  </div>
+                   <div class="right-col custom-col">
+                     
+                     <p class="full fm-asb h3 tx-000">@Html.Sitecore().Field("SubTitle", model)</p>
+                      <span class="double_codes">&ldquo;</span>
+                     
+                     <p class="full d-txt voice_of_trust_paragraph">@Html.Sitecore().Field("MediaDescription", model)</p>
+
+                     @Html.Sitecore().Field("DateText", model)
+
+                     <div class="dr_btn_group">
+                        @if (btnUrl != null)
+                        {
+                           CheckboxField checkbox = model.Fields["ExternalLink"];
+                           if (checkbox != null && checkbox.Checked)
+                           {
+                           <a href="@btnUrl" target="_blank" class="btn small">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                           }
+                           else
+                           {
+                           <a href="@btnUrl" class="btn small">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                           }
+                        }
+                        else
+                        {
+                         <a href="javascript:void(0)" class="btn small">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                        }
+
+                         @if (btnUrl1 == null)
+                        {
+                           <a href="javascript:void(0);" class="btn dr_inverse_btn">@Html.Sitecore().Field("CTAText", model)</a>
+                        }
+                        else
+                        {
+                           <a href="@btnUrl1" class="btn dr_inverse_btn">@Html.Sitecore().Field("CTAText", model)</a>
+                        }
+                        
+                     </div>
+                  </div>
+
+
+                  
+                 
+                  }
+               </div>
+            
+   </div>
+</div>
+</div>
+
+
+

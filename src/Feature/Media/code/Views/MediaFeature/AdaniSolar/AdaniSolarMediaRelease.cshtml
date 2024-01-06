@@ -1,0 +1,58 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants().ToList().Take(4).OrderByDescending(y=>y.Fields[Templates.SolarPageTypeNews.Fields.Date].Value);
+
+    <h3 class="section-heading">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, elements)</h3>
+    <ul class="ul-media-section">
+        @if (itemList != null)
+        {
+            foreach (var item in itemList)
+            {
+
+                LinkField URL = item.Fields["LinkUrl"];
+                var url = string.Empty;
+                if (URL.TargetItem != null)
+                {
+                    var innerChield = URL.TargetItem;                    
+                    var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(innerChield);
+                    url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+                }
+                else
+                {
+                    url = item.Url();
+                }
+
+
+                var dt = Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Date, item).ToString();
+                DateTime date = DateTime.Parse(dt);
+                var formatedDate = date.ToString("MMM dd, yyyy");
+
+                <li>
+                    <p>
+                        <a href="@url" target="_blank">
+                            @Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Title, item)
+                        </a><span>@formatedDate @Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Author, item)</span>
+                    </p>
+                </li>
+            }
+        }
+    </ul>
+
+    <p class="text-right"><a href="@elements.Url()">Read more</a></p>
+}

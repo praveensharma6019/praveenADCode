@@ -1,0 +1,53 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc.Presentation
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@*@{
+        Sitecore.Data.Database master = Sitecore.Configuration.Factory.GetDatabase("master");
+        var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+        var element = Sitecore.Context.Database.GetItem(datasource);
+        //Sitecore.Data.Fields.ImageField EVImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["MediaImage"]);
+        //string EVdeskimg = EVImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(EVImageField.MediaItem) : string.Empty;
+        Sitecore.Data.Items.Item sampleItem =  master.GetItem("/Feature/ElectricityNew/EV Charging/banner-ev-desk");
+    }*@
+
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+    //Cast to a Sitecore item
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)element; 
+}
+@{
+    Sitecore.Data.Fields.ImageField Imagefield = myItem.Fields[Templates.EVCharging.Fields.MediaImage];
+    string displayImage = Imagefield.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(Imagefield.MediaItem) : string.Empty;
+
+    Sitecore.Data.Fields.ImageField ImagefieldMob = myItem.Fields[Templates.EVCharging.Fields.MediaImage];
+    string displayImagemob = Imagefield.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImagefieldMob.MediaItem) : string.Empty;
+
+    var ctaText = @Html.Sitecore().Field(Templates.EVCharging.Fields.CTAText);
+    var MediaDescription = @Html.Raw(@Html.Sitecore().Field("MediaDescription", element).ToString());
+}
+
+<section class="section-container ev-banner">
+    <figure>
+        <picture>
+            <source media="(min-width:992px)" srcset="@displayImage">
+            <img class="banner-image" src="@displayImagemob">
+        </picture>
+    </figure>
+    <div class="content">
+        <div class="container">
+            <div class="inner">@MediaDescription <a href="javascript:void(0)" class="waves-effect waves-light btn btn-smaller evconnectionform">@ctaText.ToString()</a> </div>
+        </div>
+    </div>
+
+</section>

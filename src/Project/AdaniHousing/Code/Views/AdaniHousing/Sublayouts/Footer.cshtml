@@ -1,0 +1,125 @@
+﻿@using Sitecore.AdaniHousing.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    Item rootItem = Sitecore.Context.Database.GetItem(Sitecore.Context.Site.RootPath);
+}
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 order-lg-4 order-1 mb-lg-4 mt-lg-0 my-4">
+                <div class="ft-logo_container">
+                    <div class="text-center mb-4">
+                        @if (rootItem != null)
+                        {
+                            @Html.Sitecore().ImageFieldWithoutSize(Sitecore.Data.ID.Parse("{A05A9347-A331-470A-8AD3-5931B9AD743C}"), rootItem, 0, 0, "img-fluid")
+                        }
+                    </div>
+                    @Html.Sitecore().Placeholder("footer-social-app")
+                    
+                    <p class="sitemap-link d-block d-lg-none p-2">Sitemap<i class="fa fa-angle-down"></i></p>
+                </div>
+            </div>
+            <div class="col-lg-9 order-2">
+                @if (element != null)
+                {
+                    <div class="row">
+                        @if (element.HasChildren)
+                        {
+                            foreach (Item item in element.GetChildren())
+                            {
+                                LinkField lf = item.Fields["LinkUrl"];
+                                <div class="col-lg-4 col-sm-6 col-6 sitemap_visible order-lg-1 order-3 my-2">
+                                    @if (item.HasChildren)
+                                    {
+                                        if (lf.LinkType == "external")
+                                        {
+                                            <div>
+                                                <div class="ft-submenu">
+                                                    <h5><a target="_blank" href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a></h5>
+                                                    <ul>
+                                                        @foreach (Item subItem in item.GetChildren())
+                                                        {
+                                                            LinkField sublf = subItem.Fields["LinkUrl"];
+                                                            if (sublf.LinkType == "external")
+                                                            {
+                                                                <li><a target="_blank" href="@Helper.LinkUrl(subItem.Fields["LinkUrl"])">@subItem.Fields["Title"]</a></li>
+                                                            }
+                                                            else
+                                                            {
+                                                                <li><a href="@Helper.LinkUrl(subItem.Fields["LinkUrl"])">@subItem.Fields["Title"]</a></li>
+                                                            }
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div>
+                                                <div class="ft-submenu">
+                                                    <h5><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a></h5>
+                                                    <ul>
+                                                        @foreach (Item subItem in item.GetChildren())
+                                                        {
+                                                            LinkField sublf = subItem.Fields["LinkUrl"];
+                                                            if (sublf.LinkType == "external")
+                                                            {
+                                                                <li><a target="_blank" href="@Helper.LinkUrl(subItem.Fields["LinkUrl"])">@subItem.Fields["Title"]</a></li>
+                                                            }
+                                                            else
+                                                            {
+                                                                <li><a href="@Helper.LinkUrl(subItem.Fields["LinkUrl"])">@subItem.Fields["Title"]</a></li>
+                                                            }
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (lf.LinkType == "external")
+                                        {
+                                            <div class="ft-submenu">
+                                                <h5><a target="_blank" href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a></h5>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="ft-submenu">
+                                                <h5><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a></h5>
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+
+                            }
+                        }
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    </div>
+    <div class="bottom_copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 my-md-2 my-2 order-2 order-md-1 text-md-left text-center">
+                    @if (rootItem != null)
+                    {
+                        @Html.Sitecore().Field("Copyright", rootItem)
+                    }
+                </div>
+                <div class="col-md-9  my-md-2 my-2 text-md-right text-center order-1 order-md-2">
+                    @Html.Sitecore().Placeholder("footer-lower")
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

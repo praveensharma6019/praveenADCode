@@ -1,0 +1,70 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "";
+    string altText = "";
+    string sectionClass = "";
+}
+
+@if (model != null && model.HasChildren)
+{
+    <div class="map-item grid right-map">
+        @foreach (Item item in model.GetChildren())
+        {
+            if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", item).ToString()))
+            {
+                sectionClass = item.Fields["Class"].ToString();
+            }
+
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+            if (imgField != null && imgField.MediaItem != null)
+            {
+                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                altText = imgField.Alt;
+            }
+
+
+
+            if (imgurl != "")
+            {
+                <div class="@sectionClass">
+                    <img src="@imgurl" alt="@altText" class="res-img map-image" />
+                    @if (item.HasChildren)
+                    {
+                        foreach (Item subItem in item.GetChildren())
+                        {
+
+                            Sitecore.Data.Fields.ImageField imgField1 = ((Sitecore.Data.Fields.ImageField)subItem.Fields["MediaImage"]);
+                            if (imgField1 != null && imgField1.MediaItem != null)
+                            {
+                                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField1.MediaItem);
+                                altText = imgField.Alt;
+                            }
+                            <img src="@imgurl" alt="@altText" class="res-img map-image-hover" />
+                        }
+
+                    }
+                </div>
+            }
+
+        }
+    </div>
+}

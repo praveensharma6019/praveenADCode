@@ -1,0 +1,95 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.QuickAccessServices
+
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    <div class="pageContent">
+        <div class="container">
+            <!-- Section -->
+            <div class="panel">
+                <div class="float-right pb-2 pb-md-0 powerLogo"><img src="-/media/03B9A515CD5D43B38462E1C5698E1690.ashx?h=16&thn=1&w=16" alt="Know Power"></div>
+                <div class="float-left">
+                    <h5 class="pb-1"><span class="txt-orange">Complaint Status</span></h5>
+                    <br>
+                    <p>Please enter your <span class="txt-orange">Complaint No.</span> or <span class="txt-orange">Account No.</span> to know the status of complaint</p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="pt-md-3 mt-3">
+                    <form>
+                        <div class="row pb-3">
+                            <div class="form-group col-md-4 col-lg-3">
+                                <label for="accountNo">Complaint Number<span class="required">*</span></label>
+                                @Html.TextBoxFor(x => x.ComplaintNumber, new { @class = "form-control" })
+                            </div>
+                            <div class="form-group col-md-2 col-lg-1 text-md-center">
+                                <div>&nbsp;</div>
+                                <label for=""><b><span class="txt-orange">OR</span></b></label>
+                            </div>
+                            <div class="form-group col-md-4 col-lg-3">
+                                <label for="twitterID">Account Number<span class="required">*</span></label>
+                                @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+
+                        <div class="row pb-3">
+                            <div class="form-group col-lg-3">
+                                <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                    <label for="" class="col-sm-5 col-md-5 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                                    @*<div class="col-sm-12 col-md-12">
+                                        @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                    </div>*@
+                                    <div class="col-sm-12 col-md-12">
+                                        <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="row">
+                            <div class="form-group col-lg-3">
+                                <input type="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Button Submit", "Submit")" class="btn btn-primary" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row py-2">
+                            <div class="col-sm-12">
+                                @if (!string.IsNullOrWhiteSpace(Model.ComplainCode))
+                                {
+                                    var code = "ComplaintStatus/" + Model.ComplainCode;
+                                    <label class="control-label">@Html.Sitecore().DictionaryField(@code, "Name")</label>
+                                    <br />
+                                    <br />
+                                    <p>For further assistance, you can call our 24-hr toll free no. 19122 or write to our helpdesk</p>
+                                    <p>helpdesk.mumbaielectricity@adani.com</p>
+                                }
+                                else if (!string.IsNullOrWhiteSpace(Model.AccountNumber) || !string.IsNullOrWhiteSpace(Model.ComplaintNumber))
+                                {
+                                    <p>No information available.</p>
+                                    <br />
+                                    <br />
+                                    <p>For further assistance, you can call our 24-hr toll free no. 19122 or write to our helpdesk</p>
+                                    <p>helpdesk.mumbaielectricity@adani.com</p>
+                                }
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- /Section -->
+            <div class="text-right"><a href="/Quickaccess" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back to Quick Access</a></div>
+        </div>
+    </div>
+}
+    <script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

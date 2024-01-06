@@ -1,0 +1,156 @@
+﻿@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var x = 0;
+    var count = 0;
+    var phName = "";
+    var replacestr = string.Empty;
+}
+
+@if (contextItem != null && parent != null)
+{
+    <div class="col s12 m8 offset-m1 section-container" id="@Html.Sitecore().Field("Heading")">
+        @if (datasource != null)
+        {
+            var i = 0;
+            <header class="section-header">
+                <h1>@Html.Raw(contextItem["Title"])</h1>
+                <p>@Html.Raw(contextItem["Body"])</p>
+            </header>
+            <div class="discover">
+                <ul class="tabs">
+                    @foreach (var child in parent.Children.ToList())
+                    {
+                        replacestr = Regex.Replace(Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                        if (i == 0)
+                        {
+                            <li class="tab">
+                                <a class="active" href="#@replacestr"><h4>@Html.Sitecore().Field("Title", child)</h4></a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="tab">
+                                <a href="#@replacestr"><h4>@Html.Sitecore().Field("Title", child)</h4></a>
+                            </li>
+                        }
+                        i++;
+                    }
+                </ul>
+
+                @if (parent.HasChildren)
+                {
+                    foreach (var child in parent.Children.ToList())
+                    {
+                        count = 0;
+                        replacestr = Regex.Replace(Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                        //var elements1 = FaqRepository.Get(child).ToArray();
+                        Sitecore.Data.Fields.MultilistField multiselectField = child.Fields["Group Member"];
+                        var elements1 = multiselectField != null ? multiselectField.GetItems().ToArray() : null;
+                        if (elements1 != null)
+                        {
+                            if (x == 0)
+                            {
+                                <div id="@replacestr">
+                                    <div class="section-wrapper custom_accrdion">
+                                        <div class="accordion">
+                                            <ul class="collapsible collapsible-accordion">
+                                                @foreach (var faqs in elements1)
+                                                {
+                                                    count++;
+                                                    phName = replacestr + count;
+                                                    var id = Guid.NewGuid().ToString();
+                                                    var eventQuestion = @Html.Sitecore().Field("Question", faqs);
+
+                                                    <li class="eventFAQQuestion"
+                                                        data-gaevent="faq_expand"
+                                                        data-gaeventCategory="User Interaction"
+                                                        data-gaeventAction="FAQ Expand"
+                                                        data-gaeventLabel="@eventQuestion">
+                                                        <div class="collapsible-header">
+                                                            @Html.Sitecore().Field("Question", faqs)
+                                                        </div>
+                                                        <div class="collapsible-body">
+                                                            @Html.Sitecore().Field("Answer", faqs)
+                                                            <div id="customerCareControl" class="@phName">
+                                                                @Html.Sitecore().Placeholder(phName)
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="@replacestr">
+                                    <div class="section-wrapper custom_accrdion">
+                                        <div class="accordion">
+                                            <ul class="collapsible collapsible-accordion">
+                                                @foreach (var faqs in elements1)
+                                                {
+                                                    count++;
+                                                    phName = replacestr + count;
+                                                    var id = Guid.NewGuid().ToString();
+                                                    var eventQuestion = @Html.Sitecore().Field("Question", faqs);
+                                                    <li class="eventFAQQuestion"
+                                                        data-gaevent="faq_expand"
+                                                        data-gaeventCategory="User Interaction"
+                                                        data-gaeventAction="FAQ Expand"
+                                                        data-gaeventLabel="@eventQuestion">
+                                                        <div class="collapsible-header">
+                                                            @Html.Sitecore().Field("Question", faqs)
+                                                        </div>
+                                                        <div class="collapsible-body">
+                                                            @Html.Sitecore().Field("Answer", faqs)
+                                                            <div id="customerCareControl" class="@phName">
+                                                                @Html.Sitecore().Placeholder(phName)
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        x++;
+                    }
+                }
+            </div>
+        }
+
+        <script>
+            const sidenavaccord = {
+                init: function () {
+                    var elems = document.querySelectorAll('.collapsible');
+                    var instances = M.Collapsible.init(elems);
+                }
+            }
+            sidenavaccord.init();
+        </script>
+    </div>
+}
+<script type="text/javascript">
+    $('.eventFAQQuestion').click(function () {
+        dataLayer.push({
+            'event': $(this).attr('data-gaevent'),
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+</script>

@@ -1,0 +1,112 @@
+﻿
+@using Sitecore.Feature.Media
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+
+@using Sitecore;
+@using Sitecore.Data.Items;
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 1;
+    var imageUrl = "";
+}
+
+<section class="news-gallery-section">
+    <div class="container">
+        <div class="news-gallery flex flex-wrap row">
+            @foreach (var item in model.GetChildren().ToList())
+            {
+Sitecore.Data.Fields.ImageField imageField = item.Fields["MediaImage"];
+                 if (imageField?.MediaItem != null)
+                 {
+                     var image = new MediaItem(imageField.MediaItem);
+                     imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                 }
+                <div class="col-sm-6">
+
+
+
+                    <div class="photo-gallery" style="background-image: url(@imageUrl)">
+                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, item, new { @class = "img-responsive" })
+                        <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</p>
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#gallery-@i"></a>
+
+
+
+
+                        <div id="gallery-@i" class="modal fade" role="dialog">
+
+                            <div class="modal-dialog">
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <img src="/images/Marathon/cross.png">
+                                        </button>
+                                        <div class="zoom">
+                                            <img src="/images/Marathon/zoom.png">
+                                        </div>
+                                        <h5 class="modal-title"> @Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</h5>
+                                    </div>
+                                    <div id="gallery-@i-lighbox" class="carousel slide" data-ride="carousel">
+                                        <div class="back">
+
+                                        </div>
+
+
+                                        <div class="owl-carousel carousel-inner" role="listbox">
+
+                                            @foreach (var subitem in item.GetChildren().ToList())
+                                            {
+                                                if (i == 1)
+                                                {
+
+
+                                                    <div class="item active">
+                                                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, item, new { @class = "img-responsive" })
+                                                    </div>
+
+                                                }
+                                                else
+                                                {
+
+                                                    <div class="item">
+                                                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, subitem, new { @class = "img-responsive" })
+                                                    </div>
+                                                }
+
+                                                i++;
+
+
+
+                                            }
+                                        </div>
+
+
+                                        <a class="left carousel-control" href="#gallery-@i-lighbox" role="button" data-slide="prev">
+                                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                            <span class="sr-only">Previous</span>
+                                        </a>
+                                        <a class="right carousel-control" href="#gallery-@i-lighbox" role="button" data-slide="next">
+                                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                            <span class="sr-only">Next</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                i++;
+            }
+
+        </div>
+    </div>
+</section>

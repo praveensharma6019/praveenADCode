@@ -1,0 +1,56 @@
+﻿@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var contextItem = Sitecore.Context.Item;
+}
+<section class="section_padding bg-gray">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mb-lg-0 mb-4">
+                @if (contextItem.HasChildren)
+                {
+                    foreach (Item folder in contextItem.GetChildren())
+                    {
+                        if (folder.DisplayName == "Local Content")
+                        {
+                            if (folder.HasChildren)
+                            {
+                                int i = 0;
+                                <div id="accordion" class="accordion-section">
+                                    @foreach (Item post in folder.GetChildren())
+                                    {
+                                        string IsShow = i == 0 ? "show" : "";
+                                        string IsCollapse = i == 0 ? "" : "collapsed";
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <a class="card-link @IsCollapse" data-toggle="collapse" href="#collapse-@i">
+                                                    <em class="fa fa-angle-right"></em> @Html.Sitecore().Field("Designation", post)
+                                                </a>
+                                            </div>
+                                            <div id="collapse-@i" class="collapse @IsShow" data-parent="#accordion">
+                                                <div class="card-body">
+                                                    <h5 class="mb-3">Job Profile</h5>
+                                                    <p>	<b>Location:</b> @Html.Sitecore().Field("JobLocation", post)</p>
+                                                    <p><b>Skills Required:</b> @Html.Sitecore().Field("SkillsRequired", post)</p>
+                                                    <p><b>Schedule:</b> @Html.Sitecore().Field("Operations", post)</p>
+                                                    <p><b>Min Relevant Exp:</b> @Html.Sitecore().Field("RelevantExperience", post)</p>
+                                                    <p> <b>Min education qualification:</b> @Html.Sitecore().Field("Qualification", post)</p>
+                                                    @Html.Sitecore().Field("JobProfileDescription", post)
+                                                    <p class="text-right d-none"><a href="#" class="btn btn-gradient">Apply now</a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        i++;
+                                    }
+                                </div>
+                            }
+                        }
+                    }
+                }
+            </div>
+            @Html.Sitecore().Placeholder("career-form")
+        </div>
+    </div>
+</section><!--/section-->

@@ -1,0 +1,153 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc.Helpers
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.AdaniCare.Website.Models.AdaniCareLoginModel
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmLogin" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <section class="login_container">
+        <div class="bg-images"><img src="images/AdaniCare/bg-login.jpg"></div>
+        <div class="container">
+            <div class="login_container-inner">
+                <h1>@Html.Sitecore().Dictionary("/LandingPage/Login/Heading Text", "Welcome to Adani Cares")</h1>
+                <h3>@Html.Sitecore().Dictionary("/LandingPage/Login/Heading Desc", "Specially Curated offers for all Adani Consumers")</h3>
+                <div>
+                    <h2><img src="images/AdaniCare/payment-history.png" class="img-fluid">@Html.Sitecore().Dictionary("/LandingPage/Login/SectionHeading", "Login to Adani Cares")</h2>
+                    <form>
+                        <div class="row">
+                            @if (!Model.IsInputValidated)
+                            {
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label for="MobileNumberOrAccountNumber">@Html.Sitecore().Dictionary("/LandingPage/Login/Mobile Number or Account Number", "Enter Registered Consumer's Mobile Number or Account Number")</label>
+                                        @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control", @autocomplete = "off", id = "MobileNumberOrAccountNumber", required = "required", @maxlength = 15 })
+                                        @Html.ValidationMessageFor(x => x.InputByUser, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div id="recaptcha1"></div>
+                                    <div class="form-group">
+                                        @Html.HiddenFor(model => model.reResponse, new { id = "reResponse" })
+                                        @Html.ValidationMessageFor(model => model.reResponse, "", new { @class = "help-block" }, "p")
+                                        <span class="field-validation-error" id="captchaErrorMessage">@ViewBag.Message</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-right">
+                                    <input type="submit" class="btn btn-primary" id="ValidateInput" name="Validate" value="@Html.Sitecore().Dictionary("/LandingPage/Login/Validate Mobile Number", "Validate")" />
+                                </div>
+                            }
+                            @if (Model.IsInputMobileNumber && Model.IsInputValidated)
+                            {
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <label for="MobileNumber">@Html.Sitecore().Dictionary("/LandingPage/Login/Mobile Number", "Enter Registered Consumer's Mobile Number or Account Number")</label>
+                                        @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control", @autocomplete = "off", id = "MobileNumber", required = "required", @readonly = "readonly", @maxlength = 15 })
+                                        @Html.ValidationMessageFor(x => x.InputByUser, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        @*<label for="OTPNumber">@Html.Sitecore().Dictionary("/LandingPage/Login/Enter OTP", "Enter OTP")</label>*@
+                                        @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control", @autocomplete = "off", id = "OTPNumber", required = "required", @placeholder = "Enter OTP", @maxlength = 15 })
+                                        @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="termsCb" class="form-check-input" id="termsCb">
+                                        <label class="form-check-label" for="termsCb">I agree to the terms and conditions</label>
+                                    </div>
+                                    <p class="field-validation-error1" id="termsErrorMessage"></p>
+                                </div>
+                                
+                                <div class="col-md-12 text-right">
+                                    <input type="submit" id="btnSubmitOtp1" class="btn btn-primary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/LandingPage/Login/Validate OTP", "Submit")" />
+                                    @*<input type="submit" class="btn btn-secondary" name="Cancel" value="@Html.Sitecore().Dictionary("/LandingPage/Login/Cancel", "Cancel")" />*@
+                                </div>
+
+                            }
+                            else if (!Model.IsInputMobileNumber && Model.IsInputValidated)
+                            {
+                                <div class="col-lg-12">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="MobileNumberOrAccountNumber">@Html.Sitecore().Dictionary("/LandingPage/Login/Mobile Number or Account Number", "Enter Registered Consumer's Mobile Number or Account Number")</label>
+                                                @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control", @autocomplete = "off", id = "MobileNumberOrAccountNumber", required = "required", @readonly = "readonly", @maxlength = 15 })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label for="MaskedMobileNumber">@Html.Sitecore().Dictionary("/LandingPage/Login/Masked Mobile Number", "Registered Mobile Number hint")</label>
+                                                @Html.TextBoxFor(x => x.MaskedMobileNumber, new { @class = "form-control", @autocomplete = "off", id = "MaskedMobileNumber", required = "required", @readonly = "readonly", @maxlength = 15 })
+                                            </div>
+                                        </div>
+                                        @if (!Model.IsOTPSent)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="MobileNumber">@Html.Sitecore().Dictionary("/LandingPage/Login/Enter Mobile Number", "Enter Registered Mobile Number")</label>
+                                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", @autocomplete = "off", id = "MobileNumber", required = "required", @maxlength = 15 })
+                                                    @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 text-right">
+                                                <input type="submit" class="btn btn-primary" name="SendOTP" value="@Html.Sitecore().Dictionary("/LandingPage/Login/Send OTP", "Send OTP")" />
+                                                @*<input type="submit" class="btn btn-secondary" name="Cancel" value="@Html.Sitecore().Dictionary("/LandingPage/Login/Cancel", "Cancel")" />*@
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label for="MobileNumber">@Html.Sitecore().Dictionary("/LandingPage/Login/Enter Mobile Number", "Enter Mobile Number")</label>
+                                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", @autocomplete = "off", id = "MobileNumber", required = "required", @readonly = "readonly", @maxlength = 15 })
+                                                    @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    @if (!Model.IsInputMobileNumber && Model.IsOTPSent)
+                                    {
+                                        <div class="col-md-6">
+
+                                            <div class="form-group">
+                                                @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control", @autocomplete = "off", id = "OTPNumber", required = "required", @placeholder = "Enter OTP", @maxlength = 15 })
+                                                @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-12 mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" name="termsCb" class="form-check-input" id="termsCb">
+                                                <label class="form-check-label" for="termsCb">I agree to the terms and conditions</label>
+                                            </div>
+                                            <p class="field-validation-error1" id="termsErrorMessage"></p>
+                                        </div>
+                                        <div class="col-md-6 text-right">
+                                            <input type="submit" id="btnSubmitOtp2" class="btn btn-primary" name="ValidateOTPForCA" value="@Html.Sitecore().Dictionary("/LandingPage/Login/Validate OTP", "Submit")" />
+                                            @*<input type="submit" class="btn btn-secondary" name="Cancel" value="@Html.Sitecore().Dictionary("/LandingPage/Login/Cancel", "Cancel")" />*@
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+        </section>
+    }

@@ -1,0 +1,42 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	
+	var MediaUrl=""; 
+    var MediaAlt="";
+	var Linkurl = "#";
+	 
+	Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)model.Fields["LinkUrl"]); 
+	if(linkfield != null) 
+	{ 
+		Linkurl = linkfield.GetFriendlyUrl();
+	} 
+				
+	Sitecore.Data.Fields.ImageField MediaImage = ((Sitecore.Data.Fields.ImageField)model.Fields["ImageSource"]);
+    if (MediaImage != null && MediaImage.MediaItem != null)
+    {
+        MediaUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MediaImage.MediaItem);
+        MediaAlt = MediaImage.Alt;
+    }
+}
+
+	<section class="sevenTh">
+        <img class="seventh-img" src="@MediaUrl" alt="@MediaAlt">
+        <div class="container">
+            <div class="sevenTh-content">
+                <div class="col-sm-8 sevenTh-header">
+                    <h4 class="sevenTh-detail">@Html.Sitecore().Field("Description",model)</h4>
+                    <div class="sevenTh-btn">
+                        <a class="getInTouch-btn" href="@Linkurl" role="button">@Html.Sitecore().Field("LinkText",model) <i
+                            class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>

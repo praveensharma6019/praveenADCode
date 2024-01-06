@@ -1,0 +1,59 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@using Sitecore.Farmpik.Website;
+@using System.Linq;
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+
+    MultilistField selectedImagesItems = contextItem.Fields[Constant.ImagesList];
+    var selectedImagesCount = selectedImagesItems.GetItems().Count();
+    string scrollImagesClass = string.Empty;
+    if (selectedImagesCount > 1)
+    {
+        scrollImagesClass = "scroll";
+    }
+
+    MultilistField selectedVideosItems = contextItem.Fields[Constant.VideosList];
+    var selectedVideosCount = selectedVideosItems.GetItems().Count();
+    string scrollVideoClass = string.Empty;
+    if (selectedVideosCount > 1)
+    {
+        scrollVideoClass = "scroll";
+    }
+}
+<div class="view">
+    <div class="img-block @scrollVideoClass">
+        @foreach (var subitem in selectedVideosItems.GetItems())
+        {
+            Sitecore.Data.Fields.LinkField itemslinkvalues = subitem.Fields[Constant.VideoUrl];
+            var itemslinks = itemslinkvalues.GetFriendlyUrl();
+            <iframe class="image" src="@itemslinks" sandbox="allow-same-origin">
+            </iframe>
+        }
+    </div>
+    <div class="text-container">
+        <h5>@contextItem.Fields[Constant.Heading]</h5>
+        @Html.Raw(@contextItem.Fields[Constant.Description])
+        <p>
+            <b>@contextItem.Fields[Constant.SubHeading]</b><br />
+            @Html.Raw(@contextItem.Fields[Constant.ShortDescription])
+        </p>
+    </div>
+    <div class="img-block @scrollImagesClass">
+        @foreach (var subitem in selectedImagesItems.GetItems())
+        {
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)subitem.Fields[Constant.Image]);
+            var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            <img class="small-image" src="@imgurl" />
+        }
+    </div>
+    <div class="text-container">
+        @Html.Raw(@contextItem.Fields[Constant.SubDescription])
+    </div>
+</div>

@@ -1,0 +1,159 @@
+﻿@using Sitecore.Feature.News
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+
+@{
+    var items = RenderingContext.Current.Rendering.Item.Axes.GetDescendants();
+}
+<div class="row">
+    <div class="col s12 section-container">
+        <header class="section-header-main">
+            <h2>@Sitecore.Context.Item.Fields["Title"]</h2>
+        </header>
+
+        @{
+            var count = 0;
+            int paginationCount = 1;
+        }
+
+        <div class="mob-listing-cards hide-on-med-and-up" id="NewsListingPaginationDiv">
+            <input type="hidden" id="paginationTableDiv" value="NewsListingPaginationDiv" />
+            <input type="hidden" id="paginationDataSelector" value="#NewsListingDiv>div" />
+            <input type="hidden" id="paginationNumberElementSelector" value="#newsListingPaginationNumber" />
+            <input type="hidden" id="paginationScrollToElementSelector" value=".section-header-main" />
+            <input type="hidden" id="paginationPageSize" value="10" />
+            <div id="NewsListingDiv">
+                @foreach (var child in items.ToList())
+                {
+                    var itemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+                    string divstyle = "none";
+                    if (paginationCount == 1)
+                    {
+                        divstyle = "block";
+                    }
+                    else
+                    {
+                        divstyle = "none";
+                    }
+                    <div class="mob-listing" data-id="@paginationCount" style="display:@divstyle">
+                        <ul>
+                            <li>
+                                <label>@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Date", "Date")</label>
+                                <span>
+                                    @Html.Sitecore().Field(Templates.NewsArticle.Fields.Date, child, new
+                                    {
+                                        format = "MMM dd, yyyy"
+                                    })
+                                </span>
+                            </li>
+                            <li>
+                                <label>@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Headlines", "Headlines")</label>
+                                <span>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Title, child)</span>
+                            </li>
+                            <li>
+                                <label>@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Publication", "Action")</label>
+                                <span>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Publication, child)</span>
+                            </li>
+                            <li>
+                                <label>@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Action", "Action")</label>
+                                <span><a href="#">@Html.Sitecore().Field(Templates.NewsArticle.Fields.viewDownloadLink, child, new { @class = "" })</a></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    count++;
+                    if (count / (paginationCount * 10) == 1)
+                    {
+                        paginationCount = paginationCount + 1;
+                    }
+                }
+            </div>
+        </div>
+        <!-- Tabe View on Desktop -->
+        <div class="customer_detail_wrapper customer_detail_list hide-on-med-and-down">
+            <table class="customer_detail_list-details" id="NewsListingTable">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Date", "Date")</th>
+                        <th style="width: 55%;">@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Headlines", "Headlines")</th>
+                        <th style="width: 15%;">@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Publication", "Action")</th>
+                        <th style="width: 15%;">@Html.Sitecore().Dictionary("/Media/AdaniCorporateNews/Action", "Action")</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var child in items.ToList())
+                    {
+                        var itemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+                        <tr>
+                            <td>
+                                <div class="table-cell">
+                                    <label>
+                                        @Html.Sitecore().Field(Templates.NewsArticle.Fields.Date, child, new
+                               {
+                                   format = "MMM dd, yyyy"
+                               })
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-cell">
+                                    <label>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Title, child)</label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-cell">
+                                    <label>@Html.Sitecore().Field(Templates.NewsArticle.Fields.Publication, child)</label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-cell">
+                                    <label>
+                                        <a class="fas fa-download" href="#" data-gaevent="press_release_download"
+                                           data-gaeventCategory="Corporate Portal | Media"
+                                           data-gaeventAction="Press Release Download"
+                                           data-gaeventLabel="@Html.Sitecore().Field(Templates.NewsArticle.Fields.Title, child)">@Html.Sitecore().Field(Templates.NewsArticle.Fields.viewDownloadLink, child, new { @class = "" })</a>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+
+
+                    }
+
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination hide-on-med-and-down" id="desktopPagination"></div>
+        <ul class="pagination hide-on-med-and-up" id="newsListingPaginationNumber"></ul>
+    </div>
+</div>
+<script src="/scripts/ElectricityNew/datatable-min-aeml-revamp.js"></script>
+<script src="~/Scripts/Accounts/ElectricityRevampCustomPagination.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#NewsListingTable').DataTable({
+            lengthChange: false,
+            pageLength: 10,
+            searching: false,
+            autoWidth: false,
+            ordering: false,
+            info: false,
+            language: {
+                paginate: {
+                    next: '<i class="i-arrow-r"></i>',
+                    previous: '<i class="i-arrow-l"></i>'
+                }
+            },
+            bPaginate: true,
+            "fnDrawCallback": function (oSettings) {
+                $(".corporate-main-banner")[0].scrollIntoView(true);
+            }
+        });
+
+        $('#NewsListingTable_paginate').appendTo('#desktopPagination');
+
+        DrawPaginationNumber(1, '#NewsListingPaginationDiv');
+    })
+</script>

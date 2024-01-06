@@ -1,0 +1,518 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ITDeclarationsModel
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+
+<div class="pageContent position-relative myAccountBanner changeofnameregistration" style="margin-top: -2rem;margin-bottom: -2rem;background: #e1e5e8;">
+    <!-- <div class="bg-images"><img src="/images/Change-of-Name-Registration-BG.jpg"></div> -->
+    <div class="bannerImg" style="z-index: 0;"></div>
+    <div class="container">
+        <!-- Main Content Panel -->
+        <div class="" id="mainContent">
+            <!-- Update Profile Page Content-->
+            <div class="py-5">
+                @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                {
+                    <div class="pageContent">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-12 my-4" style="margin-top: 2rem !important;">
+                                    <div class="accServicesOuter">
+                                        <div class="breadcrumbBar">
+                                            <ul>
+                                                <li class=""><a href="/">Home</a></li>
+                                            </ul>
+                                        </div>
+                                        <h2 class="txt-orange">Submit Declarations- Income Tax Act 1961</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 ml-auto">
+                                    <div>
+                                        <div class="">
+                                            <h3 class="heading pl-4 mb-4" style="min-height: auto;">@Model.SuccessMessage</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmITDeclarations" }))
+                    {
+                        @Html.AddUniqueFormId()
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true)
+                        @Html.HiddenFor(m => m.Source)
+                        <div class="pageContent">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-12 my-4" style="margin-top: 2rem !important;">
+                                        <div class="accServicesOuter">
+                                            <div class="breadcrumbBar">
+                                                <ul>
+                                                    <li class=""><a href="/">Home</a></li>
+                                                </ul>
+                                            </div>
+                                            <h2 class="txt-orange">Submit Declarations- Income Tax Act 1961</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="">
+                                    <div class="row">
+                                        @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                                        {
+                                            <div class="form-group row">
+                                                <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="row">
+                                        @if (string.IsNullOrEmpty(Model.DeclarationType))
+                                        {
+                                            <div class="col-lg-12 ml-auto">
+                                                <div class="section_itdeclaration">
+                                                    <div class="">
+                                                        <h3 class="heading pl-4 mb-4" style="min-height: auto;">Dear Customer</h3>
+                                                        <p class="pl-4 mb-3">Click on links mentioned to submit declarations as per Income Tax Act 1961 as applicable to you. </p>
+                                                        <ul class="pl-5 ul-bullets mb-4">
+                                                            <li><input type="submit" class="btn btn-link txt-underline txt-orange pl-0" value="Declaration for linking PAN with AADHAR, u/s 139 AA of income tax Act 1961" name="LinkPAN" /></li>
+                                                            <li><input class="btn btn-link txt-orange txt-underline pl-0" type="submit" value="Declaration for applicability of TDS u/s 194Q of income tax Act 1961" name="TDSApplicability" /></li>
+                                                            <li><input class="btn btn-link txt-orange txt-underline pl-0" type="submit" value="Declaration for filing Income tax return for previous two years u/s 206AB / 206CCA" name="FileITR" /></li>
+                                                            <li><input class="btn btn-link txt-orange txt-underline pl-0" type="submit" value="Submit TDS information" name="SubmitTDS" /></li>
+                                                        </ul>
+                                                        <p class="pl-4 mb-3"><b>FAQ</b></p>
+                                                        <p class="pl-4 mb-2"><a href="-/media/510A002969B949C7AA89CBF2DF86A8FD.ashx" target="_blank" class="btn btn-light txt-orange bg-white">i.	Section 139AA of Income tax act 1961</a></p>
+                                                        <p class="pl-4 mb-2"><a href="-/media/8D131387C74B4CF98285362BFC2050FC.ashx" target="_blank" class="btn btn-light txt-orange bg-white">ii.	Section 206AB/ 206CCA of Income tax act 1961</a></p>
+                                                        <p class="pl-4 mb-2"><a href="-/media/93D87F39D3C845D29BD86B571E36892C.ashx" target="_blank" class="btn btn-light txt-orange bg-white">iii.	Section 194Q of income tax act 1961</a></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            @Html.HiddenFor(m => m.DeclarationType)
+                                            <div class="col-lg-12 ml-auto">
+                                                <div class="">
+                                                    <div class="px-0">
+                                                        @if (!Model.IsvalidatOTP)
+                                                        {
+                                                            if (Model.DeclarationType == "1")
+                                                            {
+                                                                <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Declaration for linking PAN with AADHAR, u/s 139 AA of income tax Act 1961</h5>
+                                                            }
+                                                            else if (Model.DeclarationType == "2")
+                                                            {
+                                                                <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Declaration for applicability of TDS u/s 194Q of income tax Act 1961</h5>
+                                                            }
+                                                            else if (Model.DeclarationType == "3")
+                                                            {
+                                                                <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Declaration for filing Income tax return for previous two years u/s 206AB / 206CCA</h5>
+                                                            }
+                                                            else if (Model.DeclarationType == "4")
+                                                            {
+                                                                <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Submit TDS information</h5>
+                                                            }
+                                                        }
+                                                        @if (!Model.IsvalidatAccount)
+                                                        {
+                                                            <p class="mb-4 txt-gray">Validate your contract account before proceeding for declaration.</p>
+                                                            <div>
+                                                                <label for="" class="w-100 mb-2">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Contract Account Number")</label>
+                                                                <div class="row">
+                                                                    <div class="col-lg-3 col-md-6">
+                                                                        <div class="input-group mb-3">
+
+                                                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @autocomplete = "off", required = "required" })
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div>@Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")</div>
+                                                                @if (Model.PANNotLinked)
+                                                                {
+                                                                    <div class="txt-orange">Click <a href="/panupdate" target="_blank">here</a> and follow the process to link your PAN Number with your Account</div>
+                                                                }
+                                                                <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                                    <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                                    <div class="row captcha_box">
+                                                                        <div class="col-lg-6">
+                                                                            <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12">
+                                                                            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="input-group-append">
+                                                                    <input type="submit" class="btn btn-primary" name="ValidateCA" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Validate Account Button text", "Validate")" />
+                                                                    <a class="btn btn-dark ml-2" href="/it-declarations" style="color: #fff;">Cancel</a>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else if (Model.IsvalidatAccount && !Model.IsOTPSend)
+                                                        {
+                                                            <p class="mb-4 txt-gray">Validate your contract account before proceeding for declaration.</p>
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-4">
+                                                                        <div class="input-group mb-3">
+                                                                            <label for="" class="w-100 mb-2">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                                                            <div class="row w-100">
+                                                                                <div class="col-lg-12 col-md-6">
+                                                                                    @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-3 col-md-6">
+                                                                        <div class="input-group mb-3">
+                                                                            <label for="" class="w-100 mb-2">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                                                            <div class="row">
+                                                                                <div class="col-lg-12 col-md-6">
+                                                                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div>@Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                                <p class="input-group mb-3">Proceed for OTP authentication</p>
+                                                                <div class="input-group">
+                                                                    <input type="submit" class="btn btn-primary" name="SendOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Generate OTP", "Generate OTP")" />
+                                                                    <a class="btn btn-dark ml-2" href="/it-declarations" style="color: #fff;">Cancel</a>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else if (Model.IsvalidatAccount && Model.IsOTPSend && !Model.IsvalidatOTP)
+                                                        {
+                                                            <p class="mb-4 txt-gray">Validate your contract account before proceeding for declaration.</p>
+                                                            <div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-4">
+                                                                        <div class="input-group mb-3">
+                                                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                                                            <div class="row w-100">
+                                                                                <div class="col-lg-12 col-md-6">
+                                                                                    @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-3 col-md-6">
+                                                                        <div class="input-group mb-3">
+                                                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                                                            <div class="row">
+                                                                                <div class="col-lg-12 col-md-6">
+                                                                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-2 col-md-6">
+                                                                        <div class="input-group mb-3">
+                                                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/OTPNumber", "Enter OTP")</label>
+                                                                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber", @autocomplete = "off", required = "required" })
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                                <div>@Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                                <div class="input-group">
+                                                                    <input type="submit" class="btn btn-primary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/ValidateOTP", "Validate")" />
+                                                                    <a class="btn btn-dark ml-2" href="/it-declarations" style="color: #fff;">Cancel</a>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else if (Model.IsvalidatOTP)
+                                                        {
+                                                            @Html.HiddenFor(m => m.CANumber)
+                                                            @Html.HiddenFor(m => m.PANNumber)
+                                                            //Declaration for linking PAN with AADHAR
+                                                            if (Model.DeclarationType == "1")
+                                                            {
+                                                                //Declaration for linking PAN with AADHAR, u/s 139 AA of income tax Act 1961
+                                                            <div class="panel bg-white">
+
+                                                                <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Declaration for linking PAN with AADHAR, u/s 139 AA of income tax Act 1961</h5>
+
+                                                                <div class="">
+                                                                    <h3 class="txt-sm mb-4" style="min-height: auto;"><b>Date : @DateTime.Now.Date.ToString("dd/MM/yyyy")</b></h3>
+                                                                    <p class="mb-1">To,</p>
+                                                                    <p class="mb-3"><b>Adani Electricity Mumbai Limited</b></p>
+                                                                    <p class="mb-3"><b>Subject :</b> Confirmation for linking of PAN with Aadhaar</p>
+                                                                    <p class="mb-3"><b>Contract Account Number</b> : @Model.CANumber</p>
+                                                                    <p class="mb-3"><b>Reference</b> : Section 139AA of the Income Tax Act, 1961 ('the Act')</p>
+                                                                    <hr />
+                                                                    <p class="mb-4">In terms of the provisions of section 139AA of the Act, I, hereby confirm that my Permanent Account Number (PAN) <b>@Model.PANNumber</b> has been linked with my Aadhar Number @Html.TextBoxFor(m => m.AadharNumber, new { @class = "form-control mx-175 d-inline-block mx-2", id = "AadharNumber", @autocomplete = "off", @maxlength = "12" })</p>
+                                                                    @Html.ValidationMessageFor(x => x.AadharNumber, "", new { @class = "help-block mb-3" }, "p")
+                                                                    <p class="mb-3">Terms and Conditions:</p>
+                                                                    <ul class="txt-sm ul-bullets mb-4 ml-2">
+                                                                        <li class="list-style-type: disc;">
+                                                                            The above PAN is already registered with AEML against the CA number/s mentioned above.
+                                                                        </li>
+                                                                        <li class="list-style-type: disc;">
+                                                                            Any change in the above declaration shall be communicated to AEML.
+                                                                        </li>
+                                                                        <li class="list-style-type: disc;">
+                                                                            If the above declaration is found to be incorrect, AEML will be liable to deduct/collect TDS/TCS at higher rate, as applicable, along with interest/penalty, if applicable.
+                                                                        </li>
+                                                                        <li class="list-style-type: disc;">
+                                                                            The above information is true and correct to the best of my knowledge.
+                                                                        </li>
+                                                                    </ul>
+                                                                    <p class="mb-2"><b>I shall indemnify you in case the above disclosure results in false declaration/undertaking.</b></p>
+                                                                    <div class="mb-3">
+                                                                        <div class="form-check">
+                                                                            @Html.RadioButtonFor(model => model.AgreeOption, "1", new { id = "AgreeOption_Applicable", @class = "form-check-input", @checked = "checked", required = "required" })
+                                                                            <label class="form-check-label" for="AgreeOption_Applicable">I hereby, agree to above terms and conditions.</label>
+                                                                        </div>
+                                                                        <div class="form-check">
+                                                                            @Html.RadioButtonFor(model => model.AgreeOption, "2", new { id = "AgreeOption_NotApplicable", @class = "form-check-input", required = "required" })
+                                                                            <label class="form-check-label" for="AgreeOption_NotApplicable"> 	I hereby state that provision of section 139AA of Income tax 1961, to link PAN number with AADHAR is not applicable for me/ us. Hence request you to deduct / collect TDS/ TCS as per normal rate, if applicable. </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="input-group">
+                                                                    <input type="submit" class="btn btn-primary" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")" />
+                                                                    <a class="btn btn-dark ml-2" href="/it-declarations" style="color: #fff;">Cancel</a>
+                                                                </div>
+
+                                                                <div>@Html.ValidationMessageFor(x => x.SuccessMessage, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                            </div>
+
+                                                            }
+                                                            //Declaration for filing Income tax return
+                                                            if (Model.DeclarationType == "2")
+                                                            {
+                                                                //Declaration for applicability of TDS u/s 194Q of income tax Act 1961
+
+                                                                <div class="panel bg-white">
+
+                                                                    <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Declaration for applicability of TDS u/s 194Q of income tax Act 1961</h5>
+
+                                                                    <div class="">
+                                                                        <h3 class="txt-sm mb-4" style="min-height: auto;"><b>Date : @DateTime.Now.Date.ToString("dd/MM/yyyy")</b></h3>
+                                                                        <p class="mb-1">To,</p>
+                                                                        <p class="mb-3"><b>Adani Electricity Mumbai Limited</b></p>
+                                                                        <p class="mb-3"><b>Subject :</b> Confirmation for applicability of TDS U/s. 194Q</p>
+                                                                        <p class="mb-3"><b>Contract Account Number</b> : @Model.CANumber</p>
+                                                                        <p class="mb-3"><b>Reference</b> : Section 194Q of the Income Tax Act, 1961 ('the Act')</p>
+                                                                        <hr />
+                                                                        <p class="mb-4">In terms of the provisions of section 194Q of the Act, I/we, hereby confirm that our total sales/gross receipt /turnover during the previous year <b>@Model.FY_1</b> is greater than <b>INR 10 Crs</b> and we are liable to deduct TDS U/s. 194Q on goods/materials purchased by us during <b>@Model.FY</b> for amount exceeding INR 50 Lacs against (PAN) <b>@Model.PANNumber</b>.</p>
+                                                                        <p class="mb-3">Terms and Conditions:</p>
+                                                                        <ul class="txt-sm ul-bullets mb-4 ml-2">
+                                                                            <li class="list-style-type: disc;">
+                                                                                PAN is already registered with AEML against the CA number/s mentioned above.
+                                                                            </li>
+                                                                            <li class="list-style-type: disc;">
+                                                                                Any change in the above declaration shall be communicated to AEML.
+                                                                            </li>
+                                                                            <li class="list-style-type: disc;">
+                                                                                We will communicate the break-up/details of TDS deducted in advance or within 24 hrs of payment made to AEML on portal(link provided), otherwise same will be treated as part/short payment.
+
+                                                                            </li>
+                                                                            <li class="list-style-type: disc;">
+                                                                                If we do not deduct TDS u/s. 194Q / No communication is sent within 24 hours of payment, AEML will be liable to collect TCS u/s. 206C(1H) of the Income Tax Act.
+                                                                            </li>
+                                                                            <li>The above information is true and correct to the best of my knowledge.</li>
+                                                                            <li>Person who is submitting the declaration is authorized and responsible on behalf of the consumer. </li>
+                                                                        </ul>
+                                                                        <p class="mb-2"><b>I shall indemnify you in case the above disclosure results in false declaration/undertaking.</b></p>
+                                                                        <div class="mb-3">
+                                                                            <div class="form-check">
+                                                                                @Html.RadioButtonFor(model => model.AgreeOption, "1", new { id = "AgreeOption_Applicable", @class = "form-check-input", @checked = "checked", required = "required" })
+                                                                                <label class="form-check-label" for="AgreeOption_Applicable">I hereby, agree to above terms and conditions.</label>
+                                                                            </div>
+                                                                            <div class="form-check">
+                                                                                @Html.RadioButtonFor(model => model.AgreeOption, "2", new { id = "AgreeOption_NotApplicable", @class = "form-check-input", required = "required" })
+                                                                                <label class="form-check-label" for="AgreeOption_NotApplicable"> 	I hereby state that provision of section 194Q of Income tax 1961, is not applicable for me/ us.</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="input-group">
+                                                                        <input type="submit" class="btn btn-primary" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")" />
+                                                                        <a class="btn btn-dark ml-2" href="/it-declarations" style="color: #fff;">Cancel</a>
+                                                                    </div>
+
+                                                                    <div>@Html.ValidationMessageFor(x => x.SuccessMessage, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                                </div>
+                                                            }
+                                                            //Declaration for applicability of TDS
+                                                            if (Model.DeclarationType == "3")
+                                                            {
+                                                                //Declaration for filing Income tax return for previous two years u/s 206AB / 206CCA
+                                                                <div class="panel bg-white">
+
+                                                                    <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Declaration for filing Income tax return for previous two years u/s 206AB / 206CCA.</h5>
+
+                                                                    <div class="">
+                                                                        <h3 class="txt-sm mb-4" style="min-height: auto;"><b>Date : @DateTime.Now.Date.ToString("dd/MM/yyyy")</b></h3>
+                                                                        <p class="mb-1">To,</p>
+                                                                        <p class="mb-3"><b>Adani Electricity Mumbai Limited</b></p>
+                                                                        <p class="mb-3"><b>Subject :</b> Declaration for filing of Income Tax Return for previous two years</p>
+                                                                        <p class="mb-3"><b>Reference</b> : Section 206AB/ 206CCA of the Income Tax Act, 1961 ('the Act')</p>
+                                                                        <p class="mb-3"><b>Contract Account Number</b> : @Model.CANumber</p>
+                                                                        <p class="mb-3"><b>Permanent Account Number (PAN)</b> : @Model.PANNumber</p>
+                                                                        <hr />
+                                                                        <p class="mb-4">In terms of the provisions of section 206AB/ 206CCA of the Act, we confirm that we have filed income tax returns for the <b>@Model.FY_3</b> and <b>@Model.FY_2</b> which have become due for the immediately preceding two financial years.</p>
+                                                                        <p class="mb-4">The Acknowledgement Number of Income Tax Returns filed by us for last two Financial years is as follows:</p>
+                                                                        <div class="grid-responsive">
+                                                                            <div class="grid-row bg-orange">
+                                                                                <div class="grid-column grid_col-4"><b>Financial Year</b></div>
+                                                                                <div class="grid-column grid_col-2"><b>Acknowledgement number</b></div>
+                                                                                <div class="grid-column grid_col-2"><b>Date of filing return</b></div>
+                                                                            </div>
+                                                                            <div class="grid-row">
+                                                                                <div class="grid-column grid_col-4">
+                                                                                    <p>@Model.FY_3</p>
+                                                                                </div>
+                                                                                <div class="grid-column grid_col-2">
+                                                                                    @Html.TextBoxFor(m => m.FY_3AcknowledgementNumber, new { @class = "form-control", id = "FY_3AcknowledgementNumber", @autocomplete = "off", @maxlength = "15" })
+                                                                                    @Html.ValidationMessageFor(x => x.FY_3AcknowledgementNumber, "", new { @class = "help-block" }, "p")
+                                                                                </div>
+                                                                                <div class="grid-column grid_col-2">
+                                                                                    @Html.TextBoxFor(x => x.FY_3DateOfFilingReturn, new { @class = "form-control", id = "datetimepickerFY_3AcknowledgementNumber", @autocomplete = "off" })
+                                                                                    @Html.ValidationMessageFor(x => x.FY_3DateOfFilingReturn, "", new { @class = "help-block" }, "p")
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="grid-row">
+                                                                                <div class="grid-column grid_col-4">
+                                                                                    <p>@Model.FY_2</p>
+                                                                                </div>
+                                                                                <div class="grid-column grid_col-2">
+                                                                                    @Html.TextBoxFor(m => m.FY_2AcknowledgementNumber, new { @class = "form-control", id = "FY_3AcknowledgementNumber", @autocomplete = "off", @maxlength = "15" })
+                                                                                    @Html.ValidationMessageFor(x => x.FY_2AcknowledgementNumber, "", new { @class = "help-block" }, "p")
+                                                                                </div>
+                                                                                <div class="grid-column grid_col-2">
+                                                                                    @Html.TextBoxFor(x => x.FY_2DateOfFilingReturn, new { @class = "form-control", id = "datetimepickerFY_2AcknowledgementNumber", @autocomplete = "off" })
+                                                                                    @Html.ValidationMessageFor(x => x.FY_2DateOfFilingReturn, "", new { @class = "help-block" }, "p")
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <p class="mb-3">This declaration is given for the <b>@Model.FY</b>.</p>
+                                                                        <p class="mb-3">Terms and Conditions:</p>
+                                                                        <ul class="txt-sm ul-bullets mb-4 ml-2">
+                                                                            <li class="list-style-type: disc;">
+                                                                                The above PAN is already registered with AEML against the CA number/s mentioned above.
+                                                                            </li>
+                                                                            <li class="list-style-type: disc;">
+                                                                                Any change in the above declaration shall be communicated to AEML.
+                                                                            </li>
+                                                                            <li class="list-style-type: disc;">
+                                                                                If the above declaration is found to be incorrect, AEML will be liable to deduct/collect TDS/TCS at higher rate, as applicable, along with interest/penalty, if applicable.
+                                                                            </li>
+                                                                            <li class="list-style-type: disc;">
+                                                                                The above information is true and correct to the best of my knowledge.
+                                                                            </li>
+                                                                            <li>Person who is submitting the declaration is authorized and responsible on behalf of the consumer. </li>
+                                                                        </ul>
+                                                                        <p class="mb-2"><b>I shall indemnify you in case the above disclosure results in false declaration/undertaking.</b></p>
+                                                                        <div class="mb-3">
+                                                                            <div class="form-check">
+                                                                                @Html.RadioButtonFor(model => model.AgreeOption, "1", new { id = "AgreeOption_Applicable", @class = "form-check-input", @checked = "checked", required = "required" })
+                                                                                <label class="form-check-label" for="AgreeOption_Applicable">I hereby, agree to above terms and conditions.</label>
+                                                                            </div>
+                                                                            <div class="form-check">
+                                                                                @Html.RadioButtonFor(model => model.AgreeOption, "2", new { id = "AgreeOption_NotApplicable", @class = "form-check-input", required = "required" })
+                                                                                <label class="form-check-label" for="AgreeOption_NotApplicable"> 	I hereby state that provision of section 206AB/ 206CCA of Income tax 1961, is not applicable for me/ us. Hence request you to deduct / collect TDS/ TCS as per normal rate, if applicable.</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="input-group">
+                                                                        <input type="submit" class="btn btn-primary" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")" />
+                                                                        <a class="btn btn-dark ml-2" href="/it-declarations" style="color: #fff;">Cancel</a>
+                                                                    </div>
+
+                                                                    <div>@Html.ValidationMessageFor(x => x.SuccessMessage, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                                </div>
+                                                            }
+                                                            //
+                                                            if (Model.DeclarationType == "4")
+                                                            {
+                                                                //Submit TDS information
+                                                                <div class="panel bg-white">
+
+                                                                    <h5 class="pl-0 pt-0 mb-3 txt-orange" style="min-height: auto;">Submit TDS information</h5>
+
+                                                                    <div class="">
+                                                                        <h3 class="txt-sm mb-4" style="min-height: auto;"><b>Date : @DateTime.Now.Date.ToString("dd/MM/yyyy")</b></h3>
+                                                                        <p class="mb-1">To,</p>
+                                                                        <p class="mb-3"><b>Adani Electricity Mumbai Limited</b></p>
+                                                                        <p class="mb-3"><b>Subject :</b> Intimation for deduction of TDS u/s 194Q</p>
+                                                                        <p class="mb-3"><b>Reference</b> : Section 194Q of the Income Tax Act, 1961 ('the Act')</p>
+                                                                        <p class="mb-3"><b>Contract Account Number</b> : @Model.CANumber</p>
+                                                                        <p class="mb-3"><b>Permanent Account Number (PAN)</b> : @Model.PANNumber</p>
+                                                                        <hr />
+                                                                        <p class="mb-4">This is to inform you, I/we have deducted TDS as per provision of section 194Q of income tax act 1961. Details are as mentioned below. </p>
+                                                                        @Html.HiddenFor(m => m.Bill_Amount)
+                                                                        <p class="mb-3"><b>Latest Bill Amount payable (Rs.): </b>@Model.Bill_Amount</p>
+                                                                        @Html.ValidationMessageFor(x => x.Bill_Amount, "", new { @class = "help-block" }, "p")
+                                                                        <p class="mb-3"><b>Amount considered for TDS (Rs.): </b>@Html.TextBoxFor(m => m.Amount_considered_for_TDS, new { @class = "form-control mx-175 d-inline-block mx-2", id = "Amount_considered_for_TDS", @autocomplete = "off", required = "required", @onchange = "onchangeAmount_considered_for_TDS();" })</p>
+                                                                        @Html.ValidationMessageFor(x => x.Amount_considered_for_TDS, "", new { @class = "help-block" }, "p")
+                                                                        <p class="field-validation-error help-block" id="error_Amount_considered_for_TDS"></p>
+                                                                        <p class="mb-3"><b>Applicable TDS Rate (%): 0.1</b></p>
+                                                                        <p class="mb-3"><b>TDS Deducted (Rs): </b><span id="TDS_Deducted"></span></p>
+                                                                        <p class="mb-3"><b>Net amount post TDS deduction (Rs): </b><span id="Net_amount_post_TDS_deduction"></span></p>
+                                                                        <p class="mb-3">
+                                                                            <b>Date of Bill payment:</b>@Html.TextBoxFor(x => x.POSTING_DATE, new { @class = "form-control d-inline-block mx-2 mx-175", id = "datetimepickerPOSTING_DATE", @autocomplete = "off", required = "required" })
+                                                                            @Html.ValidationMessageFor(x => x.POSTING_DATE, "", new { @class = "help-block" }, "p")
+                                                                        </p>
+                                                                        <div class="form-group pl-4">
+                                                                            <input type="checkbox" name="termsCb" class="form-check-input" id="termsCb">
+                                                                            <label class="form-check-label" for="termsCb"><b>I hereby state that all details mentioned above are true and correct to the best of my knowledge. I shall indemnify you in case the above disclosure results in false declaration /undertaking.</b></label>
+                                                                            <p class="field-validation-error help-block" id="docErrorMessage"></p>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="input-group">
+                                                                        <input type="submit" class="btn btn-primary" id="submittds" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")" />
+                                                                        <a class="btn btn-dark ml-2" href="/it-declarations" style="color: #fff;">Cancel</a>
+                                                                    </div>
+
+                                                                    <div>@Html.ValidationMessageFor(x => x.SuccessMessage, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                                </div>
+                                                            }
+                                                            
+
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                    <!-- /Main Content Panel -->
+                }
+            </div>
+            <!-- /Section -->
+        </div>
+        <!-- /Page Content -->
+    </div>
+</div>
+
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

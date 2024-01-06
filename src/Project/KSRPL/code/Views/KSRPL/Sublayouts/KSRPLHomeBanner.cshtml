@@ -1,0 +1,61 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore;
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.StringExtensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Fields;
+@using System.Collections.Generic
+@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+
+}
+
+@functions
+{
+    public string ImageUrl(string imageFieldName, Item item)
+    {
+        ImageField imageField = item.Fields[imageFieldName];
+        string imageUrl = "";
+        if (imageField?.MediaItem != null)
+        {
+            var image = new MediaItem(imageField.MediaItem);
+            imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+        }
+        return imageUrl;
+    }
+}
+
+<section class="main-banner">
+    <div class="owl-carousel hero-banner">
+        @if (element != null)
+        {
+            foreach (Item item in element.GetChildren())
+            {
+                <div class="item">
+                    <picture>
+                        <source srcset="@ImageUrl("MediaImage",item)" media="(min-width: 960px)">
+                        <source srcset="@ImageUrl("MediaImage",item)" media="(min-width: 767px)">
+                        <source srcset="@ImageUrl("MediaThumbnail",item)" media="(min-width: 0)">
+                        <img alt="" srcset="@ImageUrl("MediaImage",item)" src="@ImageUrl("MediaImage",item)" class="img-fluid w-100">
+                    </picture>
+                    <div class="banner_content">
+                       
+                        @Html.Sitecore().Field("MediaDescription", item)
+
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</section>

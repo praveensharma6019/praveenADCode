@@ -1,0 +1,65 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+}
+
+@if (datasource != null && datasource != "")
+{
+
+    var itemURL = Sitecore.Links.LinkManager.GetItemUrl(parent);
+    var Items = parent.Children.OrderByDescending(x => x.Statistics.Created);
+
+<section class="section">
+    <div class="container">
+
+        <div id="accordion" class="accordion career">
+            <div class="card mb-0">
+
+                @foreach (var child in Items.ToList())
+                {
+                    var IsVisible = child.Fields["IsVisible"].Value;
+
+                    if (IsVisible == "1")
+                    {
+                        var idParent = "#collapse" + i;
+                        var idChild = "collapse" + i;
+                        <div class="card-header collapsed" data-toggle="collapse" href="@idParent" data-parent="#accordion">
+                            <a class="card-title">
+                                @Html.Sitecore().Field("Title", child).ToString();
+                            </a>
+                        </div>
+
+                        <div id="@idChild" class="card-body collapse" data-parent="#accordion">
+                            @Html.Sitecore().Field("Body", child)
+                            <a href="#careerform" class="btn btn-primary" data-toggle="modal" data-target="#careerform">Apply now</a>
+                        </div>
+                        <p class="p-2"></p>
+                    }
+                    i++;
+                }
+            </div>
+        </div>
+        <!-- Career Form-->
+        <div class="modal video " id="careerform">
+            <div class="modal-dialog modal-dialog-centered p-4">
+                <div class="modal-content p-3">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <!-- Modal Header -->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        @Html.Sitecore().Placeholder("Career-Form")
+                    </div>
+                    <!-- Modal footer -->
+                </div>
+            </div>
+        </div>
+        <!-- /Career Form-->
+    </div>
+</section>
+
+}
+

@@ -1,0 +1,62 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Links
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var vidlist = Sitecore.Context.Database.GetItem(datasource);
+
+    var parameters = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.FirstOrDefault();
+    var Links = Sitecore.Context.Database.GetItem("{" + parameters.Value + "}");
+    var i = 0;
+}
+<div class="panelBox">
+    @foreach (var vid in vidlist.Children.ToList())
+    {
+        <div class="videoThumb">
+            <a href="#" data-toggle="modal" data-target="#video">
+                @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Thumbnail, vid, 0, 0, "img-fluid")
+            </a>
+            @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, vid)
+
+        </div>
+        <!-- Video Modal -->
+        <div class="modal video" id="video" aria-hidden="true" style="display: none;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <button type="button" class="close" data-dismiss="modal" value="@i">×</button>
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        @{
+                            Sitecore.Data.Fields.LinkField linkField = @vid.Fields[Templates.HasMediaVideo.Fields.VideoLink];
+                            var NavigateUrl = linkField.Url;
+                        }
+                        <iframe width="100%" height="350" src="@NavigateUrl" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        i++;
+        <!-- /Video Modal -->
+    }
+
+    @if (Links != null)
+    {
+        var models = Sitecore.Context.Database.GetItem(Links.ID);
+        <ul class="py-2 mediaList">
+            @foreach (var nav in models.Children.ToList())
+            {
+                Sitecore.Data.Fields.LinkField linkField = nav.Fields["Link"];
+                var NavigateUrl = linkField.Url;
+                <li><i class="fas fa-arrow-right txt-violet mr-2"></i><a href="@NavigateUrl" class="txt-black">@nav.Name</a></li>
+            }
+        </ul>
+        <div class="clearfix"></div>
+    }
+</div>

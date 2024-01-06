@@ -1,0 +1,268 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+
+    var BusinessProcedure = paramid["BusinessProcedure"] != null ? Sitecore.Context.Database.GetItem(paramid["BusinessProcedure"]) : null;
+    var Link1 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link1").FirstOrDefault().Value;
+    var Link2 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link2").FirstOrDefault().Value;
+    var Link3 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link3").FirstOrDefault().Value;
+    var Link4 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link4").FirstOrDefault().Value;
+    var Link5 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link5").FirstOrDefault().Value;
+    var Link6 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link6").FirstOrDefault().Value;
+    var Link7 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link7").FirstOrDefault().Value;
+    var Link8 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Link8").FirstOrDefault().Value;
+    var procedureTitle = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "procedureTitle").FirstOrDefault().Value;
+ 
+    Sitecore.Data.Items.Item CargoSpecial = null;
+	Sitecore.Data.Items.Item CargoExpress = null;
+    Sitecore.Data.Fields.LinkField CargoSpeciallinkfield;
+    var CargoSpecialurl = "";
+
+    if (paramid["CargoSpecial"] != null)
+    {
+        CargoSpecial = Sitecore.Context.Database.GetItem(paramid["CargoSpecial"]);
+        CargoSpeciallinkfield = CargoSpecial.Fields["Link"];
+        CargoSpecialurl = CargoSpeciallinkfield.GetFriendlyUrl();
+    }
+    else
+    { CargoSpecial = null; }
+
+	if (paramid["CargoExpress"] != null)
+    {
+        CargoExpress = Sitecore.Context.Database.GetItem(paramid["CargoExpress"]);
+      //  CargoSpeciallinkfield = CargoExpress.Fields["Link"];
+      //  CargoSpecialurl = CargoSpeciallinkfield.GetFriendlyUrl();
+    }
+    else
+    { CargoExpress = null; }
+	
+    Sitecore.Data.Items.Item Domestic = null;
+    Sitecore.Data.Fields.LinkField Domesticlinkfield;
+    var Domesticurl = "";
+    var DomesticUrl2 = "";
+    if (paramid["Domestic"] != null)
+    {
+        Domestic = Sitecore.Context.Database.GetItem(paramid["Domestic"]);
+        DomesticUrl2 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "DomesticUrl2").FirstOrDefault().Value;
+        Domesticlinkfield = Domestic.Fields["Link"];
+        Domesticurl = Domesticlinkfield.GetFriendlyUrl();
+    }
+    else
+    { Domestic = null; }
+
+
+    Sitecore.Data.Items.Item International = null;
+    Sitecore.Data.Fields.LinkField Internationallinkfield;
+    var Internationalurl = "";
+    var InternationalUrl2 = "";
+
+    if (paramid["International"] != null)
+    {
+        International = Sitecore.Context.Database.GetItem(paramid["International"]);
+        InternationalUrl2 = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["InternationalUrl2"];
+        Internationallinkfield = International.Fields["Link"];
+        Internationalurl = Internationallinkfield.GetFriendlyUrl();
+    }
+    else
+    { International = null; }
+
+
+    Sitecore.Data.Items.Item CargoTariff = null;
+    Sitecore.Data.Fields.LinkField CargoTarifflinkfield;
+    var CargoTariffurl = "";
+
+    if (paramid["CargoTariff"] != null)
+    {
+        CargoTariff = Sitecore.Context.Database.GetItem(paramid["CargoTariff"]);
+        CargoTarifflinkfield = CargoTariff.Fields["Link"];
+        CargoTariffurl = CargoTarifflinkfield.GetFriendlyUrl();
+    }
+    else
+    { CargoTariff = null; }
+
+
+    var BusinessDetail = paramid["BusinessDetail"] != null ? Sitecore.Context.Database.GetItem(paramid["BusinessDetail"]) : null;
+
+}
+
+@if (BusinessDetail != null)
+{
+    <section class="bg-cream section content-header" id="first-section">
+        <div class="container-fluid">
+            <h2>@procedureTitle</h2>
+            <div class="content">@Html.Sitecore().Field("Body", BusinessDetail)</div>
+        </div>
+    </section>
+}
+
+@if (BusinessProcedure != null)
+{
+    <section class="bg-white section content-header" id="Procedure">
+        <div class="container-fluid">
+
+            <h2>@Html.Sitecore().Field("Title", BusinessProcedure)</h2>
+            <div class="content">@Html.Sitecore().Field("Body", BusinessProcedure)</div>
+
+
+
+            @if (Domestic != null || International != null)
+            {
+                <div class="row mt-5">
+                    @if (Domestic != null)
+                    {
+                        <div class="col-lg-6 mb-lg-0 mb-5">
+                            <div class="feedback">
+                                <div class="feedback-thumb">
+                                    @Html.Sitecore().ImageField("Image", Domestic, 0, 0, "img-fluid")
+                                </div>
+                                <div class="feedback-content">
+                                    <h2 class="txt-md">@Html.Sitecore().Field("Title", Domestic)</h2>
+                                    <p class="txt-sm">@Html.Sitecore().Field("Body", Domestic)</p>
+                                    <p class="txt-sm mb-0" >
+                                        <a href="" class="">Outbound</a>&nbsp;&nbsp;<a href="" class="float-right">Inbound</a>
+
+                                    </p>
+                                    <p class="clearfix"></p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (International != null)
+                    {
+                        <div class="col-lg-6 mb-lg-0">
+                            <div class="feedback">
+                                <div class="feedback-thumb">
+
+                                    @Html.Sitecore().ImageField("Image", International, 0, 0, "img-fluid")
+                                </div>
+                                <div class="feedback-content">
+                                    <h2 class="txt-md">@Html.Sitecore().Field("Title", International)</h2>
+                                    <p class="txt-sm">@Html.Sitecore().Field("Body", International)</p>
+                                    <p class="txt-sm mb-0">
+                                        <a href="" class="">Export Handling</a><a href="" class="float-right">Import Handling</a>
+                                    </p>
+                                    <p class="clearfix"></p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+}
+
+
+@if (CargoSpecial != null)
+{
+    <section class="bg-cream section content-header">
+        <div class="container-fluid">
+          
+                    
+                <div class="row">
+                  
+				  
+				  <!-- <div class="col-lg-6 mb-lg-0 mb-5"> -->
+                    <!-- <div class="feedback feedback-content__cargo_sp"> -->
+                        <!-- <div class="feedback-thumb"> -->
+                            <!-- @Html.Sitecore().ImageField("Image", CargoExpress, 0, 0, "img-fluid") -->
+                        <!-- </div> -->
+                        <!-- <div class="feedback-content"> -->
+                            <!-- <h2 class="txt-md">@Html.Sitecore().Field("Title", CargoExpress)</h2> -->
+                            <!-- <p class="txt-sm">@Html.Sitecore().Field("Body", CargoExpress)</p> -->
+                            <!-- <p class="txt-sm cargo_sp"> -->
+                                <!-- <a href="@Link1" class="mr-3">Outbound </a> -->
+                                <!-- <a href="@Link2" class="mr-3">Inbound</a> -->
+                                
+                            <!-- </p> -->
+                            <!-- <p class="clearfix"></p> -->
+                        <!-- </div> -->
+                    <!-- </div> -->
+                <!-- </div> -->
+				  
+				  
+                    
+                        <div class="col-lg-12 mb-lg-0 mb-5">
+                            <div class="feedback feedback-content__cargo_sp">
+                                <div class="feedback-thumb">
+                                    @Html.Sitecore().ImageField("Image", CargoSpecial, 0, 0, "img-fluid")
+                                </div>
+                                <div class="feedback-content">
+                                    <h2 class="txt-md">@Html.Sitecore().Field("Title", CargoSpecial)</h2>
+                                    <p class="txt-sm">@Html.Sitecore().Field("Body", CargoSpecial)</p>
+                                    <p class="txt-sm cargo_sp">
+                                        <a href="@Link1" class="mr-3" >Unaccompanied Baggage Processing</a>
+										<a href="@Link2" class="mr-3">Human Remain Processing</a>
+                                        <a href="@Link3" class="mr-3">Valuable Shipment Processing</a>
+										
+										<!-- <a href="@Link4" class="mr-3">Vulnerable</a> -->
+                                        <!-- <a href="@Link5" class="mr-3">Heavy/Odd size cargo (HEA)</a> -->
+										<!-- <a href="@Link6" class="mr-3">Temperature Sensitive Shipment</a> -->
+                                        <!-- <a href="@Link7" class="mr-3">Post Office Mail</a><a href="@Link8">Courier</a> -->
+                                    </p>
+                                     <p class="clearfix"></p>
+                                </div>
+                            </div>
+                        </div>
+                    
+                  
+                  
+                </div>
+            
+        </div>
+    </section>
+}
+
+
+@if (CargoTariff != null)
+{
+
+    <section class="bg-white section content-header" id="Tariff">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-5 mb-lg-0 mb-5">
+                    <h2>@Html.Sitecore().Field("Title", CargoTariff)</h2>
+                    <div class="content">@Html.Sitecore().Field("Body", CargoTariff)</div>
+                    <p class="mt-4"><a href="@CargoTariffurl" class="btn btn-gradient mb-3 mr-4">View</a><a href="@CargoTariffurl" class="btn btn-gradient mb-3">Download</a></p>
+                    <p class="clearfix"></p>
+                </div>
+                <div class="col-lg-6 ml-auto mb-lg-0">
+                    @Html.Sitecore().ImageField("Image", CargoTariff, 0, 0, "img-fluid")
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+<section class="bg-cream section content-header" id="Tracking">
+        <div class="container-fluid">
+            <h2>Cargo Tracking & Community Login</h2>
+            <div class="row">
+                <div class="col-lg-6 mb-lg-0 order-lg-1 order-2">
+				@if (CargoSpecial != null)
+{
+                    <img src="-/media/8A25CB96EBC5477683553CCC028028A5.ashx" class="img-fluid">}
+                </div>
+                <div class="col-lg-5 ml-auto mb-lg-0 mb-5 order-lg-2 order-1">
+                    <h3>Cargo Tracking</h3>
+                    <form>
+                        <div class="form-group">
+                            <input type="text" class="form-control search-feld" id="" placeholder="Search For Tracking Number">
+                        </div>
+                    </form>
+                    <div class="form_diff my-lg-5 my-3">OR</div>
+                    <h3>Community Login</h3>
+                    <p class="mt-4"><a href="#" class="btn btn-gradient mb-3 mr-4">Login</a><a href="#" class="btn btn-bordered mb-3">Signup</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+}

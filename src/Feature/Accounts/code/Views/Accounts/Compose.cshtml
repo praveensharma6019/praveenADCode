@@ -1,0 +1,73 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ComposeMail
+@{ Html.EnableClientValidation(); }
+@{Html.EnableUnobtrusiveJavaScript();}
+
+
+@using (Ajax.BeginRouteForm(MvcSettings.SitecoreRouteName, null, new AjaxOptions { HttpMethod = "Post" }, new { id = "ComposeForm", name = "ComposeForm", enctype = "multipart/form-data", @class = "pt-3" }))
+{
+    <div id="dvMessage" class="row" style="display:none;">
+        <div class="col-12">
+            <div class="alert alert-success"></div>
+        </div>
+    </div>
+    @Html.Sitecore().FormHandler()
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <div class="form-group row">
+        <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/To Address", "To")</label>
+        <div class="col-sm-8 col-lg-6">
+            @Html.TextBoxFor(x => x.ToEmail, new { Value = Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/To Email Address", "helpdesk.mumbaielectricity@adani.com"), @class = "form-control", id = "Email", @readonly = "readonly" })
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/Subject", "Subject")&nbsp;&nbsp;<span class="required">*</span></label>
+        <div class="col-sm-8 col-lg-6">
+            @Html.TextBoxFor(x => x.Subject, new { @class = "form-control reset-control", id = "Subject" })
+            @Html.ValidationMessageFor(x => x.Subject, "", new { @class = "help-block" }, "p")
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/Attachment", "Attachment")</label>
+        <div class="col-sm-8 col-lg-6">
+            <div class="form-group">
+                @Html.TextBoxFor(m => m.Attachment, new { type = "file", @class = "filestyle reset-control", @id = "Attachment", @onchange = "Validate(this);", @accept = ".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx" })
+                @Html.ValidationMessageFor(x => x.Attachment, "", new { @class = "help-block" }, "p")
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/Message", "Message")&nbsp;&nbsp;<span class="required">*</span></label>
+        <div class="col-sm-8 col-lg-6">
+            @Html.TextAreaFor(x => x.BodyMessage, 4, 50, new { @class = "form-control reset-control", id = "Subject" })
+            @Html.ValidationMessageFor(x => x.BodyMessage, "", new { @class = "help-block" }, "p")
+        </div>
+    </div>
+    <div class="form-group row @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+        <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha")</label>
+        @*<div class="col-sm-8 col-lg-6">
+            @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+        </div>*@
+        <div class="col-sm-8 col-lg-6">
+            <div class="g-recaptcha" id="recaptcha" data-sitekey="@Html.Sitecore().Dictionary("/Common/CaptchaKey", "6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf")"></div>
+            <p class="help-block field-validation-error" id="validationRecaptcha" style="display:none"><span class="">@Html.Sitecore().Dictionary("/Accounts/Register/Recaptcha Validation", "Please complete CAPTCHA.")</span></p>
+        </div>
+    </div>
+    <p class="py-3"><b>@Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/Note Text", "Note")</b>: @Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/Compose Note", "The reply to this communication will be sent to the email address  helpdesk.mumbaielectricity@adani.com ")</p>
+    <div class="form-group row py-2">
+        <div class="col-sm-12">
+            <button type="button" class="btn btn-primary" id="btnSubmit">@Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/Button/Submit", "Submit")</button>
+            <button type="button" class="btn btn-secondary" onclick='ResetElement("ComposeForm")'>@Html.Sitecore().Dictionary("/Accounts/My Account/Communicate With Us/MailBox/Compose/Compose/Button/Reset", "Reset")</button>
+        </div>
+    </div>
+}
+
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+
+

@@ -1,0 +1,43 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.LinkMenu.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.LinkMenu.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var sourceItem = Sitecore.Context.Database.GetItem(datasource);
+    var menuList = sourceItem.Axes.GetDescendants();
+}
+<div class="submenu">
+    <!--Submenu-->
+    <div class="container">
+        @if (menuList != null)
+        {
+            <ul>
+                @foreach (var item in menuList)
+                {
+                    <li>
+                        <a href=@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.LinkToSection, item,new { DisableWebEdit = true } ) >
+                            <span>
+                                @Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, item)
+                                @*@item.Fields[Templates.LinkMenuItem.Fields.ShortDesc]*@
+                            </span> 
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+
+    </div>
+</div>
+<!--end submenu-->

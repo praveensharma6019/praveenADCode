@@ -1,0 +1,28 @@
+﻿@using Sitecore.AdaniHousing.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (element != null)
+{
+    <ul class="ft-policy-links">
+        @if (element.HasChildren)
+        {
+            foreach (Item item in element.GetChildren())
+            {
+                LinkField lf = item.Fields["LinkUrl"];
+                if (lf.LinkType == "external")
+                {
+                    <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])" target="_blank">@Html.Sitecore().Field("Title", item)</a></li>
+                }
+                else
+                {
+                    <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@Html.Sitecore().Field("Title", item)</a></li>
+                }
+            }
+        }
+    </ul>
+}

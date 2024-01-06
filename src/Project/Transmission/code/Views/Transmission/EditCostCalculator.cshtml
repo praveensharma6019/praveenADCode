@@ -1,0 +1,1298 @@
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@model Sitecore.Transmission.Website.Models.ViewCarbonCalculator
+
+@{
+    /**/
+
+    string disp = "";
+    disp = "display: none;";
+    string disp2 = "display: none;";
+    var footprintTarget = Sitecore.Context.Database.GetItem("{1C63FFCF-DFA1-4613-99C5-D5683F074D6A}");
+    var CarbonEmissionReviewYear = Sitecore.Context.Database.GetItem("{512ABD71-7A24-4DA1-AB8C-5FF47656E480}");
+    var SelectedMonth = Model.MonthNames;
+    var RegNo = Model.RegistrationNumber != null ? Model.RegistrationNumber : "";
+    string[] empty = new string[1];
+    empty[0] = "";
+    string[] dropdownAppliancesList = Model.DropdownAppliancesList != null ? Model.DropdownAppliancesList.ToString().Split(',') : empty;
+    string[] dropdownAppliancesConsumptionVal = Model.DropdownAppliancesConsumptionVal != null ? Model.DropdownAppliancesConsumptionVal.ToString().Split(',') : empty;
+    string[] dropdownAppliancesConsumption = Model.DropdownAppliancesConsumption != null ? Model.DropdownAppliancesConsumption.ToString().Split(',') : empty;
+    string[] airTripsDropdownList = Model.AirTripsDropdownList != null ? Model.AirTripsDropdownList.ToString().Split(',') : empty;
+    string[] airTripsValue = Model.AirTripsValue != null ? Model.AirTripsValue.ToString().Split(',') : empty;
+    string[] airTrips = Model.AirTrips != null ? Model.AirTrips.ToString().Split(',') : empty;
+    var Disable = "";
+    var ses = Request.Cookies["EditTransmissionCostCalculator"] != null ? Request.Cookies["EditTransmissionCostCalculator"].Value : null;
+    if (ses != null && ses != "1")
+    {
+        Disable = "disabled";
+        disp2 = "";
+        RegNo = "";
+    }
+    IFormatProvider provider = CultureInfo.CreateSpecificCulture("en-US");
+    double s = double.Parse(Model.TotalDomesticUses, provider);
+    string TotalDomesticUses = s.ToString("0.00");
+    double x = double.Parse(Model.TotalTransportationUses, provider);
+    string TotalTransportationUses = x.ToString("0.00");
+    string[] TotalTrips = string.IsNullOrEmpty(Model.AirTrips) ? null : Model.AirTrips.Split(',');
+    var totalTripsInt = 0.00;
+    if (TotalTrips != null)
+    {
+        foreach (var ii in TotalTrips)
+        {
+            totalTripsInt = totalTripsInt + double.Parse(ii);
+        }
+    }
+
+    var EmissiontotalTrips = totalTripsInt / 1000.00;
+    double z = double.Parse(Model.TotalCarbonEmission, provider);
+    string TotalCarbonEmission = z.ToString("0.00");
+    double a = double.Parse(Model.EmployeeTotalemissionsperMonths, provider);
+    string EmployeeTotalemissionsperMonths = a.ToString("0.00");
+
+}
+
+<div class="contentSection">
+
+
+
+    <!-- /Banner -->
+    <section class="py-5 bg-gray carbon_calculater" id="download">
+        <div class="container">
+            <input type="hidden" id="cFormType" value="Cost-Calculator">
+            <input type="hidden" id="PageInfo" value="/Cost-Calculator">
+            <input type="hidden" id="HiddenMonth" value="@SelectedMonth">
+            <input type="hidden" id="Hiddenyears" value="@Model.Years">
+            <input type="hidden" id="cookievalues" value="@ses">
+            <div class="col-md-12">
+
+                <h1 class="heading pl-4 mb-5">
+                    <strong style=" background: transparent; color: #104a89;
+    font-size: 2.35rem;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    border-radius: 0px;">
+                        Carbon Footprint Calculator
+                    </strong>
+                </h1>
+
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group">
+
+                        <p>Consumption month:</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+
+                        <select class="form-control" id="MonthName" value=""></select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <select class="form-control" id="year" value=""></select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="btn-logout text-lg-right text-left mt-lg-0 mt-3 hover-text">
+                        <button type="submit" class="btn btn-primary" name="submit" id="btnEdit" data-confirm="Edited Value should be greater than existing value. Do you want to continue?" style="@disp2; text-align:left;">Edit</button>
+                        <span class="tooltip-text" id="top">Only Higher values are allowed</span>
+                    </div>
+                </div>
+            </div>
+            <div class="table table-responsive mb-0 calcii">
+                <table class="table" cellpadding=20 id="myTable">
+                    <thead>
+                        <tr style="border-top: 2px solid #f1f1f1;">
+                            <td colspan="2">
+                                <label><b>Total Family Members</b></label>
+                            </td>
+                            <td colspan="1">
+                                <input type="number" class="form-control" id="FamilyMembers" placeholder="" value="@(string.IsNullOrEmpty(Model.TotalFamilyMembers) ? " " : Model.TotalFamilyMembers)" @Disable>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    <th style="min-width: 250px;">Particulars</th>
+                    <th style="min-width: 100px;">Unit</th>
+                    <th style="min-width: 200px;">Consumption</th>
+                    <th style="min-width: 200px;">GHG Emission kg CO<sub>2</sub>e</th>
+                    <th style="min-width: 200px;">Notes</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5">
+                                <h3>Domestic Use (Monthly Basis)</h3>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="5">
+                                <h3>Electricity Consumed at Residency</h3>
+                            </td>
+
+                        </tr>
+                        @if (dropdownAppliancesList[0] == "" || dropdownAppliancesConsumptionVal[0] == "" || dropdownAppliancesConsumption[0] == "")
+                        {
+                            var val = string.IsNullOrEmpty(Model.ElectricityBillConsumptionVal) ? "" : Model.ElectricityBillConsumptionVal;
+                            var ElectricityConsumption = val != "" ? "checked" : "";
+                            var ApplianceListRadio = val == "" ? "checked" : "";
+                            <tr>
+                                <td><input type="radio" id="ElectricityConsumptionRadioBtn" name="ElectricityConsumption" value="ElectricityConsumption" @Disable @ElectricityConsumption><label for="ElectricityConsumptionRadioBtn">&nbsp; Consumption as per electricity bill</label></td>
+                                <td><label>KWH &#47; month</label></td>
+                                <td><input type="number" class="form-control" id="txt_11" onBlur="javascript:calculate_total(11)" name="txt_11" placeholder="" value="@val" @Disable></td>
+                                <td><input type="number" class="form-control" id="d_txt_11" name="d_txt_11" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.ElectricityConsumedatResidences) ? " " : Model.ElectricityConsumedatResidences)" @Disable></td>
+                                <td><p>Consumption --Bimonthly electricity billing should divide by 2 for monthly consumption</p></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"><input type="radio" id="ApplianceListRadioBtn" name="ApplianceList" value="ApplianceList" @Disable @ApplianceListRadio><label for="ApplianceListRadioBtn">&nbsp; Consumption as per Appliance List</label></td>
+                                <td style="width: 250px;"><a href="https://www.adanitransmission.com/-/media/Project/Transmission/Sustainability/ATL%20-%20Star%20Rating%20Appliances.pdf" target="_blank">Star Rating Appliances</a></td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td><input type="radio" id="ElectricityConsumptionRadioBtn" name="ElectricityConsumption" value="ElectricityConsumption" disabled><label for="ElectricityConsumptionRadioBtn">&nbsp; Consumption as per electricity bill</label></td>
+                                <td><label>KWH &#47; month</label></td>
+                                <td><input type="number" class="form-control" id="txt_11" onBlur="javascript:calculate_total(11)" name="txt_11" placeholder="" @Disable></td>
+                                <td><input type="number" class="form-control" id="d_txt_11" name="d_txt_11" placeholder="" disabled></td>
+                                <td><p>Consumption --Bimonthly electricity billing should divide by 2 for monthly consumption</p></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"><input type="radio" id="ApplianceListRadioBtn" name="ApplianceList" value="ApplianceList" checked @Disable><label for="ApplianceListRadioBtn">&nbsp; Consumption as per Appliance List</label></td>
+                                <td style="width: 250px;"><a href="https://www.adanitransmission.com/-/media/Project/Transmission/Sustainability/ATL%20-%20Star%20Rating%20Appliances.pdf" target="_blank">Star Rating Appliances</a></td>
+
+                            </tr>
+                        }
+
+
+                        @{ string source = Model.DropdownAppliancesList != null ? Model.DropdownAppliancesList : "";
+                            int count = 1;
+                            foreach (char c in source)
+                            {
+                                if (c == ',')
+                                { count++; }
+                            } }
+                        @*@for (int i = 1; i <= count; i++)
+                            {*@
+                        @{ int tempCount = 1;}
+                        @for (int i = 0; i < count; i++)
+                        {
+                            tempCount++;
+                            int j = i + 1;
+                            <tr id="TR_OWNERDOC_@j" class="abcd_add">
+                                <td>
+                                    <div class="input-group mb-3">
+
+                                        <select class="form-control" id="ConsumedElectricity_@j" @Disable>
+                                            <option @((dropdownAppliancesList[i] == "0") ? "selected" : "" ) value="0"> Select</option>
+                                            <option @((dropdownAppliancesList[i] == "8") ? "selected" : "" ) value="8">
+                                                Zero bulb
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "14") ? "selected" : "" ) value="14">
+                                                CFL Lamp-14w
+                                            </option>
+
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "12") ? "selected" : "" ) value="12">
+                                                CFL Lamp-12w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "7") ? "selected" : "" ) value="7">
+                                                CFL Lamp-7w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "100") ? "selected" : "" ) value="100">
+                                                Incandecent Lamp-Bulb-100w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "60") ? "selected" : "" ) value="60">
+                                                Incandecent Lamp-Bulb-60w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "40") ? "selected" : "" ) value="40">
+                                                Incandecent Lamp-Bulb-40w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "60") ? "selected" : "" ) value="60">
+                                                Halogen
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "12") ? "selected" : "" ) value="12">
+                                                LED bulb-12w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "9") ? "selected" : "" ) value="9">
+                                                LED bulb-9w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "7") ? "selected" : "" ) value="7">
+                                                LED bulb-7w
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "20") ? "selected" : "" ) value="20">
+                                                LED down light-15
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "10") ? "selected" : "" ) value="10">
+                                                LED down light-10
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "36") ? "selected" : "" ) value="36">
+                                                Tube Light 4 ft
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "18") ? "selected" : "" ) value="18">
+                                                Tube Light 2 ft
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "250") ? "selected" : "" ) value="250">
+                                                Refrigerator (Single Door) Tube Light 2 ft
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "300") ? "selected" : "" ) value="300">
+                                                Refrigerator (Double door)
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1400") ? "selected" : "" ) value="1400">
+                                                Air-conditioner (Window) 1T
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "2100") ? "selected" : "" ) value="2100">
+                                                Air-conditioner (Window) 1.5T
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "2800") ? "selected" : "" ) value="2800">
+                                                Air-conditioner (Window) 2T
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1200") ? "selected" : "" ) value="1200">
+                                                Air-conditioner (Split) 1T
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1900") ? "selected" : "" ) value="1900">
+                                                Air-conditioner (Split) 1.5T
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "2600") ? "selected" : "" ) value="2600">
+                                                Air-conditioner (Split) 2T
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "4150") ? "selected" : "" ) value="4150">
+                                                Air-conditioner Cassette 4T
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "800") ? "selected" : "" ) value="800">
+                                                Air cooler
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "80") ? "selected" : "" ) value="80">
+                                                Ceiling Fan-conventional
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "40") ? "selected" : "" ) value="40">
+                                                Ceiling Fan-BLDC
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "60") ? "selected" : "" ) value="60">
+                                                LED TV 26 inch
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "80") ? "selected" : "" ) value="80">
+                                                LED TV 32 inch
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "125") ? "selected" : "" ) value="125">
+                                                LED TV 43 inch
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "150") ? "selected" : "" ) value="150">
+                                                LED TV 55 inch
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "15") ? "selected" : "" ) value="15">
+                                                Set top box
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "200") ? "selected" : "" ) value="200">
+                                                Computer - DesktopPC
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "75") ? "selected" : "" ) value="75">
+                                                Laptop
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "3500") ? "selected" : "" ) value="3500">
+                                                Instant Water Heater
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "3000") ? "selected" : "" ) value="3000">
+                                                Storage Water Heater
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "2400") ? "selected" : "" ) value="2400">
+                                                Microwave-32 Ltr
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1400") ? "selected" : "" ) value="1400">
+                                                Microwave-20 Ltr
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1300") ? "selected" : "" ) value="1300">
+                                                Oven Toaster Griller (OTG)
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1500") ? "selected" : "" ) value="1500">
+                                                Washing Machine Front Load
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1350") ? "selected" : "" ) value="1350">
+                                                Washing Machine Top Load
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "900") ? "selected" : "" ) value="900">
+                                                Vaccum Cleanar
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1000") ? "selected" : "" ) value="1000">
+                                                Hair Dryer
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "1200") ? "selected" : "" ) value="1200">
+                                                Clothes Iron
+                                            </option>
+
+
+
+                                            <option @((dropdownAppliancesList[i] == "250") ? "selected" : "" ) value="250">Printer</option>
+                                            <option @((dropdownAppliancesList[i] == "500") ? "selected" : "" ) value="500">Mixer or food processer</option>
+                                        </select>
+
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary btn-primary txt-sm btn_abcd" data-target="#docsupload" id="applianceAddbtn_@j" @Disable>+ Add</button>
+                                        </div>
+                                    </div>
+
+
+                                </td>
+
+                                <td><label>Hr/Day</label></td>
+
+                                <td><input type="number" class="calculator form-control txtCal" name="consume_elec_@j" id="consume_elec_@j" placeholder="" value="@dropdownAppliancesConsumptionVal[i]" @Disable></td>
+                                <td><input type="number" class="calculator form-control consumer" id="d_consume_elec_@j" name="d_consume_elec_@j" placeholder="" value="@dropdownAppliancesConsumption[i]" disabled></td>
+                            </tr>
+                        }
+
+                        @for (var i = tempCount; i <= 20; i++)
+                        {
+
+                            <tr id="TR_OWNERDOC_@i" class="abcd_add1" style="display:none">
+                                <td>
+                                    <div class="input-group mb-3">
+
+                                        <select class="form-control" id="ConsumedElectricity_@i">
+                                            <option value="0">
+                                                Select
+                                            </option>
+                                            <option value="8">
+                                                Zero bulb
+                                            </option>
+
+
+
+                                            <option value="14">
+                                                CFL Lamp-14w
+                                            </option>
+
+
+
+
+                                            <option value="12">
+                                                CFL Lamp-12w
+                                            </option>
+
+
+
+                                            <option value="7">
+                                                CFL Lamp-7w
+                                            </option>
+
+
+
+                                            <option value="100">
+                                                Incandecent Lamp-Bulb-100w
+                                            </option>
+
+
+
+                                            <option value="60">
+                                                Incandecent Lamp-Bulb-60w
+                                            </option>
+
+
+
+                                            <option value="40">
+                                                Incandecent Lamp-Bulb-40w
+                                            </option>
+
+
+
+                                            <option value="60">
+                                                Halogen
+                                            </option>
+
+
+
+                                            <option value="12">
+                                                LED bulb-12w
+                                            </option>
+
+
+
+                                            <option value="9">
+                                                LED bulb-9w
+                                            </option>
+
+
+
+                                            <option value="7">
+                                                LED bulb-7w
+                                            </option>
+
+
+
+                                            <option value="20">
+                                                LED down light-15
+                                            </option>
+
+
+
+                                            <option value="10">
+                                                LED down light-10
+                                            </option>
+
+
+
+                                            <option value="36">
+                                                Tube Light 4 ft
+                                            </option>
+
+
+
+                                            <option value="18">
+                                                Tube Light 2 ft
+                                            </option>
+
+
+
+                                            <option value="250">
+                                                Refrigerator (Single Door) Tube Light 2 ft
+                                            </option>
+
+
+
+                                            <option value="300">
+                                                Refrigerator (Double door)
+                                            </option>
+
+
+
+                                            <option value="1400">
+                                                Air-conditioner (Window) 1T
+                                            </option>
+
+
+
+                                            <option value="2100">
+                                                Air-conditioner (Window) 1.5T
+                                            </option>
+
+
+
+                                            <option value="2800">
+                                                Air-conditioner (Window) 2T
+                                            </option>
+
+
+
+                                            <option value="1200">
+                                                Air-conditioner (Split) 1T
+                                            </option>
+
+
+
+                                            <option value="1900">
+                                                Air-conditioner (Split) 1.5T
+                                            </option>
+
+
+
+                                            <option value="2600">
+                                                Air-conditioner (Split) 2T
+                                            </option>
+
+
+
+                                            <option value="4150">
+                                                Air-conditioner Cassette 4T
+                                            </option>
+
+
+
+                                            <option value="800">
+                                                Air cooler
+                                            </option>
+
+
+
+                                            <option value="80">
+                                                Ceiling Fan-conventional
+                                            </option>
+
+
+
+                                            <option value="40">
+                                                Ceiling Fan-BLDC
+                                            </option>
+
+
+
+                                            <option value="60">
+                                                LED TV 26 inch
+                                            </option>
+
+
+
+                                            <option value="80">
+                                                LED TV 32 inch
+                                            </option>
+
+
+
+                                            <option value="125">
+                                                LED TV 43 inch
+                                            </option>
+
+
+
+                                            <option value="150">
+                                                LED TV 55 inch
+                                            </option>
+
+
+
+                                            <option value="15">
+                                                Set top box
+                                            </option>
+
+
+
+                                            <option value="200">
+                                                Computer - DesktopPC
+                                            </option>
+
+
+
+                                            <option value="75">
+                                                Laptop
+                                            </option>
+
+
+
+                                            <option value="3500">
+                                                Instant Water Heater
+                                            </option>
+
+
+
+                                            <option value="3000">
+                                                Storage Water Heater
+                                            </option>
+
+
+
+                                            <option value="2400">
+                                                Microwave-32 Ltr
+                                            </option>
+
+
+
+                                            <option value="1400">
+                                                Microwave-20 Ltr
+                                            </option>
+
+
+
+                                            <option value="1300">
+                                                Oven Toaster Griller (OTG)
+                                            </option>
+
+
+
+                                            <option value="1500">
+                                                Washing Machine Front Load
+                                            </option>
+
+
+
+                                            <option value="1350">
+                                                Washing Machine Top Load
+                                            </option>
+
+
+
+                                            <option value="900">
+                                                Vaccum Cleanar
+                                            </option>
+
+
+
+                                            <option value="1000">
+                                                Hair Dryer
+                                            </option>
+
+
+
+                                            <option value="1200">
+                                                Clothes Iron
+                                            </option>
+
+
+
+                                            <option value="250">Printer</option>
+                                            <option value="500">Mixer or food processer</option>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary btn-primary txt-sm btn_abcd" data-target="#docsupload" id="applianceAddbtn_@i">+ Add</button>
+                                        </div>
+                                    </div>
+
+
+                                </td>
+
+                                <td><label>Hr/Day</label></td>
+
+                                <td><input type="number" class="calculator form-control txtCal" name="consume_elec_@i" id="consume_elec_@i" placeholder=""></td>
+                                <td><input type="number" class="calculator form-control consumer" id="d_consume_elec_@i" name="d_consume_elec_@i" placeholder="" value="" disabled></td>
+
+                            </tr>
+
+                        }
+                        <input type="number" class="form-control" style="@disp" id="ElectricityConsumedatResidence" name="ElectricityConsumedatResidence" placeholder="" @Disable />
+
+
+                        <tr>
+                            <td><label>PNG used at home</label></td>
+                            <td><label>m<sup>3</sup>&#47;month</label></td>
+                            <td><input type="number" class="form-control" id="txt_9" onBlur="javascript:calculate_total(9)" name="txt_9" placeholder="" value="@(string.IsNullOrEmpty(Model.CNGUsedsVal) ? " " : Model.CNGUsedsVal)" @Disable></td>
+                            <td><input type="number" class="form-control" id="d_txt_9" name="d_txt_9" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.CNGUseds) ? " " : Model.CNGUseds)"></td>
+                        </tr>
+                        <tr>
+                            <td><label>LPG Cylider used at home</label></td>
+                            <td><label>Nos&#47;month</label></td>
+                            <td><input type="number" class="form-control" name="txt_8" id="txt_8" onBlur="javascript:calculate_total(8)" placeholder="" value="@(string.IsNullOrEmpty(Model.LPGCylindersVal) ? " " : Model.LPGCylindersVal)" @Disable></td>
+                            <td><input type="number" class="form-control" id="d_txt_8" name="d_txt_8" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.LPGCylinders) ? " " : Model.LPGCylinders)"></td>
+                        </tr>
+                        <tr style="border-top: 2px solid #f1f1f1;">
+                            <td colspan="5">
+                                <h3>Transportation Use (Monthly basis)</h3>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label>Diesel Consumption</label></td>
+                            <td><label>Litres</label></td>
+                            <td><input type="number" class="form-control" id="txt_2" name="txt_2" onBlur="javascript:calculate_total(2)" placeholder="" value="@(string.IsNullOrEmpty(Model.DieselConsumptionsVal) ? " " : Model.DieselConsumptionsVal)" @Disable></td>
+                            <td><input type="number" name="d_txt_2" id="d_txt_2" class="form-control" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.DieselConsumptions) ? " " : Model.DieselConsumptions)"></td>
+                            <td rowspan="2" style="width: 250px;"><p>@*Personal Vehicle fuel(Litres). <br>*@For Car Pooling, total fuel use is to divided by total number of people.All people need to be accounted individually-</p></td>
+
+                        </tr>
+                        <tr>
+                            <td><label>Petrol Consumption</label></td>
+                            <td><label>Litres</label></td>
+                            <td><input type="number" name="txt_1" class="form-control" id="txt_1" onBlur="javascript:calculate_total(1)" placeholder="" value="@(string.IsNullOrEmpty(Model.PetrolConsumptionsVal) ? " " : Model.PetrolConsumptionsVal)" @Disable></td>
+                            <td><input type="number" name="d_txt_1" class="form-control" id="d_txt_1" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.PetrolConsumptions) ? " " : Model.PetrolConsumptions)"></td>
+                        </tr>
+                        <tr>
+                            <td><label>CNG Auto Rikshaw/Taxi </label></td>
+                            <td><label>Km</label></td>
+                            <td><input type="number" class="form-control" name="txt_6" id="txt_6" onBlur="javascript:calculate_total(6)" placeholder="" value="@(string.IsNullOrEmpty(Model.AutoRikshawsVal) ? " " : Model.AutoRikshawsVal)" @Disable></td>
+                            <td><input type="number" name="d_txt_6" class="form-control" id="d_txt_6" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.AutoRikshaws) ? " " : Model.AutoRikshaws)"></td>
+                            <td rowspan="3"><p>Public Transport</p></td>
+                        </tr>
+                        <tr>
+                            <td><label>Bus</label></td>
+                            <td><label>Km</label></td>
+                            <td><input type="number" class="form-control" id="txt_5" name="txt_5" onBlur="javascript:calculate_total(5)" placeholder="" value="@(string.IsNullOrEmpty(Model.BusesVal) ? " " : Model.BusesVal)" @Disable></td>
+                            <td><input type="number" name="d_txt_5" class="form-control" id="d_txt_5" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.Buses) ? " " : Model.Buses)"></td>
+
+                        </tr>
+                        <tr>
+                            <td><label>Train </label></td>
+                            <td><label>Km</label></td>
+                            <td><input type="number" class="form-control" name="txt_7" id="txt_7" onBlur="javascript:calculate_total(7)" placeholder="" value="@(string.IsNullOrEmpty(Model.TrainsVal) ? " " : Model.TrainsVal)" @Disable></td>
+                            <td><input type="number" class="form-control" id="d_txt_7" name="d_txt_7" placeholder="" disabled value="@(string.IsNullOrEmpty(Model.Trains) ? " " : Model.Trains)"></td>
+
+                        </tr>
+
+                        <tr>
+                            <td colspan="5"><label>Air Trips </label></td>
+
+
+                        </tr>
+                        @{ string source2 = Model.AirTripsDropdownList != null ? Model.AirTripsDropdownList : "";
+                            int count2 = 1;
+                            foreach (char c in source2)
+                            {
+                                if (c == ',')
+                                { count2++; }
+                            } }
+                        @{var tempSecond = 1;}
+                        @for (int i = 0; i < count2; i++)
+                        {
+                            tempSecond++;
+                            int j = i + 1;
+                            <tr id="adddocument_@j" class="abcd_add_second">
+                                <td>
+                                    <div class="input-group mb-3">
+                                        <select class="form-control" id="Trips_@j" @Disable>
+                                            @if (airTripsDropdownList == null)
+                                            {
+                                                <option>
+                                                    Select
+                                                </option>
+                                            }
+                                            <option @((airTripsDropdownList[i] == "700") ? "selected" : "" ) value="700">
+                                                Short Haul (400 kms > 1000 kms)
+                                            </option>
+                                            <option @((airTripsDropdownList[i] == "1800") ? "selected" : "" ) value="1800">
+                                                Medium Haul (1000 kms > 3700 kms)
+
+                                            </option>
+                                            <option @((airTripsDropdownList[i] == "9000") ? "selected" : "" ) value="9000">
+                                                Long haul ( > 3700 kms)
+
+                                            </option>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary btn-primary txt-sm btn_secondary" type="button" data-target="#docsupload" @Disable>+ Add</button>
+                                        </div>
+                                    </div>
+
+
+                                </td>
+
+                                <td><label>Number of Air Trips</label></td>
+
+                                <td><input type="number" class="calculator form-control numbertrips" name="numbertrips_@j" id="numbertrips_@j" placeholder="" value="@airTripsValue[i]" @Disable></td>
+                                <td><input type="number" class="calculator form-control numbertrip" id="d_numbertrips_@j" name="numbertrips_@j" placeholder="" value="@airTrips[i]" disabled></td>
+                                <td style="width: 250px;"></td>
+                            </tr>
+
+                        }
+                        @for (int i = tempSecond; i <= 3; i++)
+                        {
+                            <tr id="adddocument_@i" class="abcd_add_second1" style="display:none">
+                                <td>
+                                    <div class="input-group mb-3">
+                                        <select class="form-control" id="Trips_@i" @Disable>
+                                            <option>
+                                                Select
+                                            </option>
+                                            <option value="700">
+                                                Short Haul (400 kms > 1000 kms)
+                                            </option>
+                                            <option value="1800">
+                                                Medium Haul (1000 kms > 3700 kms)
+
+                                            </option>
+                                            <option value="9000">
+                                                Long haul ( > 3700 kms)
+
+                                            </option>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary btn-primary txt-sm btn_secondary" type="button" data-target="#docsupload" @Disable>+ Add</button>
+                                        </div>
+                                    </div>
+
+
+                                </td>
+
+                                <td><label>Number of Air Trips</label></td>
+
+                                <td><input type="number" class="calculator form-control numbertrips" name="numbertrips_@i" id="numbertrips_@i" placeholder="" @Disable></td>
+                                <td><input type="number" class="calculator form-control numbertrip" id="d_numbertrips_@i" name="numbertrips_@i" placeholder="" value="" disabled></td>
+                                <td style="width: 250px;"></td>
+                            </tr>
+
+
+                        }
+                        <input type="number" class="form-control" style="@disp" id="TotalAir" name="TotalAir" placeholder="" @Disable />
+                        <input type="number" class="form-control" style="@disp" id="TotalAirInViewEdit" name="@totalTripsInt" placeholder="" value="@EmissiontotalTrips.ToString("0.00")" @Disable />
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-row" style="color: red; background-color: #ebebeb;">
+                <p id="Message" name="Message" class="col-sm-12 col-form-label txt-red"></p>
+            </div>
+
+            @if (ses == "1")
+            {
+                <div class="col-lg-3 ml-auto text-right my-3">
+                    <button type="submit" class="btn btn-primary" name="submit" style="height:77px" id="btnsubmit" data-confirm="Are you sure you want to Calculate Carbon Footprint?">Update Carbon Footprints</button>
+
+                    <div class="modal fade " id="modal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Are You Sure?</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="modal-btn-yes" class="btn btn-primary" value="true">Yes</button>
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+
+            <p>&nbsp;</p>
+            <p>&nbsp;</p>
+
+
+            <div class="container a" id="hello" style="@disp2">
+                <h2 class="mb-3 border-l pl-3">Energy Consumption Monitoring (~CO<sub>2</sub>)</h2>
+                <div class="table-responsive table-calc">
+                    <table class="table" id="pendingaprroval_table">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Parameter</th>
+                                <th style="@disp">UOM</th>
+                                <th>Initial Consumtion</th>
+                                <th>Present Consumtion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    1
+                                </td>
+
+                                <td>
+                                    Electricity
+                                </td>
+
+                                <td style="@disp">
+                                    KWH
+                                </td>
+                                <td id="HistoryElectricityConsumedatResidences">@Model.ElectricityConsumedatResidences</td>
+                                <td id="Currentelectrcity">@Model.ElectricityConsumedatResidences</td>
+
+
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    2
+                                </td>
+                                <td>
+                                    PNG
+                                </td>
+                                <td style="@disp">
+                                    CUM
+                                </td>
+                                <td id="HistoryCNGUsed">@Model.CNGUseds</td>
+                                <td id="currentCNG">@Model.CNGUseds</td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    3
+                                </td>
+                                <td>
+                                    LPG
+                                </td>
+                                <td style="@disp">
+                                    CUM
+                                </td>
+                                <td id="HistoryLPGUsed">@Model.LPGCylinders</td>
+                                <td id="currentLPG1">@Model.LPGCylinders</td>
+
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    4
+                                </td>
+                                <td>
+                                    Diesel
+                                </td>
+                                <td style="@disp">
+                                    KM
+                                </td>
+                                <td id="HistoryDiesel">@Model.DieselConsumptions</td>
+                                <td id="CurrentDiesel">@Model.DieselConsumptions</td>
+
+
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    5
+                                </td>
+                                <td>
+                                    Petrol
+                                </td>
+                                <td style="@disp">
+                                    KM
+                                </td>
+                                <td id="HistoryPetrol">@Model.PetrolConsumptions</td>
+                                <td id="CurrentPetrol">@Model.PetrolConsumptions</td>
+
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    6
+                                </td>
+                                <td>
+                                    CNG (Auto/Taxi) Travel
+                                </td>
+                                <td style="@disp">
+                                    KM
+                                </td>
+                                <td id="HistoryAutoRickshaw">@Model.AutoRikshaws</td>
+                                <td id="CurrentAutoRickshaw">@Model.AutoRikshaws</td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    7
+                                </td>
+                                <td>
+                                    Bus Travel
+                                </td>
+                                <td style="@disp">
+                                    KM
+                                </td>
+                                <td id="HistoryBuses">@Model.Buses</td>
+                                <td id="CurrentBus">@Model.Buses</td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    8
+                                </td>
+                                <td>
+                                    Train Travel
+                                </td>
+                                <td style="@disp">
+                                    KM
+                                </td>
+                                <td id="HistoryTrains">@Model.Trains</td>
+                                <td id="CurrentTrains">@Model.Trains</td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    9
+                                </td>
+                                <td>
+                                    Air Travel
+                                </td>
+                                <td style="@disp">
+                                    KM
+                                </td>
+                                <td id="Historytrips">@totalTripsInt</td>
+                                <td id="CurrentTrip">@totalTripsInt</td>
+
+
+                            </tr>
+
+                            <tr style="@disp">
+                                <td>
+                                    10
+                                </td>
+                                <td>
+                                    HistoryAnnualCarbonFootprint
+                                </td>
+                                <td>
+                                    KM
+                                </td>
+                                <td>
+
+                                    <input type="number" style="@disp" class="form-control" value="@Model.AnnualCarbonFootprints" id="HistoryAnnualCarbonFootprint" placeholder="" />
+
+                                </td>
+                                <td>
+
+                                    <input type="number" style="@disp" class="form-control" value="@Model.AnnualCarbonFootprints" placeholder="" />
+
+                                </td>
+
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+            <div class="carbon_calculater--result" id="CalculatedValue" style="@disp2">
+
+                <div class="row">
+                    <div class="col-lg-6 py-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <h4>Emission from Domestic Use</h4>
+                            </div>
+                            <div class="col-4">
+
+                                <p id="EmissionfromDomesticUse" name="EmissionfromDomesticUse"><span>@TotalDomesticUses</span>Tonnes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 py-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <h4>Total Emission</h4>
+                            </div>
+                            <div class="col-4">
+
+                                <p id="TotalCarbonEmission" name="TotalCarbonEmission"><span>@TotalCarbonEmission</span>Tonnes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 py-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <h4>Emission from Transportation</h4>
+                            </div>
+                            <div class="col-4">
+                                <p id="EmissionfromTransportation" name="EmissionfromTransportation"><span>@TotalTransportationUses</span>Tonnes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 py-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <h4>Average Emission per Month per person</h4>
+                            </div>
+                            <div class="col-4">
+                                <p id="TotalemissionsperMonth" name="TotalemissionsperMonth"><span>@EmployeeTotalemissionsperMonths</span>Tonnes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 py-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <h4>Emission from Air Trips</h4>
+                            </div>
+
+                            <div class="col-4">
+                                <p id="TotalTrips" name="TotalTrips"><span>@EmissiontotalTrips.ToString("0.00")</span>Tonnes</p>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="col-lg-6 py-3">
+                        <div class="row">
+                            <div class="col-8">
+                                <h4>Your Annual Carbon Footprint</h4>
+                            </div>
+                            <div class="col-4">
+                                <p id="EmployeeAverageAnnualCarbonFootprint" name="EmployeeAverageAnnualCarbonFootprint"><span>@Model.AnnualCarbonFootprints</span>Tonnes</p>
+                            </div>
+                            <p input type="hidden" id="AverageAnnualCarbonFootprintHidden" name="AverageAnnualCarbonFootprintHidden" style="display:none" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="btnreset" style="@disp2">
+                @Html.Partial("~/Views/Transmission/EditReviewDetail.cshtml", Model)
+                <!--emission reduction Code Ends from Here-->
+            </div>
+        </div>
+        <input type="hidden" id="reg-number-hidden" value="@RegNo">
+    </section>
+</div>
+<!--  /Main content Section-->
+<!-- EditCostCalculator.cshtml -->
+<script src="~/scripts/Transmission/jquery.min.js"></script>
+<script language="javascript" type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#HiddenMonth").val(@SelectedMonth);
+
+    var radioButton2 = document.getElementById("ElectricityConsumptionRadioBtn");
+
+    var radioButton1 = document.getElementById("ApplianceListRadioBtn");
+    });
+
+    function calculate_total(i) {
+        if (i > 0) {
+            if (document.getElementById('txt_' + i).value.search(/\S/) != -1) {
+                if (isNaN(document.getElementById('txt_' + i).value) == false) {
+                    if (document.getElementById('txt_' + i).value >= 0) {
+                        document.getElementById('d_txt_' + i).value = (document.getElementById('txt_' + i).value * cal_factor[i]).toFixed(2);
+                    }
+                    else {
+                        document.getElementById('d_txt_' + i).value = '';
+                    }
+                }
+                else {
+                    document.getElementById('d_txt_' + i).value = '';
+                }
+            }
+            else {
+                document.getElementById('d_txt_' + i).value = '';
+            }
+        }
+
+
+    }
+
+    var cal_factor = new Array();
+    cal_factor[0] = "";
+    cal_factor[1] = "2.33";
+    cal_factor[2] = "2.68";
+    cal_factor[3] = "3.05911236953988";
+    cal_factor[4] = "0.305911236953988";
+    cal_factor[5] = "0.02";
+    cal_factor[6] = "0.11";
+    cal_factor[7] = "0.10";
+    cal_factor[8] = "42.50";
+    cal_factor[9] = "1.82";
+    cal_factor[10] = "0.90";
+    cal_factor[11] = "0.82";
+</script>
+<style>
+    .tooltip-text {
+        visibility: hidden;
+        position: absolute;
+        z-index: 1;
+        width: 200px;
+        color: white;
+        font-size: 12px;
+        background-color: #192733;
+        border-radius: 10px;
+        padding: 10px 15px 10px 15px;
+    }
+
+    .hover-text:hover .tooltip-text {
+        visibility: visible;
+    }
+
+    #top {
+        top: -40px;
+        right: 0px;
+    }
+
+    .hover-text {
+        position: relative;
+        font-family: Arial;
+        text-align: center;
+    }
+</style>

@@ -1,0 +1,74 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using System.Globalization
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var i = 1;
+
+}
+
+<section class="bg-gray pt-5">
+    <div class="container events-m">
+        <h2 class="heading pl-4 mb-4">Channel Partner launch</h2>
+        <div class="row">
+
+            @foreach (var item in element.Children.ToList())
+            {
+                if (item.TemplateID.ToString() != "{CCBDCDFC-118A-4FC3-A4C7-52350D42385A}")
+                {
+                    var sortedYear = item.GetChildren().OrderByDescending(x => x.Fields["Date"].Value);
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="item boxzoom" data-toggle="modal" data-target="#modalevent-@i">
+                            @Html.Sitecore().ImageField("Image", item, cssClass: "img-fluid w-100")
+                            <p class="events-title">@Html.Sitecore().Field("Title", item)</p>
+                            <p class="events-desc mt-3">
+                                <span>
+                                    @Html.Sitecore().Field("Summary", item)
+                                </span>
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal events-modal" id="modalevent-@i">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <div class="modal-body">
+                                    <div class="owl-carousel events-item">
+                                        
+                                        
+                                        @foreach (var inner in item.Children.ToList())
+                                        {
+                                            if (inner != null)
+                                            {
+                                                <div class="item">
+                                                    @Html.Sitecore().ImageField("MediaImage", inner, cssClass: "img-fluid")
+												 <p class="events-title">@Html.Sitecore().Field("MediaTitle", inner)</p>
+                                                </div>
+                                            }
+                                        }
+                                        
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    i++;
+                }
+            }
+
+        </div>
+    </div>
+</section>
+

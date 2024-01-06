@@ -1,0 +1,95 @@
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+
+    var isSocialMenu = Model.NavItems.All(i => !string.IsNullOrWhiteSpace(i.Item[Templates.LinkMenuItem.Fields.Icon]));
+}
+
+<div class="collapse navbar-collapse" id="mainMenu">
+    <ul class="navbar-nav ml-auto primaryMenu">
+        @foreach (var item in Model.NavItems)
+        {
+            var liclass = item.IsActive ? "active " : "";
+            if (item.Item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+            {
+                liclass += "divider-left";
+            }
+
+            var hasChildren = item.Children != null && item.Children.NavItems.Any() && item.ShowChildren;
+            var cssClass = "";
+
+            if (hasChildren)
+            {
+                cssClass += " dropdown";
+
+            }
+            <li class="nav-item @cssClass">
+
+                @if (hasChildren)
+                {
+                    <a href="@item.Url" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                        @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                        <span class="dropMenuIcon"><i class="fas fa-angle-down"></i></span>
+                    </a>
+                    <div class="dropdown-menu">
+                        @foreach (var subitem in item.Children.NavItems)
+                        {
+                            if (subitem.IsNewTab)
+                            {
+                                <a class="dropdown-item" target="_blank" href="@subitem.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" href="@subitem.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</a>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <a href="@item.Url" class="nav-link">
+                        @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+</div>
+
+
+
+@*<div class="collapse navbar-collapse" id="mainMenu">
+        <ul class="navbar-nav ml-auto primaryMenu">
+
+            <li class="nav-item">
+                <a class="nav-link" href="new-user.html">The Good Life</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown">Residential<span class="dropMenuIcon"><i class="fas fa-angle-down"></i></span></a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#">Submneu 1</a>
+                    <a class="dropdown-item" href="#">Submenu 2</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown">Commercial<span class="dropMenuIcon"><i class="fas fa-angle-down"></i></span></a>
+                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                    <a class="dropdown-item" href="#">Submenu 1</a>
+                    <a class="dropdown-item" href="#">Submenu 2</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="new-user.html">Affordable</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#communitiesSec">Club</a>
+            </li>
+        </ul>
+
+    </div>*@

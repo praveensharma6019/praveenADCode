@@ -1,0 +1,226 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.TrackComplaintModel
+@{
+    var complaintPortalHomePage = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalHomePageRevamp).Url();
+    var ComplaintPortalFileCGRFComplaintPage = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalAdminFileCGRFComplaintPageRevamp)).Url();
+    var ComplaintPortalReportsPage = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalAdminReportsPageRevamp)).Url();
+}
+
+@if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+{
+    <div class="form-group row">
+        <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+    </div>
+}
+<section class="py-5" style="margin-top: -2rem;">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "Accounts", FormMethod.Post))
+        {
+            <div class="row">
+                <div class="col-sm-8 pb-3 text-left">
+                    <p><span><b>Welcome, </b></span><b class="txt-orange">@UserSession.AEMLComplaintUserSessionContext.LoginName <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                </div>
+                <div class="col-sm-4 pb-3">
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit">
+                            @Html.Sitecore().Dictionary("/ComplaintRegistration/Logout", "Logout")
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        }
+        <hr />
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "filterByStatusForm", name = "filterByStatusForm" }))
+        {
+            <div class="row">
+                <div class="col-lg-12 mr-auto mt-2">
+                    @{
+                        var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                        if (info != null)
+                        {
+                            Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                        }
+                    }
+                </div>
+            </div>
+            <div class="row" style="padding: 0rem 0rem;">
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                <div class="panel w-100" style="margin-top: 2rem !important;">
+                    <h3 class="mb-2 txt-orange txt-md">Change date range and get complaints:</h3>
+                    <div class="row w-100">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-group no-gutters">
+                                <label for="inputID1" class="form-label mb-2">
+                                    @Html.Sitecore().Dictionary("/ComplaintRegistration/StartDate", "Start Date")
+                                </label>
+                                <div class="w-100">
+                                    @Html.TextBoxFor(x => x.StartDate, new { @class = "form-control reset-control", id = "datetimepickerComplaintStartDate", required = "required" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="form-group no-gutters">
+                                <label for="inputID1" class="form-label mb-2">
+                                    @Html.Sitecore().Dictionary("/ComplaintRegistration/EndDate", "End Date")
+                                </label>
+                                <div class="w-100">
+                                    @Html.TextBoxFor(x => x.EndDate, new { @class = "form-control reset-control", id = "datetimepickerComplaintEndDate", required = "required" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 text-left">
+                            <label class="d-block">&nbsp;</label>
+                            <input type="submit" value="Get Applications" class="btn btn-primary mt-2">
+                        </div>
+                    </div>
+                </div>
+                <div class="w-100">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="mr-2">Filter By Status</label>
+                            @Html.DropDownList("Status", new List<SelectListItem>
+                                                                   {
+                                                                      new SelectListItem{ Text="All", Value = "" ,Selected = true},
+                                                                      new SelectListItem{ Text="SAVED", Value = "1" },
+                                                                      new SelectListItem{ Text="SUBMITTED", Value = "2" },
+                                                                      new SelectListItem{ Text="NODAL REPLY IN PROGRESS", Value = "3" },
+                                                                      new SelectListItem{ Text="RESUBMIT", Value = "4" } ,
+                                                                      new SelectListItem { Text = "REJOINDER BY COMPLAINANT IS IN PROCESS", Value = "5"},
+                                                                      new SelectListItem { Text = "GRIEVANCE REDRESSAL IN PROCESS ", Value = "6" },
+                                                                      new SelectListItem { Text = "COMPLAINT IS CLOSED", Value = "7" },
+                                                                      new SelectListItem { Text = "ORDER REVIEW REQUEST IS SUBMITTED", Value = "8" } },
+                                                new { @onchange = "onChnageFun(this.value)", @class= "form-control w-auto d-inline-block" })
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <input class="form-control w-auto d-inline-block mr-2" id="searchCONStatusApp" type="text" placeholder="Search..">
+                            @*@Html.ActionLink("Export", "ComplaitExport", new { }, new { @class = "btn btn-secondary cexport" })*@
+                        </div>
+                    </div>
+                    <div class="scroll_table_short fixed-header">
+                        <table class="table-striped border text-center bg-white">
+                            <thead>
+                                <tr>
+                                    <th>Sr. No</th>
+                                    <th>Zone</th>
+                                    <th>Tracking No</th>
+                                    <th>Case No</th>
+                                    <th>Account No</th>
+                                    <th>Complaint Category</th>
+                                    <th>Complaint Description</th>
+                                    <th>Applied Date</th>
+                                    <th>Start Date</th>
+                                    <th>Closed Date</th>
+                                    <th>Status</th>
+                                    <th>View</th>
+                                </tr>
+                            </thead>
+                            <tbody id="CONApps">
+                                @{
+                                    var count = 1;
+                                    foreach (var app in Model.ComplaintList)
+                                    {
+                                        DateTime createdDate = DateTime.Parse(app.CreatedDate.ToString());
+                                        var createdDate1 = createdDate.ToString("dd.MM.yyyy");
+
+                                        var startDate = "";
+                                        if (app.StartDate != null)
+                                        {
+                                            DateTime sd = DateTime.Parse(app.StartDate.ToString());
+                                            startDate = sd.ToString("dd.MM.yyyy");
+                                        }
+
+                                        var closedDate = "";
+                                        if (app.ClosedDate != null)
+                                        {
+                                            DateTime cd = DateTime.Parse(app.ClosedDate.ToString());
+                                            closedDate = cd.ToString("dd.MM.yyyy");
+                                        }
+                                        <tr>
+                                            <td>@count</td>
+                                            <td>@app.ComplaintZone</td>
+                                            <td>@app.ComplaintRegistrationNumber</td>
+                                            <td>@app.CGRFCaseNumber</td>
+                                            <td>@app.AccountNumber</td>
+                                            <td>@app.ComplaintCategory</td>
+                                            <td>
+                                                @if (app.ComplaintDescription.Length > 50)
+                                                {
+                                                    <p>@app.ComplaintDescription.Substring(0, 50)...</p>
+                                                }
+                                                else
+                                                {
+                                                    <p>@app.ComplaintDescription</p>
+                                                }
+                                            </td>
+                                            <td>@createdDate1</td>
+                                            <td>@startDate</td>
+                                            <td>@closedDate</td>
+                                            <td>@app.ComplaintStatusDescription</td>
+                                            <td>
+                                                <a href="@ComplaintPortalFileCGRFComplaintPage?ComplaintNumber=@app.ComplaintId" class="tender-btn txt-underline" title="View Application">@Html.Sitecore().Dictionary("/ComplaintRegistration/View button text", "View")</a>
+                                            </td>
+                                        </tr>
+                                        count++;
+                                    }
+
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (UserSession.AEMLComplaintUserSessionContext.IsAdmin && UserSession.AEMLComplaintUserSessionContext.AdminRole.ToLower().ToString() == "secretary")
+        {
+            <div class="row">
+                <div class="col-lg-12 mr-auto mt-2 text-right">
+                    <a href="@ComplaintPortalFileCGRFComplaintPage" class="btn btn-secondary">File Complaint</a>
+                    <a href="@ComplaintPortalReportsPage" class="btn btn-secondary">Export Report</a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                                <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.filterByStatusForm.submit();
+    }
+</script>

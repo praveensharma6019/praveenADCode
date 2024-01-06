@@ -1,0 +1,99 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item elements = Sitecore.Context.Database.GetItem(datasource);
+
+    var x = 0;
+}
+
+<div class="mainSlider">
+
+    @if (elements != null)
+    {
+        if (elements.GetChildren() != null)
+        {
+            if (Request.Browser.IsMobileDevice && (Request.Browser.ScreenPixelsWidth < 768) )
+            {
+                    x = Request.Browser.ScreenPixelsWidth;
+                    @Html.Sitecore().Placeholder("mobile-video-banner")
+                
+            }
+            else
+            {
+    <div class="owl-carousel owl-theme homeslider">
+        @foreach (Item item in elements.GetChildren())
+        {
+            if (item.TemplateName == "Video")
+            {
+                LinkField linkField = item.Fields["MediaVideoLink"];
+                var url = linkField.Url;
+
+                <div class="item" data-videosrc="@url">
+                    @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "image-fluid")
+                </div>
+
+            }
+
+            else
+            {
+                LinkField linkField = item.Fields["MediaLink"];
+                var url = linkField.Url;
+                
+                if (url.ToString() != null)
+                {
+                    
+                    <div class="item">
+                        @Html.Sitecore().ImageField("MediaImage", item, 0, 0, "image-fluid")
+                        <div class="slider-content">
+                            <div>
+                                <div class="container">
+                                    <a href="@url" target="_blank">
+                                        <h2>@Html.Sitecore().Field("MediaTitle", item)</h2>
+                                        <p>@Html.Sitecore().Field("MediaDescription", item)</p>
+                                    </a>
+                                    
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                }
+                else
+                {
+                    <div class="item">
+                        @Html.Sitecore().ImageField("MediaImage", item, 0, 0, "image-fluid")
+                        <div class="slider-content">
+                            <div>
+                                <div class="container">
+                                    <h2>@Html.Sitecore().Field("MediaTitle", item)</h2>
+                                    <p>@Html.Sitecore().Field("MediaDescription", item)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+
+
+
+        }
+    </div>
+            }
+        }
+
+    }
+
+    <div class="container position-relative @x">
+        <div class="scroll-down">
+            <a href="#firstsection">
+                <span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span>
+            </a>
+        </div>
+    </div>
+</div>

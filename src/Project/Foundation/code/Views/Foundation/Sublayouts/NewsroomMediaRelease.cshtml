@@ -1,0 +1,48 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var sortedYear = element.GetChildren().OrderByDescending(x => x.Fields["Text"].Value);
+    var i = 0;
+}
+
+
+<div class="col-lg-4 mt-5 mb-2">
+    <div class="box-block p-4 w-100 h-100">
+        @if (element != null)
+        {
+            <h3 class="section-heading">@Html.Sitecore().Field("Title", element)</h3>
+            <ul class="ul-media-section">
+                @foreach (Item year in sortedYear)
+                {
+                    var sortedItem = year.GetChildren().OrderByDescending(x => x.Fields["Date"].Value);
+                    foreach (Item item in sortedItem)
+                    {
+                        LinkField link = (LinkField)item.Fields["LinkUrl"];
+                        <li>
+                            <p><a href="@link.GetFriendlyUrl()">@Html.Sitecore().Field("Title", item)</a><span> @Html.Sitecore().Field("Date", item, new { format = "MMM dd yyyy" })</span></p>
+                        </li>
+                        i++;
+                        if (i == 4)
+                        {
+                            break;
+                        }
+                    }
+                    if (i == 4)
+                    {
+                        break;
+                    }
+                }
+            </ul>
+
+        }
+        @{
+            var url = Sitecore.Links.LinkManager.GetItemUrl(element).ToLower();
+        }
+
+        <p class="text-right"><a href="@url">Read more</a></p>
+    </div>
+</div>
