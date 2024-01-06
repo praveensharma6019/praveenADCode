@@ -1,0 +1,118 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+    var mobileMedia = Model.Item.Fields["MobileMediaSelector"].Value;
+    var i = 0;
+    var SubTitle = "";
+    var SubLink = "";
+}
+
+<!--Banner-->
+<section class="mainSlider">
+    <div class="">
+        <div class="mainSlider_main">
+            <div class="owl-carousel homeslider-other">
+                @foreach (var element in elements)
+                {
+                    <div class="item">
+                        @{
+                            //var style = "background-image: ";
+                            var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                            var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                            var mediaUrl = element.Item.MediaUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                            var fixedHeight = Model.Rendering.IsFixedHeight();
+                            if (fixedHeight && carouselHeight.HasValue)
+                            {
+                                style += "; height:" + carouselHeight + "px;";
+                            }
+
+                            var ImagePath = "";
+                            if (mobileMedia.Count() > i)
+                            {
+                                var imageItem = Sitecore.Context.Database.GetItem(new Sitecore.Data.ID(mobileMedia.Split('|')[i].ToString()));
+                                ImagePath = MediaManager.GetMediaUrl(imageItem);
+                            }
+                            i++;
+                            Sitecore.Data.Fields.LinkField linkfield = element.Item.Fields[Templates.HasMedia.Fields.Link];
+                            var url = linkfield.GetFriendlyUrl();
+
+
+                            Sitecore.Data.Fields.LinkField MediaLinklinkfield = element.Item.Fields["MediaLink"];
+                            SubLink = MediaLinklinkfield.GetFriendlyUrl();
+
+                            SubTitle = element.Item.Fields["SubTitle"].Value;
+                        }
+                        @if (!string.IsNullOrEmpty(url))
+                        {
+                            <a href="#" target="_blank">
+                                <picture>
+                                    <source srcset="@style" media="(min-width: 960px)">
+                                    <source srcset="@style" media="(min-width: 767px)">
+                                    <source srcset="@style" media="(min-width: 0)">
+                                    <source srcset="@style" media="(min-width:0)">
+                                    <img srcset="@style" src="@style" alt="" class="w-100">
+                                </picture>
+                                <div class="bannercontent">
+                                    <div class="container">
+                                        <div class="bannercontent_inner">
+                                            <h1>@SubTitle</h1>
+                                            <div><a href="@SubLink" class="btn btn-gradient">EXPOLRE</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                        else
+                        {
+                            <div>
+                                <picture>
+                                    <source srcset="@style" media="(min-width: 960px)">
+                                    <source srcset="@style" media="(min-width: 767px)">
+                                    <source srcset="@style" media="(min-width: 0)">
+                                    <source srcset="@style" media="(min-width:0)">
+                                    <img srcset="@style" src="@style" alt="" class="w-100">
+                                </picture>
+                                <div class="bannercontent">
+                                    <div class="container">
+                                        <div class="bannercontent_inner">
+                                            <h1>@SubTitle</h1>
+                                            <div><a href="@SubLink" class="btn btn-gradient">EXPOLRE</a></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+
+
+
+
+            </div>
+            <div class="scroll-down">
+                <a href="#first-section"><span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span></a>
+            </div>
+        </div>
+        
+        @Html.Sitecore().Placeholder("breadcrumb")
+    </div>
+</section>
+<!--/Banner-->

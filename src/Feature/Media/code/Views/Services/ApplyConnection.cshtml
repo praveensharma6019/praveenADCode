@@ -1,0 +1,85 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc.Presentation
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+
+    var currentPage = Sitecore.Context.Item;
+
+
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+
+    var dataSource = Sitecore.Context.Database.GetItem(dataSourceId);
+
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectField = dataSource.Fields[Templates.ApplyNewConnection.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+}
+
+<div class="section-container carousel_wrapper">
+
+    <header class="section-header-main justify-item">
+        @{
+            var componentTitle = @Html.Sitecore().Field(Templates.ApplyNewConnection.Fields.Title);
+            var message = @Html.Sitecore().Field(Templates.ApplyNewConnection.Fields.Description);
+            <h2>@componentTitle</h2>
+            <div class="hide-on-small-only badge">
+               @message
+        
+        </div>
+
+        }
+
+    </header>
+
+    <div class="owl-carousel">
+        @foreach (var item in items)
+        {
+            Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+            string ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+            Sitecore.Data.Fields.LinkField linkfld = item.Fields["CTALink"];
+            var url = linkfld.GetFriendlyUrl();
+
+            var title = @Html.Sitecore().Field(Templates.Services.Fields.Title, item);
+
+            var description = @Html.Sitecore().Field(Templates.Services.Fields.Description, item);
+
+            var ctaText = @Html.Sitecore().Field(Templates.Services.Fields.CTAText, item);
+
+            <div class="card outlined">
+                @{
+                                <div class="card-image connection-image">
+
+                                    @if (!string.IsNullOrEmpty(ImageUrl))
+                                    {
+                                        <img src="@ImageUrl">
+                                    }
+
+                                </div>
+                                <div class="card-content">
+                                    @if (!string.IsNullOrEmpty(title.ToString()))
+                                     {
+                                         <h3>@title <i class="i-arrow-r i14"></i></h3>
+                                      }
+                                     @if (!string.IsNullOrEmpty(description.ToString()))
+                                        {
+                                         <p>@description</p>
+                                        } 
+                                </div>
+                }
+            </div> 
+        }
+
+    </div>
+</div>
+ 

@@ -1,0 +1,55 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var i = 1;
+}
+
+
+<section class="py-5">
+    <div class="container BOD">
+        <h2 class="heading mb-4"> @Html.Sitecore().Field("Title", element)</h2>
+        @Html.Sitecore().Field("Summary", element)
+        <div class="row">
+            @foreach (Item item in element.GetChildren())
+            {
+                string linkUr = Sitecore.Links.LinkManager.GetItemUrl(item);
+                <div class="col-lg-3 col-md-6 zoomin my-3 directors-tile">
+                    <a href="@linkUr">
+                        <div class="card">
+                            @if (String.IsNullOrEmpty(Html.Sitecore().ImageField("MainImage", item).ToString()))
+                            {
+                                <div class="b-o-director"><img src="/Images/Foundation/blank.png" class="card-img-top img-fluid" /></div>
+                            }
+                            else
+                            {
+                                <div class="b-o-director">@Html.Sitecore().ImageField("MainImage", item, 0, 0, "card-img-top img-fluid")</div>
+                            }
+
+                            <div class="card-body">
+                                <h4 class="card-title">@Html.Sitecore().Field("Title", item)</h4>
+                                <p class="card-text">@Html.Sitecore().Field("Designation", item)</p>
+                            </div>
+
+                        </div>
+                    </a>
+                </div>
+                if (i == 4)
+                {
+                    break;
+                }
+                i++;
+            }
+        </div>
+        <p class="text-center mt-3">
+            @{
+
+                string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(element);
+            }
+            <a href="@linkUrl" class="btn btn-gradient">View All</a>
+        </p>
+    </div>
+</section>

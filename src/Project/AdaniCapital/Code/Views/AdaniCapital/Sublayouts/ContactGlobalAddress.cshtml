@@ -1,0 +1,32 @@
+﻿@using Sitecore.Data.Items;
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (!string.IsNullOrEmpty(datasource))
+{
+    if (models != null)
+    {
+        if (models.HasChildren)
+        {
+
+            <div class="col-lg-6 py-5 px-5 bg-gray address-section">
+                <h2 class="section-heading txt-green">@Html.Sitecore().Field("Title", Sitecore.Context.Item)</h2>
+                @foreach(Item item in models.GetChildren())
+                {
+					<h3 class="txt-green txt-lg mt-4 mb-2">@item.Fields["OfficeTitle"]</h3>
+                    <h5 class="mb-2">@item.Fields["OfficeName"]</h5>
+                    <p class="mb-0">@item.Fields["Address"]</p>
+					
+                    if (!string.IsNullOrWhiteSpace(item.Fields["Telephone"].Value))
+                    {<p class="mb-0"><b>Tel</b> : @item.Fields["Telephone"]</p>}
+                    if (!string.IsNullOrWhiteSpace(item.Fields["Email"].Value))
+                    {<p class="mb-0"><b>Mail</b> : @item.Fields["Email"]</p>}
+                    if (!string.IsNullOrWhiteSpace(item.Fields["Fax"].Value))
+                    {<p class="mb-0"><b>Fax</b> : @item.Fields["Fax"]</p>}
+                }
+            </div>
+        }
+    }
+}

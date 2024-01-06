@@ -1,0 +1,73 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<!--Banner-->
+<section class="mainSlider">
+    <div class="">
+        <div class="mainSlider_main">
+            <div class="owl-carousel homeslider-other">
+                @foreach (var item in model.GetChildren().ToList())
+                {
+                    Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BannerImage"]);
+                    string BannerImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+
+                    Sitecore.Data.Fields.ImageField MobileImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["MobileImage"]);
+                    string MobileImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MobileImageField.MediaItem);
+
+                    Sitecore.Data.Fields.LinkField linkfld = item.Fields["ExploreLink"];
+                    var url = linkfld.GetFriendlyUrl();
+
+                    <div class="item">
+                        <picture>
+                            @if (!string.IsNullOrEmpty(BannerImageUrl))
+                            {
+                                <source srcset="@BannerImageUrl" media="(min-width: 960px)">
+                                <source srcset="@BannerImageUrl" media="(min-width: 767px)">
+                            }
+                            @if (!string.IsNullOrEmpty(MobileImageUrl))
+                            {
+
+                                <source srcset="@MobileImageUrl" media="(min-width: 0)">
+                                <source srcset="@MobileImageUrl" media="(min-width: 0)">
+                            }
+                            <img alt="" srcset="@BannerImageUrl" src="@BannerImageUrl">
+                        </picture>
+                        <div class="bannercontent">
+                            <div class="container">
+                                <div class="bannercontent_inner">
+                                    <h1>@Html.Sitecore().Field("Title", item)</h1>
+                                    <div><a href="@url" class="btn btn-gradient">EXPLORE</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+
+
+
+
+
+            </div>
+            <div class="scroll-down">
+                <a href="#first-section"><span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span></a>
+            </div>
+        </div>
+
+        @Html.Sitecore().Placeholder("breadcrumb")
+    </div>
+</section>
+<!--/Banner-->

@@ -1,0 +1,41 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "divclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(divclass))
+    {
+        divclass = "box-block p-4 w-100 h-100";
+    }
+}
+
+
+
+
+<div class="@divclass">
+    <h3 class="section-heading mb-4">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, element)</h3>
+    <ul class="@paramid">
+        @foreach (var items in Model.NavItems.ToList())
+        {
+            if (items.IsNewTab)
+            {
+                <li><a href="@items.Url" target="_blank">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item)</a></li>
+            }
+            else
+            {
+                <li><a href="@items.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item)</a></li>
+            }
+        }
+        </ul>
+</div>

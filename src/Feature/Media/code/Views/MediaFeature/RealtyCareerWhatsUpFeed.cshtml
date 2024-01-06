@@ -1,0 +1,60 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var FeedList = Sitecore.Context.Database.GetItem(datasource);
+
+    var Key = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var img = Sitecore.Context.Database.GetItem(Key["background-image"]);
+    var FeedCollection = FeedList.Children;
+
+
+    var i = 0;
+    var sortedFeed = FeedCollection.Where(x => x.Fields["isVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+}
+
+<section class="position-relative d-block py-5">
+    <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, img)</div>
+    <div class="container position-relative">
+        <h3 class="text-center sectionHeading">WHATS UP@@ ADANI</h3>
+        <div class="row">
+            <div class="col-sm-2 ml-auto">
+                @foreach (var child in sortedFeed)
+                {
+                    Sitecore.Data.Fields.LinkField linkfield = child.Fields["LinkUrl"];
+                    var currentUrl = linkfield.GetFriendlyUrl();
+
+                <a href="@currentUrl" target="_blank">
+                    @Html.Sitecore().Field("Image", child, new { @class = "img-fluid" });</a>
+                    <p class="txt-blue txt-center mt-2"><a href="@currentUrl" target="_blank"><b>@Html.Sitecore().Field("Title", child)</b></a></p>
+                    break;
+                    }
+
+</div>
+            <div class="col-sm-6 mr-auto col-offset-1">
+                <div class="row">
+                    @foreach (var child in sortedFeed)
+                    {
+
+                        Sitecore.Data.Fields.LinkField linkfield = child.Fields["LinkUrl"];
+                        var currentUrl = linkfield.GetFriendlyUrl();
+
+                        <div class="col-sm-6 py-3">
+                            <p><a href="@currentUrl" target="_blank"><ul class="ul-bullets"><li>@Html.Sitecore().Field("Title", child)</li></ul></a></p>
+                        </div>
+                    }
+                        
+                    </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,36 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+   var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	var ImgUrl = "";
+	var ImgAltTxt = "";
+	
+}
+<section class="container-fluid images-background mt-5 mb-5">
+      <div class="heading">
+        <h2>@Html.Sitecore().Field("Title",model)</h2>
+      </div>
+      <div class="container row multiple-items crousel-slider">
+		@foreach (var child in model.Children.ToList())
+		{   var mainclass =child.Fields["MainClass"]?.Value;
+			 Sitecore.Data.Fields.ImageField Image = ((Sitecore.Data.Fields.ImageField)child.Fields["ImageSource"]);
+			 if(Image != null && Image.MediaItem != null){
+							ImgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(Image.MediaItem);
+							ImgAltTxt = Image.Alt;
+                           }
+			<div class="col-sm-12 col-lg-4">
+                <img src="@ImgUrl" class="card-img-top first" alt="@ImgAltTxt"/>
+            </div> 							  
+		}
+      </div>
+      <div class="container contain">
+        @Html.Sitecore().Field("Description",model)
+      </div>
+    </section>
+	
+	

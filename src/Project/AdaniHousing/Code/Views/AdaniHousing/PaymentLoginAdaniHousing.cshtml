@@ -1,0 +1,650 @@
+﻿<!-- MultiStep Form -->
+@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.AdaniHousing.Website.Models.PaymentLoginInfoModel
+@{
+    var count = 1;
+    //Model.IsAccountValid = false;
+}
+<div class="container-fluid" id="grad1">
+    <div class="row justify-content-center mt-5">
+        <div class="col-11 col-sm-9 col-md-7 col-lg-6 text-center p-0  mb-2">
+            <div class="card px-0  pb-0">
+                <div class="row">
+                    <div class="col-md-12 mx-0">
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "PaymentLogin_form", name = "PaymentLogin_form", enctype = "multipart/form-data" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+                            <form id="msform">
+                                <!-- progressbar -->
+                                <!-- fieldsets -->
+                                <!-- Login Inputs -->
+
+                                @if (Model.StageInfo != null)
+                                {
+                                    if (Model.StageInfo == "Detail")
+                                    {
+                                        <ul id="progressbar">
+                                            <li id="account"><strong>Login</strong></li>
+                                            <li class="active" id="personal"><strong>Login Detail</strong></li>
+                                            <li id="payment"><strong>Payment</strong></li>
+                                            <li id="confirm"><strong>Transaction</strong></li>
+                                        </ul>
+                                    }
+                                    if (Model.StageInfo == "Payment")
+                                    {
+                                        <ul id="progressbar">
+                                            <li id="account"><strong>Login</strong></li>
+                                            <li id="personal"><strong>Login Detail</strong></li>
+                                            <li class="active" id="payment"><strong>Payment</strong></li>
+                                            <li id="confirm"><strong>Transaction</strong></li>
+                                        </ul>
+                                    }
+                                    if (Model.StageInfo == "TransactionSuccess" || Model.StageInfo == "TransactionFailed" || Model.StageInfo == "TransactionRefunded_Pending" || Model.StageInfo == "TransactionRefunded_Failed" || Model.StageInfo == "TransactionRefunded_Processed")
+                                    {
+                                        <ul id="progressbar">
+                                            <li id="account"><strong>Login</strong></li>
+                                            <li id="personal"><strong>Login Detail</strong></li>
+                                            <li id="payment"><strong>Payment</strong></li>
+                                            <li class="active" id="confirm"><strong>Transaction</strong></li>
+                                        </ul>
+                                    }
+                                    if (Model.StageInfo == "Login")
+                                    {
+                                        <ul id="progressbar">
+                                            <li class="active" id="account"><strong>Login</strong></li>
+                                            <li id="personal"><strong>Login Detail</strong></li>
+                                            <li id="payment"><strong>Payment</strong></li>
+                                            <li id="confirm"><strong>Transaction</strong></li>
+                                        </ul>
+                                    }
+                                }
+                               
+
+                    @if (Model.StageInfo == "Login")
+                    {
+                        <fieldset>
+                            <div class="form-card">
+                                <!-- SECTION 1 -->
+                                <section>
+                                    <div class="cotainer">
+                                        <div class="text-center">
+                                            <div class="headerformdiv text-dark">
+                                                QuickPay by providing any one details from below
+                                            </div>
+                                            <div>
+                                                @if (Model.LoginError != "" && Model.LoginError != null)
+                                                {
+                                                    <div class="pt-4 pb-3 firstformdiv" style="">
+                                                        <p style="color:red;">@Model.LoginError</p>
+                                                    </div>
+                                                }
+
+                                                <div class="pt-4 pb-3  text-dark firstformdiv">
+                                                    Loan Account Number
+                                                </div>
+                                                <div class="formcotroldiv">
+                                                    <input type="text"
+                                                           name="LoanAccountNumber"
+                                                           class="form-control"
+                                                           id="inputtag1"
+                                                           placeholder="e.g.101MSMXX1XXX915"
+                                                           onChange="inputtagfuction()" />
+                                                </div>
+                                            </div>
+                                            <h5>OR</h5>
+                                            <div>
+                                                <div class=" pt-3 text-dark  pb-3 firstformdiv">
+                                                    10 Digit Mobile Number
+                                                </div>
+                                                <div class="formcotroldiv">
+                                                    <input type="text"
+                                                           name="MobileNumber"
+                                                           class="form-control"
+                                                           id="inputtag2"
+                                                           placeholder="e.g.888888XXX88"
+                                                           onChange="inputtagfuction()" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                            <div>
+                                <input type="hidden" name="StageInfo" value="Detail" />
+                            </div>
+
+
+                            <input id="btn1form1"
+                                   @*type="button"*@
+                                   type="submit"
+                                   name="next"
+                                   onclick="firstFunction()"
+                                   class="next action-button btn rounded-pill"
+                                   value="Fetch Loan Details" />
+                        </fieldset>
+                    }
+
+                    @if (Session["AHPL_RPLogin"] != null)
+                    {
+                        <!-- Details Page -->
+                        if (Model.IsAccountValid)
+                        {
+                            if (Model.StageInfo == "Detail")
+                            {
+                                <fieldset>
+                                    <div class="form-card">
+                                        <div id="loanaccountnumber" class="inner">
+                                            <div class="container">
+                                                @if (Session["AHPL_RPLogin"].ToString() == Model.LoanAccountNumber)
+                                                {
+                                                    <div class="pb-3 m-n2">
+                                                        <h1></h1>
+                                                    </div>
+                                                    <div class="row accountdetails  mb-3 d-flex align-item-center">
+                                                        <div class="col-12"><p id="demo"><b>Loan Account Number </b> @Model.LoanAccountNumber</p></div>
+                                                    </div>
+                                                }
+
+                                                @if (Session["AHPL_RPLogin"].ToString() == Model.MobileNumber)
+                                                {
+                                                    <div class="pb-3 m-n2">
+                                                        <h1>Select Loan Account</h1>
+                                                    </div>
+                                                    <div class="row accountdetails  mb-3 d-flex align-item-center">
+                                                        <div class="col-12"><p id="demo"><b>Mobile Number </b> @Model.MobileNumber</p></div>
+                                                    </div>
+                                                }
+                                                <div class="table-responsive table-hover">
+                                                    <table class="table" id="DetailTable">
+                                                        <thead class="thead-light">
+                                                        <th scope="col">#</th>
+                                                        <th scope="col">Loan Account No.</th>
+                                                        <th scope="col">Payment Due</th>
+                                                        <th scope="col">Customer Name</th>
+                                                        <th scope="col">Installment Date DD/MM/YYYY (next due date)</th>
+                                                        </thead>
+                                                        <tbody>
+                                                            @if (Session["AHPL_RPLogin"].ToString() == Model.LoanAccountNumber)
+                                                            {
+                                                                <tr>
+                                                                    <td><input type="radio" class="radiobutton" onchange="myfun()" id="radio1" name="fav_language" /></td>
+                                                                    <td id="td_loanAccountNumber1">@Model.LoanAccountNumber</td>
+                                                                    <td id="td_PaymentDue1">@Model.PaymentDue</td>
+                                                                    <td id="td_CustomerName1">@Model.CustomerName</td>
+                                                                    <td id="td_InstallmentDated1">@Model.InstalledDate</td>
+                                                                    <td id="td_MobileNumber1" style="display:none">@Model.MobileNumber</td>
+                                                                </tr>
+                                                            }
+                                                            @if (Session["AHPL_RPLogin"].ToString() == Model.MobileNumber)
+                                                            {
+                                                                if (Model.getLoansList.Count > 0)
+                                                                {
+                                                                    foreach (var LoanListItem in Model.getLoansList)
+                                                                    {
+                                                                        var idValue = "radio" + count;
+                                                                        var td_loanAccountNumber = "td_loanAccountNumber" + count;
+                                                                        var td_PaymentDue = "td_PaymentDue" + count;
+                                                                        var td_CustomerName = "td_CustomerName" + count;
+                                                                        var td_InstallmentDated = "td_InstallmentDated" + count;
+                                                                        var td_MobileNumber = "td_MobileNumber" + count;
+                                                                        <tr>
+                                                                            <td>
+                                                                                <input type="radio"
+                                                                                       class="radiobutton"
+                                                                                       onchange="myfun()"
+                                                                                       id="@idValue"
+                                                                                       name="fav_language" />
+                                                                            </td>
+                                                                            <td id="@td_loanAccountNumber">@LoanListItem.loanDetailsList.Select(x => x.loanAccountNumber).FirstOrDefault()</td>
+                                                                            <td id="@td_PaymentDue">@LoanListItem.loanDetailsList.Select(x => x.nextDueInstallmentAmount).FirstOrDefault()</td>
+                                                                            <td id="@td_CustomerName">@LoanListItem.customerName</td>
+                                                                            <td id="@td_InstallmentDated">@LoanListItem.loanDetailsList.Select(x => x.nextDueDate).FirstOrDefault()</td>
+                                                                            <td id="@td_MobileNumber" style="display:none">@LoanListItem.loanDetailsList.Select(x => x.mobileNumber).FirstOrDefault()</td>
+                                                                        </tr>
+                                                                    }
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                @*Below are the hidden fields which will update on the basis of selected radio button in the table*@
+                                                <div>
+                                                    <input type="hidden" id="LAC_Hidden" name="LoanAccountNumber" value="">
+                                                    <input type="hidden" id="MN_Hidden" name="MobileNumber" value="">
+                                                    <input type="hidden" id="StageInfo_Hidden" name="StageInfo" value="">
+                                                    <input type="hidden" id="IsAccountValid" name="IsAccountValid" value="">
+                                                </div>
+
+                                                <!-- Table Ends Here-->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <input id="btn1" type="submit" name="next" class="next action-button1 btn rounded-pill " value="Pay 0" />
+
+                                    @if (Session["AHPL_RPLogin"].ToString() == Model.MobileNumber)
+                                    {
+                                        <div id="alertmodaldiv" class="alert col-7 alert-warning alert-dismissible fade show modalalert" role="alert" style="display:none">
+                                            <p id="alertmodal"></p>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+
+
+                                </fieldset>
+                            }
+
+                            if (Model.StageInfo == "Payment")
+                            {
+                                <!--
+                   In this payment view page, We attach the checkout SDK of Razorpay and then provide the order details to SDK.
+                   When this page-load we have to give order details and then automatically click the button for payment initiate.
+                   We use javascript for click the button automatically. When Payment done response will come inside the response handler.
+                   In the response, we got Razorpay payment Id and Order Id (which we provide in creating order).
+                -->
+                                <!-- Click this button automatically when this page load using javascript, You can hide this button -->
+                                <div>
+                                    <button id="rzp-button1" hidden>Pay</button>
+                                </div>
+                                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+                                <script>
+                                                var options =
+                                                    {
+                                                        "key": "@Html.DisplayFor(model => model.razorpayKey)", // Enter the Key ID generated from the Dashboard
+                                                        "amount": "@Html.DisplayFor(model => model.PaymentAmount)", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                                                        "currency": "@Html.DisplayFor(model => model.currency)",
+                                                        "name": "@Html.DisplayFor(model => model.CustomerName)",
+                                                        "description": "@Html.DisplayFor(model => model.description)",
+                                                        "image": "https://example.com/your_logo", // You can give your logo url
+                                                        "order_id": "@Html.DisplayFor(model => model.orderId)",
+                                                        "handler": function (response)
+                                                        {
+                                                            // After payment successfully made response will come here
+                                                            // Set the data in hidden form
+                                                            document.getElementById('rzp_paymentid').value = response.razorpay_payment_id;
+                                                            document.getElementById('rzp_orderid').value = response.razorpay_order_id;
+                                                            //document.getElementById('rzp_PaymentAmount').value = response.amount;
+                                                            document.getElementById('rzp_signature').value = response.razorpay_signature;
+                                                            document.getElementById('response').value = response;
+
+                                                            // Let's submit the form automatically
+                                                            document.getElementById('rzp-paymentresponse').click();
+                                                         },
+                                                        "prefill":
+                                                            {
+                                                                "name": "@Html.DisplayFor(model => model.CustomerName)",
+                                                                @*"email": "@Html.DisplayFor(model => model.email)",*@
+                                                                "contact": "@Html.DisplayFor(model => model.MobileNumber)"
+                                                            },
+                                                        "notes":
+                                                            {
+                                                                "address": "@Html.DisplayFor(model => model.LoanAccountNumber)"
+                                                            },
+                                                        "theme":
+                                                            {
+                                                                "color": "#F37254"
+                                                            }
+                                                     };
+
+                                                    var rzp1 = new Razorpay(options);
+
+                                                    //onload function
+                                                    window.onload = function(){
+                                                        document.getElementById('rzp-button1').click();
+                                                    };
+
+                                                    document.getElementById('rzp-button1').onclick = function(e){
+                                                        rzp1.open();
+                                                        e.preventDefault();
+                                                    }
+                                </script>
+                                <div>
+                                    <input type="hidden" id="rzp_paymentid" name="paymentId" value="" />
+                                    <input type="hidden" id="rzp_orderid" name="orderId" value="" />
+                                    <input type="hidden" id="rzp_signature" name="signature" value="" />
+                                    <input type="hidden" id="rzp_PaymentAmount" name="PaymentAmount" value="@Model.PaymentAmount" />
+                                    <input type="hidden" id="rzp_CustomerName" name="CustomerName" value="@Model.CustomerName" />
+                                    <input type="hidden" id="order_transactionID" name="order_transactionID" value="@Model.order_transactionID">
+                                    <input type="hidden" name="StageInfo" value="Transaction" />
+                                    <input type="hidden" id="IsAccountValid" name="IsAccountValid" value="true" />
+                                    <input type="hidden" id="response" name="response" value="" />
+                                    <button type="submit" id="rzp-paymentresponse" class="btn btn-primary" hidden>Submit</button>
+                                </div>
+                            }
+
+                            if (Model.StageInfo == "TransactionSuccess" || Model.StageInfo == "TransactionRefunded_Processed")
+                            {
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="container pt-5">
+                                            <div class="my-2">
+                                                <h3>Transaction Acknowledgement</h3>
+                                                <div class=" container my-4 ml-2">
+                                                    <div class="card border border-info cardborder pl-4">
+                                                        <div class="row">
+                                                            <div class="col-lg-1 imagescss">
+                                                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Eo_circle_teal_checkmark.svg/1200px-Eo_circle_teal_checkmark.svg.png" alt="">
+                                                            </div>
+                                                            <div class="col-lg-11 h-50 text-left">
+                                                                @if (Model.StageInfo == "TransactionRefunded_Processed")
+                                                                {                                                                    
+                                                                    <p>The payment Transaction is successfully refunded. Thank you!</p>
+                                                                }
+                                                                @if (Model.StageInfo == "TransactionSuccess")
+                                                                {
+                                                                    <h2>Congratulation ! </h2>
+                                                                    <p>The payment Transaction is successful. Thank you!</p>
+                                                                }
+
+                                                                <hr>
+                                                                <div class="pl-4 taletable">
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 ">
+                                                                            <span class="text-secondary">Transaction Reference No.</span>
+                                                                        </div>
+                                                                        @if (Model.TransactionID != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span class="text-info"><strong>@Model.TransactionID</strong></span></div>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span class="text-info"><strong>Nil</strong></span></div>
+
+                                                                        }
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "> <span class="text-secondary">Transaction Status</span></div>
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span><strong>Successfull</strong></span></div>
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Transaction Date and Time</span></div>
+                                                                        @if (Model.DateTime != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.DateTime</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+                                                                        }
+
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Customer Name</span></div>
+                                                                        @if (Model.CustomerName != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.CustomerName</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+                                                                        }
+
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Charges (₹)</span></div>
+                                                                        @if (Model.AdditionalCharges > 0.0)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.AdditionalCharges</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+                                                                        }
+
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Mobile No/Loan AC Number</span></div>
+                                                                        @if (Model.LoanAccountNumber != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.LoanAccountNumber</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+                                                                        }
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Transaction Amount (₹)</span></div>
+                                                                        @if (Model.PaymentAmount > 0)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.PaymentAmount</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>0.00</strong></span></div>
+                                                                        }
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="imagebtn">
+                                                <button type="button" class="btn btn-outline-info btn1 rounded-pill" style="display:none">Print</button>
+                                                <button type="button" class="btn btn-info rounded-pill" onclick="window.location.href='/paymentlogin'">Make another payment</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            if (Model.StageInfo == "TransactionFailed" || Model.StageInfo == "TransactionRefunded_Failed" || Model.StageInfo == "TransactionRefunded_Pending")
+                            {
+                                <div class="row">
+                                    <div class="col-3"></div>
+                                    <div class="col-6">
+                                        <div class="container pt-5">
+                                            <div class="my-2">
+                                                <h3>Transaction Acknowledgement</h3>
+                                                <div class=" container my-4 ml-2">
+                                                    <div class="card border border-danger cardborderfail pl-4">
+                                                        <div class="row">
+                                                            <div class="col-lg-1 imagescss">
+                                                                <img src="https://cdn1.iconfinder.com/data/icons/color-bold-style/21/08-512.png" alt="">
+                                                            </div>
+                                                            <div class="col-lg-11 h-50">
+                                                                @if (Model.StageInfo == "TransactionFailed")
+                                                                {
+                                                                    <h2> sorry ! </h2>
+                                                                }
+                                                                @if (Model.StageInfo == "TransactionRefunded_Failed")
+                                                                {
+                                                                    <h2> sorry ! transaction refund is failed </h2>
+                                                                }
+                                                                @if (Model.StageInfo == "TransactionRefunded_Pending")
+                                                                {
+                                                                    <h2> sorry ! transaction refund is pending </h2>
+                                                                }
+
+                                                                We could not ascertain the status of your transation from the payment gateway.
+                                                                <br>
+                                                                However, we have recorded your request and shall verify the details and try again
+
+                                                                <hr>
+                                                                <div class="pl-4 taletable">
+
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 ">
+                                                                            <span class="text-secondary">Transaction Reference No.</span>
+                                                                        </div>
+                                                                        @if (Model.TransactionID != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span class="text-info"><strong>@Model.TransactionID</strong></span></div>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span class="text-info"><strong>Nil</strong></span></div>
+
+                                                                        }
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "> <span class="text-secondary">Transaction Status</span></div>
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span><strong>Failed</strong></span></div>
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Transaction Date and Time</span></div>
+                                                                        @if (Model.DateTime != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.DateTime</strong></span></div>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+
+                                                                        }
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Customer Name</span></div>
+                                                                        @if (Model.CustomerName != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Pramod Shivaji Kadam</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+                                                                        }
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Charges (₹)</span></div>
+                                                                        @if (Model.AdditionalCharges > 0.0)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.AdditionalCharges</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+                                                                        }
+
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Mobile No/Loan AC Number</span></div>
+                                                                        @if (Model.LoanAccountNumber != null)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.LoanAccountNumber</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>Nil</strong></span></div>
+                                                                        }
+                                                                    </div>
+                                                                    <div class="row my-3">
+                                                                        <div class="col-lg-4 col-md-6 col-12 "><span class="text-secondary">Transaction Amount (₹)</span></div>
+                                                                        @if (Model.PaymentAmount > 0)
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>@Model.PaymentAmount</strong></span></div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div class="col-lg-4 col-md-6 col-12 "><span><strong>0.00</strong></span></div>
+                                                                        }
+
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="imagebtn">
+                                                <button type="button" class="btn btn-outline-info btn1 rounded-pill" style="display:none">Print</button>
+                                                <button type="button" class="btn btn-info rounded-pill" onclick="window.location.href='/paymentlogin'">Make another payment</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3"></div>
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //display login page
+                        <ul id="progressbar">
+                            <li class="active" id="account"><strong>Login</strong></li>
+                            <li id="personal"><strong>Login Detail</strong></li>
+                            <li id="payment"><strong>Payment</strong></li>
+                            <li id="confirm"><strong>Transaction</strong></li>
+                        </ul>
+                        <fieldset>
+                            <div class="form-card">
+                                <!-- SECTION 1 -->
+                                <section>
+                                    <div class="cotainer">
+                                        <div class="text-center">
+                                            <div class="headerformdiv text-dark">
+                                                QuickPay by providing any one details from below
+                                            </div>
+                                            <div>
+                                                <div class="pt-4 pb-3  text-dark firstformdiv">
+                                                    Loan Account Number
+                                                </div>
+                                                <div class="formcotroldiv">
+                                                    <input type="text"
+                                                           name="LoanAccountNumber"
+                                                           class="form-control"
+                                                           id="inputtag1"
+                                                           placeholder="e.g.101MSMXX1XXX915"
+                                                           onChange="inputtagfuction()" />
+                                                </div>
+                                            </div>
+                                            <h5>OR</h5>
+                                            <div>
+                                                <div class=" pt-3 text-dark  pb-3 firstformdiv">
+                                                    10 Digit Mobile Number
+                                                </div>
+                                                <div class="formcotroldiv">
+                                                    <input type="text"
+                                                           name="MobileNumber"
+                                                           class="form-control"
+                                                           id="inputtag2"
+                                                           placeholder="e.g.888888XXX88"
+                                                           onChange="inputtagfuction()" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+
+                            <input id="btn1form1"
+                                   @*type="button"*@
+                                   type="submit"
+                                   name="next"
+                                   onclick="firstFunction()"
+                                   class="next action-button btn rounded-pill"
+                                   value="Fetch Loan Details" />
+                        </fieldset>
+                    }
+
+
+                    </form>
+                    }
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/scripts/AdaniHousing/PaymentLogin/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="/scripts/AdaniHousing/PaymentLogin/form.js"></script>
+<script src="/scripts/AdaniHousing/PaymentLogin/script.js"></script>
+
+
+
+

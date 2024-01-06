@@ -1,0 +1,93 @@
+﻿@using Sitecore.Mvc
+
+
+@using Sitecore.JaipurAirport.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model List<Sitecore.JaipurAirport.Website.Model.RegistedUserHasDocument>
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderDetail);
+    var tenderDetailURL = item.Url();
+    var TenderListURL = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderListing);
+    var tenderId = Request.QueryString["id"];
+}
+
+<section class="bg-white py-5">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "JaipurAirport", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right mb-4"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("JaipurAirport/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <div class="panel">
+            <div class="row px-3">
+                <div class="col-8 p-0 pb-3">
+                    <h2 class="txt-orange txt-lg mb-3">@Html.Sitecore().Dictionary("JaipurAirport/Tender/User Listing", "User Listing")</h2>
+                </div>
+                <div class="col-4 text-right p-0 pb-3">
+                    @Html.ActionLink("Export", "AdminExportUserData", new { @id = tenderId }, new { @class = "btn btn-primary" })
+                </div>
+            </div>
+            <div class="col-12 p-0 pb-3">
+                @if (Model != null && Model.Count > 0)
+                {
+                    <span> <b>Tender Name </b>-@Model[0].Description </span>
+                }
+            </div>
+            <!-- Tenders -->
+            <div class="table-responsive tableOuter">
+                <table class="table table-borderless table-white table-hover mb-0 txt-xs">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">UserName</th>
+                            <th scope="col">Company</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Mobile</th>
+                            <th scope="col">View Envelope</th>
+                            <th scope="col">PQ Approval Status</th>
+                            <th scope="col">PQ Documents Upload Status</th>
+                            <th scope="col">Tender documents Upload Status</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (var itemdata in Model)
+                            {
+                                <tr>
+                                    <td>@itemdata.Name</td>
+                                    <td>@itemdata.Company</td>
+                                    <td>@itemdata.Email</td>
+                                    <td>@itemdata.Mobile</td>
+                                    <td><a href="@tenderDetailURL?id=@itemdata.TenderId&uid=@itemdata.UserId" class="txt-orange txt-underline tender-btn" title="View Tender"><i class="far fa-eye mr-2"></i>View</a></td>
+                                    <td>@itemdata.PQApprovalStatus</td>
+                                    <td>@itemdata.HasPQDocumentUploaded</td>
+                                    <td>@itemdata.HasDocumentUploaded</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>
+                                    No records found.
+                                </td>
+                            </tr>
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="text-left mt-3">
+            <a href="@TenderListURL.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("JaipurAirport/Tender/Back To List Text", "Back To Tender List")</a>
+        </div>
+    </div>
+    <!-- /Tenders -->
+
+</section>

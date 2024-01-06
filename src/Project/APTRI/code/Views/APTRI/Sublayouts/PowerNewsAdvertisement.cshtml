@@ -1,0 +1,82 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+
+@model RenderingModel
+@{
+    
+	
+	
+	
+	 var Newsdatasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["News"];
+    var News = Sitecore.Context.Database.GetItem(Newsdatasource);
+
+	
+}
+
+
+
+
+
+
+
+<section class="py-5 bg-gray">
+	<div class="container">
+		<div id="accordion" class="accordion investor-faq">
+			<div class="card mb-0">
+			
+				
+				<div class="card-header collapsed" data-toggle="collapse" href="#News">
+					<a class="card-title">
+					News Advertisement
+					</a>
+				</div>
+				<div id="News" class="card-body collapse" data-parent="#accordion">
+				   <div class="p-4">
+					@foreach (var child in News.Children.ToList())
+						{
+							LinkField URL = child.Fields["Link"];
+							if (URL.TargetItem != null)
+							{
+								var item = URL.TargetItem;
+
+								<div class="container mt-4">
+									<h2 class="heading pl-4 mb-4">@child.Name</h2>
+									<div class="row">
+										@foreach (var docs in item.Children.ToList())
+										{
+											var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+											var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+											<div class="col-md-4 mb-4">
+												<a href="@url">
+												<div class="tariff-block bg-white border p-3">
+													<!-- <img src="/images/Ports/pdf-icon.svg" class="img-fluid"> -->
+													<p>@docs.Name</p>
+												</div>
+												</a>
+											</div>
+										}
+
+									</div>
+								</div>
+							}
+						}
+
+				</div>
+				</div>
+				<div class="bg-gray py-1"></div>
+				
+			</div>
+		</div>
+	</div>
+</section>
+

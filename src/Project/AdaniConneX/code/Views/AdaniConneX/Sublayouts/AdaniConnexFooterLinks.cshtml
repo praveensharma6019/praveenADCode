@@ -1,0 +1,62 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /*<p> @Html.Sitecore().Field("Text", model)</p>*/
+
+    /**/
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+
+    Item rootItem = Sitecore.Context.Database.GetItem(Sitecore.Context.Site.RootPath);
+}
+
+<div class="footer-bottom-wrapper">
+    <div class="content-wrapper grid-wrapper">
+
+        @if (rootItem != null)
+        {
+             <p>@Html.Sitecore().Field("Copyright", rootItem)</p>
+        }
+             <ul>
+                 @if (model != null && model.HasChildren)
+                 {
+                     foreach (Item item in model.GetChildren())
+                     {
+                         Sitecore.Data.Fields.LinkField linkfield = item.Fields["Link"];
+                         var itemlink = linkfield.GetFriendlyUrl();
+                         if (itemlink != null)
+                         {
+                             CheckboxField checkbox = item.Fields["IsExternalLink"];
+                             if (checkbox != null && checkbox.Checked)
+                             {
+                                 <li><a href="@itemlink" class="menu-closer" target="_blank">@Html.Sitecore().Field("ShortTitle", item)</a></li>
+                             }
+                             else
+                             {
+                                 <li><a href="@itemlink" class="menu-closer">@Html.Sitecore().Field("ShortTitle", item)</a></li>
+                             }
+                         }
+                         else
+                         {
+                             <li><a href="#" class="menu-closer">@Html.Sitecore().Field("ShortTitle", item)</a></li>
+                         }
+
+
+                       
+                     }
+
+                 }
+             </ul>
+    </div>
+</div>

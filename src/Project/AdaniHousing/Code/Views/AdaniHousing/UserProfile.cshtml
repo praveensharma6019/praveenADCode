@@ -1,0 +1,124 @@
+﻿@model Sitecore.AdaniHousing.Website.Models.LoginInfoModel
+@{
+    ViewBag.TextMeassage = Session["EnquiryMessage"];
+}
+<div class="wrapper-body">
+    <div class="user_profile apply_loan">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>Profile</h3>
+                @foreach (var loans in Model.getLoansList)
+                {
+                    var new_string = "";
+                    for (var i = 0; i < Model.MobileNo.Length - 3; i++)
+                    {
+                        new_string += "X";
+                    }
+                    new_string += Model.MobileNo.Substring(Model.MobileNo.Length - 3);
+                    var lan = loans.loanDetailsList.Select(x => x.loanAccountNumber).FirstOrDefault();
+                    <div class="row mb-4 mb-md-2">
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <label for=""><span class="fa fa-user mr-3 text-green"></span>Name</label>
+                        </div>
+                        <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+                            @loans.customerName
+                        </div>
+                    </div>
+                    <div class="row mb-4 mb-md-2">
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <label for=""><span class="fa fa-id-card mr-3 text-green"></span>Customer Id</label>
+                        </div>
+                        <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+                            @loans.customerNumber
+                        </div>
+                    </div>
+                    <div class="row mb-4 mb-md-2">
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <label for=""><span class="fa fa-phone mr-3 text-green fa-rotate-90"></span>Mobile</label>
+                        </div>
+                        <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+                            @new_string
+                            @*Model.MobileNo*@
+                        </div>
+                    </div>
+                    <div class="row mb-4 mb-md-2">
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <label for=""><span class="fa fa-envelope mr-3 text-green"></span>Email</label>
+                        </div>
+                        <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+                            @loans.loanDetailsList.Select(x => x.primaryEmailId).FirstOrDefault()
+                        </div>
+                    </div>
+                    <div class="row mb-4 mb-md-2">
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <label for=""><span class="fa fa-calendar mr-3 text-green"></span>DOB</label>
+                        </div>
+                        <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+                            @loans.dateOfBirthOrInception
+                        </div>
+                    </div>
+                    <div class="row mb-4 mb-md-2">
+                        <div class="col-lg-4 col-md-6 col-sm-6">
+                            <label for=""><span class="fa fa-map-marker mr-3 text-green"></span>Address</label>
+                        </div>
+                        <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+
+                        </div>
+                    </div>
+                    if (loans.identificationDetailsList != null)
+                    {
+                        var idList = loans.identificationDetailsList.GroupBy(x => x.identificationNumber).Select(y => y.First()).ToList();
+                        //var t = idList.GroupBy(x => x.identificationNumber).Select(y => y.First());
+                        foreach (var Ids in idList)
+                        {
+                            @*if (Ids.identificationNumber != null && Ids.identificationNumber.Length > 3)
+                                {
+                                    var new_string2 = "";
+                                    for (var i = 0; i < Ids.identificationNumber.Length - 3; i++)
+                                    {
+                                        new_string2 += "X";
+                                    }
+                                    new_string2 += Ids.identificationNumber.Substring(Ids.identificationNumber.Length - 3);
+                                    <p>@Ids.identificationType<span class="d-block">@new_string2</span></p>
+                                }*@
+                            if (Ids.identificationNumber != null && Ids.identificationNumber.Length > 3)
+                            {
+                                var new_string2 = "";
+                                for (var i = 0; i < Ids.identificationNumber.Length - 3; i++)
+                                {
+                                    new_string2 += "X";
+                                }
+                                new_string2 += Ids.identificationNumber.Substring(Ids.identificationNumber.Length - 3);
+                                <div class="row mb-4 mb-md-2">
+                                    <div class="col-lg-4 col-md-6 col-sm-6">
+                                        <label for=""><span class="fa fa-file-alt mr-3 text-green"></span>@Ids.identificationType</label>
+                                    </div>
+                                    <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+                                        @new_string2
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                    for (int i = 1; i < Model.AssociatedLANList.Count; i++)
+                    {
+                        <div class="row  mb-4 mb-md-2">
+                            <div class="col-lg-4 col-md-6 col-sm-6">
+                                <label for=""><span class="fa fa-file-invoice-dollar mr-3 text-green"></span>Loan Account @i</label>
+                            </div>
+                            <div class="col-lg-8 col-md-6 col-sm-6 pl-sm-0 pl-5">
+                                @Model.AssociatedLANList[i - 1].Value
+                            </div>
+                        </div>
+                    }
+                    break;
+                }
+            </div>
+            <div class="col-lg-5">
+                <div class="side_thumb">
+                    <img src="-/media/93F7C2D9F9DE4D85AEDFC2E08EF6F111.ashx">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,103 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Links
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Website.Helper
+@{
+
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var contextItem = Sitecore.Context.Item;
+    int j=0;
+}
+<!--Section-->
+@if (contextItem != null)
+{
+    if (contextItem.HasChildren)
+    {
+        foreach (Item folder in contextItem.GetChildren())
+        {
+            if (folder.DisplayName == "Local Content")
+            {
+                if (folder.HasChildren)
+                {
+                    <section class="py-4 bg-white ourwork-inner">
+                        <div class="container">
+						<h2 class="section-heading txt-green ">@Html.Sitecore().Field("Title", element)</h2>
+						<p>@Html.Sitecore().Field("Summary", element)</p>
+                            <div class="row">
+                                @foreach (Item contentItem in folder.GetChildren())
+                                {
+                                    var imgurl = Helper.ImageUrl("Image", contentItem);
+									Sitecore.Data.Fields.LinkField linkField = contentItem.Fields["pageLink"];
+                                    <div class="col-lg-6 my-4">
+                                        <div class="this-section">
+                                            <div class="owl-carousel thisection-carousel mb-3">
+                                                <div class="item">
+                                                    <a href="#gal-@j" class="btn-gallery">
+                                                        <img src="@imgurl" class="img-fluid">
+                                                    </a>
+                                                    <div id="gal-@j" class="hidden">
+                                                        <a href="@imgurl"></a>
+                                                    </div>
+                                                </div>
+                                                @{j++;}
+                                                @if (contentItem.HasChildren)
+                                                {
+                                                    foreach (Item imgFolder in contentItem.GetChildren())
+                                                    {
+                                                        if (imgFolder.DisplayName == "Local Content")
+                                                        {
+                                                            if (imgFolder.HasChildren)
+                                                            {
+                                                                var galItem = imgFolder.GetChildren();
+                                                                for (int i = 0; i < galItem.Count; i++)
+                                                                {
+                                                                    var innerImgurl = Helper.ImageUrl("MediaImage", galItem[i]);
+                                                                    if (!string.IsNullOrWhiteSpace(innerImgurl))
+                                                                    {
+                                                                        <div class="item">
+                                                                            <a href="#gal-@j" class="btn-gallery">
+                                                                                <img src="@innerImgurl" class="img-fluid">
+                                                                            </a>
+                                                                            <div id="gal-@j" class="hidden">
+                                                                                <a href="@innerImgurl"></a>
+                                                                            </div>
+                                                                        </div>
+																		j++;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            </div>
+                                            <div class="this-section__content education-sub">
+                                                <h2 class="section-subheading pl-4 mb-2">@Html.Sitecore().Field("Title", contentItem)</h2>
+                                                <div class="initiative-content trim_content pl-4">
+                                                    @Html.Sitecore().Field("Body", contentItem)
+                                                </div>
+												@if(!string.IsNullOrEmpty(contentItem.Fields["pageLink"].Value))
+												{
+													<p class="pl-4"><a href="@Helper.LinkUrl(linkField)" class="btn btn-primary">Read more</a></p>
+												}
+												else
+												{
+													<p class="pl-4"><a href="#" class="readmore btn btn-primary">Read more</a></p>
+												}                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+							<p><strong>@Html.Sitecore().Field("Name", element)</strong></p>
+                        </div>
+						
+                    </section>
+
+                }
+            }
+        }
+    }
+}
+<!--/Section-->

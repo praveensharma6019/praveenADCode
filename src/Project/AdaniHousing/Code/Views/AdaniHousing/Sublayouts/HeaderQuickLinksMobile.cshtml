@@ -1,0 +1,41 @@
+﻿@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (element != null)
+{
+    <div class="header_qlinks">
+        <ul>
+            @if (element.HasChildren)
+            {
+                foreach (Item item in element.GetChildren())
+                {
+                    LinkField lf = item.Fields["LinkUrl"];
+                    Helper.LinkUrl(item.Fields["LinkUrl"]);
+                    if (lf.LinkType == "external")
+                    {
+                        <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])" target="_blank"><span class="@item.Fields["Title"]"></span></a></li>
+                    }
+                    else if (Helper.LinkUrl(item.Fields["LinkUrl"]) != "" && Helper.LinkUrl(item.Fields["LinkUrl"]).ToLower() == "feedback_form")
+                    {
+                        <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])" data-toggle="modal" data-target="#@Helper.LinkUrl(item.Fields["LinkUrl"])"><span class="@item.Fields["Title"]"></span></a></li>
+                    }
+                    else
+                    {
+                        <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])"><span class="@item.Fields["Title"]"></span></a></li>
+                    }
+                }
+            }
+            @*<li><a href=""><span class="fa fa-comment-alt"></span></a></li>
+        <li><a href="tel:9900158198"><span class="fa fa-phone"></span></a></li>
+        <li><a href=""><span class="fa fa-bell"></span></a></li>*@
+            <li class="user-login"><a href="https://scfm.adanicapital.in/TPSCF/" target="_blank"><span class="fa fa-user mr-2"></span>Login</a></li>
+        </ul>
+    </div>
+}

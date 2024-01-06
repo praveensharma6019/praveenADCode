@@ -1,0 +1,88 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model RenderingModel
+@{
+
+
+    var models = Sitecore.Context.Database.Items.GetItem("{815A9411-0FAE-4761-8A74-7C1C9A56F2BA}");
+    
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)models.Fields["BackgroundImage"]);
+
+    string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+
+}
+
+
+
+<div class="header-topbar">
+    <div>
+        <p><a href="tel:6358975222"><span><i class="fa fa-phone fa-rotate-90"></i></span><span>&nbsp;&nbsp;63589 75222</span></a></p>
+    </div>
+    <div class="text-right">
+        <p><a href="/admission">Enquire Now!</a></p>
+    </div>
+</div>
+<amp-sidebar id='header-sidebar' side='right' layout='nodisplay'>
+    <nav>
+        <div class="controls" [class]="hidePrimary ? 'controls hide-parent' : 'controls'" aria-label="Menu controls">
+            <span class="truncate"></span>
+            <a tabindex="0" role="button" on='tap:header-sidebar.toggle' aria-label="Close Menu">
+                <span class="fa fa-close"></span>
+            </a>
+        </div>
+        <div class="navbar-collapse collapse show" id="mainMenu" style="">
+
+            <ul class="navbar-nav mx-auto primaryMenu">
+                @if (models != null)
+                {
+                    if (models.GetChildren() != null)
+                    {
+                        foreach (Item item in models.GetChildren())
+                        {
+                            Sitecore.Data.Fields.LinkField itemslinkvalues = item.Fields["Link"];
+                            var itemslinks = itemslinkvalues.GetFriendlyUrl();
+
+                            if (item.HasChildren)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link" href="@itemslinks">@item.Fields["NavigationTitle"]</a>
+
+                                    <span class="fa fa-angle-down"></span>
+                                    <div class="dropdown-menu megamenu">
+                                        <ul>
+                                            @foreach (Item items in item.GetChildren())
+                                            {
+                                                Sitecore.Data.Fields.LinkField itemslinkvalue = items.Fields["Link"];
+                                                var itemslink = itemslinkvalue.GetFriendlyUrl();
+                                                <li class="dropdown-item"><a href="@itemslink" class="dropdown-item">@items.Fields["NavigationTitle"]</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+
+
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" href="@itemslinks">@item.Fields["NavigationTitle"]</a>
+                                </li>
+                            }
+                        }
+                    }
+                }
+
+            </ul>
+        </div>
+
+    </nav>
+</amp-sidebar>
+<div class="headerbar">
+    <div class="site-name"><a class="navbar-brand" href="/"> <amp-img alt="" width="211" height="27" src="@url"> </a></div>
+    <div class="hamburger" role="button" aria-label="mobile menu" on="tap:header-sidebar.toggle" tabindex="0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="20" viewBox="0 0 32 20"><g transform="translate(-1275.5 -39.5)"><line class="a" x2="30" transform="translate(1276.5 40.5)" /><line class="a" x2="30" transform="translate(1276.5 49.5)" /><line class="a" x2="30" transform="translate(1276.5 58.5)" /></g></svg>
+    </div>
+</div>

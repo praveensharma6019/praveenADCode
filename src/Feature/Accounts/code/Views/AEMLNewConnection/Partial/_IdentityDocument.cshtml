@@ -1,0 +1,173 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{
+    var documentList = new List<Sitecore.Feature.Accounts.NEWCON_DOCUMENTMASTER>();
+    var jointDocumentList = new List<Sitecore.Feature.Accounts.NEWCON_DOCUMENTMASTER>();
+    var objID = new List<Sitecore.Feature.Accounts.NEW_CON_APPLICATION_DOCUMENT_DETAIL>();
+    var objJointID = new List<Sitecore.Feature.Accounts.NEW_CON_APPLICATION_DOCUMENT_DETAIL>();
+    var sno = 1;
+    var isjoint = Model.ApplicantType;
+    if (Model.DocumentList != null && Model.DocumentList.Count > 0)
+    {
+        documentList = Model.DocumentList.FindAll(d => d.DOCTY.Trim() == "ID");
+        documentList.Sort((cv1, cv2) => cv1.DESCRIPTION.CompareTo(cv2.DESCRIPTION));
+
+        jointDocumentList = Model.DocumentList.FindAll(d => d.DOCTY.Trim() == "ID2");
+        jointDocumentList.Sort((cv1, cv2) => cv1.DESCRIPTION.CompareTo(cv2.DESCRIPTION));
+
+        objID = Model.GetExistingDocuments.FindAll(cv => cv.DocumentTypeCode.Contains("ID".ToString()));
+        objID.Sort((cv1, cv2) => cv1.CreatedDate.Value.CompareTo(cv2.CreatedDate.Value));
+
+        objJointID = Model.GetExistingDocuments.FindAll(cv => cv.DocumentTypeCode.Contains("ID2".ToString()));
+        objJointID.Sort((cv1, cv2) => cv1.CreatedDate.Value.CompareTo(cv2.CreatedDate.Value));
+    }
+}
+@if (documentList != null && documentList.Count > 0)
+{
+    <div class="bg-white p-3">
+        <label>Identity Document<span class="required">*</span></label>
+    </div>
+    <input type="hidden" value="Any one Identity Document" id="manddocname_ID" />
+    <div class="table-responsive my-3">
+        <table class="table table-bordered mb-0 txt-sm">
+            <thead class="">
+                <tr>
+                    <th valign="middle" style="min-width: 80px;">Sr. No</th>
+                    <th valign="middle" style="min-width: 250px;">Document Type</th>
+                    <th valign="middle" style="min-width: 300px;">Upload File</th>
+                    <th valign="middle" style="min-width: 150px;">Document No.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Applicant - 1 -->
+                @for (int i = 1; i <= 2; i++)
+                {
+                    var obj = (objID.Count > 0 && i == 1) ? objID[0] : (objID.Count > 1 && i == 2 ? objID[1] : null);
+                    if (obj != null && documentList.Find(cv => cv.DOCID.ToString() == obj.DocumentType) == null)
+                    {
+                        obj = null;
+                    }
+                    <tr>
+                        <td>
+                            @sno
+                            <input type="hidden" name="HDNIDDOC_@i" id="HDNIDDOC_@i" value="@(obj!=null?obj.Id.ToString():"")" />
+                        </td>
+                        <td>
+                            <div class="row no-gutters">
+                                <div class="col-10">
+                                    <select name="IDDOC_@i" id="IDDOC_@i" class="form-control" @(i == 1 ? "required" : "")>
+                                        <option value="">@(isjoint == "1" ? "Select Identity Documment" : "Select Identity Documment1")</option>
+                                        @foreach (var doc in documentList)
+                                        {
+                                            <option value="@doc.DOCID" @(obj != null && obj.DocumentType == doc.DOCID.ToString() ? "selected" : "")>@doc.DESCRIPTION</option>
+                                        }
+                                    </select>
+                                    <div class="docerror" style="display:none;" id="DIV_IDDOC_@i">Please choose different identity document</div>
+                                </div>
+                                @if (i == 1)
+                                {
+                                    <div class="col-2">
+                                        <span class="required ml-2">*</span>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group mb-0">
+                                <input type="file" id="IDFILE_@i" name="IDFILE_@i" onchange="ValidateFile(this);" class="form-control cou" />
+                                @if (obj != null)
+                                {
+                                    <div class="d-block mt-2">
+                                        <a class="txt-orange idfile-@i" href="@Url.Action("DownloadFile", new { id = obj.Id })">
+                                            <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group mb-0">
+                                <input type="text" class="form-control txt-caps" name="DOCUMENTID_@i" id="DOCUMENTID_@i" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="" value="@(obj != null?obj.DocumentNumber:"")">
+                               
+                                @if (i == 1)
+                                {
+                                    Html.ValidationMessageFor(x => x.DOCUMENTID_1, "", new { @class = "help-block" }, "p");
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                    sno = sno + 1;
+                }
+                <!-- Applicant - 2 -->
+                @if (isjoint == "2" && jointDocumentList.Count > 0)
+                {
+                    for (int i = 1; i <= 2; i++)
+                    {
+                        var obj = (objJointID.Count > 0 && i == 1) ? objJointID[0] : (objJointID.Count > 1 && i == 2 ? objJointID[1] : null);
+                        if (obj != null && documentList.Find(cv => cv.DOCID.ToString() == obj.DocumentType) == null)
+                        {
+                            obj = null;
+                        }
+                        <tr>
+                            <td>
+                                @sno
+                                <input type="hidden" name="HDNIDJOINTDOC_@i" id="HDNIDJOINTDOC_@i" value="@(obj!=null?obj.Id.ToString():"")" />
+                            </td>
+                            <td>
+                                <div class="row no-gutters">
+                                    <div class="col-10">
+                                        <select name="IDJOINTDOC_@i" id="IDJOINTDOC_@i" class="form-control" @(i == 1 ? "required" : "")>
+                                            <option value="">Select Identity Documment-2</option>
+                                            @foreach (var doc in jointDocumentList)
+                                            {
+                                                <option value="@doc.DOCID" @(obj != null && obj.DocumentType == doc.DOCID.ToString() ? "selected" : "")>@doc.DESCRIPTION</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="docerror" style="display:none;" id="DIV_IDJOINTDOC_@i">Please choose different identity document</div>
+                                    @if (i == 1)
+                                    {
+                                        <div class="col-2">
+                                            <span class="required ml-2">*</span>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group mb-0">
+                                    <input type="file" id="JOINTIDFILE_@i" name="JOINTIDFILE_@i" onchange="ValidateFile(this);" class="form-control cou" />
+                                    @if (obj != null)
+                                    {
+                                        <div class="d-block mt-2">
+                                            <a class="txt-orange jointidfile_@i" href="@Url.Action("DownloadFile", new { id = obj.Id })">
+                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group mb-0">
+                                    <input type="text" class="form-control txt-caps" name="JOINTDOCUMENTID_@i" id="JOINTDOCUMENTID_@i" onkeyup="var start = this.selectionStart; var end = this.selectionEnd; this.value = this.value.toUpperCase(); this.setSelectionRange(start, end);" aria-describedby="" placeholder="" value="@(obj != null?obj.DocumentNumber:"")">
+                                  
+
+                                    @if (i == 1)
+                                    {
+                                        Html.ValidationMessageFor(x => x.JOINTDOCUMENTID_1, "", new { @class = "help-block", }, "p");
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                        sno = sno + 1;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+}

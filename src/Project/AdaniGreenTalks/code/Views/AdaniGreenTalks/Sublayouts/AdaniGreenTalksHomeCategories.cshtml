@@ -1,0 +1,194 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "#";
+    string animatedImgUrl = "#";
+    string animatedImgAltText = "";
+    string altText = "";
+    string linkurl = "";
+	var closeIcon = Sitecore.Context.Database.GetItem("/sitecore/media library/Project/AdaniGreenTalks/Themes/images/icons/New Icons/close");
+
+}
+
+@if (model != null)
+{
+    <div class="body-container-wrapper green-homepage">
+        <div class="green-action-bar">
+            <div class="container">
+                <h2 class="top-heading"> @Html.Sitecore().Field(Constant.MediaInfo, model)</h2>
+                <div class="wrap">
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.Image]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+                        else
+                        {
+                            imgurl = "#";
+                            altText = "";
+                        }
+
+                        Sitecore.Data.Fields.ImageField animatedImgField = ((Sitecore.Data.Fields.ImageField)item.Fields["AnimatedImage"]);
+                        if (animatedImgField != null && animatedImgField.MediaItem != null)
+                        {
+                            animatedImgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(animatedImgField.MediaItem);
+                            animatedImgAltText = animatedImgField.Alt;
+                        }
+                        else
+                        {
+                            animatedImgUrl = "#";
+                            animatedImgAltText = "";
+                        }
+
+
+                        Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                        if (linkvalue != null)
+                        {
+                            linkurl = linkvalue.GetFriendlyUrl();
+                        }
+                        if (linkurl != "")
+                        {
+                            if (linkvalue.LinkType == "internal")
+                            {
+                                <div class='item @Html.Sitecore().Field("class", item)'>
+                                    <a href="@linkurl">
+                                        <div class="circle">
+                                            <img src="@imgurl" alt="@altText" class="static-img" />
+                                            <img src="@animatedImgUrl" alt="@animatedImgAltText" class="animated-img" />
+                                        </div>
+                                        <h5>@Html.Sitecore().Field(Constant.ShortTitle, item)</h5>
+                                    </a>
+                                </div>
+
+
+                            }
+                            if (linkvalue.LinkType == "external")
+                            {
+                                <div class='item @Html.Sitecore().Field("class", item)'>
+                                    <a href="@linkurl" target="_blank" rel="noopener noreferrer">
+                                        <div class="circle">
+                                            <img src="@imgurl" alt="@altText" class="static-img" />
+                                            <img src="@animatedImgUrl" alt="@animatedImgAltText" class="animated-img" />
+                                        </div>
+                                        <h5>@Html.Sitecore().Field(Constant.ShortTitle, item)</h5>
+                                    </a>
+                                </div>
+
+
+                            }
+                        }
+                        else
+                        {
+                            <div class='item @Html.Sitecore().Field("class", item)'>
+                                <a href="javascript:void(0)">
+                                    <div class="circle">
+                                        <img src="@imgurl" alt="@altText" class="static-img" />
+                                        <img src="@animatedImgUrl" alt="@animatedImgAltText" class="animated-img" />
+                                    </div>
+                                    <h5>@Html.Sitecore().Field(Constant.ShortTitle, item)</h5>
+                                </a>
+                            </div>
+
+
+                        }
+                    }
+                </div>
+                <div class="modal-overlay"></div>
+                <div class="goals-modal show-on-small">
+                    <div class="close-bar">
+                        <img src="images/AdaniGreenTalks/close.svg" alt="" class="close-goals-modal">
+                        <div class="goals-heading">
+                            <h5>@Html.Sitecore().Field(Constant.MediaInfo, model)</h5>
+                        </div>
+                    </div>
+                    <div class="goals-list">
+
+                        @foreach (Item item in model.GetChildren())
+                        {
+
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.Image]);
+                            if (imgField != null && imgField.MediaItem != null)
+                            {
+                                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                altText = imgField.Alt;
+                            }
+                            else
+                            {
+                                imgurl = "#";
+                                altText = "";
+                            }
+
+                            Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                            if (linkvalue != null)
+                            {
+                                linkurl = linkvalue.GetFriendlyUrl();
+                            }
+                            if (linkurl != "")
+                            {
+                                if (linkvalue.LinkType == "internal")
+                                {
+                                    <div class='single-goal @Html.Sitecore().Field("hideclass", item)'>
+                                        <a href="@linkurl">
+                                            <div class="goal-icon">
+                                                <img src="@imgurl" alt="@altText" />
+                                            </div>
+                                            <div class="goal-title">
+                                                <h5>@Html.Sitecore().Field(Constant.ShortTitle, item)</h5>
+                                            </div>
+                                        </a>
+                                    </div>
+
+
+                                }
+                                if (linkvalue.LinkType == "external")
+                                {
+                                    <div class='single-goal @Html.Sitecore().Field("hideclass", item)'>
+                                        <a href="@linkurl" target="_blank" rel="noopener noreferrer">
+                                            <div class="goal-icon">
+                                                <img src="@imgurl" alt="@altText" />
+                                            </div>
+                                            <div class="goal-title">
+                                                <h5>@Html.Sitecore().Field(Constant.ShortTitle, item)</h5>
+                                            </div>
+                                        </a>
+                                    </div>
+
+
+                                }
+                            }
+                            else
+                            {
+                                <div class='single-goal @Html.Sitecore().Field("hideclass", item)'>
+                                    <a href="javascript:void(0)">
+                                        <div class="goal-icon">
+                                            <img src="@imgurl" alt="@altText" />
+                                        </div>
+                                        <div class="goal-title">
+                                            <h5>@Html.Sitecore().Field(Constant.ShortTitle, item)</h5>
+                                        </div>
+                                    </a>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

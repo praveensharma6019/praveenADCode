@@ -1,0 +1,441 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace Sitecore.Transmission.Website.sitecore.admin.Transmission
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        TransmissionContactFormRecordDataContext rdb = new TransmissionContactFormRecordDataContext();
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            Sitecore.Data.Database db = Sitecore.Configuration.Factory.GetDatabase("web");
+            ListItem objselect = new ListItem() { Text = "Please Select", Value = "0" };
+
+            
+            // var item1 = Sitecore.Context.Database.GetItem();
+
+            DateTime todaydate = (DateTime.Now.Date);
+
+            //Get all Today's Total Inquiries
+            var TodaysInquiryRecord = from rc in rdb.TransmissionVendorEnquiryForms
+                                          where ((rc.FormSubmitOn.Value.Date == todaydate))
+                                          select rc;
+            todaysTotalInq.Text = TodaysInquiryRecord.Count().ToString();
+
+            //Get all Today's Inquiries in New State
+            var TodaysNewInquiryRecord = from rc in TodaysInquiryRecord
+                                         where (rc.CurrentStatusPhase1.ToLower() == "pending for review")
+                                              select rc;
+            todaysNewInq.Text = TodaysNewInquiryRecord.Count().ToString();
+
+            //Get all Today's Inquiries in valid State
+            var TodaysValidInquiryRecord = from rc in TodaysInquiryRecord
+                                          where (rc.CurrentStatusPhase1.ToLower() == "approved at level 1")
+                                                     select rc;
+            todaysValidInq.Text = TodaysValidInquiryRecord.Count().ToString();
+
+            //Get all Today's Inquiries in invalid State
+            var TodayInvalidInquiryRecord = from rc in TodaysInquiryRecord
+                                                       where (rc.CurrentStatusPhase1.ToLower() == "rejected at level 1")
+                                                       select rc;
+            todaysInvalidInq.Text = TodayInvalidInquiryRecord.Count().ToString();
+
+            //Get all Todays Actioned Record//////////////////////////////////////////////
+            var TodaytotalActionedrecord = from rc in TodaysInquiryRecord
+                                              where ((rc.FormSubmitOn.Value.Date == todaydate)&& (rc.CurrentStatusPhase1.ToLower() == "approved at level 1"))
+                                              select rc;
+            todaysActionInq.Text = TodaytotalActionedrecord.Count().ToString();
+
+
+            //Get all Today's Inquiries in Pending State 
+            var TodaytotalPendingrecord = from rc in TodaysInquiryRecord
+                                                  where (rc.CurrentStatusPhase2.ToLower() == "pending for review at level 2")
+                                                  select rc;
+            todaysPendingInq.Text = TodaytotalPendingrecord.Count().ToString();            
+
+            //Get all Today's Inquiries in Approved State 
+            var TodayApprovedrecord = from rc in TodaysInquiryRecord
+                                                    where (rc.CurrentStatusPhase2.ToLower() == "approved at level 2" || rc.CurrentStatusPhase2.ToLower() == "approved after reassessment")
+                                                    select rc;
+            todaysApprovedInq.Text = TodayApprovedrecord.Count().ToString();
+            
+
+            //Get all Today's Inquiries in Rejected State 
+            var TodayRejectedrecord = from rc in TodaysInquiryRecord
+                                                      where (rc.CurrentStatusPhase2.ToLower() == "rejected at level 2" || rc.CurrentStatusPhase2.ToLower() == "rejected after reassessment")
+                                                      select rc;
+            todaysRejectedInq.Text = TodayRejectedrecord.Count().ToString();
+
+            //Get all Today's Inquiries in Rejected State 
+            var TodayReassessrecord = from rc in TodaysInquiryRecord
+                                      where (rc.CurrentStatusPhase2.ToLower() == "reassess after 6 months")
+                                      select rc;
+            todaysReassessment.Text = TodayReassessrecord.Count().ToString();
+
+            //get total registration records//////////////////////////////////
+            //int Currrentdate = DateTime.Now.Year;
+            //Currentyear = Currrentdate;
+            var TotalInquiriesRecord = from rc in rdb.TransmissionVendorEnquiryForms                                          
+                                          select rc;
+            totalInq.Text = TotalInquiriesRecord.Count().ToString();
+
+            //Get Total Paid Registration record
+            var TotalNewInquiry = from rc in TotalInquiriesRecord
+                                              where (rc.CurrentStatusPhase1.ToLower() == "pending for review")
+                                              select rc;
+            totalNewInq.Text = TotalNewInquiry.Count().ToString();
+
+            //Get Total outstanding Registration record
+            var TotalValidRecord = from rc in TotalInquiriesRecord
+                                                     where (rc.CurrentStatusPhase1.ToLower() == "approved at level 1")
+                                                     select rc;
+            totalValidInq.Text = TotalValidRecord.Count().ToString();
+
+            //Get Total complementary Registration record
+            var TotalInvalidRecord = from rc in TotalInquiriesRecord
+                                                       where (rc.CurrentStatusPhase1.ToLower() == "rejected at level 1")
+                                                       select rc;
+            totalInvalidInq.Text = TotalInvalidRecord.Count().ToString();
+
+
+            //Get all Total Actioned Records///////////////////////////////////////////////////////
+            var totalActionInquiries = from rc in TotalInquiriesRecord
+                                        where (rc.CurrentStatusPhase1.ToLower() == "approved at level 1")
+                                        select rc;
+            totalActionInq.Text = totalActionInquiries.Count().ToString();
+
+            //Get all Total Pending record
+            var totalPendingrecord = from rc in TotalInquiriesRecord
+                                             where (rc.CurrentStatusPhase2.ToLower() == "pending for review at level 2")
+                                             select rc;
+            totalPaidCollection.Text = totalPendingrecord.Count().ToString();
+
+            //Get all Today's Outstanding collection record
+            var totalApprovedrecord = from rc in TotalInquiriesRecord
+                                                    where (rc.CurrentStatusPhase2.ToLower() == "approved at level 2" || rc.CurrentStatusPhase2.ToLower() == "approved after reassessment")
+                                                    select rc;
+            totalOutstandingCollection.Text = totalApprovedrecord.Count().ToString();
+
+            //Get all Total complementary collection record
+            var totalRejectedrecord = from rc in TotalInquiriesRecord
+                                                      where (rc.CurrentStatusPhase2.ToLower() == "rejected at level 2" || rc.CurrentStatusPhase2.ToLower() == "rejected after reassessment")
+                                                      select rc;
+            totalComplementaryCollection.Text = totalRejectedrecord.Count().ToString();
+
+            //Get all Total Reassessment record
+            var totalReassessmentrecord = from rc in TotalInquiriesRecord
+                                      where (rc.CurrentStatusPhase2.ToLower() == "reassess after 6 months")
+                                      select rc;
+            totalReassessment.Text = totalReassessmentrecord.Count().ToString();
+
+            ///////////////////////////////////////////////////////////////////////////
+
+            //get total coupon applied
+
+            //var totalCouponRecord = (from rc in TotalInquiriesRecord
+            //                         where rc.ReferenceCode != null
+            //                         orderby rc.ReferenceCode ascending
+            //                         select rc.ReferenceCode).Distinct();
+            //TotalCoupon.Text = totalCouponRecord.Count().ToString();
+
+
+
+            //////////////////////////////////////////////////////////////////////////////
+
+            //Inquiry List table
+            var Inquiryrecord = from rc in TotalInquiriesRecord
+                                group rc by rc.RegistrationNo into empg
+                                     where (empg != null)
+                                     select new { CATEGORY = empg.Key, TOTAL = empg.Count() };
+            LiteralControl l = new LiteralControl();
+
+            
+
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+
+            
+
+
+            //Reference code Dropdown Populate code//
+
+            if (!IsPostBack)
+            {
+                
+
+
+                //bind the data to the grid
+                var TotalRecord = from tvef in rdb.TransmissionVendorEnquiryForms orderby tvef.FormSubmitOn descending
+                                             where (tvef.RegistrationNo!= null)
+                                             select tvef;
+                if (TotalRecord.Count() > 0)
+                {
+                    LiteralControl griddata = new LiteralControl();
+                    griddata.Text = "<table id='example' class='table table-striped table-bordered' style='width:100%'><thead><tr><th> Submit On </th><th> Inquiry Status </th><th> Registration No </th><th> Name </th><th> Company Name </th><th> Contact No </th><th> Status Stage 1 </th><th> Status Stage 2 </th><th> Last Status Updated By </th><th> Email </th><th> Last Updated On </th></tr></thead><tbody>";
+                    foreach (var item in TotalRecord)
+                    {
+                        //var submitdate = "";
+                        //if (item.FormSubmitOn.GetValueOrDefault() != null)
+                        //{
+                        //    submitdate = item.FormSubmitOn.Value.ToString("dd/MM/yyyy");
+                        //}
+                        griddata.Text = griddata.Text + "<tr><td>" + item.FormSubmitOn + "</td><td>" + item.InqTicketStatus + "</td><td><a href=\"/sitecore/admin/transmission/VendorDetails.aspx?id="+item.RegistrationNo+"\"  name=\"RegNobtn\" id=\"RegNobtn\" class=\"btn initiatives-btn2\">"+ item.RegistrationNo + "</a></td><td>" + item.Name + "</td><td>" + item.CompanyName + "</td><td>" + item.MobileNo + "</td><td>" + item.CurrentStatusPhase1 + "</td><td>" + item.CurrentStatusPhase2 + "</td><td>" + item.LastUpdatedBy + "</td><td>" + item.Email + "</td><td>" + item.LastUpdatedOn + "</td></tr>";
+                    }
+                    griddata.Text = griddata.Text + "</tbody></table>";
+                    //GridView12.Controls.Add(griddata);
+                    gridrecord1.Controls.Add(griddata);
+                }
+
+            }
+
+        }
+        protected void Button1_Click(object sender, EventArgs e)
+        {
+        }
+        protected void resetForm(object sender, EventArgs e)
+        {
+            Response.Redirect("/sitecore/admin/transmission/VendorAdminDashboard.aspx");
+        }
+
+
+        public DataTable ToDataTable<T>(List<T> items)
+        {
+            DataTable dataTable = new DataTable(typeof(T).Name);
+            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            foreach (PropertyInfo prop in Props)
+            {
+                dataTable.Columns.Add(prop.Name);
+            }
+
+            foreach (T item in items)
+            {
+                var values = new object[Props.Length];
+
+                for (int i = 0; i < Props.Length; i++)
+                {
+                    values[i] = Props[i].GetValue(item, null);
+                }
+                dataTable.Rows.Add(values);
+            }
+            return dataTable;
+        }
+
+        public void DatatableToCSV(DataTable dtDataTable, string strFilePath)
+        {
+            #region Old Method
+            //StreamWriter sw = new StreamWriter(strFilePath, false);
+            ////headers  
+            //for (int i = 0; i < dtDataTable.Columns.Count; i++)
+            //{
+            //    sw.Write(dtDataTable.Columns[i]);
+            //    if (i < dtDataTable.Columns.Count - 1)
+            //    {
+            //        sw.Write(",");
+            //    }
+            //}
+            //sw.Write(sw.NewLine);
+            //foreach (DataRow dr in dtDataTable.Rows)
+            //{
+            //    for (int i = 0; i < dtDataTable.Columns.Count; i++)
+            //    {
+            //        if (!System.Convert.IsDBNull(dr[i]))
+            //        {
+            //            string value = dr[i].ToString();
+            //            if (value.Contains(','))
+            //            {
+            //                value = String.Format("\"{0}\"", value);
+            //                sw.Write(value);
+            //            }
+            //            else
+            //            {
+            //                sw.Write(dr[i].ToString());
+            //            }
+            //        }
+            //        if (i < dtDataTable.Columns.Count - 1)
+            //        {
+            //            sw.Write(",");
+            //        }
+            //    }
+            //    sw.Write(sw.NewLine);
+            //}
+            //sw.Close();
+            //DownLoad(strFilePath);
+            #endregion
+
+            #region New Method
+
+            Stopwatch stw = new Stopwatch();
+            stw.Start();
+            StringBuilder sb = new StringBuilder();
+            //Column headers  
+            for (int i = 0; i < dtDataTable.Columns.Count; i++)
+            {
+                sb.Append(dtDataTable.Columns[i]);
+                if (i < dtDataTable.Columns.Count - 1)
+                {
+                    sb.Append(",");
+                }
+            }
+            sb.Append(Environment.NewLine);
+            //Column Values
+            foreach (DataRow dr in dtDataTable.Rows)
+            {
+                sb.AppendLine(string.Join(",", dr.ItemArray));
+            }
+            File.WriteAllText(strFilePath, sb.ToString());
+            stw.Stop();
+            DownLoad(strFilePath);
+
+            #endregion
+        }
+        public void DownLoad(string FName)
+        {
+            string path = FName;
+            System.IO.FileInfo file = new System.IO.FileInfo(path);
+            if (file.Exists)
+            {
+                Response.Clear();
+                Response.AddHeader("Content-Disposition", "attachment; filename=VendorEnquiryList.csv");
+                Response.AddHeader("Content-Length", file.Length.ToString());
+                Response.ContentType = "application/octet-stream";
+                Response.WriteFile(file.FullName);
+                Response.End();
+            }
+            else
+            {
+                Response.Write("This file does not exist.");
+            }
+
+        }
+        private void ExportGridToExcel()
+        {
+            Response.Clear();
+            Response.Buffer = true;
+            Response.ClearContent();
+            Response.ClearHeaders();
+            Response.Charset = "";
+            string FileName = "ExportData-" + DateTime.Now + ".xls";
+            StringWriter strwritter = new StringWriter();
+            HtmlTextWriter htmltextwrtter = new HtmlTextWriter(strwritter);
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.ContentType = "application/vnd.ms-excel";
+            Response.AddHeader("Content-Disposition", "attachment;filename=" + FileName);
+            hiddenGrid1.GridLines = GridLines.Both;
+            hiddenGrid1.HeaderStyle.Font.Bold = true;
+            hiddenGrid1.RenderControl(htmltextwrtter);
+            Response.Write(strwritter.ToString());
+            Response.End();
+
+        }
+        protected void downloadCSV_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+                int flag = 0;
+                if (!string.IsNullOrEmpty(DdlDateFrom.Text))
+                {
+                    flag++;
+                }
+                if (!string.IsNullOrEmpty(DdlDateTo.Text))
+                {
+                    flag++;
+                }
+
+                if (flag == 1)
+                {
+                    lblErroMsg.Text = "Please select valid Dates";
+                    return;
+
+                }
+                
+                var TotalregistrationRecord = from rc in rdb.TransmissionVendorEnquiryForms
+                                              select rc;
+
+                if (selectStatus.SelectedIndex != 0) TotalregistrationRecord = TotalregistrationRecord.Where(s => s.CurrentStatusPhase1.ToLower() == selectStatus.SelectedValue.ToLower() || s.CurrentStatusPhase2.ToLower() == selectStatus.SelectedValue.ToLower());
+                if (flag == 2) TotalregistrationRecord = TotalregistrationRecord.Where(s => s.FormSubmitOn.Value.Date >= DateTime.Parse(DdlDateFrom.Text).Date && s.FormSubmitOn.Value.Date <= DateTime.Parse(DdlDateTo.Text).Date);
+
+                ////bind the filtered data to grid
+                //gridrecord1.Controls.Clear();
+                //LiteralControl griddata = new LiteralControl();
+                //griddata.Text = "<table id='example' class='table table-striped table-bordered' style='width:100%'><thead><tr><th>ID </th><th> User ID </th><th> Race Distance </th><th> Race Amount </th><th> Reference Code </th><th> First Name </th><th> Last Name </th><th> DOB </th><th> Email Id </th><th> Contact Number </th><th> Gender </th><th> Tshirt Size </th><th> City </th><th> Amount Received </th><th> Status </th><th> Submitted Date </th></tr></thead><tbody>";
+                //foreach (var item in TotalregistrationRecord)
+                //{
+                //    griddata.Text = griddata.Text + "<tr><td>" + item.Id + "</td><td>" + item.UserId + "</td><td>" + item.RaceDistance + "</td><td>" + item.RaceAmount + "</td><td>" + item.ReferenceCode + "</td><td>" + item.FirstName + "</td><td>" + item.LastName + "</td><td>" + item.DateofBirth.Value.Date + "</td><td>" + item.Email + "</td><td>" + item.ContactNumber + "</td><td>" + item.Gender + "</td><td>" + item.TShirtSize + "</td><td>" + item.City + "</td><td>" + item.FinalAmount + "</td><td>" + item.PaymentStatus + "</td><td>" + item.FormSubmitOn + "</td></tr>";
+                //}
+                //griddata.Text = griddata.Text + "</tbody></table>";
+                //gridrecord1.Controls.Add(griddata);
+                hiddenGrid1.DataSource = TotalregistrationRecord;
+                hiddenGrid1.DataBind();
+                ExportGridToExcel();
+
+            }
+            catch (Exception ex)
+            {
+
+                lblErroMsg.Text = "There is some technically problem. Please contact administrator.";
+                Sitecore.Diagnostics.Log.Error("Form data -Export Error  " + ex.Message, this);
+            }
+        }
+        public override void VerifyRenderingInServerForm(Control control)
+        {
+            //required to avoid the runtime error "  
+            //Control 'GridView1' of type 'GridView' must be placed inside a form tag with runat=server."  
+        }
+        protected void searchBtn_Click(object sender, EventArgs e)
+        {
+            int flag = 0;
+            if (!string.IsNullOrEmpty(DdlDateFrom.Text))
+            {
+                flag++;
+            }
+            if (!string.IsNullOrEmpty(DdlDateTo.Text))
+            {
+                flag++;
+            }
+
+            if (flag == 1)
+            {
+                lblErroMsg.Text = "Please select valid Dates";
+                return;
+
+            }
+            
+            var TotalregistrationRecord = from rc in rdb.TransmissionVendorEnquiryForms
+                                          select rc;
+
+            if (selectStatus.SelectedIndex != 0) TotalregistrationRecord = TotalregistrationRecord.Where(s => s.CurrentStatusPhase1.ToLower() == selectStatus.SelectedValue.ToLower() || s.CurrentStatusPhase2.ToLower() == selectStatus.SelectedValue.ToLower());
+            if (flag == 2) TotalregistrationRecord = TotalregistrationRecord.Where(s => s.FormSubmitOn.Value.Date >= DateTime.Parse(DdlDateFrom.Text).Date && s.FormSubmitOn.Value.Date <= DateTime.Parse(DdlDateTo.Text).Date);
+
+            //bind the filtered data to grid
+            gridrecord1.Controls.Clear();
+            LiteralControl griddata = new LiteralControl();
+            griddata.Text = "<table id='example' class='table table-striped table-bordered' style='width:100%'><thead><tr><th> Submit On </th><th> Inquiry Status </th><th> Registration No </th><th> Name </th><th> Company Name </th><th> Contact No </th><th> Status Stage 1 </th><th> Status Stage 2 </th><th> Last Status Updated By </th><th> Email </th><th> Last Updated On </th></tr></thead><tbody>";
+            foreach (var item in TotalregistrationRecord)
+            {
+                griddata.Text = griddata.Text + "<tr><td>" + item.FormSubmitOn + "</td><td>" + item.InqTicketStatus + "</td><td><a href=\"/sitecore/admin/transmission/VendorDetails.aspx?id=" + item.RegistrationNo + "\"  name=\"RegNobtn\" id=\"RegNobtn\" class=\"btn initiatives-btn2\">" + item.RegistrationNo + "</a></td><td>" + item.Name + "</td><td>" + item.CompanyName + "</td><td>" + item.MobileNo + "</td><td>" + item.CurrentStatusPhase1 + "</td><td>" + item.CurrentStatusPhase2 + "</td><td>" + item.LastUpdatedBy + "</td><td>" + item.Email + "</td><td>" + item.LastUpdatedOn + "</td></tr>";
+            }
+            griddata.Text = griddata.Text + "</tbody></table>";
+            gridrecord1.Controls.Add(griddata);
+            hiddenGrid1.DataSource = TotalregistrationRecord;
+            hiddenGrid1.DataBind();
+        }
+        protected void LogOut_Click(object sender, EventArgs e)
+        {
+            if (Sitecore.Context.User.IsAuthenticated)
+                FormsAuthentication.SignOut();
+            Response.Redirect("/Sitecore/login?ReturnUrl=%2fsitecore%2fadmin%2ftransmission%2fVendorAdminDashboard.aspx");
+        }
+    }
+}

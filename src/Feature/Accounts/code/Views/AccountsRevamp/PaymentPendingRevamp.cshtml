@@ -1,0 +1,148 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model  Sitecore.Feature.Accounts.Models.ViewPayBill
+
+@{
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+    Sitecore.Data.Items.Item loginPage = Sitecore.Context.Database.GetItem("{C086B381-8CBE-4416-8E16-9733C6E43245}");
+    string loginPageUrl = loginPage != null ? Sitecore.Links.LinkManager.GetItemUrl(loginPage) : "/MyAccount";
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+<div class="col s12">
+
+
+    <div class="payment-progress-module section-container" id="dvContents">
+        @if (Model != null && !string.IsNullOrEmpty(Model.TransactionId))
+        {
+
+            <div class="card orange-border section-inner-wrapper payment-confirm1">
+                <div class="row">
+                    <div class="col l12 s12">
+                        <aside class="pay-mob hide-on-large-only">
+
+                            <img class="offer-icon" src="/electricity_assets/images/In-process.gif" alt="Payment Pending">
+
+                            <!-- <i class="vi-payment-confirm"></i> -->
+
+                            <div class="payment-progress-content">
+
+                                <h3 class="text-center-mob">
+                                    Payment In-Process
+                                    <span class="custom-loader-dots-box button-loader blk-dot">
+                                        <span class="custom-loader-dot custom-loader-dot-1"></span>
+                                        <span class="custom-loader-dot custom-loader-dot-2"></span>
+                                        <span class="custom-loader-dot custom-loader-dot-3"></span>
+                                    </span>
+                                </h3>
+
+                                <p class="text-center-mob">
+
+                                    Your payment of <strong>&#8377 @Model.AmountPayable.TrimStart('0')</strong> is being processed. You will be redirected to the payment confirmation page shortly.
+                                </p>
+
+                                <p class="text-center-mob"><span>@Model.TransactionDate</span></p>
+
+                            </div>
+                        </aside>
+                        <aside class="pay-desk">
+                            <img class="offer-icon hide-on-med-and-down" src="/electricity_assets/images/In-process.gif" alt="Payment Pending">
+                            <div class="payment-progress-content">
+                                <h3 class="text-center-mob hide-on-med-and-down">
+                                    Payment In-Process
+                                    <span class="custom-loader-dots-box button-loader blk-dot">
+                                        <span class="custom-loader-dot custom-loader-dot-1"></span>
+                                        <span class="custom-loader-dot custom-loader-dot-2"></span>
+                                        <span class="custom-loader-dot custom-loader-dot-3"></span>
+                                    </span>
+                                </h3>
+                                <p class="text-center-mob hide-on-med-and-down">
+                                    Your payment of <strong>&#8377 @Model.AmountPayable.TrimStart('0')</strong> is being processed. You will be redirected to the payment confirmation page shortly.
+                                </p>
+                                <p class="text-center-mob hide-on-med-and-down"><span>@Model.TransactionDate</span></p>
+                                <hr>
+                                <ul>
+                                    <li><span>@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/AccountNumber", "Account Number")</span> @Model.AccountNumber</li>
+                                    <li><span>@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/TransactionNumber", "Transaction ID")</span> @Model.TransactionId</li>
+                                    <li><span>@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/OrderNumber", "Order Number")</span> @Model.OrderId</li>
+                                </ul>
+                                <hr>
+
+                                <hr class="visible-phone">
+                            </div>
+                        </aside>
+                    </div>
+
+                </div>
+            </div>
+
+        }
+        else
+        {
+            <div class="card orange-border section-inner-wrapper payment-in-progress">
+                <div class="row">
+                    <div class="col l12 s12">
+                        <aside>
+                            <img class="offer-icon" src="/electricity_assets/assets/icons/pay-in-process.svg" alt="Payment In-Process">
+                            <div class="payment-progress-content">
+                                <h3 class="text-center-mob">
+                                    Payment In-Process
+                                    <span class="custom-loader-dots-box button-loader blk-dot">
+                                        <span class="custom-loader-dot custom-loader-dot-1"></span>
+                                        <span class="custom-loader-dot custom-loader-dot-2"></span>
+                                        <span class="custom-loader-dot custom-loader-dot-3"></span>
+                                    </span>
+                                </h3>
+                                <p class="text-center-mob">
+                                    Your payment of <strong> &#8377 @Model.AmountPayable.TrimStart('0')</strong> is being processed. You will be redirected to the payment confirmation page shortly.
+                                </p>
+                                <p class="text-center-mob"><span>@Model.TransactionDate</span></p>
+                                <hr>
+                                <ul>
+                                    <li><span>CA Number</span> @Model.AccountNumber</li>
+                                    <li><span>Bill Number</span> @Model.OrderId</li>
+                                </ul>
+                                <hr>
+                                @*<div class="pay-progress-cta-group" data-html2canvas-ignore="true">
+
+                                        <a class="waves-effect waves-light btn outlined btn-000" href="@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Redirect URL/View and Pay Bill", "/My-Account/ViewPayBill")">@Html.Sitecore().Dictionary("/Accounts/ViewandPayBill/Back for Payment", "Pay Another Bill")</a>
+
+                                    </div>*@
+                                <hr class="visible-phone">
+                            </div>
+                        </aside>
+                    </div>
+
+                </div>
+            </div>
+
+        }
+
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            jQuery.ajax(
+                {
+                    url: apiSettings + "/AccountsRevamp/City_Callback_Check",
+                    method: "POST",
+                    success: function (data) {
+                        if (data !== "") {
+                            location.href = data;
+                        }
+                    }
+                });
+
+        }, 5000);
+    });
+
+
+
+</script>

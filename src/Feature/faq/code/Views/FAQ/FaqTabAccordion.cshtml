@@ -1,0 +1,115 @@
+﻿@using Sitecore.Feature.FAQ
+@using Sitecore.Feature.FAQ.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+
+@*@if (!Model?.Item?.IsDerived(Templates.FaqGroup.ID) ?? true)
+    {
+        @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.FaqGroup.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+        return;
+    }*@
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var x = 0;
+    var count = 0;
+    var phName = "";
+    var replacestr = string.Empty;
+}
+
+<div class="container" id="@Html.Sitecore().Field("Heading")">
+    @if (datasource != null)
+    {
+        var i = 0;
+        <div class="my-3 py-md-3">
+            <ul class="nav nav-tabs" role="tablist">
+                @foreach (var child in parent.Children.ToList())
+                {
+                    replacestr = Regex.Replace(@Html.Sitecore().Field(Templates.Faq.Fields.Title, child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                    if (i == 0)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link active show" data-toggle="tab" href="#@replacestr">@Html.Sitecore().Field(Templates.Faq.Fields.Title, child)</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#@replacestr">@Html.Sitecore().Field(Templates.Faq.Fields.Title, child)</a>
+                        </li>
+                    }
+                    i++;
+                }
+            </ul>
+            <div class="tab-content noBorder px-0 py-0">
+                @foreach (var child in parent.Children.ToList())
+                {
+                    count = 0;
+                    replacestr = Regex.Replace(@Html.Sitecore().Field(Templates.Faq.Fields.Title, child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                    var elements1 = FaqRepository.Get(child).ToArray();
+                    if (x == 0)
+                    {
+                        <div class="tab-pane fade active show" id="@replacestr" role="tabpanel">
+                            <div class="accordion" id="tariffFaq">
+                                @foreach (var faqs in elements1)
+                                {
+                                    count++;
+                                    phName = replacestr + count;
+                                    var id = Guid.NewGuid().ToString();
+                                    <div class="faqItem">
+                                        <div class="ques collapsed" id="ques#@id" data-toggle="collapse" data-target="#@id" aria-expanded="false">
+                                            @Html.Sitecore().Field(Templates.Faq.Fields.Question, faqs)
+                                        </div>
+                                        <div id="@id" class="ans collapse" data-parent="#tariffFaq" style="">
+                                            <div class="">
+                                                @Html.Sitecore().Field(Templates.Faq.Fields.Answer, faqs)
+                                                <div id="customerCareControl" class="@phName">
+                                                    @Html.Sitecore().Placeholder(phName)
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                  
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tab-pane fade" id="@replacestr" role="tabpanel">
+                            <div class="accordion" id="tariffFaq">
+                                @foreach (var faqs in elements1)
+                                {
+                                    count++;
+                                    phName = replacestr + count;
+                                    var id = Guid.NewGuid().ToString();
+                                <div class="faqItem">
+                                    <div class="ques collapsed" id="ques#@id" data-toggle="collapse" data-target="#@id" aria-expanded="false">
+                                        @Html.Sitecore().Field(Templates.Faq.Fields.Question, faqs)
+                                    </div>
+                                    <div id="@id" class="ans collapse" data-parent="#tariffFaq" style="">
+                                        <div class="">
+                                            @Html.Sitecore().Field(Templates.Faq.Fields.Answer, faqs)
+                                            <div id="customerCareControl" class="@phName">
+                                                @Html.Sitecore().Placeholder(phName)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                   
+                                }
+                            </div>
+                        </div>
+                    }
+                    x++;
+                }
+            </div>
+            @*@Html.Partial("~/Views/Accounts/_Login.cshtml", Model.LoginInfo)*@
+        </div>
+    }
+</div>

@@ -1,0 +1,66 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+   var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+   var model = Sitecore.Context.Database.GetItem(datasource);
+   var pageContentPara = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["PageContent"];
+   var pageContent = Sitecore.Context.Database.GetItem(pageContentPara);
+   var MediaUrl=""; 
+   var MediaAlt="";
+   int i=1;
+}
+
+<section class="Manufacturer-section">
+    <div class="manufact-para ManufacturerHeading">
+        <h2>@Html.Sitecore().Field("Title",model)</h2>
+        <p>@Html.Sitecore().Field("Description",model)</p>
+    </div>
+	<div class="ManufacturerHeading">
+		@foreach(var child in pageContent.GetChildren().ToList())
+		{
+			Sitecore.Data.Fields.LinkField VideoUrl = ((Sitecore.Data.Fields.LinkField)child.Fields["VideoLink"]);
+				if (VideoUrl != null )
+				{
+					MediaUrl = VideoUrl.GetFriendlyUrl();
+				}
+			<div class="container">
+				@if(i%2!=0)
+				{
+					<div class="video-container col-lg-6">
+						<video id="myVideo" class="videoManufacture" onclick="playPause()">
+							<source class="image" src="@MediaUrl" type="video/mp4">
+							Your browser does not support the video tag.
+						</video>
+						<button class="videoplayButton"><i class="fa fa-play"></i></button>
+						
+					
+					</div>	  
+					<div class="col-lg-6">
+						<h2 class="gridHeading">@Html.Sitecore().Field("Heading",child)</h2>
+						@Html.Sitecore().Field("Description",child)
+					</div>
+				}
+				else{
+					  
+					<div class="col-lg-6">
+						<h2 class="gridHeading">@Html.Sitecore().Field("Heading",child)</h2>
+						@Html.Sitecore().Field("Description",child)
+					</div>	
+					<div class="image-container col-lg-6">
+						<video id="myVideo1" class="videoManufacture" onclick="playPause1()">
+							<source class="image" src="@MediaUrl" type="video/mp4">
+							Your browser does not support the video tag.
+						</video>
+						<button class="videoplayButton1"><i class="fa fa-play"></i></button>
+						
+					</div>	
+				}
+			</div>
+		i++;
+		}
+	</div>
+</section>

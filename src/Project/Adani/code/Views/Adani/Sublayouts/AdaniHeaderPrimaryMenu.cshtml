@@ -1,0 +1,91 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model RenderingModel
+@{
+
+    
+var models = Sitecore.Context.Database.Items.GetItem("{91D3AA6F-B498-460C-BA3C-8BA61723C765}");
+    
+}
+
+
+
+
+<div class="navbar-collapse collapse" id="mainMenu" style="">
+    <span class="nav-close"></span>
+    <ul class="navbar-nav mx-auto primaryMenu">
+        @if (models != null)
+        {
+            if (models.GetChildren() != null)
+            {
+                foreach (Item item in models.GetChildren())
+                {
+                    Sitecore.Data.Fields.LinkField itemslinkvalues = item.Fields["Link"];
+                    var itemslinks = itemslinkvalues.GetFriendlyUrl();
+                    CheckboxField isCheck = (CheckboxField)item.Fields["IsExternalLink"];
+                    if (item.HasChildren)
+                    {
+                        <li class="nav-item dropdown">
+                            @if (isCheck.Checked)
+                            {
+                            <a class="nav-link" href="@itemslinks" target="_blank">@item.Fields["NavigationTitle"]</a>
+                            }
+                            else
+                            {
+                            <a class="nav-link" href="@itemslinks">@item.Fields["NavigationTitle"]</a>
+                            }
+
+                            <span class="fa fa-angle-down"></span>
+                            <div class="dropdown-menu megamenu">
+                                <ul>
+                                    @foreach (Item items in item.GetChildren())
+                                    {
+                                        Sitecore.Data.Fields.LinkField itemslinkvalue = items.Fields["Link"];
+                                        var itemslink = itemslinkvalue.GetFriendlyUrl();
+                                        if (itemslink != null)
+                                        {
+                                            CheckboxField checkbox = items.Fields["IsExternalLink"];
+                                            if (checkbox.Checked)
+                                            {
+                                                <li class="dropdown-item"><a class="dropdown-item" href="@itemslink"target="_blank">@items.Fields["NavigationTitle"]</a></li>
+                                            }
+                                            else
+                                            {
+                                                <li class="dropdown-item"><a class="dropdown-item" href="@itemslink">@items.Fields["NavigationTitle"]</a></li>
+                                            }
+                                        }
+                                    }
+                                    </ul>
+                                </div>
+                                    
+
+                                </li>
+                    }
+
+
+
+
+                    else
+                    {
+                        <li class="nav-item">
+                            @if (isCheck.Checked)
+                            {
+                                <a class="nav-link" href="@itemslinks" target="_blank">@item.Fields["NavigationTitle"]</a>
+                            }
+                            else
+                            {
+                                <a class="nav-link" href="@itemslinks">@item.Fields["NavigationTitle"]</a>
+                            }
+                          
+                        </li>
+                    }
+                }
+            }
+        }
+                            </ul>
+                
+            
+                    </div>

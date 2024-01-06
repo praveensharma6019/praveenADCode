@@ -1,0 +1,55 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+var element = Sitecore.Context.Database.GetItem(datasource); 
+ var ImageUrl = "";
+ var ImageAlt = "";
+ var PdfUrlSrc = "#";
+}
+	<section class="bg-white pt-5 position-relative z-index">
+        <div class="container">
+        <div class="home-demo-disclouser">
+            <h1 class="ESG-text">@Html.Sitecore().Field("Title", element)</h1>
+            <p>@Html.Sitecore().Field("Description", element)</p>
+        <div class="last-position text-end">
+            <button class="last-prev-button" href="#imageCarousellast" role="button" data-slide="prev">
+				<i class="fas fa-chevron-left"></i>
+			</button>
+			<button class="last-next-button" href="#imageCarousellast" role="button" data-slide="next">
+				<i class="fas fa-chevron-right"></i>
+			</button>
+
+        </div>
+        <div class="owl-carousel sliding-images owl-theme" id="disclouser">
+		@foreach (var child in element.GetChildren().ToList()){
+			Sitecore.Data.Fields.ImageField Image = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+			if (Image != null && Image.MediaItem != null)
+			{
+				ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(Image.MediaItem);
+				ImageAlt = Image.Alt;
+			}
+			
+			Sitecore.Data.Fields.LinkField PdfUrl = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]);
+				if (PdfUrl != null )
+				{
+					PdfUrlSrc = PdfUrl.GetFriendlyUrl();
+				}
+            <div class="item width-slider-align">
+                <a href="@PdfUrlSrc" download>
+                    <img src="@ImageUrl" alt="@ImageAlt">
+                </a>
+                <div class="black-description">
+                   @Html.Sitecore().Field("Summary", child)
+                </div>
+            </div>
+		}	
+        </div>
+        </div>
+    </div>
+    </section>

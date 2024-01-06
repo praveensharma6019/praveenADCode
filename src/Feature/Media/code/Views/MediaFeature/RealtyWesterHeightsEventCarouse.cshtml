@@ -1,0 +1,97 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+    var i = 0;
+}
+<section class="section media-about" id="glry-wheights">
+    <h3 class="text-center sectionHeading">Events at Western-Heights</h3>
+    <div class="container mt-5">
+        <div class="large-12 columns">
+            <div class="owl-carousel owl-theme" id="media-carousel">
+                @foreach (var element in elements)
+                {
+                    <div class="item">
+                        @{
+                            //var style = "background-image: ";
+                            var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                            var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                            var fixedHeight = Model.Rendering.IsFixedHeight();
+                            if (fixedHeight && carouselHeight.HasValue)
+                            {
+                                style += "; height:" + carouselHeight + "px;";
+                            }
+                        }
+                        <div class="gallery-item mb-3">
+                            <img src="@style" alt="Avatar" class="image">
+                            <div class="overlay" data-toggle="modal" data-target="#@element.Item.DisplayName.ToString().Replace(" ","")">
+                                <div class="text">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, element.Item)</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <!-- /Banner Carousel-->
+        </div>
+
+        @{i = 0;}
+
+        @foreach (var elementchild in elements)
+        {
+            //var fields = elementchild.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+            //var ImageLink = elementchild.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMediaImage.Fields.Image : Templates.HasMedia.Fields.Link;
+            //var stylechild = elementchild.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+            //var fixedHeightchild = Model.Rendering.IsFixedHeight();
+            //if (fixedHeightchild && carouselHeight.HasValue)
+            //{
+            //    style += "; height:" + carouselHeight + "px;";
+            //}
+
+            if (elementchild.Item.Children.Count > 0)
+            {
+                <!-- The Modal -->
+                <div class="modal video media-video" id="@elementchild.Item.DisplayName.ToString().Replace(" ","")">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <div class="owl-carousel-block">
+                                    <div class="js-owl-carousel-synced-slides">
+                                        @foreach (var ele in elementchild.Item.Children.ToList())
+                                        {
+                                            <div class="item">
+
+                                                @Html.Sitecore().ImageField(Templates.HasMediaImage.Fields.Image, ele, 0, 0, "img-fluid")
+                                                @*@if (string.IsNullOrEmpty(style))
+                                                    {
+
+                                                        <img src="@style" alt="Avatar" />
+                                                    }
+                                                    else
+                                                    {
+                                                        Sitecore.Data.Fields.LinkField linkField = element.Fields["MediaLink"];
+                                                        var item = linkField.GetFriendlyUrl();
+                                                        <img src="@item" alt="Avatar" class="img-fluid" />
+                                                    }*@
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Media -->
+            }
+        }
+    </div>
+</section>

@@ -1,0 +1,193 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ChangeOfNameRegistrationModel
+@{
+    var item2 = Sitecore.Context.Database.GetItem(Templates.LECPortal.LECPortalHomePage);
+    var lecPortalHomePage = item2.Url();
+}
+<link href="/styles/Electricity/bootstrap.min.css" rel="stylesheet" />
+<link href="/styles/ElectricityNew/adani-electricity.css" rel="stylesheet" />
+<link href="/styles/Electricity/adani-electricity-responsive.css" rel="stylesheet" />
+
+<div class="pageContent position-relative" style="margin-top: -2rem;margin-bottom: -2rem;background: #e1e5e8;">
+    <div class="container pb-5">
+        <!-- Main Content Panel -->
+        <div class="" id="mainContent">
+            <!-- Update Profile Page Content-->
+            <div class="py-5">
+                @using (Html.BeginForm("LogoutLEC", "AEMLChangeOfName", FormMethod.Post))
+                {
+                    <div class="row">
+                        <div class="col-sm-6 pb-3 text-left">
+                            <p><span><b>Welcome, </b></span><b class="txt-orange">@UserSession.AEMLCONLECUserSessionContext.LECName <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                        </div>
+                        <div class="col-sm-6 pb-3">
+                            <div class="text-right">
+                                <button class="btn btn-primary" type="submit">
+                                    @Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")
+                                </button>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                }
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+                    </div>
+                }
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmregistrationValidate" }))
+                {
+                    <div class="row" style="padding: 0rem 0rem;">
+                        @Html.AddUniqueFormId()
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true)
+
+                        <div class="col-lg-12">
+                            <div class="form_namechange h-100">
+                                <h3><i class="fas fa-user-plus mr-3"></i>@Html.Sitecore().Dictionary("/CON/Register/New Request Text", "New Request")</h3>
+                                <div class="">
+                                    <div class="col-lg-6">
+                                        <div class="px-4">
+                                            @if (!Model.IsvalidatAccount)
+                                            {
+                                                <div class="input-group mb-3">
+                                                    <label for="AccountNo" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                                    @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", @autocomplete = "off", id = "AccountNo", required = "required" })
+                                                    <div class="input-group-append">
+                                                        <input type="submit" class="btn btn-primary" name="ValidateAccount" value="@Html.Sitecore().Dictionary("/CON/Register/Validate Account Button text", "Validate")" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    @Html.ValidationMessageFor(x => x.AccountNo, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="input-group mb-3">
+                                                    <label for="AccountNo" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                                    @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", @autocomplete = "off", id = "AccountNo", @readonly = "readonly" })
+                                                </div>
+                                            }
+
+
+                                            @if (Model.IsvalidatAccount || Model.IsOTPSent)
+                                            {
+                                                <div class="form-group">
+                                                    <label for="">@Html.Sitecore().Dictionary("/CON/Register/Registered Customer Name", "Registered Customer Name")</label>
+                                                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control reset-control", @autocomplete = "off", id = "CustomerName", @readonly = "readonly" })
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label for="LECRegistrationNumber" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/LEC RegistrationNumber", "LEC RegistrationNumber")</label>
+                                                    @Html.TextBoxFor(x => x.LECRegistrationNumber, new { @class = "form-control reset-control", @autocomplete = "off", id = "LECRegistrationNumber", required = "required" })
+                                                </div>
+                                                <div>
+                                                    @Html.ValidationMessageFor(x => x.LECRegistrationNumber, "", new { @class = "help-block" }, "p")
+                                                </div>
+
+                                                <div class="input-group mb-3">
+                                                    <label for="MobileNo" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/Mobile Number", "Mobile Number")</label>
+                                                    @Html.TextBoxFor(x => x.LECMobileNo, new { @class = "form-control reset-control", @autocomplete = "off", id = "MobileNo", required = "required" })
+
+                                                    @if (!Model.IsOTPCallExceeded)
+                                                    {
+                                                        if (Model.IsvalidatAccount && Model.IsOTPSent)
+                                                        {
+                                                            <div class="input-group-append">
+                                                                <input type="submit" class="btn btn-secondary" name="SendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Send OTP", "Resend OTP")" />
+                                                            </div>
+                                                        }
+                                                        else if (Model.IsvalidatAccount)
+                                                        {
+                                                            <div class="input-group-append">
+                                                                <input type="submit" class="btn btn-secondary" name="SendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Get OTP", "Get OTP")" />
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                                <div>
+                                                    @Html.ValidationMessageFor(x => x.LECMobileNo, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            }
+                                            @if (Model.IsOTPSent)
+                                            {
+                                                <div class="input-group mb-3">
+                                                    <label for="" class="w-100">@Html.Sitecore().Dictionary("/CON/Register/Enter OTP", "Enter OTP")</label>
+                                                    @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", @autocomplete = "off", id = "OTPNumber" })
+
+                                                    <div class="input-group-append">
+                                                        <input type="submit" class="btn btn-secondary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/CON/Register/Submit Button text", "Submit")" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                }
+                <!-- /Main Content Panel -->
+            </div>
+            <!-- /Section -->
+        </div>
+
+        <div class="text-right section-wrapper"><a href="@lecPortalHomePage" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back</a></div>
+        <!-- /Page Content -->
+    </div>
+</div>
+
+
+
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+
+<div id="message_modal" class="modal fade BS-modal" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+<script src="/scripts/Electricity/jquery-slim.min.js"></script>
+<script src="/scripts/Electricity/jquery.min.js"></script>
+<script src="/scripts/Electricity/popper.min.js"></script>
+<script src="/scripts/Electricity/bootstrap.min.js"></script>
+<script src="/scripts/Electricity/owl.carousel.min.js"></script>
+<script src="/scripts/Electricity/adani-ele-custom.js"></script>
+<script src="/scripts/accounts/moment.min.js"></script>
+<script src="/scripts/accounts/bootstrap-datetimepicker.min.js"></script>
+<script src="/scripts/Electricity/Datatablemin.js"></script>
+<script src="/scripts/Electricity/hygieneheader.js"></script>
+<script src="/scripts/Accounts/LECPortal.js"></script>

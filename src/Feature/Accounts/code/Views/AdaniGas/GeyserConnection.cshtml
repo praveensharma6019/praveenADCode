@@ -1,0 +1,228 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.PayOnline
+@{
+    var emaildisplay = !string.IsNullOrEmpty(Model.Email) ? "style = display:none;" : "";
+    var mobiledisplay = !string.IsNullOrEmpty(Model.Mobile) ? "style = display:none;" : "";
+
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-lg-4">
+            <div class="payBillBox float-right bg-white">
+                <h5 class="txt-orange mb-3">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Extra Geyser Connection", "Extra Geyser Connection")</h5>
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+                {
+                    <form>
+                        <div class="form-group">
+                            <label for="" class="col-form-label ">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Customer Id", "Customer id*")</label>
+                            <div class="">
+                                @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control", id = "CustomerID", required = "required", maxlength = "10" })
+                            </div>
+                        </div>
+                        <div class="form-group @Html.ValidationErrorFor(x => x.Captcha, " has-error")">
+                            <label for="" class="">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                            <div class="">
+                                @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                        <div class="">
+                            <input class="w-100 btn btn-primary btn-sm" type="submit" name="quickPay_Go" value="@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Go", "Go")" />
+                            @*<input type="submit" class="w-100 btn btn-primary btn-sm" name="quickPay_Go" value="@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Go", "Go")" id="btnsubmit" />*@
+                            <div class="clearfix"></div>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="col-md-8 col-lg-8">
+            <div class="panel">
+                @if (ViewBag.NoInfo != null)
+                {
+                    <p>@ViewBag.NoInfo</p>
+                }
+               
+                else
+                {
+                    @Html.HiddenFor(x => x.Amount)
+                    @*<div class="py-3"></div>*@
+                    <h5 class="txt-orange">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Details Text", "Your Details")</h5>
+                    <div class="py-3"></div>
+                    using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmRegister", @class = "form-signin" }))
+                    {
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Online/Customer ID", "Customer ID")<span class="txt-red">*</span></label>
+                                    @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control", @readonly = "" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Online/Customer Name", "Customer Name")<span class="txt-red">*</span></label>
+                                    @Html.TextBoxFor(x => x.CustomerName, new { @class = "form-control", @readonly = "" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Online/Payable Amount", "Customer Email")<span class="txt-red">*</span></label>
+                                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control", @readonly = "" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Online/Payable Amount", "Customer Mobile")<span class="txt-red">*</span></label>
+                                    @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control", @readonly = "" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 bg-white">
+                                <div class="row">
+                                    <div class="col-sm-12 bg-white">
+                                        <p class="txt-orange py-3">Billing Information</p>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>@Html.Sitecore().Dictionary("/Accounts/Pay Online/Geyser Point title", "Geyser Point (Up to 5 meter of Pipeline) - Rs. ")</label>
+                                            <label>@Model.Amount</label>
+                                            <p class="mt-3 txt-xs">@Model.Message</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            @Html.EditorFor(x => x.TermsConditions, new { @class = "form-check-input" })
+                                            @*<label>@Html.Sitecore().Dictionary("/Accounts/Pay Online/Teams and conditions", "Terms & Conditions apply")</label>*@
+                                            <a href="/myaccount/geyser-connection/terms-and-conditions" target="_blank">@Html.Sitecore().Dictionary("/Accounts/Pay Online/Teams and conditions", "Terms & Conditions apply")</a>
+
+                                            <p>@Html.ValidationMessageFor(x => x.TermsConditions)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 payment-radio-grp">
+                                <div class="form-check">
+
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.Paytm, new { required = "required", @checked = "checked" })
+                                        <img src="/-/media/Project/Electricity/Payment Gateway Image/paytm" class="pay_box">
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.BillDesk, new { required = "required" })
+                                        <img src="/-/media/Project/Electricity/Payment Gateway Image/billdesk" class="pay_box">
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.PayUMoney, new { required = "required" })
+                                        <img src="/-/media/Project/Electricity/Payment Gateway Image/payumoney" class="pay_box">
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.BBPS, new { required = "required" })
+                                        <img src="/-/media/Project/AdaniGas/PaymentGateway/bbps" class="pay_box">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-12 paymentTbl" id="paytmTable">
+                                <table id="paytmTableTG" class="table table-bordered bg-white">
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="2">Net Banking</td>
+                                            <td>Nil</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Credit Card/Debit Card</td>
+                                            <td>Visa/Master/Amex/Diners</td>
+                                            <td>Nil</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-lg-12 paymentTbl" id="payUTable" style="display: none">
+                                <table id="payUTableTG" class="table table-bordered bg-white">
+                                    <tr>
+                                        <th class="tg-s6z2" colspan="2">Net banking</th>
+                                        <th class="tg-031e"><b>Nil</b></th>
+                                    </tr>
+                                    <tr>
+                                        <td class="tg-031e">Credit Card</td>
+                                        <td class="tg-yw4l">Visa/Master/Amex/Diners</td>
+                                        <td class="tg-031e"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tg-031e">Credit Card</td>
+                                        <td class="tg-yw4l">Visa/Master</td>
+                                        <td class="tg-031e">Amount more than Rs.10,000 - 0.90% + ST</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tg-031e">Credit Card</td>
+                                        <td class="tg-yw4l">Amex/Diners</td>
+                                        <td class="tg-031e">Amount more than Rs.10,000 - 1 % or Rs. 10 whichever is higher + ST</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tg-baqh" colspan="2">Debit Card</td>
+                                        <td class="tg-yw4l"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tg-baqh" colspan="2">Debit Card</td>
+                                        <td class="tg-yw4l">Amount more than Rs.10,000 - 1% + ST</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="bdeskTable" class="paymentTbl col-lg-12" style="display: none">
+                                <table id="bdeskTableTG" class="table table-bordered bg-white">
+                                    <tr>
+                                        <th class="tg-yw4l" colspan="2">Net Banking</th>
+                                        <th class="tg-031e"><b>HDFC/ICICI Bank  Amount less than Rs.667 - Nil </b><br /> Amount more than Rs.667 - 1.50% + ST<br /> Other Banks - Nil</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                        <td class="tg-yw4l">Visa/Master/ Amex/Diners</td>
+                                        <td class="tg-yw4l"><b>Amount less than Rs.10,000 - Nil</b></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="tg-yw4l">Credit Card/Debit Card</td>
+                                        <td class="tg-yw4l">Visa/Master/ Amex/Diners</td>
+                                        <td class="tg-yw4l">Amount more than Rs.10,000 - 0.90% + ST</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="col-lg-12">
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <input type="submit" class="btn btn-primary" name="quickPay_Paynow" value="@Html.Sitecore().Dictionary("/Accounts/Pay Online/Submit", "Submit")" id="btnsubmit" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+

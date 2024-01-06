@@ -1,0 +1,445 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Accounts.Models.SolarNewApplicationModel
+
+<!-- Toggle button to show/hide side nav -->
+<div class="d-block d-md-none sideNavBtn">
+    <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+        <i class="fas fa-align-left"></i>
+        <span>&nbsp;Menu</span>
+    </button>
+</div>
+<!-- /Toggle button to show/hide side nav -->
+<div class="panel">
+    @Html.Sitecore().Placeholder("page-body")
+    @if (ViewBag.CAValidationFailed != null)
+    {
+        <div class="py-3"></div><div class="py-3"></div>
+        <p>@ViewBag.CAValidationFailed</p>
+    }
+    else
+    {
+        <div class="py-3"></div>
+        <h5 class="txt-orange">@Html.Sitecore().Dictionary("/SolarApplication/Account Details", "Account Details")</h5>
+        <div class="py-2"></div>
+        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmRegister", @class = "form-signin", enctype = "multipart/form-data" }))
+        {
+            HtmlHelper.UnobtrusiveJavaScriptEnabled = false;
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            if (!Model.IsApplicationSaved)
+            {
+                <div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/Account Number", "Account Number")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control-plaintext", id = "AccountNumber", @readonly = "" })
+                            @Html.HiddenFor(x => x.MeterNo)
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/Name", "Name")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.Name, new { @class = "form-control-plaintext", id = "Name", @readonly = "" })
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/Address", "Address")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextAreaFor(x => x.Address, new { @class = "form-control-plaintext", id = "Address", @readonly = "" })
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/RateCategory", "RateCategory")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.RateCategory, new { @class = "form-control-plaintext", id = "RateCategory", @readonly = "" })
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/EmailAddress", "EmailAddress")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.EmailAddress, new { @class = "form-control-plaintext", id = "EmailAddress", @readonly = "" })
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/MobileNo", "MobileNo")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.MobileNo, new { @class = "form-control-plaintext", id = "MobileNo", @readonly = "" })
+                        </div>
+                    </div>
+                    @if (Model.IsSubsidizedCategory)
+                    {
+                        <div id="divVendorDetails">
+                            <div class="py-3"></div>
+                            <h5 class="txt-orange">@Html.Sitecore().Dictionary("/Accounts/SolarApplication/VendorDetails", "Vendor Details")</h5>
+                            <div class="py-2"></div>
+                            <p>You are requested to finalize the vendor from list of empaneled vendors and apply online in coordination with vendor</p>
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                                    @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/Vendor", "Vendor")
+                                </label>
+                                <div class="col-sm-8 col-lg-6">
+                                    @Html.DropDownListFor(m => m.SelectedVendor, new SelectList(Model.VendorsListSelectItem, "Value", "Text", Model.VendorsListSelectItem), "Select", new { @class = "form-control", id = "ddlVender", required = "required" })
+                                </div>
+                                <button type="button" class="btn btn-primary txt-sm" data-toggle="modal" data-target="#venderdetails">List of empaneled vendors</button>
+                                <a href="#venderdetails" class="btn btn-primary d-none" style="color: #fff;" target="_blank" data-toggle="modal" data-target="#docsupload"><b>Vender Details</b></a>
+                            </div>
+                        </div>
+                    }
+                    <div class="py-3"></div>
+                    <h5 class="txt-orange">@Html.Sitecore().Dictionary("/Accounts/SolarApplication/ApplicationDetails", "Application Details")</h5>
+                    <div class="py-2"></div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/Voltage", "Voltage at the output of Solar inverter ")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.DropDownListFor(m => m.SelectedVoltageCategory, new SelectList(Model.VoltageCategoryList, "Value", "Text", Model.SelectedVoltageCategory), "Select", new { @class = "form-control", id = "ddlVoltageCategory", required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/ProposedACCategory", "Proposed AC capacity of Roof-top Solar: PV System to be installed")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.ProposedACCategory, new { @class = "form-control", id = "ProposedACCategory", @Placeholder = "[KW]", required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/LECNumber", "LEC Number")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.LECNumber, new { @class = "form-control", id = "LECNumber", @Placeholder = "LEC Number", required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/IsSolarInstalled", "Is Roof top solar already installed?")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.IsSolarInstalled, "Yes", new { id = "IsSolarInstalledYes", @class = "form-check-input rbIsSolarInstalled", @checked = "checked" })
+                                <label class="form-check-label" for="IsSolarInstalledYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.IsSolarInstalled, "No", new { id = "IsSolarInstalledNo", @class = "form-check-input rbIsSolarInstalled" })
+                                <label class="form-check-label" for="IsSolarInstalledNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/SolarOwnershipType", "Ownership of roof top solar")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.SolarOwnershipType, "Leased", new { id = "SolarOwnershipTypeLeased", @class = "form-check-input rbSolarOwnershipType", @checked = "checked" })
+                                <label class="form-check-label" for="SolarOwnershipTypeLeased">Leased</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.SolarOwnershipType, "Owned", new { id = "SolarOwnershipTypeOwned", @class = "form-check-input rbSolarOwnershipType" })
+                                <label class="form-check-label" for="SolarOwnershipTypeOwned">Owned</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/IsObligatedEntity", "Are you an obligated entity?")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.IsObligatedEntity, "Yes", new { id = "IsObligatedEntityYes", @class = "form-check-input rbIsObligatedEntity", @checked = "checked" })
+                                <label class="form-check-label" for="IsObligatedEntityYes">Yes</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.IsObligatedEntity, "No", new { id = "IsObligatedEntityNo", @class = "form-check-input rbIsObligatedEntity" })
+                                <label class="form-check-label" for="IsObligatedEntityNo">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/NetMeterOrBilling", "Choose an option")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.NetMeterOrBilling, "Net Meter", new { id = "NetMeterOrBillingMeter", @class = "form-check-input rbNetMeterOrBilling", @checked = "checked" })
+                                <label class="form-check-label" for="NetMeterOrBillingMeter">Net Meter</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.NetMeterOrBilling, "Net Billing", new { id = "NetMeterOrBillingBilling", @class = "form-check-input rbNetMeterOrBilling" })
+                                <label class="form-check-label" for="NetMeterOrBillingBilling">Net Billing</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/RooftopSolarType", "Choose an option")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-8">
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.RooftopSolarType, "Rooftop Solar", new { id = "RooftopSolarType_RS", @class = "form-check-input", @checked = "checked" })
+                                <label class="form-check-label" for="RooftopSolarType_RS">Rooftop Solar</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(model => model.RooftopSolarType, "Rooftop plus ground Capacity", new { id = "RooftopSolarType_RGC", @class = "form-check-input" })
+                                <label class="form-check-label" for="RooftopSolarType_RGC">Rooftop plus ground Capacity</label>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.IsSubsidizedCategory)
+                    {
+                        <div class="form-group row mb-0">
+                            <label for="" class="col-sm-4 col-md-3 col-form-label">
+                                @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/ResidentialWelfare", "Category")<span class="required">*</span>
+                            </label>
+                            <div class="col-sm-8 col-lg-6">
+                                <div class="form-check form-check-inline">
+                                    @Html.RadioButtonFor(model => model.ApplicationCategory, "Residential", new { id = "Residential", @class = "form-check-input", @checked = "checked" })
+                                    <label class="form-check-label" for="Residential">Residential</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    @Html.RadioButtonFor(model => model.ApplicationCategory, "Residential-welfare", new { id = "Residential-welfare", @class = "form-check-input" })
+                                    <label class="form-check-label" for="Residential-welfare">Residential-welfare</label>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.IsSubsidizedCategory)
+                    {
+                        <div class="form-group row mb-0">
+                            <label for="" class="col-sm-4 col-md-3 col-form-label">
+                                @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/AadharNumber", "Aadhar Number")<span class="required">*</span>
+                            </label>
+                            <div class="col-sm-8 col-lg-6">
+                                @Html.TextBoxFor(x => x.AadharNumber, new { @class = "form-control", id = "AadharNumber", @Placeholder = "Aadhar Number", required = "required" })
+                            </div>
+                        </div>
+                    }
+
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplicationl/InstallationCost", "Installation Cost of Solar Roof top ")<span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.InstallationCost, new { @class = "form-control", id = "InstallationCost", @Placeholder = "Installation Cost", required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="py-3"></div>
+                    <h5 class="txt-orange">@Html.Sitecore().Dictionary("/Accounts/SolarApplication/DocumentUpload", "Document Upload")</h5>
+                    <div class="py-2"></div>
+                    <div class="table-responsive my-2">
+                        <table class="table table-bordered mb-0 txt-sm">
+                            <thead class="bg-white">
+                                <tr>
+                                    <th valign="middle" style="min-width: 80px;">Sr. No</th>
+                                    <th valign="middle" style="min-width: 250px;">Document Name</th>
+                                    <th valign="middle" style="min-width: 300px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{var i = 1;
+                                    foreach (var doc in Model.DocumentsList)
+                                    {
+                                        var fileupload = "file_" + System.Convert.ToString(doc.DocSerialNumber);
+                                        <tr>
+                                            <td>@i</td>
+                                            <td>
+                                                @doc.DocName
+                                                <span class="required">*</span>
+                                            </td>
+                                            <td>
+                                                <div class="form-group mb-0">
+                                                    <input type="file" id="@fileupload" onchange="ValidateFile(this);" name="@fileupload" class="form-control cou" />
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        i = i + 1;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="required mb-3" id="docErrorMessage"></p>
+                    <input type="submit" class="btn btn-primary" name="SubmitApplication" id="SubmitApplication" value="Submit" />
+                </div>
+            }
+            if (Model.IsApplicationSaved)
+            {
+                <div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/Account Number", "Account Number")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control-plaintext", id = "AccountNumber", @readonly = "" })
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/Order Number", "Order Number")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control-plaintext", id = "OrderNumber", @readonly = "" })
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/AmountToBePaid", "Amount Payable")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.AmountToBePaid, new { @class = "form-control-plaintext", id = "AmountToBePaid", @readonly = "" })
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/SolarApplication/AmountToBePaidDetails", "Amount in Words")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.AmountToBePaidDetail, new { @class = "form-control-plaintext", id = "AmountToBePaidDetail", @readonly = "" })
+                        </div>
+                    </div>
+                    <input type="submit" class="btn btn-primary" name="PayAmount" id="PayAmount" value="Pay" />
+                </div>
+            }
+        }
+    }
+</div><!-- Modal -->
+<div class="modal fade modal-popup" id="venderdetails" tabindex="-1" role="dialog" aria-labelledby="venderdetails" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>Vendors</h5>
+                <div class="modal-popup__content">
+                    <table class="table table-bordered mb-0 txt-sm">
+                        <thead class="bg-white">
+                            <tr>
+                                <th valign="middle" style="min-width: 80px;">S.N.</th>
+                                <th valign="middle">Agency</th>
+                                <th valign="middle">Address</th>
+                                <th valign="middle">Contact</th>
+                                <th valign="middle">Email</th>
+                                <th valign="middle">Mobile</th>
+                                <th valign="middle">Website</th>
+                                <th valign="middle">Agency</th>
+                                <th valign="middle">Rating</th>
+                                <th valign="middle">Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{var i1 = 1;
+                                foreach (var vendor in Model.VendorsList)
+                                {
+                                    <tr>
+                                        <td>@i1</td>
+                                        <td>
+                                            @vendor.NameOfVendorAgency
+                                        </td>
+                                        <td>
+                                            @vendor.Address
+                                        </td>
+                                        <td>
+                                            @vendor.ContactName
+                                        </td>
+                                        <td>
+                                            @vendor.EmailAddress
+                                        </td>
+                                        <td>
+                                            @vendor.MobileNumber
+                                        </td>
+                                        <td>
+                                            @vendor.WebsiteAddress
+                                        </td>
+                                        <td>
+                                            @vendor.RatingAgency
+                                        </td>
+                                        <td>
+                                            @vendor.RatingReceived
+                                        </td>
+                                        <td>
+                                            @vendor.ApprovedRate
+                                        </td>
+                                    </tr>
+                                    i1 = i1 + 1;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    @Html.ActionLink("AEMLSolarApplication", "ExportVendorDetails", new { @class = "btn btn-primary" })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#frmRegister").submit(function (event) {
+            var buttonName = $(document.activeElement).attr('name');
+
+            if (buttonName === "Submit") {
+                try {
+                    var FileUpload1 = $("[id*='file_']");
+                    var docname = $("[id*='docnumber_']");
+                    var madfile = $("[id*='manddocname_']");
+                    var error = false;
+
+                    var message = "* Following files are required:</br>";
+                    for (var i = 0; i < FileUpload1.length; i++) {
+                        if ($("." + FileUpload1[i].id).val() == undefined) {
+                            if ($("#" + FileUpload1[i].id).val() == '') {
+                                error = true;
+                                message = message + " " + $("#" + madfile[i].id).val() + "</br>";
+                            }
+                        }
+                    }
+                    if (error) {
+                        $("#docErrorMessage").html(message);
+                        return false;
+                    }
+                }
+                catch (tes) {
+                    $("#docErrorMessage").html("Please upload all files");
+                    return false;
+                }
+            }
+            return true;
+        });
+
+    });
+
+
+</script>
+

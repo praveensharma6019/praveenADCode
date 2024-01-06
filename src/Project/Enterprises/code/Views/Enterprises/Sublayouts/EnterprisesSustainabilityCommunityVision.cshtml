@@ -1,0 +1,53 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+   
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var ImgUrl = "";
+	var ImgAltTxt = "";
+    var bgUrl = "";
+	var bgAltTxt = "";
+}
+
+<section class="big-grid position-relative section__covid-donation bg-white pt-3">
+    <div class=" container">
+        <div class="row">
+			<div class="col-lg-12">
+				<div class="row">
+				@if (element.HasChildren)
+				{
+					foreach (var child in element.GetChildren().ToList())
+					{    
+						Sitecore.Data.Fields.ImageField Image = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+						if(Image != null && Image.MediaItem != null){
+							ImgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(Image.MediaItem);
+							ImgAltTxt = Image.Alt;
+						}
+						Sitecore.Data.Fields.ImageField BGImage = ((Sitecore.Data.Fields.ImageField)child.Fields["BackgroundImage"]);
+						if(BGImage != null && BGImage.MediaItem != null){
+							bgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BGImage.MediaItem);
+							bgAltTxt = BGImage.Alt;
+						} 
+						<div class="col-lg-6">
+							<div class="million-left mission-vision-bg big-grid-box py-3" style="background-image: url('@bgUrl');">
+								<img class="py-2" src="@ImgUrl" alt="@ImgAltTxt">
+								<div class="two-grid">
+									<h5><strong>@Html.Sitecore().Field("Title", child)</strong></h5>
+									<p>@Html.Sitecore().Field("Description", child)</p>
+
+								</div>
+							</div>
+						</div>
+					}
+				}
+				</div>
+			</div>
+        </div>
+    </div>
+</section>

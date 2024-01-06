@@ -1,0 +1,148 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+
+@{
+
+   // var allLocation = Sitecore.Context.Database.GetItem("{D1A58D33-6D45-4532-98E0-B83A49717AE7}");
+  
+  
+	var PlantName = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["NameOfPlant"];
+	var DataSourceId = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["DataSourceId"];
+	  var allSolarPlant = Sitecore.Context.Database.GetItem(DataSourceId);
+	 var filterparent = allSolarPlant.Children.Where(x => x.Fields["IsVisible"].Value == "1");
+	 var featuredSolarPlant=allSolarPlant.Children.Where(x => x.Fields["IsVisible"].Value == "1").Select(x => x.Fields["Location"].Value).Distinct().ToList();
+	
+}
+<script src="https://static.codepen.io/assets/common/stopExecutionOnTimeout-de7e2ef6bfefd24b79a3f68b414b87b8db5b08439cac3f1012092b2290c719cd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<input type="hidden" class="d-none" id="filterMW" value=""/>
+<input type="hidden" class="d-none" id="filterLocation" value=""/>
+<section class="mb-4" id="filter-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 mb-2">
+                <h2 class="pl-4 border-l">@PlantName</h2>
+            </div>
+            <div class="col-lg-6 mb-2">
+                <div class="text-lg-right text-center mb-3">
+                    <div class="filter h-100 d-inline-block">
+                        <div class="dropdown btn-filter">
+                            <button class="btn dropdown-toggle filter1" type="button" data-toggle="dropdown">
+                                Select MW
+                                <!-- <span class="fa fa-caret-down"></span> -->
+                            </button>
+                            <ul class="dropdown-menu">
+                                <input class="form-control" id="search-btn" type="text" placeholder="Search..">
+								 <li><a onclick="filterSelectionMW('all')">All</a></li>
+                                <li id="pow-W0-20"><a onclick="filterSelectionMW('W0-20')">Upto 20 MW</a></li>
+                                <li id="pow-W21-50"><a onclick="filterSelectionMW('W21-50')">21-50 MW</a></li>
+                                <li id="pow-W51-100"><a onclick="filterSelectionMW('W51-100')">51-100 MW</a></li>
+                                <li id="pow-W101-300"><a onclick="filterSelectionMW('W101-300')">101-300 MW</a></li>
+                                <li id="pow-W301-600"><a onclick="filterSelectionMW('W301-600')">301-600 MW</a></li>
+                                <li id="pow-W600"><a onclick="filterSelectionMW('W600')">600+ MW</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="filter h-100 d-inline-block ">
+                        <div class="dropdown btn-filter">
+                            <button class="btn dropdown-toggle filter2" type="button" data-toggle="dropdown">
+                                Select Location
+                                <!-- <span class="fa fa-caret-down"></span> -->
+                            </button>
+                            <ul class="dropdown-menu">
+                                <input class="form-control" id="search-btn" type="text" placeholder="Search..">
+								 <li><a onclick="filterSelectionLOC('all')">All</a></li>
+                                @foreach (var location in featuredSolarPlant)
+                                {
+                                  //  var locationText = Html.Sitecore().Field("Text", location);
+                                  //  var locationTextWithoutSpace = locationText.ToString().Replace(" ", "-");
+								  var locationTextWithoutSpace = location.ToString().Replace(" ", "-");
+                                    <li id="loc-@locationTextWithoutSpace" ><a onclick="filterSelectionLOC('@locationTextWithoutSpace')">@location</a></li>
+
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row schedule-row-loop-div">
+			@foreach (var projectList in filterparent)
+            {
+
+                var itemlocation = Html.Sitecore().Field("Location", projectList);
+
+                var cssLocationClass = itemlocation.ToString().Replace(" ", "-");
+
+                var itemWatt = Html.Sitecore().Field("WattOperate", projectList);
+                var cssWattOperateClass = "";
+                if (int.Parse(itemWatt.ToString()) >= 0 && int.Parse(itemWatt.ToString()) <= 20)
+                {
+                    cssWattOperateClass = "W0-20";
+                }
+                else if (int.Parse(itemWatt.ToString()) > 20 && int.Parse(itemWatt.ToString()) <= 50)
+                {
+                    cssWattOperateClass = "W21-50";
+                }
+                else if (int.Parse(itemWatt.ToString()) > 50 && int.Parse(itemWatt.ToString()) <= 100)
+                {
+                    cssWattOperateClass = "W51-100";
+                }
+                else if (int.Parse(itemWatt.ToString()) > 100 && int.Parse(itemWatt.ToString()) <= 300)
+                {
+                    cssWattOperateClass = "W101-300";
+                }
+                else if (int.Parse(itemWatt.ToString()) > 300 && int.Parse(itemWatt.ToString()) <= 600)
+                {
+                    cssWattOperateClass = "W301-600";
+                }
+                else if (int.Parse(itemWatt.ToString()) > 600)
+                {
+                    cssWattOperateClass = "W600";
+                }
+
+
+                <div id="loc-id" class="col-lg-4 col-md-6 schedule-row-loop column all @cssLocationClass @cssWattOperateClass">
+                    <div class="project-main boxzoom">
+                        <div class="project-placeholder">
+                           @Html.Sitecore().ImageField("Image", projectList, 0, 0, "img-fluid")
+                        </div>
+                         <div class="project-details p-3">
+                            <h4 class="mb-4">@Html.Sitecore().Field("PlantName", projectList), @Html.Sitecore().Field("Location", projectList)</h4>
+                            <ul>
+                                <li><span><img src="-/media/ED6E38684ECB40A3BE5FDDC707B6F202.ashx"></span>@Html.Sitecore().Field("WattOperate", projectList) MW</li>
+                                <li><span><img src="-/media/0475F3E2EFEA459FA97541A69B66F6DE.ashx"></span>@Html.Sitecore().Field("PlantStatus", projectList)</li>
+                            </ul>
+                           @if (projectList.Fields["IsFeatured"].Value == "1")
+                            {
+                            string TargetUrl = Sitecore.Links.LinkManager.GetItemUrl(projectList);
+
+                            <p class="text-right view-m"><a href="@TargetUrl">View more<i class="fa fa-arrow-right ml-3"></i></a></p>
+                            }
+                            else
+                            {
+                            <p class="text-right view-m">&nbsp;</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            }
+
+
+        </div>
+        <div class="text-lg-right text-center d-none">
+            <ul class="pagination pagination-sm">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </div>
+	 </div>
+</section>

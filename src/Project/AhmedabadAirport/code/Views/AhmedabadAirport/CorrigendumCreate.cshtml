@@ -1,0 +1,249 @@
+﻿@model Sitecore.AhmedabadAirport.Website.Model.CorrigendumModel
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.AhmedabadAirport.Website.Model;
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.Tender.CorrigendumTenderListing);
+}
+
+
+<div class="pageContent">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "AhmedabadAirport", FormMethod.Post))
+            {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <!-- Section -->
+        <div class="pb-3">
+            <div class="row">
+                <h2>@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Create Corrigendum Text", "Create Corrigendum")</h2>
+
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreatecorrigendum", @class = "form-signin", @enctype = "multipart/form-data" }))
+                {
+                    @Html.AddUniqueFormId()
+                    if (ViewBag.selectedRecordNull != null)
+                    {
+                        <div class="alert-danger">@ViewBag.selectedRecordNull</div>
+                    }
+                    if (ViewBag.ErrorMsg != null)
+                    {
+                        <div class="alert-danger">@ViewBag.ErrorMsg</div>
+                    }
+                    if (ViewBag.SuccessMsg != null)
+                    {
+                        <div class="alert-success">@ViewBag.SuccessMsg</div>
+                    }
+
+                    <hr />
+                    <table class="table bg-white">
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CheckBoxes[0].NITNo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CheckBoxes[0].Business)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CheckBoxes[0].Description)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CheckBoxes[0].Adv_Date)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.CheckBoxes[0].Closing_Date)
+                            </th>
+                            @*<th>
+                                @Html.DisplayNameFor(model => model.CheckBoxes[0].Location)
+                            </th>*@
+                            <th>
+                                @Html.DisplayNameFor(model => model.CheckBoxes[0].Status)
+                            </th>
+                            <th>
+                                @Html.DisplayName("Select")
+                            </th>
+
+                        </tr>
+
+                        @for (var i = 0; i < Model.CheckBoxes.Count; i++)
+                        {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(m => Model.CheckBoxes[i].NITNo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => Model.CheckBoxes[i].Business)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(m => Model.CheckBoxes[i].Description)
+                            </td>
+                            <td>
+                                @Convert.ToString(string.Format("{0:dd-MM-yyyy}", Model.CheckBoxes[i].Adv_Date))
+                            </td>
+                            <td>
+                                @Convert.ToString(string.Format("{0:dd-MM-yyyy}", Model.CheckBoxes[i].Closing_Date))
+                            </td>
+                            @*    <td>
+            @Html.DisplayFor(m => Model.CheckBoxes[i].Location)
+        </td>*@
+                            <td>
+                                @Html.DisplayFor(m => Model.CheckBoxes[i].Status)
+                            </td>
+                            <td>
+
+                                @Html.CheckBoxFor(m => Model.CheckBoxes[i].IsChecked)
+                            </td>
+                            <td>
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].Id)
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].NITNo)
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].Description)
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].Business)
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].Adv_Date)
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].Closing_Date)
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].Status)
+                                @Html.HiddenFor(m => Model.CheckBoxes[i].Location)
+
+                            </td>
+                        </tr>
+                        }
+
+                    </table>
+
+                    <hr />
+                    <div class="form-horizontal">
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="row form-group pt-md-2">
+                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                        @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label" })*
+                                    </label>
+                                    <div class="col-sm-7 col-md-7">
+                                        @Html.TextAreaFor(model => model.Title, new { htmlAttributes = new { @class = "form-control", @rows = "4" } })
+                                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row form-group pt-md-2">
+                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                        @Html.Label("Date", htmlAttributes: new { @class = "control-label" })
+                                        @Html.Label("(dd-MM-yyyy HH:mm:ss)*", htmlAttributes: new { @class = "font-12" })
+                                    </label>
+                                    <div class="col-sm-7 col-md-7">
+                                        @Html.TextBoxFor(x => x.Date, "{0:dd-MM-yyyy hh:mm:ss}")
+                                        @Html.ValidationMessage("Date", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row form-group pt-md-2">
+                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                        @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label" })*
+                                    </label>
+                                    <div class="col-sm-7 col-md-7">
+                                        @Html.DropDownList("Status", new List<SelectListItem>
+                                           {
+                                              new SelectListItem{ Text="Active", Value = "true" },
+                                              new SelectListItem{ Text="De-Active", Value = "false" },
+                                           }, "Select Status")
+                                            @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row form-group pt-md-2">
+                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                        @Html.LabelFor(model => model.Files, htmlAttributes: new { @class = "control-label" })
+                                    </label>
+                                    <div class="col-sm-7 col-md-7">
+                                        @Html.TextBoxFor(model => model.Files, "", new { @type = "file", @multiple = "multiple",id="file"})
+									   <div id="result"></div>
+                                        @Html.ValidationMessageFor(model => model.Files, "", new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+                    
+
+                        <div class="form-group">
+                            <div class="col-md col-md-10">
+                                <input type="submit" value="Save" class="btn btn-primary" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div>
+                        <a href="@item.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Back To Corrigendum List", "Back To Corrigendum List")</a>
+                    </div>
+
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+$(function () {
+            var result = $('div#result');
+            if (window.FileReader && window.Blob) {
+               $('#file').change(function () {
+                    var files = $('input#file').get(0).files;
+                    if (files.length > 0) {
+                        var file = files[0];
+                        console.log('Loaded file: ' + file.name);
+                        console.log('Blob mime: ' + file.type);
+
+                        var fileReader = new FileReader();
+                        fileReader.onloadend = function (e) {
+                            var arr = (new Uint8Array(e.target.result)).subarray(0, 4);
+                            var header = '';
+                            for (var i = 0; i < arr.length; i++) {
+                                header += arr[i].toString(16);
+                            }
+                            console.log('File header: ' + header);
+
+                            // Check the file signature against known types
+                            var type = 'unknown';
+                            switch (header) {
+                               
+                                case 'ffd8ffe0':
+                                case 'ffd8ffe1':
+                                case 'ffd8ffe2':
+                                    type = 'image/jpeg';
+                                    break;
+                                case '25504446':
+                                    type = 'application/pdf';
+                                    break;
+                            }
+
+                            if (file.type !== type) {
+                                result.html('<span style="color: red; ">Mime type detected: ' + type + '. Does not match file extension.</span>');
+								$("#file").val(''); 
+								return false;
+                            } else {
+                                result.html('<span style="color: green; ">Mime type detected: ' + type + '. Matches file extension.</span>');
+                            }
+                        };
+                        fileReader.readAsArrayBuffer(file);
+                    }
+                });
+            } else {
+                result.html('<span style="color: red; ">Your browser is not supported. Sorry.</span>');
+                console.error('FileReader or Blob is not supported by browser.');
+            }
+        });
+
+</script>

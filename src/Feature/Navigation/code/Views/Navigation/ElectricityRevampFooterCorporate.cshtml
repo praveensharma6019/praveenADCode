@@ -1,0 +1,247 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Data.Fields
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@model RenderingModel
+@{
+    var currentPage = Sitecore.Context.Item;
+
+
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+    var AwardFooterCorporateId = "{42D29A21-B56F-43A0-9972-DAEA0A77D851}";
+    var AwardsDatasource = Sitecore.Context.Database.GetItem(AwardFooterCorporateId);
+
+    var dataSource = Sitecore.Context.Database.GetItem(dataSourceId);
+
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectColumn1 = dataSource.Fields[Templates.FooterNavListing.Fields.ColumnList1];
+    Sitecore.Data.Items.Item[] itemsColumn1 = multiselectColumn1.GetItems();
+
+    Sitecore.Data.Fields.MultilistField multiselectColumn2 = dataSource.Fields[Templates.FooterNavListing.Fields.ColumnList2];
+    Sitecore.Data.Items.Item[] itemsColumn2 = multiselectColumn2.GetItems();
+
+    Sitecore.Data.Fields.MultilistField multiselectColumn3 = dataSource.Fields[Templates.FooterNavListing.Fields.ColumnList3];
+    Sitecore.Data.Items.Item[] itemsColumn3 = multiselectColumn3.GetItems();
+
+    Sitecore.Data.Fields.MultilistField multiselectColumn4 = dataSource.Fields[Templates.FooterNavListing.Fields.ColumnList4];
+    Sitecore.Data.Items.Item[] itemsColumn4 = multiselectColumn4.GetItems();
+
+    Sitecore.Data.Fields.MultilistField multiselectCopyright = dataSource.Fields[Templates.FooterCopyright.Fields.CopyRightList];
+    Sitecore.Data.Items.Item[] itemsCopyright = multiselectCopyright.GetItems();
+
+    Sitecore.Data.Fields.MultilistField multiselectSocialLink = dataSource.Fields[Templates.SocialLink.Fields.SocailLinksList];
+    Sitecore.Data.Items.Item[] itemsSocialLink = multiselectSocialLink.GetItems();
+
+    Sitecore.Data.Fields.MultilistField multiselectSocialStore = dataSource.Fields[Templates.SocialLink.Fields.SocailStoreList];
+    Sitecore.Data.Items.Item[] itemsSocialStore = multiselectSocialStore.GetItems();
+
+    Sitecore.Data.Items.Item awardPageItem = Sitecore.Context.Database.GetItem("{42D0957D-A341-4817-B6D2-BB9F7EC8F62D}");
+    var awardsPageUrl = awardPageItem != null ? Sitecore.Links.LinkManager.GetItemUrl(awardPageItem) : "#";
+}
+
+@if (dataSource != null)
+{
+    <footer class="footer_wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col s12 l4">
+                    <div class="section-wrapper carousel_wrapper carousel-3">
+                        <header class="section-header-main justify-item">
+                            <h2>Awards</h2>
+                            <aside>
+                                <a href="@awardsPageUrl" class="">See All</a>
+                            </aside>
+                        </header>
+
+                        <div class="section-wrapper carousel_wrapper">
+                            @if (AwardsDatasource != null)
+                            {
+                                var awardsCount = 0;
+                                foreach (Sitecore.Data.Items.Item child in AwardsDatasource.Children)
+                                {
+                                    foreach (Sitecore.Data.Items.Item innerItem in child.GetChildren())
+                                    {
+                                        if (awardsCount < 2)
+                                        {
+                                            Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)innerItem.Fields["Image"]);
+                                            string imageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+                                            <div class="card">
+                                                <div class="footer-carousel">
+                                                    <div class="card-content">
+                                                        <label>
+                                                            @Html.Raw(innerItem["Title"])
+                                                        </label>
+                                                    </div>
+                                                    <div class="bg-card">
+                                                        <img src="@imageUrl" height="100px" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            awardsCount += 1;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12 l7 offset-l1">
+                    <ul class="footer-wrap">
+                        <li>
+                            <ul class="footer_link_list">
+                                <li class="footer_link_heading"> @Html.Sitecore().Field(Templates.FooterNavListing.Fields.ColumnName2)</li>
+                                @foreach (var item in itemsColumn2)
+                                {
+                                    var navName = item.Fields["Name"].Value;
+                                    Sitecore.Data.Fields.LinkField linkfld = item.Fields["Link"];
+                                    var url = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "#";
+                                    var urlTarget = linkfld != null ? linkfld.Target : "";
+                                    if ((!string.IsNullOrEmpty(url)) && (!string.IsNullOrEmpty(navName)))
+                                    {
+                                        <li class="footer_link waves-effect">
+                                            <a href="@url" class="waves-effect">@navName</a>
+                                        </li>
+                                    }
+
+                                }
+                            </ul>
+                        </li>
+                        <li class="footer_nav_grid1">
+                            <ul class="footer_link_list">
+                                <li class="footer_link_heading">@Html.Sitecore().Field(Templates.FooterNavListing.Fields.ColumnName1)</li>
+                                @foreach (var item in itemsColumn1)
+                                {
+                                    var navName = item.Fields["Name"].Value;
+                                    Sitecore.Data.Fields.LinkField linkfld = item.Fields["Link"];
+                                    var url = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "#";
+                                    var urlTarget = linkfld != null ? linkfld.Target : "";
+
+                                    if ((!string.IsNullOrEmpty(url)) && (!string.IsNullOrEmpty(navName)))
+                                    {
+                                        <li class="footer_link waves-effect">
+                                            <a href="@url" class="waves-effect">@navName</a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </li>
+                        <li class="footer_nav_grid1">
+                            <ul class="footer_link_list">
+                                <li class="footer_link_heading"> @Html.Sitecore().Field(Templates.FooterNavListing.Fields.ColumnName3)</li>
+
+                                @foreach (var item in itemsColumn3)
+                                {
+                                    var navName = item.Fields["Name"].Value;
+                                    Sitecore.Data.Fields.LinkField linkfld = item.Fields["Link"];
+                                    var url = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "#";
+                                    var urlTarget = linkfld != null ? linkfld.Target : "";
+                                    if ((!string.IsNullOrEmpty(url)) && (!string.IsNullOrEmpty(navName)))
+                                    {
+                                        <li class="footer_link waves-effect">
+                                            <a href="@url" class="waves-effect">@navName</a>
+                                        </li>
+                                    }
+
+                                }
+                                @*<li class="footer_link_heading footer_barcode_heading">Scan the QR Code</li>
+                                    <li class="footer_barcode">
+                                        <a class="barcode-ios">
+                                            <img src="/electricity_assets/images/iOS-AppStore.jpg" alt="IOS">
+                                            <span>IOS</span>
+                                        </a>
+                                        <a class="barcode-android">
+                                            <img src="/electricity_assets/images/Android-PlayStore.jpg" alt="Android">
+                                            <span>Android</span>
+                                        </a>
+                                    </li>*@
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="social_link_wrapper flx-list-wrapper">
+                <ul class="social_link_list flx-list">
+                    @foreach (var item in itemsSocialLink)
+                    {
+                        var socailName = item.Fields["Name"].Value;
+                        Sitecore.Data.Fields.LinkField linkfld = item.Fields["Link"];
+
+                        var url = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "#";
+                        var urlTarget = linkfld != null ? linkfld.Target : "";
+
+                        if ((!string.IsNullOrEmpty(url)) && (!string.IsNullOrEmpty(socailName)))
+                        {
+                            <li>
+                                <a href="@url" target="@urlTarget" class="waves-effect icon-holder medium-size">
+                                    <i class="@socailName"></i>
+                                </a>
+                            </li>
+                        }
+                    }
+
+
+
+                </ul>
+                <ul class="app-download-links flx-list">
+                    @foreach (var item in itemsSocialStore)
+                    {
+
+                        Sitecore.Data.Fields.LinkField linkfld = item.Fields["Link"];
+                        var url = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "#";
+                        var urlTarget = linkfld != null ? linkfld.Target : "";
+                        Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                        string ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+                        if (!string.IsNullOrEmpty(url))
+                        {
+                            <li>
+                                <a href="@url" target="@urlTarget">
+                                    <img src="@ImageUrl" alt="app store" />
+                                </a>
+                            </li>
+
+                        }
+                    }
+                </ul>
+            </div>
+            <div class="footer_copyright">
+
+                <ul class="copyright_links_list">
+                    <li> @Html.Sitecore().Field(Templates.FooterCopyright.Fields.Title)</li>
+
+
+                    @foreach (var item in itemsCopyright)
+                    {
+                        var linkName = item.Fields["Name"].Value;
+                        Sitecore.Data.Fields.LinkField linkfld = item.Fields["Link"];
+
+                        if (!string.IsNullOrEmpty(linkfld.ToString()))
+                        {
+
+                            var url = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "#";
+                            var urlTarget = linkfld != null ? linkfld.Target : "";
+
+
+
+                            if ((!string.IsNullOrEmpty(url)) && (!string.IsNullOrEmpty(linkName)))
+                            {
+
+                                <li>
+                                    <a class="waves-effect" href="@url" target="@urlTarget">@linkName</a>
+                                </li>
+                            }
+                        }
+                    }
+
+                </ul>
+            </div>
+        </div>
+    </footer>
+}

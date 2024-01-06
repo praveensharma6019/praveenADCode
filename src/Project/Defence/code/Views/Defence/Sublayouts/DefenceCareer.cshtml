@@ -1,0 +1,69 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Fields
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Defence.Website
+@*model Sitecore.Defence.Website.Models.DefenceContactModel*@
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+    MultilistField Select = model.Fields["ContactType"];
+    var selectitem = Select.GetItems();
+}
+<section class="contact-us d-block position-relative" style="margin-top: 130px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="contact-1">
+                    <h2 class="mb-5">@Html.Sitecore().Field("Title", model)</h2>
+                    <p>
+                        @Html.Sitecore().Field("Address", model)
+                    </p>
+                    <p>
+                        @Html.Sitecore().Field("Area", model)
+                    </p>
+                    <p>
+                        @Html.Sitecore().Field("location", model)
+                    </p>
+
+                    @foreach (var element in selectitem)
+                    {
+                    Sitecore.Data.Fields.CheckboxField checkboxField = element.Fields["IsLink"];
+                    if (checkboxField != null && checkboxField.Checked)
+                    {
+                    <div class="email mt-5 mb-5">
+                        <p class="email-p">@Html.Sitecore().Field("Title", element)</p>
+                        <p class="email-a"><a href=@Html.Sitecore().Field("ContactText", element)> @Html.Sitecore().Field("ContactText", element)</a></p>
+                    </div>
+                    }
+                    else
+                    {
+                    <div class="email mt-5 mb-5">
+                        <p class="email-p">@Html.Sitecore().Field("Title", element)</p>
+                        <p class="email-a">@Html.Sitecore().Field("ContactText", element)</p>
+                    </div>
+                    }
+                    }
+
+                </div>
+            </div>
+            <div class="col-lg-6">
+
+
+                @Html.Sitecore().Placeholder("form")
+
+                <div class="EnquiryForms_agreeTxt mt-5 text-center">
+                    By continuing, you agree to our <a href="terms-and-conditions">T&amp;Cs</a>
+                    and <a href="privacy-policy">Privacy Policy</a>.
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    </div>
+
+</section>

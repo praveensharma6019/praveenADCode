@@ -1,0 +1,118 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.NonRegisteredAccount
+
+@*<div class="card section-inner-wrapper outlined section-container">*@
+
+@if (Session["LinkNonRegisterAccountSubmit"] != null && Session["LinkNonRegisterAccountSubmit"].ToString() == "1")
+{
+
+    Session["LinkNonRegisterAccountSubmit"] = null;
+    <script type="text/javascript">
+        $(document).ready(function () {
+            dataLayer.push({
+                'event': 'manage_connections_link_non-registered_accounts_submit',
+                'eventCategory': 'My Account',
+                'eventAction': 'Manage Connections | Link Non-Registered Accounts Submit',
+                'eventLabel': 'NA',
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        });
+    </script>
+
+}
+<div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap">
+    <div class="submit-new-request">
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmNonRegisteredAccount" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+        <div class="input-field custom @Html.ValidationErrorFor(x => x.Accountnumber, "has-error")">
+            @Html.TextBoxFor(x => x.Accountnumber, new { @class = "form-control reset-control", id = "Accountnumber" })
+            @Html.ValidationMessageFor(x => x.Accountnumber, "", new { @class = "help-block" }, "p")
+            <p class="field-validation-error" id="AccountnumberVal" style="display:none"></p>
+            <label class="active" for="Accountnumber">
+                @Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Non Registered Account/Existing Account Number", "Account Number")
+            </label>
+        </div>
+        <div class="input-field custom @Html.ValidationErrorFor(x => x.MeterNumber, "has-error")">
+            @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control reset-control", id = "MeterNumber" })
+            @Html.ValidationMessageFor(x => x.MeterNumber, "", new { @class = "help-block" }, "p")
+            <p class="field-validation-error" id="MeterNumberVal" style="display:none"></p>
+            <label class="active" for="MeterNumber">
+                @Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Non Registered Account/Existing Meter Number", "Meter Number")
+            </label>
+        </div>
+            <div class="input-field custom">
+                <div class="captcha_box" id="NonRegisteredCaptcha">
+                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                        <div class="row captcha_box" style="padding-left:10px;">
+                            <div class="col-lg-12">
+                                <div class="g-recaptcha" data-callback="NonRegisteredCaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                <p class="field-validation-error" id="nonChangeCaptchaerror" style="display:none"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-right btn-group">
+                <button type="button" class="waves-effect waves-light btn-flat" id="btnReset"
+                        data-gaevent="manage_connections_link_non-registered_accounts_reset"
+                        data-gaeventCategory="My Account"
+                        data-gaeventAction="Manage Connections | Link Non-Registered Accounts Reset"
+                        data-gaeventLabel="NA"
+                        onclick="ResetElement('frmNonRegisteredAccount')">
+                    @Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Non Registered Account/Button/Reset", "Reset")
+                </button>
+                <button type="submit" class="waves-effect waves-light btn NonRegisteredbutton">@Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Non Registered Account/Button/Submit", "Submit")</button>
+            </div>
+
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    var NonRegisteredCaptcha;
+    var onloadCallback = function () {
+        NonRegisteredCaptcha = grecaptcha.render('NonRegisteredCaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+    $('.NonRegisteredbutton').click(function () {
+        var isValidet = true;
+        var nrcaptcharesponse = grecaptcha.getResponse(1);
+
+        if ($("#Accountnumber").val() == "") {
+            $("#AccountnumberVal").show().html('Please enter the value of Account Number');
+            isValidet = false;
+        }
+        else {
+            $("#AccountnumberVal").hide().html('');
+        }
+        if ($("#MeterNumber").val() == "") {
+            $("#MeterNumberVal").show().html('Please enter the value of Meter Number');
+            isValidet = false;
+        }
+        else {
+            $("#MeterNumberVal").hide().html('')
+        }
+        if (!nrcaptcharesponse) {
+            $('#nonChangeCaptchaerror').show().html('Please validate captcha to continue');
+            isValidet = false;
+        }
+        else {
+            $('#nonChangeCaptchaerror').hide().html('');
+        }
+        return isValidet;
+    });
+
+</script>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+@*<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>*@
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>

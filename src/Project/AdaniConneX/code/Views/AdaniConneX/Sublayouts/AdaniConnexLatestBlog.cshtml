@@ -1,0 +1,136 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var sortedModel = model.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+    string imgurl = "";
+    string altText = "";
+    var i = 1;
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var bgClass = paramid["bgClass"] != null ? paramid["bgClass"] : null;
+
+}
+
+         <div class="dr-vertical-slider award-warpper section-holder bg-grey" id="slick_slider_scroll">
+            <div class="content-wrapper">
+               <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Summary",model)</p>
+               <ul class="full award-section flx-sb">
+                  <li class="left">
+                     <div class="card-box">
+                        <div class="card-content latest-news-holder">
+                           <p class="full latest-news fm-asb tx-000">@Html.Sitecore().Field("MediaDescription",model)</p>
+
+            
+
+                           <ul class="latest-news-list full owl-carousel owl-theme" id="leaderspeak_slickslider">
+								
+							    @foreach (Item item in sortedModel)
+                                {
+
+                                    var currentUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+
+                                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+                                    if (imgField != null && imgField.MediaItem != null)
+                                    {
+                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                        altText = imgField.Alt;
+                                    }
+                                    Sitecore.Data.Fields.LinkField linkUrl = item.Fields["LinkUrl"];
+                                    var linkbtnUrl = linkUrl.GetFriendlyUrl();
+                                    if (linkbtnUrl != "")
+                                    {
+                                        if (linkUrl.LinkType == "internal")
+                                        {
+											 var request = HttpContext.Current.Request;
+
+                                                                    //request.Url.Scheme gives output as https/http
+                                                                    //while request.Url.Authority give us Domain name
+                                                                    var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                    var webUrl = baseUrl + linkbtnUrl;
+										
+                                            <li class="full">
+                                                <div class="thumbnail">
+                                                    @if (imgurl != "")
+                                                    {
+                                                        <img src="@imgurl" alt="@altText" class="res-img" />
+                                                    }
+                                                </div>
+
+
+                                                <div class="award-post-info">
+                                                    <p>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                                    <div class="share-icon">
+                                                        <i class="i-share i-20"></i>
+                                                        <ul class="share-option">
+															<li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl"><i class="i-email i-14"></i></a></li>
+                                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                            
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <a href="@linkbtnUrl">
+                                                    <p class="full news-heading fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+                                                </a>
+
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li class="full">
+                                                <div class="thumbnail">
+                                                    @if (imgurl != "")
+                                                    {
+                                                        <img src="@imgurl" alt="@altText" class="res-img" />
+                                                    }
+                                                </div>
+                                                <div class="award-post-info">
+                                                    <p>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</p>
+                                                    <div class="share-icon">
+                                                        <i class="i-share i-20"></i>
+                                                        <ul class="share-option">
+															<li><a href="mailto:?subject=Adani Connex&amp;body=Check out this @linkbtnUrl"><i class="i-email i-14"></i></a></li>
+                                                            <li><a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&url=@linkbtnUrl"><i class="i-linkdin i-20"></i></a></li>
+                                                           
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <a href="@linkbtnUrl" target="_blank">
+                                                    <p class="full news-heading fm-am tx-000">@Html.Sitecore().Field("Title", item)</p>
+                                                </a>
+                                            </li>
+                                        }
+                                    }  i++;
+                                }
+
+                             
+
+                           </ul>
+                           <!-- leaderspeak_slickslider -->
+
+
+
+                        </div>
+                     </div>
+                  </li>
+                 @Html.Sitecore().Placeholder("awards-carousel")
+                    
+               </ul>
+            </div>
+         </div>

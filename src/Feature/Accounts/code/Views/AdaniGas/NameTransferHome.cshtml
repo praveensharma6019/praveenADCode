@@ -1,0 +1,475 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts.SessionHelper
+@model Sitecore.Feature.Accounts.Models.ByCustomerId
+@{
+    /**/
+
+
+    var role = UserSession.nameTransferAdminRegistationSessssion.Role;
+
+    var ShowApprovedMessage = Request.QueryString["ApprovedMessage"] != null ? Request.QueryString["ApprovedMessage"] : "false";
+    var ShowRejectedMessage = Request.QueryString["RejectedMessage"] != null ? Request.QueryString["RejectedMessage"] : "false";
+    var ShowAdditionalDetailsMessage = Request.QueryString["AdditionalDetailsMessage"] != null ? Request.QueryString["AdditionalDetailsMessage"] : "false";
+    var ShowClosedApplicationMessage = Request.QueryString["ClosedApplicationMessage"] != null ? Request.QueryString["ClosedApplicationMessage"] : "false";
+
+    //var showPopup = Request.QueryString["ChnagePassword"] != null ? Request.QueryString["ChnagePassword"] : "false";
+
+}
+
+@if (Session["NameTransferLogin"] != null && !string.IsNullOrEmpty(Session["NameTransferLogin"].ToString()))
+{
+    <section class="py-5 bg-gray" style="margin-top: -2rem;">
+        <div class="container">
+
+            <div class="row col-lg-12 col-md-12">
+
+                <div class="col-sm-6 pb-3 text-left">
+                    <p><span><b>Welcome, </b></span><b class="txt-orange">@UserSession.nameTransferAdminRegistationSessssion.Name <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                </div>
+
+                @if (role == "0")
+                {
+                    <div class="row">
+                        <div class="col-lg-12 mb-3">
+                            <div class="col-lg-12 text-left">
+                                <div class="breadcrumb"><b> City Specific Admin : </b>  @Model.AdminCityName</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="col-sm-6 pb-3 text-lg-right">
+                    @if (role == "1")
+                    {
+
+                        <a class="btn btn-primary mb-2 mb-md-0" href="/NameTransferHome/NameTransferAdminList">Manage Admin</a>
+
+                    }
+
+
+                    <a class="btn btn-primary mb-2 mb-md-0" href="/NameTransferHome/NameTransferChangePassword">Change Password</a>
+
+                    <a class="btn btn-primary mb-2 mb-md-0" href="/api/AdaniGas/NameTransferLogout">Logout</a>
+
+                </div>
+            </div>
+
+            <div class="admin_submit_request mt-4">
+                <div class="row mt-4">
+                    <div class="col-lg-12">
+                        <div class="tab-content" id="myTabContent">
+                            <ul class="nav nav-tabs" id="myTab" role="tablist" style="flex-wrap:wrap">
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="AllRequests" href="/NameTransferHome" style="color: black">
+                                        <div class="col-12">
+                                            <span>All Requests</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.TotalRequest</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="SubmittedRequest" href="/NameTransferHome?requeststatus=Submitted" style="color: black">
+                                        <div class="col-12">
+                                            <span>Submitted Request</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.TotalSubmittedApplication</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="PaymentDone/NotRequired" href="/NameTransferHome?requeststatus=PaymentDone,PaymentNotRequired" style="color: black">
+                                        <div class="col-12">
+                                            <span>Payment Done/Not Required</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.TotalPaymentDoneApplication</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="RequestApproved" href="/NameTransferHome?requeststatus=Approved" style="color: black">
+                                        <div class="col-12">
+                                            <span>Request Approved</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.TotalApprovedApplication</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="RequestRejected" href="/NameTransferHome?requeststatus=Rejected" style="color: black">
+                                        <div class="col-12">
+                                            <span>Request Rejected</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.TotalRejectedApplication</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="RequestRe-submitted" href="/NameTransferHome?requeststatus=Resubmitted" style="color: black">
+                                        <div class="col-12">
+                                            <span>Request Re-submitted</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.TotalResubmittedApplication</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="AdditionalDetails/DocumentsRequired" href="/NameTransferHome?requeststatus=Additional_Details/document_Required" style="color: black">
+                                        <div class="col-12">
+                                            <span>Additional Details/Documents Required</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.Total_Additional_Details_document_Required</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="AdditionalDetails/Documents/PaymentRequired" href="/NameTransferHome?requeststatus=Additional_Details/document/Payment_Required" style="color: black">
+                                        <div class="col-12">
+                                            <span>Additional Details/Documents/ Payment Required</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.Total_Additional_Details_document_Payment_Required</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item" role="presentation">
+                                    <a class="" id="PaymentPendingonRe-submittedApplication" href="/NameTransferHome?requeststatus=Application_Submited_But_Payment_Required" style="color: black">
+                                        <div class="col-12">
+                                            <span>Payment Pending on Re-submitted Application</span>
+                                        </div>
+                                        <div class="col-2">
+                                            <b> @Model.Total_Application_Submited_But_Payment_Required</b>
+                                        </div>
+                                    </a>
+                                </li>
+
+                            </ul>
+                            <div class="fix-on-top">
+                                @using (Html.BeginForm("DownloadExcel", "AdaniGas", FormMethod.Post, new { id = "name-transfer-download" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    <div class="row col-lg-12 col-md-12">
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <label for="">@Html.Sitecore().Dictionary("/Accounts/Quick Pay/Search by status", "Status")</label>
+                                                @Html.DropDownListFor(x => Model.PreStatus, new SelectList(Model.NameTransferRequestStatus, "Value", "Text"), "--Please Select--", htmlAttributes: new { @class = "form-control reset-control FilterStatus", id = "FilterNameTransferRequestStatus", name = "states[]", multiple = "multiple" })
+                                                @Html.ValidationMessageFor(x => x.PreStatus, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="form-group">
+                                                <label for="">Application Type :</label>
+                                                <select id="NTApplicationType" name="Application_Type" multiple>
+                                                    <option value="">Select Type</option>
+                                                    <option value="Builder_Case">Builder Case</option>
+                                                    <option value="Property_ReSale">Property Re-Sale</option>
+                                                    <option value="Demise">Demise</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="form-group">
+                                                <label for="">Start Date :</label>
+                                                @Html.TextBoxFor(x => x.StartDate, new { @class = "form-control reset-control", @autocomplete = "off", id = "Filter_Application_StartDate" })
+                                                @Html.HiddenFor(x => x.StartDate)
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <div class="form-group">
+                                                <label for="">End Date :</label>
+                                                @Html.TextBoxFor(x => x.EndDate, new { @class = "form-control reset-control", @autocomplete = "off", id = "Filter_Application_EndDate" })
+                                                @Html.HiddenFor(x => x.EndDate)
+                                            </div>
+                                        </div>
+                                        <div class="align-items-center col-lg-3 d-flex">
+
+                                            <input type="button" class="btn btn-primary mr-3 w-auto" name="SearchDataFromDate" id="Search_Data_From_Date" onclick="checkquerystring();" value="Search" />
+
+                                            <div>
+                                                <input type="submit" class="btn btn-primary w-auto" name="DownloadExcelFileFromAdmin" id="Download_Excel" value="Download" />
+                                            </div>
+
+                                            <button id="Clear_Search_Result" class="btn btn-primary ml-3 w-auto" type="button">Clear Filter</button>
+
+                                        </div>
+                                    </div>
+
+                                }
+                            </div>
+
+                            <div class="tab-pane fade show active" id="All-Request" role="tabpanel" aria-labelledby="All-Request-tab">
+                                @if (Model != null)
+                                {
+                                    <div class="row mt-4">
+                                        <div class="col-lg-12 col-md-12">
+                                            <div class="table-responsive">
+                                                <div class="custom-table">
+                                                    <table class="table" id="Total_List_Name_Transfer">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Sr. No</th>
+                                                                <th scope="col">REQUEST NUMBER</th>
+                                                                <th scope="col">ADDRESS</th>
+                                                                <th scope="col">DATE</th>
+                                                                <th scope="col">CONNECTION TYPE</th>
+                                                                <th scope="col">APPLICATION TYPE</th>
+                                                                <th scope="col">APPLICANT NAME</th>
+                                                                <th scope="col">STATUS</th>
+                                                                <th scope="col">VIEW</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @{
+                                                                var count = 1;
+                                                                foreach (var details in Model.RegisterNameTransferList)
+                                                                {
+                                                                    <tr>
+                                                                        <td>@count</td>
+                                                                        <td>@details.RequestNumber</td>
+                                                                        <td>@details.Address</td>
+                                                                        <td>@details.CreatedDate.Value.ToString("dd-MM-yyyy")</td>
+                                                                        <td>@details.ConnectionType</td>
+                                                                        <td>@details.ApplicationType</td>
+                                                                        <td>@details.FirstName @details.MiddleName @details.LastName</td>
+                                                                        @if (details.Status == "Resubmitted")
+                                                                        {
+                                                                            <td>Additional Request Submitted</td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td>@details.Status</td>
+                                                                        }
+                                                                        @*<td>@test.Status</td>*@
+                                                                        <td><a href="/NameTransferReviewApplication?ids=@details.Id.ToString()" id="ReviewNameTransferApplication">View</a></td>
+                                                                    </tr>
+                                                                    count = count + 1;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+@if (ShowApprovedMessage == "true")
+{
+    <div id="submited_Approved_Message" class="modal fade show" role="dialog" style="padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+
+                    <button id="submited_Approved" type="button" class="close" data-dismiss="modal">X</button>
+                </div>
+                @if (Session["ApprovedSuccessfully"] != null)
+                {
+                    <div class="modal-body">
+                        <div class="form-group row d-block">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    @Session["ApprovedSuccessfully"]
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <button type="button" id="submited_Approved_Application" onclick="toggleText()" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+@if (ShowRejectedMessage == "true")
+{
+    <div id="submited_Rejected_Message" class="modal fade show" role="dialog" style="padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                    <button id="submited_Rejected" type="button" class="close" data-dismiss="modal">X</button>
+                </div>
+                @if (Session["RejectedSuccessfully"] != null)
+                {
+                    <div class="modal-body">
+                        <div class="form-group row d-block">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    @Session["RejectedSuccessfully"]
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <button type="button" id="submited_Rejected__Application" onclick="toggleText()" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@if (ShowAdditionalDetailsMessage == "true")
+{
+    <div id="submited_AdditionalDetails_Message" class="modal fade show" role="dialog" style="padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                    <button id="submited_AdditionalDetails" type="button" class="close" data-dismiss="modal">X</button>
+                </div>
+                @if (Session["AdditionalDetailsSuccessfully"] != null)
+                {
+                    <div class="modal-body">
+                        <div class="form-group row d-block">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    @Session["AdditionalDetailsSuccessfully"]
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <button type="button" id="submited_AdditionalDetails_Application" onclick="toggleText()" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+@if (ShowClosedApplicationMessage == "true")
+{
+    <div id="submited_closedApplication_Message" class="modal fade show" role="dialog" style="padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                    <button id="submited_closedApplications" type="button" class="close" data-dismiss="modal">X</button>
+                </div>
+                @if (Session["ClosedApplicationSuccessfully"] != null)
+                {
+                    <div class="modal-body">
+                        <div class="form-group row d-block">
+                            <div class="col-lg-12">
+                                <div class="form-group">
+                                    @Session["ClosedApplicationSuccessfully"]
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <button type="button" id="submited_Closed_Application" onclick="toggleText()" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+<link href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" />
+<link href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css' rel='stylesheet'>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#FilterNameTransferRequestStatus").select2();
+        $("#NTApplicationType").select2();
+    });
+    $(document).ready(function () {
+        $.noConflict();
+        $('#Total_List_Name_Transfer').DataTable();
+        //$("#Filter_Application_EndDate").datepicker({ dateFormat: 'dd/mm/yy', changeYear: true });
+    });
+    $(document).ready(function () {
+        $(function () {
+            $("#Filter_Application_StartDate").datepicker({
+                dateFormat: 'dd-mm-yy',
+                onSelect: function (selected) {
+                    var startDate = $(this).datepicker('getDate');
+                    startDate.setDate(startDate.getDate());
+                    $("#Filter_Application_EndDate").datepicker("option", "minDate", startDate);
+                }
+            });
+            $("#Filter_Application_EndDate").datepicker({
+                dateFormat: 'dd-mm-yy',
+                onSelect: function (selected) {
+                    var end = $(this).datepicker('getDate');
+                    end.setDate(end.getDate());
+                    $("#Filter_Application_StartDate").datepicker("option", "maxDate", end);
+                }
+            });
+
+        });
+
+    });
+</script>
+
+<script>
+    function toggleText() {
+        var x = document.getElementById("submited_Approved_Message");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+    function toggleText() {
+        var x = document.getElementById("submited_Rejected_Message");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+    function toggleText() {
+        var x = document.getElementById("submited_AdditionalDetails_Message");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+    function toggleText() {
+        var x = document.getElementById("submited_closedApplication_Message");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+</script>

@@ -1,0 +1,60 @@
+﻿@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    string url = string.Empty;
+    string urlTarget = string.Empty;
+    string ImageUrl = string.Empty;
+    string ThumbnailImageUrl = string.Empty;
+    string ThumbnailCssStyle = string.Empty;
+    Sitecore.Data.Fields.ImageField ImageField = null;
+    Sitecore.Data.Fields.ImageField ThumbnailImageField = null;
+    Sitecore.Data.Fields.LinkField linkfield = null;
+
+}
+
+<div class="owl-carousel" data-items-desktop="1" data-margin="0" data-dots="enable" data-items-loop="true" data-items-autoplay="true">
+    @foreach (var element in elements)
+    {
+        linkfield = element.Item.Fields[Templates.HasMedia.Fields.Link];
+        url = !string.IsNullOrEmpty(linkfield.GetFriendlyUrl()) ? linkfield.GetFriendlyUrl() : "";
+        urlTarget = linkfield.Target;
+
+        ImageField = ((Sitecore.Data.Fields.ImageField)element.Item.Fields["MediaImage"]);
+        ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+        ThumbnailImageField = ((Sitecore.Data.Fields.ImageField)element.Item.Fields["MediaThumbnail"]);
+        ThumbnailImageUrl = ThumbnailImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ThumbnailImageField.MediaItem) : string.Empty;
+
+        <a href="@url" target="@urlTarget" data-gaevent="banner_click"
+           data-gaeventCategory="User Interaction"
+           data-gaeventAction="Banner Click"
+           data-gaeventLabel="@Html.Sitecore().Field("MediaTitle", element).ToString()">
+            @if (!string.IsNullOrEmpty(ImageUrl))
+            {
+                <div class="card" style="background-image: url(@ImageUrl)">
+                    <div class="ev-hero-desc">
+                        <div class="ev-inner">
+                            @if (!string.IsNullOrEmpty(ThumbnailImageUrl))
+                            {
+                                Sitecore.Data.Items.MediaItem image = new Sitecore.Data.Items.MediaItem(ThumbnailImageField.MediaItem);
+                                ThumbnailCssStyle = element.Item.Fields["Class"].ToString();
+                                <img src="@ThumbnailImageUrl" alt="@image.Alt" style="@ThumbnailCssStyle">
+                            }
+                            <h3>@Html.Raw(element.Item["MediaTitle"])</h3>
+                            <p>@Html.Raw(element.Item["SubTitle"])</p>
+                            @if (!string.IsNullOrEmpty(element.Item["CTAText"]))
+                            {
+                                <span href="javascript:void(0)" class="waves-effect waves-light btn">@Html.Raw(element.Item["CTAText"])</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </a>
+    }
+</div>

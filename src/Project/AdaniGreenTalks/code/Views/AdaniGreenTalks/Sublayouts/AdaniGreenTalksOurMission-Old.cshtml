@@ -1,0 +1,109 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current?.Rendering?.DataSource;
+    Item model = datasource != null ? Sitecore.Context.Database.GetItem(datasource) : null;
+    string imgurl = "#";
+    string altText = string.Empty;
+    string btnUrl = "#";
+}
+
+@if (model != null)
+{
+    <div class="text-center bgsmallcontain p-5 my-5">
+        <h1 class="mb-3 fontsizetopaboutus headingaboutus">
+            <strong>@Html.Sitecore().Field("Text", model)</strong>
+        </h1>
+        <h1>
+            @Html.Sitecore().Field("MediaInfo", model)
+        </h1>
+    </div>
+    if (model.HasChildren)
+    {
+
+        Sitecore.Data.Fields.LinkField linkField = model.Fields["ButtonLink"];
+        if (linkField != null)
+        {
+            btnUrl = linkField.GetFriendlyUrl();
+        }
+
+        <div class="aboutusbackground">
+            <div class="container">
+                <main>
+                    <div class="container-fluid ">
+                        <div class="row text-white p-4">
+                            @if (model.HasChildren)
+                            {
+                                foreach (Item parent in model.GetChildren())
+                                {
+                                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)parent.Fields["MediaImage"]);
+                                    if (imgField != null && imgField.MediaItem != null)
+                                    {
+                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                        altText = imgField.Alt;
+                                    }
+                                    else
+                                    {
+                                        imgurl = "#";
+                                        altText = "";
+                                    }
+                                    <div class="col-lg-6 col-md-6 col-12 px-4">
+                                        <h1 class="headingaboutus">
+                                            <strong>@Html.Sitecore().Field("MediaTitle", parent)</strong>
+                                        </h1>
+                                        <h1 class="headingaboutus">
+                                            <strong>
+                                                @Html.Sitecore().Field("SubTitle", parent)
+                                            </strong>
+                                        </h1>
+
+                                        @Html.Sitecore().Field("MediaDescription", parent)
+
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-12 px-3">
+                                        <img src="@imgurl" alt="@altText" srcset="">
+                                    </div>
+                                }
+                            }
+
+
+                        </div>
+                        <div class="row pb-3">
+                            @if (model.HasChildren)
+                            {
+                                foreach (Item parent in model.GetChildren())
+                                {
+                                    if (parent.HasChildren)
+                                    {
+                                        foreach (Item child in parent.GetChildren())
+                                        {
+                                            var itemClass = child.Fields["Class"];
+                                            <div class="col mt-4">
+                                                <div class="card cardaboutus">
+                                                    <div class="card-body text-center">
+                                                        @Html.Sitecore().Field("Text",child)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+    }
+
+}

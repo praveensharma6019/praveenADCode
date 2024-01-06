@@ -1,0 +1,284 @@
+﻿@using Sitecore.Project.Marathon
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Data.Items
+@{
+var errmsg = ""; var otpmsg = "";
+if (Session["Regerrmsg"] != null)
+{
+errmsg = Session["Regerrmsg"].ToString();
+}
+if (Session["OTPmsg"] != null)
+{
+otpmsg = Session["OTPmsg"].ToString();
+}
+string Regmail = string.Empty;
+string RegPhoneNumber = string.Empty;
+string RegDist = "42.195KM";
+string RunMode = string.Empty;
+string DateofBirth = string.Empty;
+string RegCount = "0";
+string FinalAmount = "0";
+string DonationAmount = "0";
+string RunType = "Normal";
+string receivedOTP="0";
+if (Session["RegInfo"] != null)
+{
+var RegInfo = (Sitecore.Marathon.Website.Models.RegistrationCheck)Session["RegInfo"];
+Regmail = RegInfo.Email;
+RegPhoneNumber = RegInfo.PhoneNumber;
+RegDist = RegInfo.distance;
+RunMode = RegInfo.RunMode;
+DateofBirth = RegInfo.DateofBirth;
+RegCount = RegInfo.Count;
+RunType = RegInfo.RunType;
+FinalAmount= RegInfo.FinalAmount;
+DonationAmount= RegInfo.DonationAmount;
+receivedOTP="1";
+}
+int accordianId=1;
+Item RaceDetails = Sitecore.Context.Database.GetItem("{0FAABDDF-9C8E-4283-B499-9853674E97D4}");
+Item RaceRemoteDetails = Sitecore.Context.Database.GetItem("{CABFBF85-E4D5-4167-BE77-2F3F1CAE2223}");
+Item CharityBib = Sitecore.Context.Database.GetItem("{7B220E91-F649-4E9C-8DDA-A72451876EDE}");
+var AlreadyExistMsg = DictionaryPhraseRepository.Current.Get("ErrorMsg/AlreadyExist", "");
+}
+<link rel="https://s3-us-west-2.amazonaws.com/s.cdpn.io/11219/woorks-style.css">
+<section class="multi-step-form" style="padding-top: 100px !important;">
+   <div class="container">
+      <h2>@Html.Sitecore().Placeholder("Registration-Msg")</h2>
+      <div class="row has-seprator">
+         <div class="col-sm-6">
+		    <h3 class="text-left hm-0">New User? <span class="text-right alreadyRegistered">Already registered <a href="#login_form">Go to Login</a></span></h3>
+            <ul class="ListData d-none">
+               <li class="InnerTiles active" id="IndividualId">
+                  Individual
+               </li>
+               <li class="InnerTiles InvestorCorner-tile " id="GroupId" >
+                  Group
+               </li>
+            </ul>
+			
+            <div class="card individual-card card-border d-none" id="IndividualCard">
+               <div class="panel-group accordion" id="accordion" role="tablist" aria-multiselectable="true">
+				@for(int childIndex=0; childIndex<CharityBib.GetChildren().Count; childIndex++)
+				{
+					var regularChild = RaceDetails.GetChildren().Skip(childIndex).Take(1).ToList();
+					var charityChild = CharityBib.GetChildren().Skip(childIndex).Take(1).ToList();
+					var panelId= "panelDefault"+accordianId;
+					var collapse= "collapse"+accordianId;
+					var collapseID= "#collapse"+accordianId;
+					var headingId= "heading"+accordianId;
+
+					<div class="panel panel-default" id="@panelId">
+						<div class="panel-heading" role="tab" id="@headingId">
+							<h4 class="panel-title">
+								<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="@collapseID" aria-expanded="false" aria-controls="@collapse">@charityChild[0].Fields["Distance"] <i class="arrow fa fa-angle-down" ></i><i class="arrow fa fa-angle-up d-none" ></i></a>
+							</h4>
+						</div>
+						<div id="@collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="@headingId">
+							<div class="panel-body">
+								<div class="accordion-regular-bibs">
+									<div class="BibsInfo">
+										<input type="radio" id="BibsRadio" name="BibsRadio" value="Normal"> Regular Bib
+									</div>
+									<div class="CountManagment">
+										<span class="accordion-charity-bibs-inr">@regularChild[0].Fields["Amount"]</span>
+									</div>
+								</div>
+								<div class="accordion-regular-bibs bibs-charity">
+									<div class="BibsInfo">
+										<input type="radio" id="BibsRadio" name="BibsRadio" value="Charity"> Charity Bib
+											
+									</div>
+									<input type="number" name="count" class="form-control member-count-individuals individualCharity"value='@charityChild[0].Fields["Amount"]' id="member-count1">
+									<p class="d-none actualcharityPrice">@charityChild[0].Fields["Amount"]</p>
+								</div>
+								<p class="BibsInfoMsg">You can increase the donation amount by adding desire value here</p>
+							</div>
+						</div>
+					</div>
+					accordianId++;
+				}
+				<div class="panel" style="border: 1px solid #cccccc;">
+				   <div class="panel-heading" role="tab" id="headingTwo">
+					  <h4 class="panel-title">
+						 <a class="TotalBib" role="button" data-toggle="collapse">
+						 Total Bib: 1
+						 </a>
+						 <a class="TotalBib TotalValue" role="button" data-toggle="collapse">
+						 INR  
+						 @if(FinalAmount=="0")
+						 {<span class="mla-3 IndividualAmount">0</span>}
+						 else{
+						 <span class="mla-3 IndividualAmount">@FinalAmount</span>
+						 }
+						 </a>
+					  </h4>
+				   </div>
+				</div> 
+				<p class="error-msg registrationerror d-none">Please select race category</p>
+               </div>
+            </div>
+            <div class="card group-card card-border  d-none" id="GroupCard">
+               <div class="panel-group accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                @for(int childIndex=0; childIndex<CharityBib.GetChildren().Count; childIndex++)
+				{
+					var regularChild = RaceDetails.GetChildren().Skip(childIndex).Take(1).ToList();
+					var charityChild = CharityBib.GetChildren().Skip(childIndex).Take(1).ToList();
+					var panelId= "panelDefault"+accordianId;
+					var collapse= "collapse"+accordianId;
+					var collapseID= "#collapse"+accordianId;
+					var headingId= "heading"+accordianId;
+					
+					<div class="panel panel-default" id="@panelId">
+					   <div class="panel-heading" role="tab" id="@headingId">
+						  <h4 class="panel-title">
+							 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="@collapseID" aria-expanded="false" aria-controls="@collapse">@charityChild[0].Fields["Distance"]<i class="arrow fa fa-angle-down" ></i><i class="arrow fa fa-angle-up d-none" ></i>
+							 </a>
+						  </h4>
+					   </div>
+					   <div id="@collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="@headingId">
+						  <div class="panel-body">
+							 <div class="accordion-regular-bibs">
+								<div class="BibsInfo">
+								   Regular Bib | <span class="accordion-regular-bibs-inr">@regularChild[0].Fields["Amount"]</span>
+								</div>
+								<div class="CountManagment">
+								    <img src="-/media/4D9DC2B884E54376B0E665D68A41BA70.ashx" class="subtract-member"id="subtract-member" alt="Minus circle">											
+									<input type="number" name="count" class="form-control member-countregular  member-count" id="member-count" value="0">
+									<img src="-/media/85CD25A185E745D49DA649504F6EB591.ashx" class="add-member" id="add-member" alt="Add Circle">
+								</div>
+							 </div>
+							 <div class="accordion-regular-bibs">
+								<div class="BibsInfo">
+								   Charity Bib | <span class="accordion-charity-bibs-inr">@charityChild[0].Fields["Amount"]</span> 
+								</div>
+								<div class="CountManagment">
+									<img src="-/media/4D9DC2B884E54376B0E665D68A41BA70.ashx" class="subtract-member" id="subtract-member1" alt="Minus circle">
+									<input type="number" name="count" class="form-control member-countCharity  member-count" value="0" id="member-count1">
+									<img src="-/media/85CD25A185E745D49DA649504F6EB591.ashx" class="add-member" id="add-member1" alt="Add Circle">
+								</div>
+							 </div>
+						  </div>
+					   </div>
+					</div>
+					accordianId++;
+				}
+				<div class="panel" style="border: 1px solid #cccccc;">
+				   <div class="panel-heading" role="tab" id="headingTwo">
+					  <h4 class="panel-title">
+						 <a class="TotalBib" role="button" data-toggle="collapse">
+						 Total Bib: @if(RegCount=="0")
+						 {<span class="groupCount">0</span>}
+						 else{
+						 <span class="groupCount">@RegCount</span>
+						 }
+						 </a>
+					  </h4>
+				   </div>
+				</div>
+               </div>
+            </div>
+			<div class=" group-card cardMarginBottom" id="GroupCard2">
+				   @using (Html.BeginForm("RegistrationCheck", "Marathon", FormMethod.Post, new { name = "new_participant", id = "new_participant", @class = "new_participant",autocomplete = "off" }))
+				   {
+				   @Html.AntiForgeryToken()
+				   <h3 class="text-left" style="color: rgba(0, 0, 0, 0)">.</h3>
+				   <div class="form-group mb-3">
+						<input class="form-check-input" type="hidden" name="runMode" id="runMode1" value="Physical" >
+				   </div>
+				   <div class="form-group mb-3 ">
+					  <input name="RunType" id="select_RunType" type="hidden"  value="Charity" class="form-control">
+				   </div>
+				   <div class="form-group mb-3">
+					  <input class="form-control" type="hidden" name="distance" value="@RegDist" id="select_distance"  >    
+				   </div>
+				   <div class="form-group mb-3">
+					  <input name="Count" id="Count" type="hidden" maxlength="2" value="@RegCount" class="form-control">
+				   </div>
+				   <div class="form-group mb-3">
+					  <input name="receivedOTP" id="receivedOTP" type="hidden" value="@receivedOTP" class="form-control">
+				   </div>
+				   <div class="form-group mb-3">
+					  <input name="FinalAmount" id="FinalAmount" type="hidden" value="@FinalAmount" class="form-control">
+				   </div>
+				   	<div class="form-group mb-3">
+					  <input name="DonationAmount" id="DonationAmount" type="hidden" value="@DonationAmount" class="form-control">
+				    </div>					
+				   <div class="form-group mb-3">
+					  <input name="reResponse" id="reResponse" type="hidden"  class="form-control">
+					  <input name="validate" id="validate" type="hidden"  class="form-control">
+					  <input name="register" id="register" type="hidden"  class="form-control">
+				   </div>
+				   <div class="form-group  newregistraionMobile ">
+					  <label for="checkPhoneNumber">Mobile Number </label><span class="errormsg">*</span>
+					  @if (Session["RegInfo"] != null)
+					  {
+					  <input name="PhoneNumber" id="checkPhoneNumber" type="text" class="form-control validated" value="@RegPhoneNumber" placeholder="Mobile Number" data-error-msg="Please fill your valid Phone Number" required>
+					  }
+					  else
+					  {
+					  <input name="PhoneNumber" id="checkPhoneNumber" type="text" class="form-control validated" value="" placeholder="Mobile Number" data-error-msg="Please fill your valid Phone Number" required>
+					  }
+				   </div>
+				   if (!string.IsNullOrEmpty(otpmsg))
+				   {
+				   <div class="form-group">
+					  <label for="emailotp">OTP :</label>
+					  <input name="OTP" id="otp" type="text" class="form-control validated" value="" placeholder="Enter OTP" data-error-msg="Please enter OTP to proceed.">
+					  <span class='errormsg'>@AlreadyExistMsg</span>
+				   </div>
+				   }
+				   if (!string.IsNullOrEmpty(errmsg))
+					{
+						<div class="form-group">
+							  <label for="emailotp">OTP :</label>
+							  <input name="OTP" id="otp" type="text" class="form-control validated" value="" placeholder="Enter OTP" data-error-msg="Please enter OTP to proceed.">
+							  <span class='errormsg'>@AlreadyExistMsg</span>
+						   </div>
+					}
+				   @*
+				   <div class="form-group row">
+					  <label for="" class="col-sm-4"></label>
+					  <div class="col-sm-4">
+						 <input name="btnSendOTP" type="submit" class="btn btn-submit" id="btnSendOTP" value="Resend OTP">
+					  </div>
+				   </div>
+				   *@
+				   if (!string.IsNullOrEmpty(otpmsg))
+				   {
+				   <div class="form-group text-right">
+					  <input name="btnSendOTP" type="submit" class="btn btn-submit resendSMSOTP " id="btnSendOTP" value="Resend OTP">
+					  <input name="register" type="submit" class="btn btn-submit g-recaptcha" id="register_btn" value="Validate Phone Number" data-sitekey="6Lffy6MmAAAAAJWCrNIqaaSIz3mHsEy_xpKrmiaY"  data-callback='onSubmitRegister'>
+				   </div>
+				   }
+				   else
+				   {
+				   <div class="form-group text-right">
+						@if (!string.IsNullOrEmpty(errmsg))
+						{
+							<input name="btnSendOTP" type="submit" class="btn btn-submit resendSMSOTP " id="btnSendOTP" value="Resend OTP">
+						}
+					  <input name="validate" type="submit" class="btn btn-submit g-recaptcha" id="register_btn" value="Request OTP"  data-sitekey="6Lffy6MmAAAAAJWCrNIqaaSIz3mHsEy_xpKrmiaY"  data-callback='onSubmitRegister'>
+				   </div>
+				   }
+				   }
+				   @{
+				   Session["Regerrmsg"] = null;
+				   Session["OTPmsg"] = null;
+				   Session["RegInfo"] = null;
+				   }
+				</div>
+		 </div>
+         <div class="col-sm-6">
+            @Html.Sitecore().Placeholder("login-form")
+         </div>
+      </div>
+      @*
+      <div class="res">
+         @Html.Sitecore().Placeholder("registration-form")
+      </div>
+      *@
+   </div>
+</section>

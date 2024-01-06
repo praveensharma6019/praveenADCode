@@ -1,0 +1,90 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+
+    var propertyitem = Sitecore.Context.Item;
+    var property = propertyitem.GetMultiListValueItems(Templates.CommercialProperty.Fields.SimilarProperty);
+}
+
+<section class="section bg-white">
+    <div class="container">
+        <h3 class="txt-center">@Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.Description, models)</h3>
+        <div class="row">
+            @foreach (var item in property)
+            {
+                var URLLink = string.Empty;
+                var target = string.Empty;
+                target = item.Fields[Templates.Navigable.Fields.ShowInNewTab].IsChecked() ? "_blank" : "";
+                if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+                {
+                    URLLink = item.LinkFieldUrl(Templates.Navigable.Fields.Link).ToString();
+                }
+                else
+                {
+                    URLLink = item.Url();
+                }
+                <div class="col-sm-6 px-5">
+                    <div class="border-box">
+                        <a href="@URLLink" target="@target">
+                            @{
+                                var itemproperty = item.GetMultiListValueItems(Templates.CommercialProperty.Fields.ProjectStatus).FirstOrDefault();
+                                var itemlocation = item.GetMultiListValueItems(Templates.CommercialProperty.Fields.Location).FirstOrDefault();
+                            }
+                            <p>
+                                @if (itemproperty != null)
+                            {
+
+                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemproperty)
+                            }
+                            else
+                            {
+                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                            }
+                            </p>
+                            @Html.Sitecore().Field("Image", item, new { @class = "img-fluid property-tile" })
+                            <div class="bg-gray py-3 pl-3 pr-3">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="property-hd">
+                                            @Html.Sitecore().Field("Title", item)
+                                            <span>
+                                                @if (itemlocation != null)
+                                            {
+                                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)
+                                            }
+                                            else
+                                            {
+                                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                                            }
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 py-4">
+                                        @Html.Sitecore().Field(Templates.CommercialProperty.Fields.Logo, item, new { @class = "img-fluid" })
+                                    </div>
+                                </div>
+                                <ul class="ul-bullet comm-tiles-bullets">
+                                    @Html.Sitecore().Field(Templates.HasPageContent.Fields.Body, item)
+                                </ul>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                                }
+        </div>
+        <p class="pt-2 txt-center">
+            @Html.Sitecore().BeginField("LinkURL", new { haschildren = true, @class = "btn btn-primary", @target = "_blank" })
+            @Html.Sitecore().Field(Templates.ResidentTopProperty.Fields.LinkText, models)
+            @Html.Sitecore().EndField()
+        </p>
+    </div>
+</section>

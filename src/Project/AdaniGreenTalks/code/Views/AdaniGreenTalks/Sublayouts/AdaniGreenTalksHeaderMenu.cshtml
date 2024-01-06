@@ -1,0 +1,63 @@
+﻿@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string linkurl = "#";
+    string linkClass = "";
+    int count = 1;
+}
+
+
+
+@if (model != null)
+{
+    if (model.GetChildren().Count > 0)
+    {
+        foreach (Item item in model.GetChildren())
+        {
+            if (count % 2 != 0)
+            {
+                linkClass = "px-5";
+            }
+
+            Sitecore.Data.Fields.LinkField linkvalue = item.Fields[Constant.Link];
+            if (linkvalue != null)
+            {
+                linkurl = linkvalue.GetFriendlyUrl();
+
+                if (linkvalue.LinkType == "internal")
+                {
+                    <a href="@linkurl">
+                        <span class="@linkClass">@Html.Sitecore().Field(Constant.ShortTitle, item)</span>
+                    </a>
+
+                }
+                if (linkvalue.LinkType == "external")
+                {
+                    <a href="@linkurl" target="_blank">
+                        <span class="@linkClass">>@Html.Sitecore().Field(Constant.ShortTitle, item)</span>
+                    </a>
+                }
+
+            }
+            else
+            {
+                <a href="@linkurl">
+                    <span class="@linkClass">>@Html.Sitecore().Field(Constant.ShortTitle, item)</span>
+                </a>
+
+            }
+            count++;
+        }
+    }
+}
+

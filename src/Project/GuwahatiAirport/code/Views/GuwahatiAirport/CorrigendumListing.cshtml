@@ -1,0 +1,94 @@
+﻿@model List<Sitecore.GuwahatiAirport.Website.Model.CorrigendumModel>
+@using Sitecore.Mvc
+
+@using Sitecore.GuwahatiAirport.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var corrigendumcreate = Sitecore.Context.Database.GetItem(Templates.Tender.CorrigendumTenderCreate);
+    var corrigendumUpdate = Sitecore.Context.Database.GetItem(Templates.Tender.CorrigendumTenderUpdate);
+    var TenderListURL = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderListing);
+}
+
+
+<section class="bg-white py-5">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "GuwahatiAirport", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right mb-4"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("GuwahatiAirport/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <div class="panel">
+            <div class="row">
+                <div class="col-8 mb-3">
+                    <h2 class="txt-orange txt-lg mb-3">@Html.Sitecore().Dictionary("GuwahatiAirport/Tender/Corrigendum List Text", "Corrigendum List")</h2>
+                </div>
+                <div class="col-4 mb-3">
+                    <div class="float-right">
+                        <a href="@corrigendumcreate.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("GuwahatiAirport/Tender/Create Corrigendum Text", "Create Corrigendum")</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Section -->
+            <div class="">
+                <div class="">
+
+
+                    <div class="table-responsive tableOuter">
+                        <table class="table table-borderless table-white table-hover mb-0 txt-xs">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">
+                                        @Html.DisplayName("Corrigendum Date")
+
+                                    </th>
+                                    <th scope="col">
+                                        @Html.DisplayName("Corrigendum Title")
+                                    </th>
+                                    <th scope="col">
+                                        @Html.DisplayName("Ref. No / Tender No")
+                                    </th>
+                                    <th scope="col">@Html.Sitecore().Dictionary("GuwahatiAirport/Tender/Corrigendum Update Text", "Update")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.FormatedDate.ToString("dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture)
+                                        </td>
+                                        <td>
+                                            @*@Convert.ToString(string.Format("{0:dd-MM-yyyy}", item.Date))*@
+                                            @Html.DisplayFor(modelItem => item.Title)
+                                            @*@Html.TextBoxFor(x => x.Adv_Date, "{0:dd-MM-yyyy hh:mm:ss}")*@
+                                        </td>
+                                        <td>
+                                            @foreach (var data in item.NITPRNo)
+                                            {
+                                                @Html.DisplayFor(x => data.NITPRNo) <br />
+                                            }
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-default txt-xs p-0">
+                                                <a href="@corrigendumUpdate.Url()?id=@item.Id" class="txt-orange txt-underline tender-btn" title="Update">
+                                                    <i class="far fa-edit mr-2"></i>@Html.Sitecore().Dictionary("GuwahatiAirport/Tender/Corrigendum Update Text", "Update")
+                                                </a>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-left mt-3">
+            <a href="@TenderListURL.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("GuwahatiAirport/Tender/Back To List Text", "Back To Tender List")</a>
+        </div>
+    </div>
+</section>

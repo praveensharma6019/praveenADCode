@@ -1,0 +1,42 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+
+    var isSocialMenu = Model.NavItems.All(i => !string.IsNullOrWhiteSpace(i.Item[Templates.LinkMenuItem.Fields.Icon]));
+}
+<ul class="@(isSocialMenu ? "social-links social-media socialicons" : "download-links") float-right">
+    @foreach (var item in Model.NavItems)
+    {
+        var liclass = item.IsActive ? "active " : "";
+        if (item.Item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+        {
+            liclass += "divider-left";
+        }
+        <li class="@liclass">
+            <a href="@item.Url" target="_blank" title="@item.Item[Templates.Navigable.Fields.NavigationTitle]" class="@(isSocialMenu ? "btn btn-social-icon btn-" + @item.Item[Templates.LinkMenuItem.Fields.Icon] : "")">
+                @if (!string.IsNullOrWhiteSpace(item.Item[Templates.LinkMenuItem.Fields.Icon]))
+                {
+                    <span class="fab fa-@item.Item[Templates.LinkMenuItem.Fields.Icon]"></span>
+                }
+                else
+                {
+                    if (item.Item[Templates.LinkMenuItem.Fields.Image] != null)
+                    {
+                        @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, item.Item, 20, 67)
+                    }
+                    else
+                    {
+                        @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                    }
+
+                }
+            </a>
+        </li>
+    }
+</ul>

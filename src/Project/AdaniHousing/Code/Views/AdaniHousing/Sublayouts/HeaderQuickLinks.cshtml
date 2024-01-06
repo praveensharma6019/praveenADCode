@@ -1,0 +1,52 @@
+﻿@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (element != null)
+{
+    <ul class="navbar-nav flex-row d-none d-lg-flex">
+        <li class="">
+            <div class="header_qlinks">
+                <ul>
+                    @if (element.HasChildren)
+                    {
+                        foreach (Item item in element.GetChildren())
+                        {
+                            LinkField lf = item.Fields["LinkUrl"];
+                            Helper.LinkUrl(item.Fields["LinkUrl"]);
+                            if (lf.LinkType == "external")
+                            {
+                                <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])" target="_blank"><span class="@item.Fields["Title"]"></span>@Html.Sitecore().Field("Text",item)</a></li>
+                            }
+                            else if (Helper.LinkUrl(item.Fields["LinkUrl"]) != "" && Helper.LinkUrl(item.Fields["LinkUrl"]).ToLower() == "feedback_form")
+                            {
+                                <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])" data-toggle="modal" data-target="#@Helper.LinkUrl(item.Fields["LinkUrl"])"><span class="@item.Fields["Title"]"></span>@Html.Sitecore().Field("Text", item)</a></li>
+                            }
+                            else
+                            {
+                                <li><a href="@Helper.LinkUrl(item.Fields["LinkUrl"])"><span class="@item.Fields["Title"]"></span>@Html.Sitecore().Field("Text", item)</a></li>
+                            }
+                        }
+                    }
+                   
+                </ul>
+            </div>
+        </li>
+
+        <li class="d-none">
+            <div class="header_open-acc ml-3">
+                <ul>
+                    <li><a href="https://digitallending.adanicapital.in/onboard/app/" target="_blank">Instant Loan!!</a></li>
+                </ul>
+            </div>
+        </li>
+
+    </ul>
+}
+

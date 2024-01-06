@@ -1,0 +1,169 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Electricity.Website.Model;
+@model Sitecore.Electricity.Website.Model.ITSRFormCreateModel
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormSubmission);
+    var itemListing = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormListing);
+    string bidderlink = "https://preprod.adanielectricity.com" + item.Url();
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+<div class="pageContent">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "ITSRForm", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <!-- Section -->
+        <div class="pb-3">
+            <div>
+                <div class="mr-auto ml-auto">
+                    <div class="card card-outline-secondary">
+                        <div class="card-header">
+                            <h3 class="mb-0">@Html.Sitecore().Dictionary("Electricity/Tender/Edit form Label", "Edit Form")</h3>
+                        </div>
+                        <div class="card-body">
+                            @if (!Model.IsFormCreated)
+                            {
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreate", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.HiddenFor(m => m.FormId)
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("Title", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.Title, new { @class = "form-control", required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("Tender No", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.TenderNo, new { @class = "form-control", required = "required" , @readonly = "readonly" })
+                                                    @Html.ValidationMessageFor(model => model.TenderNo, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("Start Date", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(x => x.StartDate, new { @class = "form-control reset-control", id = "datetimepickerBidderFormStartDate", required = "required" , @readonly = "readonly" })
+                                                    @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("End Date", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(x => x.EndDate, new { @class = "form-control reset-control", id = "datetimepickerBidderFormEndDate", required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("Proposal Owner Name", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.ProposalOwnerName, new { @class = "form-control", required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.ProposalOwnerName, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("Proposal Owner Email", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.ProposalOwnerEmailId, new { @class = "form-control", required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.ProposalOwnerEmailId, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("Buyer Name", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.BuyerOwnerName, new { @class = "form-control", required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.BuyerOwnerName, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="row form-group pt-md-2">
+                                                <label class="col-sm-5 col-md-5 col-form-label">
+                                                    @Html.Label("Buyer Email", htmlAttributes: new { @class = "control-label" })
+                                                </label>
+                                                <div class="col-sm-7 col-md-7">
+                                                    @Html.TextBoxFor(model => model.BuyerOwnerEmailId, new { @class = "form-control", required = "required" })
+                                                    @Html.ValidationMessageFor(model => model.BuyerOwnerEmailId, "", new { @class = "text-danger" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="form-group">
+                                            <div class="col-md-offset-2 col-md-10">
+                                                <input type="submit" value="Update" class="btn btn-primary" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <p>Your form is updated successfully. Check the unique URL/Link</p>
+                                        <p>Link: <a href="@bidderlink?id=@Model.FormId">@bidderlink?id=@Model.FormId</a></p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer txt-right">
+                            <a href="@itemListing.Url()" class="btn btn-link">@Html.Sitecore().Dictionary("Electricity/Tender/Back To form Text", "Back To form List")</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+

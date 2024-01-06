@@ -1,0 +1,50 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model SapPiService.Domain.PaymentHistory
+
+
+@if (Model != null)
+{
+    <div class="panel">
+        <h3 class="mb-3">@Html.Sitecore().Dictionary("/Accounts/PaymenInfo/Details/Payment Information", "Payment Information")</h3>
+		<div class="table-responsive">
+        <table class="table table-striped border text-center bg-white">
+            <thead>
+                <tr>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/PaymenInfo/Details/Sr. No", "Sr. No")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/PaymenInfo/Details/Payment Date", "Payment Date")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/PaymenInfo/Details/Amount Paid", "Amount Paid")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/PaymenInfo/Details/Payment Mode", "Payment Mode")</th>
+                    <th>@Html.Sitecore().Dictionary("/Accounts/PaymenInfo/Details/Cheque No", "Cheque No")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var count = 1;
+                    if (Model.PaymentHistoryList != null && Model.PaymentHistoryList.Any())
+                    {
+                        foreach (var obj in Model.PaymentHistoryList.OrderByDescending(x=>x.PaymentDate).Take(5))
+                        {
+                            DateTime billDate = DateTime.Parse(obj.PaymentDate);
+                            var paydate = billDate.ToString("dd.MM.yyyy");
+							var decimalPoint = System.Convert.ToDecimal(obj.Amount);
+                            var readingInDecimal = decimalPoint.ToString("F");
+							var paymentmode = !string.IsNullOrEmpty(obj.ChequeNo) && obj.ChequeNo.All(char.IsDigit) ? "Cheque" : obj.ChequeNo;
+                            var chequeNumber = !string.IsNullOrEmpty(obj.ChequeNo) && obj.ChequeNo.All(char.IsDigit) ? obj.ChequeNo : "-";
+                            <tr>
+                                <td>@count</td>
+                                <td>@paydate</td>
+                                <td>@readingInDecimal</td>
+                                <td>@paymentmode</td>
+                                <td>@chequeNumber</td>
+                            </tr>
+                            count++;
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+		</div>
+    </div>
+}

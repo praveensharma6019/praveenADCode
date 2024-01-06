@@ -1,0 +1,218 @@
+﻿@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration;
+
+
+@model Sitecore.AGELPortal.Website.Models.PortalAddContentModel
+@{
+    /**/
+
+    Layout = null;
+
+}
+<!--hero banner-->
+<div class="hero-wrap section-container">
+    <div class="carousel-box">
+        <div class="carousel_wrapper">
+            <!-- <div class="carousel-nav side-arrows"></div> -->
+            <div class="owl-carousel" data-items-desktop="1" data-items-mobile="1" data-margin="0" data-dots="enable">
+                <div style="background-image: url(/images/AGELPortal/banner.png);" class="card bg-image">
+                    <div class="container">
+                        <div class="card-hero-content">
+                            <h6>AGEL Learning & <br />Development</h6>
+                            <p>
+                                Knowing how to do something isn’t a precondition doing for doing it. Adani group doesn’t just believe
+                                this can be true…
+                            </p>
+                            <a class="waves-effect waves-light btn" style="display:none">Know More</a>
+                        </div>
+                    </div>
+                </div>
+                @*<div style="background-image: url(/images/AGELPortal/banner.png);" class="card bg-image">
+                        <div class="container">
+                            <div class="card-hero-content">
+                                <h6>AGEL Learning & <br />Development</h6>
+                                <p>
+                                    Knowing how to do something isn’t a precondition doing for doing it. Adani group doesn’t just believe
+                                    this can be true…
+                                </p>
+                                <a class="waves-effect waves-light btn">Know More</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background-image: url(/images/AGELPortal/banner.png);" class="card bg-image">
+                        <div class="container">
+                            <div class="card-hero-content">
+                                <h6>AGEL Learning & <br />Development</h6>
+                                <p>
+                                    Knowing how to do something isn’t a precondition doing for doing it. Adani group doesn’t just believe
+                                    this can be true…
+                                </p>
+                                <a class="waves-effect waves-light btn">Know More</a>
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    @Html.Sitecore().Placeholder("lesson-learning")
+
+    @Html.Sitecore().Placeholder("DocumentDetaillisting")
+
+
+
+
+    <!--endresume-->
+    <div class="discover">
+        <header class="section-header justify-item">
+            <h2>Videos</h2>
+            <aside>
+                <a href="/AGELPortal/Home/Video_List" class="waves-effect waves-light btn see-all">See All</a>
+            </aside>
+        </header>
+        <ul class="tabs">
+            @foreach (var category in Model.videoCategories)
+            {
+                var ContentCount = Model.GetCount(category.Id, "video");
+                if (ContentCount > 0)
+                {
+                    <li class="tab">
+                        <a href="#video-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))" class="active">
+                            <h4>@category.name</h4>
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+        <link href="https://amp.azure.net/libs/amp/latest/skins/amp-default/azuremediaplayer.min.css" rel="stylesheet">
+        <script src="https://amp.azure.net/libs/amp/latest/azuremediaplayer.min.js"></script>
+        @foreach (var category in Model.videoCategories)
+        {
+            var ContentCount = Model.GetCount(category.Id, "video");
+            if (ContentCount > 0)
+            {
+
+                <div id="video-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))">
+                    <!--Carousel_video-->
+                    <div class="section-container carousel_wrapper center-buttons">
+                        <div class="carousel-nav side-srrow hide-on-small-only"></div>
+                        <div class="owl-carousel removeSliderMob standard-card spl-slider owl-loaded owl-drag"
+                             data-items-desktop="4"
+                             data-items-mobile="1.1">
+                            @foreach (var video in Model.videos)
+                            {
+                                if (video.category_id == category.Id)
+                                {                                    
+                                   
+									
+										
+										<div class="card">  
+										<div class="card-image">
+										<a href="/AGELPortal/Home/Video-Detail?videourlId=@video.Id">
+											@if(video.DocVideoImage_Name == null || video.DocVideoImage_Name == "")
+											{
+												<img src="\images\AGELPortal\video.jpg" />
+											}
+											else
+											{
+												<img src="\images\AGELPortal\upload_images\@video.DocVideoImage_Name" />
+											}
+										</a>
+										
+										<div class="vid-icon-show video-icon"> 
+											<a href="/AGELPortal/Home/Video-Detail?videourlId=@video.Id"> 
+												<img src="/images/AGELPortal/video-icon.svg">
+											</a>
+										 </div>
+										  </div>
+										 
+											<div class="card-content">                                       
+												<h4>@video.title</h4>                                       
+											</div>
+										</div>										
+                                   
+                                }
+                            }
+                        </div>
+
+                    </div>
+
+                    <!--Carousel_video-->
+                </div>
+            }
+        }
+
+    </div>
+
+    <div class="discover">
+        <header class="section-header justify-item">
+            <h2>Documents</h2>
+            <aside>
+                <a href="/AGELPortal/Home/Document_List" class="waves-effect waves-light btn see-all">See All</a>
+            </aside>
+        </header>
+        <ul class="tabs">
+            @foreach (var category in Model.documentCategories)
+            {
+                //var ContentCount = Model.GetCount(category.Id, "document");
+                if (Model.documentCategories.Count > 0)
+                {
+                    <li class="tab">
+                        <a href="#document-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))" class="active">
+                            <h4>@category.name</h4>
+                        </a>
+                    </li>
+                }
+            }
+        </ul>
+        @foreach (var category in Model.documentCategories)
+        {
+            var ContentCount = Model.GetCount(category.Id, "document");
+            if (ContentCount > 0)
+            {
+                <div id="document-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))">
+                    <!--Carousel_document-->
+                    <div class="carousel_wrapper center-buttons">
+                        <div class="carousel-nav side-srrow hide-on-small-only"></div>
+                        <div class="owl-carousel removeSliderMob standard-card spl-slider owl-loaded owl-drag"
+                             data-items-desktop="4"
+                             data-items-mobile="1.1">
+                            @foreach (var document in Model.documents)
+                            {
+                                if (document.category_id == category.Id)
+                                {
+                                    <div class="card">
+                                        <a href="/AGELPortal/Home/DocumentDetail?documenturl=@document.Id">
+                                            <div class="card-image">
+                                                @if (document.DocVideoImage_Name == null || document.DocVideoImage_Name == "")
+                                                {
+                                                    <img src="\images\AGELPortal\document.jpg" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="\images\AGELPortal\upload_images\@document.DocVideoImage_Name" />
+                                                }
+                                            </div>
+                                            <div class="card-content">
+                                                <h4>@document.title</h4>
+                                            </div>
+
+                                        </a>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+

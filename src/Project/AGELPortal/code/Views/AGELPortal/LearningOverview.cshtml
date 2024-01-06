@@ -1,0 +1,197 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    Layout = null;
+}
+@model Sitecore.AGELPortal.Website.Models.PortalLessonlerneningVideo
+
+<style>
+    a.modal-trigger {
+        color: #2073b8 !important;
+    }
+</style>
+@if (Model != null && Model.videos != null)
+{
+    <div class="table-container">
+        <div class="section-header">
+            <h4>Learning Overview</h4>
+        </div>
+        <div class="customer_detail_wrapper customer_detail_list">
+            <table class="customer_detail_list-details">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">Content</th>
+                        <th style="width: 30%;">Type</th>
+                        <th style="width: 30%;">User Viewed</th>
+                    </tr>
+                </thead>
+
+                @{
+                    var videoslength = System.Convert.ToInt32(Model.videos.Count());
+                    var rows = 8 - System.Convert.ToInt32(videoslength);
+                }
+
+                @if (videoslength > 8)
+                {
+                    <tbody>
+                        @foreach (var data in Model.videos)
+                        {
+
+
+                            <tr data-id="@data.video_id">
+                                <td>
+
+                                    <div class="table-cell border-right">
+                                        <div class="table2">
+
+                                            @*<img src="~/images/AGELPortal/upload_images/@data.DocVideoImage_Name" width="36" height="36" x="-11" y="0"/>*@
+
+                                            @*<img src="~/images/AGELPortal/work-safety.svg" alt="work-safety-img">*@
+                                            @if (data.DocVideoImage_Name == null || data.DocVideoImage_Name == "")
+                                            {
+                                                if (@data.Content_Type.ToLower() == "document")
+                                                {
+                                                    <img src="\images\AGELPortal\document.jpg" width="36" height="36" x="-11" y="0" />
+                                                }
+                                                if (@data.Content_Type.ToLower() == "video")
+                                                {
+                                                    <img src="\images\AGELPortal\video.jpg" width="36" height="36" x="-11" y="0" />
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                <img src="~/images/AGELPortal/upload_images/@data.DocVideoImage_Name" width="36" height="36" x="-11" y="0" />
+                                            }
+
+                                            <label>@data.video_name</label>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="table-cell">
+
+                                        <label style="text-transform:capitalize;">@data.Content_Type</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+
+                                        <label><a id="LearnigPopup" class="LearnigPopup modal-trigger" href="#user-viewed">@data.ContentCount</a></label>
+                                    </div>
+                                </td>
+                            </tr>
+
+
+                        }
+                    </tbody>
+                }
+                @if (videoslength <= 8)
+                {
+                    <tbody>
+                        @foreach (var data in Model.videos)
+                        {
+                            <tr data-id="@data.video_id">
+                                <td>
+
+                                    <div class="table-cell border-right">
+                                        <div class="table2">
+
+                                            @*<img src="~/images/AGELPortal/upload_images/@data.DocVideoImage_Name" width="36" height="36" x="-11" y="0"/>*@
+
+                                            @*<img src="~/images/AGELPortal/work-safety.svg" alt="work-safety-img">*@
+                                            @if (data.DocVideoImage_Name == null || data.DocVideoImage_Name == "")
+                                            {
+                                                if (@data.Content_Type.ToLower() == "document")
+                                                {
+                                                    <img src="\images\AGELPortal\document.jpg" width="36" height="36" x="-11" y="0" />
+                                                }
+                                                if (@data.Content_Type.ToLower() == "video")
+                                                {
+                                                    <img src="\images\AGELPortal\video.jpg" width="36" height="36" x="-11" y="0" />
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                <img src="~/images/AGELPortal/upload_images/@data.DocVideoImage_Name" width="36" height="36" x="-11" y="0" />
+                                            }
+
+                                            <label>@data.video_name</label>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="table-cell">
+
+                                        <label style="text-transform:capitalize;">@data.Content_Type</label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+
+                                        <label><a id="LearnigPopup" class="LearnigPopup modal-trigger" href="#user-viewed">@data.ContentCount</a></label>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @for (int i = 0; i < rows; i++)
+                        {
+                            <tr class="empty-table-box">
+                                <td>
+                                    <div class="table-cell border-right">
+                                        <h6></h6>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-cell">
+                                        <label></label>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                }
+
+            </table>
+        </div>
+    </div>
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function ()
+	{
+        $('.LearnigPopup').click(function () {
+
+				$('#spinner-div').show();
+                var videoID = $(this).closest('tr').attr("data-id");
+                $.ajax
+				(				{
+                    url: "@Url.Action("UserOverviewPopup", "AGELPortal")",
+                    data: { videoID: videoID },
+                    success: function (data) {
+                        //$('body').addClass('blur');
+                       $("#user-viewed").html(data);
+                       $("#user-viewed").show();
+						$('.spinner').hide();
+                    },
+                    complete: function () {
+                        $('#spinner-div').hide();//Request is complete so hide spinner
+
+                    }
+                });
+        });
+    });
+</script>

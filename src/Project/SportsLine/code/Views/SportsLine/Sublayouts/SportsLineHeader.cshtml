@@ -1,0 +1,50 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+
+    Item rootItem = Sitecore.Context.Database.GetItem(Sitecore.Context.Site.RootPath);
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+<header class="headerSec">
+    <div class="fade-overlay"></div>
+    <div class="overlay-top"></div>
+
+    <div class="navPanel position-absolute mt-lg-3">
+        <div class="container-fluid navtopbar">
+            <nav class="navbar navbar-expand-lg navbar-light">
+
+
+
+
+                <a class="navbar-brand" href="/">
+                    @if (rootItem != null)
+                    {
+                        @Html.Sitecore().ImageField("HeaderLogo", rootItem, 0, 0, "img-fluid")
+                    }
+                </a>
+                <div class="menu-overlay d-none"></div>
+                @Html.Sitecore().Placeholder("Header-Menu")
+                <ul class="primarymenu ml-auto">
+                    @if (element != null)
+                    {
+                        if (element.HasChildren)
+                        {
+
+                            foreach (Item item in element.GetChildren())
+                            {
+                                var link = item.Fields["Link"];
+                                <li><a href="@link" class="nav-link"> @item.Fields["NavigationTitle"]</a></li>
+                            }
+                        }
+                    }
+                </ul>
+                <button class="navbar-toggler" id="nav-button" type="button" data-toggle="collapse" data-target="#mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                    <i>More</i>
+                    <span class="toggler-icon"></span>
+                </button>
+            </nav>
+        </div>
+    </div>
+</header>

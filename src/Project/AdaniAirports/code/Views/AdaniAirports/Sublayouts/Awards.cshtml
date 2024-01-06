@@ -1,0 +1,80 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+<div class="pageContent">
+    @if (datasource != null)
+    {
+
+        List<string> groups = new List<string>(); ;
+        var collection = parent.Children;
+        foreach (var child in collection.ToList())
+        {
+            if (groups.Count != 0)
+            {
+                if (!groups.Contains(child.Fields["Summary"].Value))
+                {
+                    groups.Add(child.Fields["Summary"].Value);
+                }
+            }
+            else
+            {
+                groups.Add(child.Fields["Summary"].Value);
+            }
+        }
+
+        if (collection.Count != 0)
+        {
+            var latestItem = collection.OrderBy(x => x.Statistics.Created).LastOrDefault();
+            <div class="container">
+                <div class="row awards">
+                    <div class="col-sm-6">
+                        @Html.Sitecore().Field("Image", latestItem)
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-5">
+                            <h4 class="align-middle">@Html.Sitecore().Field("Title", latestItem)</h4>
+                            <p class="py-3"></p>
+                            <p><b>Category - </b>@Html.Sitecore().Field("Body", latestItem)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="py-3"></div>
+                <hr>
+                }
+
+
+                foreach (var grpName in groups)
+                {
+                var items = collection.ToList().Where(x => x.Fields["Summary"].Value == grpName);
+
+                <div class="container">
+                    <div class="py-3"></div>
+                    <h3 class="text-center txt-orange">@grpName</h3>
+                    <div class="py-3"></div>
+                    <div class="row">
+                        @foreach (var item in items)
+                        {
+                            <div class="col-sm-5 mr-auto my-3">
+                                <div class="row">
+                                    <div class="col-lg-5 cert-thumb">
+                                        @Html.Sitecore().Field("Image", item)
+                                    </div>
+                                    <div class="col-lg-7 p-2">
+                                        <p><b>@Html.Sitecore().Field("Title", item)</b></p>
+                                        <p><b>Category - </b>@Html.Sitecore().Field("Body", item)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                </div>
+                }
+
+                }
+            </div>

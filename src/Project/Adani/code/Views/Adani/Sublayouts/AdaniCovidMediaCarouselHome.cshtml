@@ -1,0 +1,78 @@
+@using Sitecore.Mvc
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item contextItem = Sitecore.Context.Database.GetItem(datasource);
+    var i = 1;
+    var k = 1;
+
+}
+<section class="py-5 position-relative section__covid-donation bg-white">
+    <div class="bg-images">@Html.Sitecore().ImageField("MediaImage", contextItem, 0, 0, "fixed-img")</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 pr-lg-5">
+                <h2 class="text-left sectionHeading sectionHeading-left">@Html.Sitecore().Field("MediaTitle", contextItem)</h2>
+                <div class="owl-carousel covid-carousel">
+                    @foreach (Item items in contextItem.Children.ToList())
+                    {
+                        
+                            Sitecore.Data.Fields.LinkField linkField = items.Fields["LinkToVideo"];
+                            var NavigateUrl = linkField.Url;
+                        
+                        <div class="item">
+                            @Html.Sitecore().Field("MediaDescription", items)
+                            <div class="mt-5">
+                                <a href="@NavigateUrl" class="txt-sm">Read more</a>
+                            </div>
+                        </div>
+                    }
+
+
+                </div>
+            </div>
+            <div class="col-lg-5">
+                @foreach (Item items in contextItem.Children.ToList())
+                {
+                   
+                        Sitecore.Data.Fields.LinkField linkFields = items.Fields["LinkUrl"];
+                        var NavigateUrls = linkFields.Url;
+                    
+                    <div class="video-section ytpop2" data-toggle="modal" data-value="@NavigateUrls" data-target="#video-@i">
+                        @Html.Sitecore().ImageField("ThumbnailImage", contextItem, 0, 0, "img-fluid")
+
+                    </div>
+                    i++;
+                }
+            </div>
+        </div>
+    </div>
+</section>
+@foreach (Item items in contextItem.Children.ToList())
+{
+   
+        Sitecore.Data.Fields.LinkField linkFieldss = items.Fields["LinkUrl"];
+        var NavigateUrlss = linkFieldss.Url;
+    
+    <div class="modal video" id="video-@k" data-keyboard="false" data-backdrop="static" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <button type="button" class="close" onclick="CloseModal2('video-@k')" data-dismiss="modal">×</button>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="embed-container">
+                        <iframe id="v-2" src="@NavigateUrlss" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/Video Modal-->
+    </div>
+    k++;
+}

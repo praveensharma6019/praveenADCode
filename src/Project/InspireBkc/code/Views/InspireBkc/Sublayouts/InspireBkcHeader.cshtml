@@ -1,0 +1,131 @@
+﻿
+@using Sitecore.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var TBLogo = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "TBLogo").FirstOrDefault().Value;
+
+    var menu = Sitecore.Context.Database.GetItem(datasource);
+    var activeClass = "active";
+}
+
+
+<!---
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a href="index-2.html" class="scrollto">
+        <img src="-/media/50F1DB66748046BCA5BF1CF721CB7A13.ashx" class="img-fluid menu-logo-img">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto mx-auto">
+            @*@foreach (var element in menu.GetChildren().ToList())
+            {
+                var childCount = element.GetChildren().Count();
+
+                <li class="@childCount nav-item">
+                    @Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+                    @Html.Sitecore().Field("NavigationTitle", element)
+
+                    @Html.Sitecore().EndField()
+                </li>
+
+
+                activeClass = "";
+            }*@
+           
+        </ul>
+    </div>
+</nav>-->
+
+
+<nav class="navbar sticky-top navbar-expand-lg px-0 py-0 container">
+    <a class="navbar-brand py-0" href="/">
+        <img src="-/media/A88D94367C5147DE80163AE86228A9C6.ashx"
+             class="img-fluid menu-logo-img" style="max-width: 150px;">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="fa fa-bars"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            @foreach (var element in menu.GetChildren().ToList())
+            {
+                var childCount = element.GetChildren().Count();
+
+                if (childCount > 0)
+                {
+                    <li class="nav-item dropdown my-auto">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarAbout" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+                            @Html.Sitecore().Field("NavigationTitle", element)
+
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarAbout">
+                            @foreach (var child in element.GetChildren().ToList())
+                            {
+                                var artical = Sitecore.Context.Database.GetItem(child.Fields["NavigationTitle"].Value);
+                                if (artical != null)
+                                {
+                                    foreach (var art in artical.GetChildren().ToList())
+                                    {
+                                        <a href="@Sitecore.Links.LinkManager.GetItemUrl(art)" class="dropdown-item">@Html.Sitecore().Field("NavigationTitle", art)</a>
+
+
+
+
+
+                                    }
+                                }
+                                else
+                                {
+                                    @Html.Sitecore().BeginField("Link", child, new { haschildren = true, @class = "dropdown-item" })
+
+                                    @Html.Sitecore().Field("NavigationTitle", child)
+
+                                    @Html.Sitecore().EndField()
+                                }
+
+
+                            }
+                        </div>
+                    </li>
+
+                }
+                else
+                {
+
+                    @Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-item nav-link px-3 my-auto" })
+
+                    @Html.Sitecore().Field("NavigationTitle", element)
+
+                    @Html.Sitecore().EndField()
+                }
+
+
+
+            }
+            <a class="nav-item nav-link px-3 my-auto" href="-/media/0D1F2A3BE1B84961BB2E6A1EF9808E5C.ashx"
+               target="_blank">More</a>
+            <a class="nav-item nav-link px-3 my-auto" href="#">
+                <a class="my-auto d-none d-md-inline-block px-2" href="https://facebook.com/">
+                    <i class="fa fa-facebook"></i>
+                </a>
+                <a class="my-auto d-none d-md-inline-block px-2" href="https://linkedin.com/">
+                    <i class="fa fa-linkedin"></i>
+                </a>
+            </a>
+           
+        </div>
+    </div>
+</nav>
+

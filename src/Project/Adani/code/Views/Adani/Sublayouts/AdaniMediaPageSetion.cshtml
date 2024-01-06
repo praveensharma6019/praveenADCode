@@ -1,0 +1,459 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using System.Linq;
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item dataitem = Sitecore.Context.Database.GetItem(datasource);
+    string linkurl = "#";
+    string ImageItemUrl = "";
+    string altText = "";
+    string query = "";
+    if (System.Web.HttpContext.Current.Request.QueryString["q"] != null)
+    {
+        query = System.Web.HttpContext.Current.Request.QueryString["q"].ToString().ToLower();
+    }
+    var Category = Sitecore.Context.Database.GetItem("{520543D0-C423-4F9C-94D4-6FB39BA15754}");
+    var Period = Sitecore.Context.Database.GetItem("{009E7C3A-7B0B-4546-AD21-A72001290FD5}");
+
+    var counts = 0;
+
+    foreach (Item item in dataitem.GetChildren())
+    {
+        foreach (Item child in item.GetChildren().OrderByDescending(x => x.Fields["{89E0A406-C349-484F-A93C-296F169C6EB8}"].Value))
+        {
+            counts++;
+        }
+    }
+    var itemView = 0;
+    var loadmore = 0;
+
+}
+<script src="/scripts/adani/jquery.min.js" type="text/javascript"></script>
+
+<style>
+    @@import "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css";
+
+    div.form-search {
+        display: inline-block;
+        margin: 50px auto;
+    }
+
+    .pseudo-search {
+        display: inline;
+        border: 2px solid #ccc;
+        border-radius: 100px;
+        padding: 10px 15px;
+        transition: background-color 0.5 ease-in-out;
+    }
+
+        .pseudo-search input {
+            border: 0;
+            background-color: transparent;
+            width: 16rem;
+            font-size: 16px;
+        }
+
+            .pseudo-search input:focus {
+                outline: none;
+            }
+
+        .pseudo-search button,
+        .pseudo-search i {
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .pseudo-search select {
+            border: none;
+        }
+
+    * {
+        margin: 0;
+        outline: none;
+        padding: 0;
+        list-style: none;
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box
+    }
+
+    .edge-connex-hoder {
+        background: #fff
+    }
+
+        .edge-connex-hoder .desc {
+            margin: 10px 0 20px
+        }
+
+    .full, .chckbx-wrpr label, .rdio-wrpr label, include {
+        clear: both;
+        width: 100%;
+        display: block
+    }
+
+    .content-wrapper {
+        margin: 0 auto;
+        padding: 0 40px;
+        max-width: 1360px
+    }
+
+    .grid-wrapper {
+        display: flex;
+        flex-wrap: wrap
+    }
+
+    .section-holder {
+        padding: 60px 0 80px 0
+    }
+
+    .data-center-list {
+        width: 100%
+    }
+
+        .data-center-list .card-box {
+            background: #fff;
+            overflow: hidden
+        }
+
+    .card-box {
+        position: relative;
+        box-shadow: 0px 3px 6px #00000029;
+        border-radius: 15px 15px 15px 15px;
+        -webkit-border-radius: 15px 15px 15px 15px;
+        -moz-border-radius: 15px 15px 15px 15px;
+    }
+
+    .data-center-list .card-media {
+        overflow: hidden
+    }
+
+    .card-box .card-media img {
+        width: 100%;
+        min-height: 210px;
+        max-height: 210px;
+        border-radius: 15px 15px 0 0;
+        -webkit-border-radius: 15px 15px 0 0;
+        -moz-border-radius: 15px 15px 0 0;
+    }
+
+    .card-box .card-content {
+        padding: 25px;
+        font-size: 1rem;
+        line-height: 24px;
+    }
+
+    card-box .card-title  {
+        font-size: 1.3125rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
+
+    .card-box .card-link {
+        color: #2f93ff
+    }
+
+    .card-box.card-media-left .card-media {
+        height: 100%
+    }
+
+    p.full.card-desc {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        margin: 1rem 0;
+    }
+
+    p.full.card-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        margin: 1rem 0;
+    }
+
+
+    .tx-000 {
+        color: #000
+    }
+
+    .h1 {
+        font-size: 2.375rem
+    }
+
+    .d-txt {
+        font-size: 1rem;
+        line-height: 26px
+    }
+
+    img {
+        border: 0
+    }
+
+    .data-center-list .card-media img {
+        height: 250px;
+        object-fit: cover;
+        vertical-align: middle;
+        transition: all .3s
+    }
+
+    .data-center-list li {
+        float: left;
+        width: 33.333%;
+        padding: 26px 26px 0 0
+    }
+
+    @@media (min-width: 320px) and (max-width: 576px) {
+        .section-holder {
+            padding: 30px 0 30px 0;
+        }
+
+        .content-wrapper {
+            margin: 0 auto;
+            padding: 0 20px;
+            max-width: 1360px;
+        }
+
+        .card-box .card-content {
+            padding: 16px;
+            font-size: 1rem;
+            line-height: 24px;
+        }
+
+        .data-center-list li .card-desc {
+            min-height: 84px;
+            padding-bottom: 15px;
+        }
+
+
+        .data-center-list li {
+            float: none;
+            width: 100%;
+            padding: 10px 0;
+        }
+
+        p.full.h1.fm-asb.tx-000 {
+            font-size: 1.765rem;
+        }
+    }
+</style>
+<div class="section-holder edge-connex-hoder">
+    <div class="content-wrapper grid-wrapper grid-layout-2">
+        <div class="form-search">
+            <div class="pseudo-search">
+                <input type="text" id="searchtext" placeholder="Search..." autofocus required value="@query" />
+                <button class="fa fa-search" onclick="testformnews()" type="submit"></button>
+            </div>
+        </div>
+    </div>
+    <div class="content-wrapper grid-wrapper grid-layout-2">
+        <div class="col-lg-3 col-md-6">
+            <div class="form-group">
+                <label for="">Choose Category</label>
+                <select class="form-control filterby" id="Category" onchange="onCategorychange()">
+                    @foreach (var element in Category.GetChildren().ToList())
+                    {
+                        <option value='@element.Name'>@element.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="form-group">
+                <label for="">Choose Period</label>
+                <select class="form-control filterby" id="Period" onchange="onPeriodchange()">
+                    @foreach (var element in Period.GetChildren().ToList())
+                    {
+                        <option value='@element.Name'>@element.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <div class="form-group">
+                <label for=""></label>
+                <label for="" id="results">@counts  Results</label>
+            </div>
+        </div>
+    </div>
+
+    <ul class="data-center-list pl-5">
+        @foreach (Item item in dataitem.GetChildren())
+        {
+            itemView = 0;
+            <div class="row" id="@item.Name">
+                <h1>@item.Name</h1>
+                @foreach (Item child in item.GetChildren().OrderByDescending(x => x.Fields["{89E0A406-C349-484F-A93C-296F169C6EB8}"].Value))
+                {
+                    var category = child.Fields["Category"];
+                    var period = child.Fields["Period"];
+                    var desc = child.Fields["{302C9F8D-F703-4F76-A4AB-73D222648232}"].ToString();
+                    var title = child.Fields["{63DDA48B-B0CB-45A7-9A1B-B26DDB41009B}"].ToString();
+                    if (desc.ToLower().Contains(query) || title.ToLower().Contains(query))
+                    {
+
+                        Sitecore.Data.Fields.LinkField linkvalue = child.Fields["{32E7AA19-B4A1-4CB9-BE4F-110C51EC913A}"];
+
+                        Sitecore.Data.Fields.ImageField ImageItem = ((Sitecore.Data.Fields.ImageField)child.Fields["{9F51DEAD-AD6E-41C2-9759-7BE17EB474A4}"]);
+
+
+
+                        if (ImageItem != null && ImageItem.MediaItem != null)
+                        {
+                            ImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageItem.MediaItem);
+                            altText = ImageItem.Alt;
+                        }
+                        if (linkvalue != null)
+                        {
+                            linkurl = linkvalue.GetFriendlyUrl();
+                        }
+                        if (itemView < 6)
+                        {
+                            <li class="@item.Name @category @period">
+                                <div class="card-box card-media-top h-100">
+                                    <div class="card-media">
+                                        <img src="@ImageItemUrl" alt="@altText" class="">
+                                    </div>
+                                    <div class="card-content">
+                                        <p class="">@Html.Sitecore().Field("{89E0A406-C349-484F-A93C-296F169C6EB8}", child, new { format = "MMM dd, yyyy" })</p>
+                                        <p class="full card-title fm-am tx-000"> <strong>@Html.Sitecore().Field("{63DDA48B-B0CB-45A7-9A1B-B26DDB41009B}", child)</strong></p>
+
+                                        <p class="full card-desc"> @Html.Sitecore().Field("{302C9F8D-F703-4F76-A4AB-73D222648232}", child)</p>
+
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                        else {
+                            if(loadmore==0)
+                            {
+                                <button id="loadmorebutton"  onclick="alert('The request has been approved!');">loadmore</button>
+                                loadmore++;
+                            }
+                            <li class="@item.Name @category @period" style="display:none">
+                                <div class="card-box card-media-top h-100">
+                                    <div class="card-media">
+                                        <img src="@ImageItemUrl" alt="@altText" class="">
+                                    </div>
+                                    <div class="card-content">
+                                        <p class="">@Html.Sitecore().Field("{89E0A406-C349-484F-A93C-296F169C6EB8}", child, new { format = "MMM dd, yyyy" })</p>
+                                        <p class="full card-title fm-am tx-000"> <strong>@Html.Sitecore().Field("{63DDA48B-B0CB-45A7-9A1B-B26DDB41009B}", child)</strong></p>
+
+                                        <p class="full card-desc"> @Html.Sitecore().Field("{302C9F8D-F703-4F76-A4AB-73D222648232}", child)</p>
+
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    itemView++;
+                }
+
+            }
+</div>
+        }
+     </ul>
+
+</div>
+
+        <script>
+            $(document).ready(function () {
+                var i = 2022;
+                var date = new Date();
+                var currentyear = date.getFullYear();
+                for (i = 2022; i <= currentyear; i++) {
+                    if (!$('.' + i).is(":visible")) {
+                        $('#' + i + ' h1').hide()
+                    }
+                    else {
+                        //$('.' + i).siblings().show()
+                        $('#' + i + ' h1').show()
+
+                    }
+                }
+                var resultCount = $('li .card-box:visible').length;
+                document.getElementById('results').innerHTML = resultCount + ' Results';
+            });
+
+            function testformnews() {
+
+                console.log(document.getElementById("searchtext").value);
+
+                window.location.href = '/explore-media?q=' + document.getElementById("searchtext").value;
+
+
+
+            }
+
+
+
+
+
+            function onCategorychange() {
+                var uri = window.location.href.toString();
+                if (uri.indexOf("?") > 0) { window.location.href = window.location.href.split('?')[0]; }
+
+                $('li').hide();
+                var cattype = $("#Category").val();
+                $("." + cattype).show();
+
+                var i = 2022;
+                var date = new Date();
+                var currentyear = date.getFullYear();
+                for (i = 2022; i <= currentyear; i++) {
+                    if (!$('.' + i).is(":visible")) {
+                        $('.' + i).siblings().hide()
+                    }
+                    else {
+                        //$('.' + i).siblings().show()
+                        $('#' + i + ' h1').show()
+
+                    }
+                }
+                var resultCount = $('li .card-box:visible').length;
+                document.getElementById('results').innerHTML = resultCount + ' Results';
+            }
+            function onPeriodchange() {
+                var uri = window.location.href.toString();
+                if (uri.indexOf("?") > 0) { window.location.href = window.location.href.split('?')[0]; }
+
+                $('li').hide();
+                var Periodtype = $("#Period").val();
+                $("." + Periodtype).show();
+
+                var i = 2022;
+                var date = new Date();
+                var currentyear = date.getFullYear();
+                for (i = 2022; i <= currentyear; i++) {
+                    if (!$('.' + i).is(":visible")) {
+                        $('.' + i).siblings().hide()
+                    }
+                    else {
+                        //$('.' + i).siblings().show()
+                        $('#' + i + ' h1').show()
+                    }
+                }
+
+                var resultCount = $('li .card-box:visible').length;
+                document.getElementById('results').innerHTML = resultCount + ' Results';
+
+
+            }
+        </script>

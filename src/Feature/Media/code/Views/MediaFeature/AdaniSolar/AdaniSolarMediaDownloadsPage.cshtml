@@ -1,0 +1,139 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    //var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    //var elements = Sitecore.Context.Database.GetItem(datasource);
+    var elements = Sitecore.Context.Item;
+    int i = 1;
+    int j = 1;
+}
+@if (elements != null)
+{
+    var itemList = elements.Children;
+    if (itemList != null)
+    {
+        foreach (var item in itemList.ToList())
+        {
+            LinkField URL = item.Fields["Link"];
+            if (URL.TargetItem != null)
+            {
+                var innerChield = URL.TargetItem;
+                <section class="bg-gray pt-5 download-section">
+                    <div class="container events-m">
+                        <h2 class="heading pl-4 mb-4">@item.Name</h2>
+                        <div class="row mb-4">
+
+                            @foreach (var docs in innerChield.Children.ToList())
+                            {
+                                if (docs.TemplateID.ToString() != "{FE5DD826-48C6-436D-B87A-7C4210C7413B}")
+                                {
+
+                                    var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+                                    var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+                                    var type = string.Empty;
+                                    var fieldType = docs.Fields["Extension"].Value;
+                                    if (fieldType.Equals("pdf") || fieldType.Equals("doc"))
+                                    {
+                                        type = "pdf";
+                                    }
+                                    else
+                                    {
+                                        type = "video";
+                                    }
+                                    <div class="col-lg-3 col-md-6 mb-3">
+                                        <div class="dblock @type">
+                                            <a href="@url" target="_blank" download>
+                                                <p>@docs.Name</p>
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        @if (item.HasChildren)
+                        {
+                            var innerItem = item.Children.InnerChildren;
+
+                            <div id="accordion-@j" class="accordion download-cat mb-3">
+                                <div class="card mb-0">
+                                    @foreach (var innertChield in innerItem.ToList())
+                                    {
+                                        if (innertChield != null)
+                                        {
+                                            LinkField innerURL = innertChield.Fields["Link"];
+                                            if (innerURL.TargetItem != null)
+                                            {
+                                                var area = "true";
+                                                var cclas = "show";
+                                                var mediaPath = innerURL.TargetItem;
+                                                if (i != 1)
+                                                {
+                                                    area = "false";
+                                                    cclas = "";
+                                                }
+
+                                                <div class="card-header collapsed" data-toggle="collapse" href="#collapse-@i"
+                                                     aria-expanded="@area">
+                                                    <a class="card-title">@innertChield.Name</a>
+                                                </div>
+                                                <div id="collapse-@i" class="card-body collapse @cclas p-3" data-parent="#accordion-@j" style="">
+												 <div class="row mb-4">
+                                                    @foreach (var mediaItem in mediaPath.Children.ToList())
+                                                    {
+                                                        if (mediaItem.TemplateID.ToString() != "{FE5DD826-48C6-436D-B87A-7C4210C7413B}")
+                                                        {
+                                                            var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(mediaItem);
+                                                            var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+                                                            var type = string.Empty;
+                                                            var fieldType = mediaItem.Fields["Extension"].Value;
+                                                            if (fieldType.Equals("pdf") || fieldType.Equals("doc"))
+                                                            {
+                                                                type = "pdf";
+                                                            }
+                                                            else
+                                                            {
+                                                                type = "video";
+                                                            }
+                                                           
+                                                                <div class="col-lg-3 col-md-6 mb-3">
+                                                                    <div class="dblock @type">
+                                                                        <a href="@url" target="_blank" download>
+                                                                            @*<img src="https://via.placeholder.com/350x150" class="img-fluid mb-3">*@
+                                                                            <p>@mediaItem.Name</p>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                           
+                                                        }
+                                                    }
+													 </div>
+                                                </div>
+                                                <div class="bg-gray py-1 border-0"></div>
+
+                                            }
+                                        }
+                                        i++;
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </section>
+            }
+            j++;
+        }
+    }
+}
+

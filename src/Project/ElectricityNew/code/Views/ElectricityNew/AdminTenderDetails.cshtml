@@ -1,0 +1,743 @@
+﻿@using Sitecore.ElectricityNew.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.ElectricityNew.Website.Model.Tender
+@{
+    string envelopeType = !string.IsNullOrEmpty(ViewBag.Envelopetype) ? ViewBag.Envelopetype : "0";
+    string qrystringval = Request.QueryString["id"];
+    string userid = Request.QueryString["uid"];
+    string redirectURL = Sitecore.Context.Database.GetItem(Templates.Tender.AdminUserTenderListing).Url();
+    if (!string.IsNullOrEmpty(qrystringval))
+    {
+        redirectURL = string.Format(redirectURL + "{0}", "?id=" + qrystringval + "");
+    }
+}
+
+<div class="pageContent">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "ElectricityNew", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+
+        <div class="col-12 p-0 pb-3">
+            <h2 class="txt-orange">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Detail", "Envelope Detail")</h2>
+        </div>
+        <!-- Tenders -->
+
+        @if (envelopeType == "0")
+        {
+
+            if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+            {
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-I Label", "Envelope-I"):</label>
+                    <div class="col-sm-8 col-lg-6 txt-left">
+                        <label class="control-label pb-3">
+                            @{
+                                var myFilePath = Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath;
+                                string ext = Path.GetExtension(myFilePath);
+                            }
+
+                            @if (ext.ToLower() == ".pdf")
+                            {
+                                <a href="@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath" target="_blank" class="txt-orange txt-underline">@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().FileName</a>
+                            }
+                            else
+                            {
+                                <a href="@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath" download="" class="txt-orange txt-underline">@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().FileName</a>
+                            }
+
+                            @*<a href="@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath" download="download" class="txt-orange txt-underline">@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().FileName</a>*@
+                        </label>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-I Label", "Envelope-I"):</label>
+                    <div class="col-sm-8 col-lg-6 txt-left">
+                        <label class="control-label pb-3">
+                            <a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</a>
+                        </label>
+                    </div>
+                </div>
+            }
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                    @Html.Sitecore().Dictionary("Electricity/Tender/Envelope-II Label", "Envelope-II"):
+                    <p class="txt-xs">You may upload multiple files (including zip files) using the available file upload options</p>
+                </label>
+                <div class="col-sm-8 col-lg-9">
+                    @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "2"))
+                    {
+                        var envelope2data = Model.userUpladdocument.Where(x => x.EnvelopeType == "2").ToList();
+                        foreach (var item in envelope2data)
+                        {
+                            <div class="row">
+                                <div class="col-lg-12 txt-left">
+                                    <label class="control-label pb-3">
+
+                                        @{
+                                            var myFilePath = item.DocumentPath;
+                                            string ext = Path.GetExtension(myFilePath);
+                                        }
+
+                                        @if (ext.ToLower() == ".pdf")
+                                        {
+                                            <a href="@item.DocumentPath" target="_blank" class="txt-orange txt-underline">@item.FileName</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@item.DocumentPath" download="" class="txt-orange txt-underline">@item.FileName</a>
+                                        }
+                                        @*<a href="@item.DocumentPath" download="download" class="txt-orange txt-underline">@item.FileName</a>*@
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-lg-12 txt-left">
+                                <label class="control-label pb-3"><a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</a></label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "3"))
+            {
+                var envelope3data = Model.userUpladdocument.Where(x => x.EnvelopeType == "3").OrderBy(u => u.DocType).ToList();
+                var business = "";
+                var category = "";
+                switch (Model.Business)
+                {
+                    case "1":
+                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 1", "Generation");
+                        break;
+                    case "2":
+                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 2", "Transmission");
+                        break;
+                    case "3":
+                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 3", "Distribution");
+                        break;
+                    default:
+                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business", "");
+                        break;
+                }
+                switch (Model.Category)
+                {
+                    case "1":
+                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category 1", "Supply");
+                        break;
+                    case "2":
+                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category 2", "Services");
+                        break;
+                    case "3":
+                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category 3", "Supply & Services");
+                        break;
+                    default:
+                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category", "");
+                        break;
+                }
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-III Label", "Envelope-III"):</label>
+                    <div class="col-sm-8 col-lg-9">
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 my-3 text-left">
+                                <p>Business : <b>@business</b></p>
+                            </div>
+                            <div class="col-lg-4 col-md-6 my-3 text-left">
+                                <p>Category : <b>@category</b></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            @foreach (var item in envelope3data)
+                            {
+
+                                <div class="col-lg-4 col-md-6 my-3 text-left">
+                                    @*<label class="control-label pb-3">@item.FileName</label>*@
+                                    @{
+                                        var myFilePath3 = item.DocumentPath;
+                                        string ext3 = Path.GetExtension(myFilePath3);
+                                        string Doctype = "";
+                                        switch (item.DocType)
+                                        {
+                                            case "1":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype1", "Qualification Requirement Documents");
+                                                break;
+                                            case "2":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype2", "Technical Specification / Scope of Work ");
+                                                break;
+                                            case "3":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype3", "Type Test Reports");
+                                                break;
+                                            case "4":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype4", "Drawings and General Arrangement");
+                                                break;
+                                            case "5":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype5", "Delivery Schedule");
+                                                break;
+                                            case "6":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype6", "Deviations Sheet (If any)");
+                                                break;
+                                            case "7":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype7", "Duly Stamped and Sign Tender documents");
+                                                break;
+                                            case "8":
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype8", "Other Documents");
+                                                break;
+                                            default:
+                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype", "");
+                                                break;
+                                        }
+                                    }
+                                    @if (ext3.ToLower() == ".pdf")
+                                    {
+                                        <div class="text-center border p-2 h-100 position-relative">
+                                            <span class="pb-0 d-block pb-1">@Doctype</span>
+                                            <a href="@item.DocumentPath" target="_blank" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center border p-2 h-100 position-relative">
+                                            <span class="pb-0 d-block pb-1">@Doctype</span>
+                                            <a href="@item.DocumentPath" download="" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                        </div>}
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-III Label", "Envelope-III"):</label>
+                    <div class="col-sm-8 col-lg-6 txt-left">
+                        <label class="control-label pb-3">
+                            <div class="row">
+                                <div class="col-lg-12 txt-left">
+                                    <label class="control-label pb-3">
+                                        <a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</a>
+                                    </label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            if (envelopeType.Contains("1"))
+            {
+                if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-I Label", "Envelope-I"):</label>
+                        <div class="col-sm-8 col-lg-6 txt-left">
+                            <label class="control-label pb-3">
+                                @{
+                                    var myFilePath = Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath;
+                                    string ext = Path.GetExtension(myFilePath);
+                                }
+
+                                @if (ext.ToLower() == ".pdf")
+                                {
+                                    <a href="@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath" target="_blank" class="txt-orange txt-underline">@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().FileName</a>
+                                }
+                                else
+                                {
+                                    <a href="@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath" download="" class="txt-orange txt-underline">@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().FileName</a>
+                                }
+
+                                @*<a href="@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().DocumentPath" download="download" class="txt-orange txt-underline">@Model.userUpladdocument.Where(x => x.EnvelopeType == "1").FirstOrDefault().FileName</a>*@
+                            </label>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-I Label", "Envelope-I"):</label>
+                        <div class="col-sm-8 col-lg-6 txt-left">
+                            <label class="control-label pb-3"><a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</a></label>
+                        </div>
+                    </div>
+                }
+            }
+            if (envelopeType.Contains("2"))
+            {
+                <div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">
+                        @Html.Sitecore().Dictionary("Electricity/Tender/Envelope-II Label", "Envelope-II"):
+                        <p class="txt-xs">You may upload multiple files (including zip files) using the available file upload options</p>
+                    </label>
+                    <div class="col-sm-8 col-lg-9">
+                        @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "2"))
+                        {
+                            var envelope2data = Model.userUpladdocument.Where(x => x.EnvelopeType == "2").ToList();
+                            foreach (var item in envelope2data)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-12 txt-left">
+                                        <label class="control-label pb-3">
+                                            @{
+                                                var myFilePath = item.DocumentPath;
+                                                string ext = Path.GetExtension(myFilePath);
+                                            }
+
+                                            @if (ext.ToLower() == ".pdf")
+                                            {
+                                                <a href="@item.DocumentPath" target="_blank" class="txt-orange txt-underline">@item.FileName</a>
+                                            }
+                                            else
+                                            {
+                                                <a href="@item.DocumentPath" download="" class="txt-orange txt-underline">@item.FileName</a>
+                                            }
+
+                                            @*<a href="@item.DocumentPath" download="download" class="txt-orange txt-underline">@item.FileName</a>*@
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="col-lg-12 txt-left">
+                                    <label class="control-label pb-3">
+                                        <a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</a>
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            if (envelopeType.Contains("3"))
+            {
+                if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "3"))
+                {
+                    var envelope3data = Model.userUpladdocument.Where(x => x.EnvelopeType == "3").OrderBy(u => u.DocType).ToList();
+                    var business = "";
+                    var category = "";
+                    switch (Model.Business)
+                    {
+                        case "1":
+                            business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 1", "Generation");
+                            break;
+                        case "2":
+                            business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 2", "Transmission");
+                            break;
+                        case "3":
+                            business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 3", "Distribution");
+                            break;
+                        default:
+                            business = @Html.Sitecore().Dictionary("Electricity/Tender/Business", "");
+                            break;
+                    }
+                    switch (Model.Category)
+                    {
+                        case "1":
+                            category = @Html.Sitecore().Dictionary("Electricity/Tender/category 1", "Supply");
+                            break;
+                        case "2":
+                            category = @Html.Sitecore().Dictionary("Electricity/Tender/category 2", "Services");
+                            break;
+                        case "3":
+                            category = @Html.Sitecore().Dictionary("Electricity/Tender/category 3", "Supply & Services");
+                            break;
+                        default:
+                            category = @Html.Sitecore().Dictionary("Electricity/Tender/category", "");
+                            break;
+                    }
+                    <div class="form-group row">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-III Label", "Envelope-III"):</label>
+                        <div class="col-sm-8 col-lg-9">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6 my-3 text-left">
+                                    <p>Business : <b>@business</b></p>
+                                </div>
+                                <div class="col-lg-4 col-md-6 my-3 text-left">
+                                    <p>Category : <b>@category</b></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                @foreach (var item in envelope3data)
+                                {
+
+                                    <div class="col-lg-4 col-md-6 my-3 text-left">
+                                        @*<label class="control-label pb-3">@item.FileName</label>*@
+                                        @{
+                                            var myFilePath3 = item.DocumentPath;
+                                            string ext3 = Path.GetExtension(myFilePath3);
+                                            string Doctype = "";
+                                            switch (item.DocType)
+                                            {
+                                                case "1":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype1", "Qualification Requirement Documents");
+                                                    break;
+                                                case "2":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype2", "Technical Specification / Scope of Work ");
+                                                    break;
+                                                case "3":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype3", "Type Test Reports");
+                                                    break;
+                                                case "4":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype4", "Drawings and General Arrangement");
+                                                    break;
+                                                case "5":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype5", "Delivery Schedule");
+                                                    break;
+                                                case "6":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype6", "Deviations Sheet (If any)");
+                                                    break;
+                                                case "7":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype7", "Duly Stamped and Sign Tender documents");
+                                                    break;
+                                                case "8":
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype8", "Other Documents");
+                                                    break;
+                                                default:
+                                                    Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype", "");
+                                                    break;
+                                            }
+                                        }
+                                        @if (ext3.ToLower() == ".pdf")
+                                        {
+                                            <div class="text-center border p-2 h-100 position-relative">
+                                                <span class="pb-0 d-block pb-1">@Doctype</span>
+                                                <a href="@item.DocumentPath" target="_blank" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center border p-2 h-100 position-relative">
+                                                <span class="pb-0 d-block pb-1">@Doctype</span>
+                                                <a href="@item.DocumentPath" download="" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                            </div>}
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-4 col-md-3 col-form-label txt-left">@Html.Sitecore().Dictionary("Electricity/Tender/Envelope-III Label", "Envelope-III"):</label>
+                        <div class="col-sm-8 col-lg-6 txt-left">
+                            <label class="control-label pb-3">
+                                <div class="row">
+                                    <div class="col-lg-12 txt-left">
+                                        <label class="control-label pb-3">
+                                            <a href="#" class="txt-orange txt-underline">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</a>
+                                        </label>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                }
+            }
+        }
+
+        @if (Model.IsTenderFeePaid)
+        {
+            <div class="panel">
+                <div class="col-12 p-0 pb-3">
+                    <h2 class="txt-orange">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Detail", "Bidder Detail")</h2>
+                </div>
+                <div>
+                    @if (Model.IsBuyer)
+                    {
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h5 class="mb-0">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Fee and EMD Label", "Note for Buyer/Lead Buyer")</h5>
+                                <ul class="ul-bullets mt-2">
+                                    <li>
+                                        Buyer/Lead Buyer need to check all the data which is filled by Bidder/Customer first.
+                                    </li>
+                                    <li>
+                                        For existing Bidder/Customer, Custome Code will be auto populated in Customer Code box.
+                                    </li>
+                                    <li>
+                                        For new Bidder/Customer, Buyer/Lead Buyer need to create Customer Code and save then export data.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr />
+                    }
+                    else if (Model.IsFinancialAdmin)
+                    {
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <h5 class="mb-0">@Html.Sitecore().Dictionary("Electricity/Tender/Finance Label", "Note for Finance")</h5>
+                                <ul class="ul-bullets mt-2">
+                                    <li>
+                                        You can only view the details of the Bidder/Customer and export the file on clicking the icon in the right side.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <hr />
+                    }
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <p><b>Bidder/Customer details</b></p>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            @if (Model.IsBuyer || Model.IsFinancialAdmin)
+                            {
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmTenderFeeandEMD", @class = "form-TenderFeeandEMD", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.Hidden("userid", userid)
+                                    @Html.Hidden("tenderid", qrystringval)
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-append ml-auto">
+                                            <a href="@Url.Action("AdminExportUserDataFeeDetails", new { tenderid = qrystringval, userid = userid})" class="btn txt-orange txt-md border ml-1" title="Export"> <span class="fa fa-file-excel"></span></a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="row">
+                                <div class="col-lg-4">Customer Code</div>
+                                <div class="col-lg-12">
+                                    @if (Model.IsBuyer && string.IsNullOrEmpty(Model.CustomerCode))
+                                    {
+                                        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmTenderFeeandEMD", @class = "form-TenderFeeandEMD", @enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.AddUniqueFormId()
+                                            @Html.Hidden("userid", userid)
+                                            @Html.Hidden("tenderid", qrystringval)
+                                            <div class="input-group mb-3">
+                                                @Html.TextBoxFor(x => x.CustomerCode, new { @class = "form-control", @autocomplete = "off", @placeholder = "For official work only", required = "required" })
+                                                <div class="input-group-append">
+                                                    <input type="submit" class="btn btn-dark" name="updateCustomerCode" value="Save" id="btnUpdateCustomerCode" />
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="input-group mb-3">
+                                            @Html.TextBoxFor(x => x.CustomerCode, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly", @placeholder = "For official work only" })
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="row">
+                                <div class="col-lg-4">Vendor Code</div>
+                                <div class="col-lg-12">
+                                    @if (Model.IsBuyer && string.IsNullOrEmpty(Model.VendorCode))
+                                    {
+                                        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmTenderFeeandEMD", @class = "form-TenderFeeandEMD", @enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.AddUniqueFormId()
+                                            @Html.Hidden("userid", userid)
+                                            @Html.Hidden("tenderid", qrystringval)
+                                            <div class="input-group mb-3">
+                                                @Html.TextBoxFor(x => x.VendorCode, new { @class = "form-control", @autocomplete = "off", @placeholder = "For official work only", required = "required" })
+                                                <div class="input-group-append">
+                                                    <input type="submit" class="btn btn-dark" name="updateVendorCode" value="Save" id="btnUpdateVendorCode" />
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="input-group mb-3">
+                                            @Html.TextBoxFor(x => x.VendorCode, new { @class = "form-control", @autocomplete = "off", @readonly = "readonly", @placeholder = "For official work only" })
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordOld">Name</label>
+                                @Html.TextBoxFor(x => x.UserName, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordOld">Company Name</label>
+                                @Html.TextBoxFor(x => x.CompanyName, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">PAN Number</label>
+                                @Html.TextBoxFor(x => x.PANNumber, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">GST Number</label>
+                                @Html.TextBoxFor(x => x.GSTNumber, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Download PAN</label>
+                                @if (Model.IsPANUploaded)
+                                {
+                                    <a class="txt-orange" href="@Url.Action("DownloadUserFile", new {tenderid = qrystringval, userid = userid, type = "pan" })">
+                                        <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Download GST</label>
+                                @if (Model.IsGSTUploaded)
+                                {
+                                    <a class="txt-orange" href="@Url.Action("DownloadUserFile", new {tenderid = qrystringval, userid = userid, type =  "gst" })">
+                                        <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Mobile Number</label>
+                                @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">email Address</label>
+                                @Html.TextBoxFor(x => x.Email, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Tender Number</label>
+                                @Html.TextBoxFor(x => x.NITNo, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Tender Description</label>
+                                @Html.TextBoxFor(x => x.TenderName, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-12"><hr></div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <p><b>Tender Fee</b></p>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <p><b>EMD</b></p>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordOld">Bank Ref</label>
+                                @Html.TextBoxFor(x => x.TenderFeeBankRef, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordOld">Bank Ref</label>
+                                @Html.TextBoxFor(x => x.EMDBankRef, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Scanned Copy</label>
+                                @if (Model.IsTenderFeeRefUploaded)
+                                {
+                                    <a class="txt-orange" href="@Url.Action("DownloadUserFile", new { tenderid = qrystringval, userid = userid, type =  "tenderfee" })">
+                                        <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                    </a>
+                                }
+
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Scanned Copy</label>
+                                @if (Model.IsEMDRefUploaded)
+                                {
+                                    <a class="txt-orange" href="@Url.Action("DownloadUserFile", new { tenderid = qrystringval, userid = userid, type = "emd" })">
+                                        <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Mode Of Payment</label>
+                                @Html.TextBoxFor(x => x.TenderFeeModeOfPayment, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Mode Of Payment</label>
+                                @Html.TextBoxFor(x => x.EMDModeOfPayment, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Amount</label>
+                                @Html.TextBoxFor(x => x.TenderFeeAmount, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Amount</label>
+                                @Html.TextBoxFor(x => x.EMDAmount, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Bank Branch</label>
+                                @Html.TextBoxFor(x => x.TenderFeeBankBranch, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Bank Branch</label>
+                                @Html.TextBoxFor(x => x.EMDBankBranch, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pr-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Date of Fee Payment</label>
+                                @Html.TextBoxFor(x => x.TenderFeeDateOfPayment, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 pl-lg-4">
+                            <div class="form-group">
+                                <label for="inputPasswordNew">Date of Fee Payment</label>
+                                @Html.TextBoxFor(x => x.EMDDateOfPayment, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="">
+            <a href="@redirectURL" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Back To List Text", "Back To User List")</a>
+        </div>
+    </div>
+    <!-- /Tenders -->
+
+</div>

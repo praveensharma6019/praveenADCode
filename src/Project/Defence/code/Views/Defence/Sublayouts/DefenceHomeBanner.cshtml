@@ -1,0 +1,75 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+
+
+    var itemslinks = "";
+}
+<section class="hero_banner_container d-md-block banner-slider position-relative">
+    @foreach (var item in parent.GetChildren().ToList())
+    {
+        Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)item.Fields["__Thumbnail"]);
+        var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+        Sitecore.Data.Fields.CheckboxField checkboxField = item.Fields["IsVideo"];
+        if (checkboxField != null && checkboxField.Checked)
+        {
+            Sitecore.Data.Fields.LinkField itemslinkvalues = item.Fields["Video"];
+            itemslinks = itemslinkvalues.GetFriendlyUrl();
+            <div class="main-banner">
+                <video preload="auto" loop="true" autoplay="true" muted="">
+                    <source src=@itemslinks type="video/mp4">
+                </video>
+                <div class="ArrowScrollDown">
+                    <svg viewBox="0 0 32 32">
+                        <path d="M25.59,12.83l-9.12,7.5c-0.14,0.11-0.31,0.17-0.48,0.17s-0.34-0.06-0.48-0.17l-9.12-7.5 c-0.32-0.26-0.37-0.74-0.1-1.06s0.74-0.37,1.06-0.1L16,18.78l8.64-7.11c0.32-0.26,0.79-0.22,1.06,0.1S25.91,12.57,25.59,12.83z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        }
+        else
+        {
+			Sitecore.Data.Fields.ImageField ImageField1 = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+			Sitecore.Data.Fields.ImageField BannerImage = ((Sitecore.Data.Fields.ImageField)item.Fields["MobileImage"]);
+            Sitecore.Data.Fields.LinkField knowMore = @item.Fields["RedirectLinkUrl"];
+            var linkValue = knowMore.GetFriendlyUrl();
+            <div class="main-banner main-banner-a">
+                @if (ImageField1.MediaItem != null && ImageField1.MediaItem.ToString() != "" && BannerImage.MediaItem != null && BannerImage.MediaItem.ToString() != "")
+                {
+                    var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField1.MediaItem);
+					var Bannerurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImage.MediaItem);
+                    <img src=@imgurl class="img-fluid img-web-banner">
+					<img src=@Bannerurl class="img-fluid img-mobile-banner">
+                }
+                else
+                {
+                    <img src=@thumbimg class="img-fluid">
+                }
+                <div class="banner-title">
+                    <div class="container">
+                        <h2 class="headline">@Html.Sitecore().Field("Title", item)</h2>
+                        <div class="banner-btn">
+                            <a class="banner--more" href="@linkValue" tabindex="0">
+                                Know More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="ArrowScrollDown">
+                    <svg viewBox="0 0 32 32">
+                        <path d="M25.59,12.83l-9.12,7.5c-0.14,0.11-0.31,0.17-0.48,0.17s-0.34-0.06-0.48-0.17l-9.12-7.5 c-0.32-0.26-0.37-0.74-0.1-1.06s0.74-0.37,1.06-0.1L16,18.78l8.64-7.11c0.32-0.26,0.79-0.22,1.06,0.1S25.91,12.57,25.59,12.83z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            
+        }
+    }
+</section>

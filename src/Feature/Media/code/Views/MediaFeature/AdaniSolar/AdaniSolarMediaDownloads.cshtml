@@ -1,0 +1,52 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{390333C8-751B-4332-84A3-6360B969A19F}"));
+    <h3 class="section-heading">Downloads</h3>
+    <div class="m-scroll-section">
+        <ul class="m-downloads pr-3">
+            @if (itemList != null)
+            {
+                foreach (var item in itemList)
+                {
+                    LinkField URL = item.Fields["Link"];
+                    if (URL.TargetItem != null)
+                    {
+                        var innerChield = URL.TargetItem;
+                        foreach (var docs in innerChield.Children.ToList())
+                        {
+                            if (docs.TemplateID.ToString() != "{FE5DD826-48C6-436D-B87A-7C4210C7413B}")
+                            {
+                                var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+                                var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+                                <li>
+                                    <p>
+                                        <a href="@url" target="_blank">
+                                            @docs.Name
+                                        </a>
+                                    </p>
+                                </li>
+                            }
+                        }
+                    }
+                }
+            }
+
+        </ul>
+    </div>
+    <p class="text-right"><a href="@elements.Url()">View all</a></p>
+}

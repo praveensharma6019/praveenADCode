@@ -1,0 +1,74 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "position-relative section__covid-donation bg-white";
+    }
+    var count = 0;
+    var Linkurl = "#";
+}
+
+@foreach (var child in element.Children.ToList())
+{
+    count++;
+    Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]);
+    if (linkfield != null)
+    {
+        Linkurl = linkfield.GetFriendlyUrl();
+    }
+
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+    var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+    var mainclass = child.Fields["MainClass"]?.Value;
+    if (count % 2 == 0)
+    {
+        <section class="pt-5 @paramid" id="covid19-env">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 mb-5">
+                        <div class="item-climate-left">
+                            <p class="@mainclass">@Html.Sitecore().Field("Title", child)</p>
+                            @Html.Sitecore().Field("Body", child)
+                            <a href="@Linkurl" target="_blank" class="extra-para">@Html.Sitecore().Field("Summary", child)</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex align-items-center mb-5">
+                        <img class="d-block w-100" src="@imgurl" alt="">
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="pt-5 @paramid" id="covid19-env">
+            <div class="container">
+                @if (count == 1)
+                {
+                    <h2 class="text-Our">@Html.Sitecore().Field("Title", element)</h2>
+                }
+                <div class="row">
+                    <div class="col-lg-6 d-flex align-items-center mb-5">
+                        <img class="d-block w-100" src="@imgurl" alt="">
+                    </div>
+                    <div class="col-lg-6 mb-5">
+                        <div class="item-climate-left">
+                            <p class="@mainclass">@Html.Sitecore().Field("Title", child)</p>
+                            @Html.Sitecore().Field("Body", child)
+                            <a href="@Linkurl" target="_blank" class="extra-para">@Html.Sitecore().Field("Summary", child)</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+}

@@ -1,0 +1,62 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "position-relative section__covid-donation bg-white";
+    }
+    Sitecore.Data.Fields.ImageField BackgroundImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+    var backgroundimgurl = BackgroundImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(BackgroundImageField.MediaItem);
+}
+
+<section class="py-5 @paramid" id="covid19">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 pr-lg-5">
+                <div class="item">
+                    <p class="text-heding">@Html.Sitecore().Field("Title", element)</p>
+                    @Html.Sitecore().Field("Body", element)
+                </div>
+
+            </div>
+            <div class="col-lg-5 d-flex align-items-center">
+                <img class="d-block w-100 text-image" src="@backgroundimgurl" alt="Third slide">
+            </div>
+        </div>
+        <!-- <div class="col-lg-12"> -->
+        <div class="row">
+            @if (element.HasChildren)
+            {
+                foreach (var child in element.GetChildren().ToList())
+                {
+                    <div class="col-lg-6 mb-4 mt-2">
+                        <div class="million">
+                            <div class="num-text p-1">
+                                <div class="num-text-num">
+                                    <h1>@Html.Sitecore().Field("Title", child)</h1>
+                                </div>
+                                <div class="num-text-text">
+                                    <p>@Html.Sitecore().Field("Summary", child)</p>
+                                    <p>@Html.Sitecore().Field("Body", child)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <!-- </div> -->
+    </div>
+</section>
+

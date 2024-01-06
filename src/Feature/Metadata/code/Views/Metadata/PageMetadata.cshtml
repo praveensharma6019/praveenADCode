@@ -1,0 +1,49 @@
+﻿@model Sitecore.Feature.Metadata.Models.IMetadata
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Links
+@{
+    var item = Sitecore.Context.Item;
+    var options = LinkManager.GetDefaultUrlOptions();
+    options.AlwaysIncludeServerUrl = false;
+    var url = LinkManager.GetItemUrl(item, options);
+    //var url = Request.Url.AbsoluteUri;
+    if (Model == null)
+    {
+        return;
+    }
+}
+
+@if (!string.IsNullOrEmpty(Model.Title))
+{
+    <title>@Model.PageTitle</title>
+}
+@if (Model.KeywordsList.Any())
+{
+    <meta name="keywords" content="@string.Join(", ", Model.KeywordsList)" />
+}
+@if (!string.IsNullOrEmpty(Model.Description))
+{
+    <meta name="description" content="@Model.Description" />
+}
+
+@if (!string.IsNullOrEmpty(Model.CustomCanonicalURL))
+{
+    <link href="@Model.CustomCanonicalURL.ToLower()" rel="canonical">
+}
+else
+{
+    <link href="@url.ToLower()" rel="canonical">
+}
+
+@if (Model.Robots.Any())
+{
+    <meta name="robots" content="@string.Join(",", Model.Robots)" />
+}
+@if (Model.CustomMetadata.Count > 0)
+{
+    foreach (var custom in Model.CustomMetadata)
+    {
+        <meta name="@custom.Key" content="@custom.Value" />
+    }
+}
+

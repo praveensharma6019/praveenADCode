@@ -1,0 +1,75 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var containerId = Regex.Replace(@Html.Sitecore().Field("Heading").ToString().ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+}
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    //$(function () {
+    //    $("#DropBoxes").click(function () {
+    //        $('#customerCareControl').show();
+    //    });
+    //}); 
+    $(function () {
+        $(".nav-link").click(function () {
+            //if ($(this).hasClass("DropBoxes")) { $('#customerCareControl').show(); }
+            //else { $('#customerCareControl').hide(); }
+        });
+    });
+    
+    $(document).ready(function () {
+        //if ($("#DropBoxes").hasClass("active")) { $('#customerCareControl').show(); }
+        //else { $('#customerCareControl').hide();  }
+    });
+
+</script>
+<div id="OfflinePaymentPage" class="container energytablinks @containerId">
+    @if (datasource != null)
+    {
+        var i = 0;
+        <div class="my-3 py-md-3  @Html.Sitecore().Field("css")">
+            @*<h3 class="txt-orange mb-2">@Html.Sitecore().Field("Heading")</h3>*@
+            <ul class="nav nav-tabs" role="tablist">
+                @foreach (var child in parent.Children.ToList())
+                {
+                    var replacestr = Regex.Replace(@Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                    if (i == 0)
+                    {
+                        var linkID =  @Html.Sitecore().Field("Title", child).ToString().Replace(" ", "");
+                        <li class="nav-item">
+                            <a class="nav-link active show @linkID" id="@linkID" data-toggle="tab" href="#@replacestr">@Html.Sitecore().Field("Title", child)</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#@replacestr">@Html.Sitecore().Field("Title", child)</a>
+                        </li>
+                    }
+                    i++;
+                }
+            </ul>
+            <div class="tab-content @Html.Sitecore().Field("Container CSS") ">
+                @foreach (var child in parent.Children.ToList())
+                {
+                    @Html.Sitecore().Field("Body", child)
+
+                }
+
+                <div id="customerCareControl" >
+                    @Html.Sitecore().Placeholder("innerControl")
+                </div>
+            </div>
+        </div>
+
+
+    }
+</div>
+
+

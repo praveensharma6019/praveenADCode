@@ -1,0 +1,62 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource).FieldHasValue(Templates.HasMediaSelector.Fields.IsBanner);
+}
+<!-- /Section -->
+<section class="pt-5 bg-white">
+    <div class="container teams-tiles txt-center">
+        <div id="thumbs" class="owl-carousel owl-theme affiliation-slide-thumb">
+
+            @foreach (var element in elements)
+            {
+                <div class="slideItem txt-center">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="thumb-icn mb-3">
+                                @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, element.Item, new { @class = "img-fluid w-auto d-inline-block" })
+                              @*  <img src="images/The-belvedere-Golf-academy.png" class="img-fluid w-auto d-inline-block">*@
+                            </div>
+                        </div>
+                        <div class="col-sm-8 txt-left pl-0"><h4>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, element.Item)</h4></div>
+                    </div>
+                </div>
+
+            }
+
+
+
+            </div>
+    </div>
+</section><!-- End Slider Icons -->
+
+<div id="big" class="owl-carousel owl-theme">
+    @foreach (var element in elements)
+    {
+        
+        <div class="slideItem py-5">
+            <div class="bg-images">  @Html.Sitecore().Field(Templates.HasMedia.Fields.Thumbnail, element.Item)</div>
+            <div class="container">
+
+
+                @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)
+            </div>
+        </div>
+    }
+
+    </div>

@@ -1,0 +1,448 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ViewPayBill
+
+@{
+    double outputval1 = 0;
+    double.TryParse(Model.AmountPayable, out outputval1);
+}
+
+<div class="col s12 l8 offset-l1 QuickBillPaySection section-wrapper">
+    <header class="section-header">
+        <h2>@Sitecore.Context.Item.Fields["Title"]</h2>
+        <p>@Sitecore.Context.Item.Fields["Summary"]</p>
+    </header>
+
+    <div class="single-line-form card-with-form">
+        <div class="single-line-field">
+            <div class="input-field custom input-has-icon">
+                <input value="" id="first_name2" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" class="validate" onKeyPress="showCrossIcon()" onKeyUp="showCrossIcon()">
+
+                <label id="lblCANumber" for="CA_number">@Html.Sitecore().Dictionary("/Accounts/My Account/QuickPay/Enter CA No", "Enter CA Number")</label>
+
+                <div class="input-icon">
+                    <span style="display:none" class="icon-holder waves-effect waves-light"><i id="crossicon" class="i-cross"> </i></span><a onclick="viewSampleBill()" href="javascript:void(0)">Sample Bill</a>
+                </div>
+            </div>
+            <p class="help-text ca-number-help">
+                Please enter your 9 digit consumer account number
+            </p>
+        </div>
+        <a href="javascript:void(0)" onclick="ShowDetails()" class="waves-effect waves-light btn btn-continue modal-trigger qproceed">Proceed</a>
+    </div>
+    <div class="single-line-form card-with-form">
+        <div class="hero-captcha-box">
+            <div id="recaptcha"></div>
+            <span class="field-validation-error" id="Captchaerror"></span>
+        </div>
+    </div>
+
+    <div class="section-container" id="billDetailsContent" style="display: none;">
+        <h2>Payments</h2>
+        <div class="quick-pay-wrapper">
+            <ul class="tabs quick-pay-tab">
+                <li class="tab"><a href="#qp_energy_bills" class="waves-effect waves-light active" id="energybill">Energy Bill</a></li>
+                <li class="tab"><a href="#qp_security_deposit" class="waves-effect waves-light" id="securitydeposit">Security Deposit</a></li>
+                <li class="tab"><a href="#qp_vds_amount" class="waves-effect waves-light" id="vdspayment">VDS Amount</a></li>
+            </ul>
+
+            <div class="card brand-gradient outlined section-inner-wrapper border-none-mobile card-with-form">
+                <div id="qp_energy_bills">
+                    <div class="bill-detail-header BillQuickPay" style="display:none">
+                        <div class="bill-detail-content">
+
+
+                            <h4 class="QuickBillAmount">₹@outputval1.ToString("0.00")</h4>
+                            <div class="tooltip-wrapper">
+                                <div class="tooltip-box">
+                                    <i><img src="/electricity_assets/assets/icons/error-icon.svg"></i>
+                                    <div class="tooltip-content">Pay now to avoid late fee</div>
+                                </div>
+                            </div>
+                            <p class="due-date QDuedate"></p>
+                        </div>
+                        <div class="bill-detail-cta">
+
+                            <button onclick="FetchQuickPay('')" class="waves-effect waves-light btn btn-continue"
+                                    data-gaevent="quick_bill_payment_step_1"
+                                    data-gaeventCategory="Bill Payment"
+                                    data-gaeventAction="Quick Bill Payment Step 1"
+                                    data-gaeventLabel="@Sitecore.Context.Item.Fields["Title"]|Pay Now">
+                                Pay Now
+                            </button>
+
+                        </div>
+                    </div>
+
+
+                    <div class="bill-detail-body BillQuickPayDetailBody " style="display:none">
+                        <h4>Bill Details</h4>
+                        <ul>
+                            <li class="QConsumerName">
+                                <label>Consumer Name</label>
+                                <span>@Model.Name</span>
+                            </li>
+                            <li class="QBookNumber">
+                                <label>Book Number</label>
+                                <span>@Model.BookNumber</span>
+                            </li>
+                            <li class="QCycleNumber">
+                                <label>Cycle Number</label>
+                                <span>@Model.CycleNumber</span>
+                            </li>
+                            <li class="QZone">
+                                <label>Zone</label>
+                                <span>@Model.Zone</span>
+                            </li>
+                            @*<li class="QAddress">
+                                    <label>Address</label>
+                                    <span>@Model.Address</span>
+                                </li>*@
+                            <li class="QCANumber">
+                                <label>CA Number</label>
+                                <span>@Model.AccountNumber</span>
+                            </li>
+                            <li class="QBillMonth">
+                                <label>Bill Month</label>
+                                <span>@Model.BillMonth</span>
+                            </li>
+                            <li class="QBillConsumed">
+                                <label>Unit Consumed</label>
+                                <span>@Model.UnitsConsumed</span>
+                            </li>
+                            <li class="QTBillConsumed">
+                                <label>Total Bill Amount</label>
+                                <span>₹@Model.TotalBillAmount</span>
+                            </li>
+                            <li class="QMinimumAmount">
+                                <label>Minimum Payable</label>
+                                <span id="amountpay">₹@Model.AmountPayable</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bill-detail-header AdvanceQuickPay" style="display:none">
+                        <div class="bill-detail-content">
+
+
+                            <h4 class="QuickAdvanceAmount">₹@outputval1.ToString("0.00")</h4>
+                            <p>No Bill Due</p>
+                        </div>
+                        <div class="bill-detail-cta">
+
+                            <button onclick="FetchQuickPay('')" class="waves-effect waves-light btn btn-continue"
+                                    data-gaevent="quick_bill_payment_step_1"
+                                    data-gaeventCategory="Bill Payment"
+                                    data-gaeventAction="Quick Bill Payment Step 1"
+                                    data-gaeventLabel="@Sitecore.Context.Item.Fields["Title"]|Pay Advance"
+                                    >Pay Advance</button>
+
+                        </div>
+                    </div>
+
+                    @*@if (double.TryParse(Model.AmountPayable, out outputval1))
+                        {*@
+                    <div id="benefitsContent" style="display:none">
+                        @if (!(outputval1 > 0))
+                        {
+                            @Html.Sitecore().Placeholder("divBenefitsContent")
+                        }
+                    </div>
+                    @*}*@
+
+
+                    <div class="bill-detail-body AdvanceQuickPayDetailBody" style="display:none">
+
+                        <h4>Bill Details</h4>
+                        <ul>
+
+                            <li class="QAConsumerName">
+                                <label>Consumer Name</label>
+                                <span>@Model.Name</span>
+                            </li>
+                            <li class="QABookNumber">
+                                <label>Book Number</label>
+                                <span>@Model.BookNumber</span>
+                            </li>
+                            <li class="QACycleNumber">
+                                <label>Cycle Number</label>
+                                <span>@Model.CycleNumber</span>
+                            </li>
+                            <li class="QAZone">
+                                <label>Zone</label>
+                                <span>@Model.Zone</span>
+                            </li>
+                            @*<li class="QAAddress">
+                                    <label>Address</label>
+                                    <span>@Model.Address</span>
+                                </li>*@
+                            <li class="QCANumber">
+                                <label>CA Number</label>
+                                <span>@Model.AccountNumber</span>
+                            </li>
+                            <li class="QABillMonth">
+                                <label>Bill Month</label>
+                                <span>@Model.BillMonth</span>
+                            </li>
+                            <li class="QABillConsumed">
+                                <label>Unit Consumed</label>
+                                <span>@Model.UnitsConsumed</span>
+                            </li>
+                            <li class="QATBillConsumed">
+                                <label>Total Bill Amount</label>
+                                <span>₹@Model.TotalBillAmount</span>
+                            </li>
+                            <li class="QAMinimumAmount">
+                                <label>Minimum Payable</label>
+                                <span>₹@Model.AmountPayable</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="qp_security_deposit">
+                    <div class="bill-detail-header SecurityDepositPay">
+                        <div class="bill-detail-content">
+                            <h4 class="SecurityDepositAmount"></h4>
+                            <label for="" style="color:black" class="col-form-label SecurityDepositText"></label>
+                        </div>
+                        <div class="bill-detail-cta">
+                            <button onclick="FetchQuickPaySecurity('')" class="waves-effect waves-light btn btn-continue PayNowSecurity">Pay</button>
+                        </div>
+                    </div>
+
+                    <div class="bill-detail-body BillQuickSecurityDepositBody">
+                        <h4>Account Details</h4>
+                        <ul>
+                            @*<li class="SAddress">
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Address", "Address")</label>
+                                    <span></span>
+                                </li>*@
+                            <li class="SBookNumber">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Book Number", "Book Number")</label>
+                                <span></span>
+                            </li>
+                            <li class="SCycleNumber">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Cycle Number New", "Cycle Number")</label>
+                                <span></span>
+                            </li>
+                            <li class="SZone">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Zone", "Zone")</label>
+                                <span></span>
+                            </li>
+                            <li class="SMeterNumber">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Meter Number", "Meter Number")</label>
+                                <span></span>
+                            </li>
+                            <li class="STariffSlab">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Tariff Slab", "Tariff Slab")</label>
+                                <span></span>
+                            </li>
+                            <li class="SSecurityDeposit">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit", "Security Deposit")</label>
+                                <span></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="qp_vds_amount">
+                    <div class="withoutOutstanding">
+                        <ul class="list-with-dot">
+                            <li>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Minimum Amount", "Minimum Amount") <span>₹</span><b><span id="spanAverageVDSAmount"></span></b>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Maximum Amount", "Maximum Amount") <span>₹</span><b><span id="spanMaxVDSAmount"></span></b>
+                            </li>
+                            <li>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Payable Maximum", "Payable Maximum")
+                            </li>
+                        </ul>
+                        <ul class="ca-num-box">
+                            <li>
+                                <label>CA Number</label>
+                                <span class="spanCANumber"></span>
+                            </li>
+                            <li>
+                                <label>Consumer Name</label>
+                                <span class="spanName"></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="VDSAmountCurrentOutstanding">
+                        <div class="message warning warning-info">
+                            <aside><i class="i-info"></i></aside>
+                            <p>Dear Consumer, you need to clear your current outstanding for VDS payments.</p>
+                        </div>
+                        <div class="bill-detail-header">
+
+                            <input type="hidden" id="hdnCurrentOutstanding" name="Amountpayable" />
+                            <div class="bill-detail-content">
+                                <h4 id="CurrentOutstanding"></h4>
+                                <span>@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Current Outstanding Bill", "Current Outstanding Bill")</span>
+                                <br />
+                            </div>
+                            <div class="bill-detail-cta">
+                                <button type="submit" class="waves-effect waves-light btn btn-continue PayOutstandingBill">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Pay Bill", "Pay Bill")</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="message-footer VDSAmountData">
+                        @using (Html.BeginForm("PaymentVDSRevampQuickBill", "AccountsRevamp", FormMethod.Post, new { id = "frmPaymentVDS", @class = "form-signin" }))
+                        {
+
+                            @Html.HiddenFor(model => model.AccountNumber, new { id = "hdnAccountNumber", Value = @Model.AccountNumber })
+                            <div class="ownership-transfer">
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(model => model.AmountPayable, new { @class = "validate", required = "required", })
+                                    <label class="VDScheck active" for="first_name2">₹ @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Add Amount", "Add Amount")</label>
+                                    <p id="errorPaymentAmount" class="help-block field-validation-error"></p>
+                                </div>
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(model => model.PANNo, new { @class = "validate", required = "required", @maxlength = "10", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                    <label class="VDScheck active" for="PANNo">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/PAN No", "PAN No")</label>
+                                    <p id="errorPANNo" class="help-block field-validation-error"></p>
+                                    @Html.ValidationMessageFor(model => model.PANNo, "", new { @class = "help-block field-validation-error" }, "p")
+                                </div>
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(model => model.Mobile, new { @class = "validate", required = "required", @type = "number", @maxlength = "10", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                    <label class="VDScheck active" for="MobileNumber">@Html.Sitecore().Dictionary("/Accounts/View Pay Bill/MobileNo", "Mobile No")</label>
+                                        <p id="errorMobileNumber" class="help-block field-validation-error"></p>
+
+                                    </div>
+                                    <div class="input-field custom">
+                                        @Html.TextBoxFor(model => model.Email, new { @class = "validate", required = "required" })
+                                        <label class="VDScheck active" for="EmailAddress">@Html.Sitecore().Dictionary("/Accounts/View Pay Bill/Address", "Email Address")</label>
+                                        <p id="errorEmailAddress" class="help-block field-validation-error"></p>
+
+                                    </div>
+
+                                    <div class="form-field">
+                                        <div class="checkbox-field">
+                                            <label>
+                                                <input id="checkcheckbox" type="checkbox" class="filled-in" checked="checked">
+                                                <span>I agree to the </span> <a class="modal-trigger" href="#TermandCondition">terms & conditions</a>
+                                            </label>
+                                            <p class="help-text ca-checkcheckbox-help field-validation-error" style="display:none;">
+                                                Please select terms and condition
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="h-right btn-group">
+                                        <button type="submit" class="btn btn-primary PayVDSBill">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Pay Now", "Pay Now")</button>
+                                    </div>
+                                </div>
+
+                            }
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="section-wrapper">
+        <h2>Pay your bill in 3 easy steps:</h2>
+
+        <div class="steps-content quick-bill-steps">
+            <ul>
+                <li>
+                    <figure>
+                        <img src="/electricity_assets/assets/images/make-payment.png" alt="Quick Bill Step 1" />
+                    </figure>
+                    <div class="step-summary">
+                        <h6>Step 1</h6>
+                        <h5>Enter Your Account Number</h5>
+                        <p>
+                            Key in your 9-digit Adani Electricity Consumer Account no.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <figure>
+                        <img src="/electricity_assets/assets/images/check-bill-detail.png" alt="Quick Bill Step 2" />
+                    </figure>
+                    <div class="step-summary">
+                        <h6>Step 2</h6>
+                        <h5>Check Bill Details</h5>
+                        <p>
+                            Once the bill details are displayed, select the preferred payment gateway.
+                        </p>
+                    </div>
+                </li>
+                <li>
+                    <figure>
+                        <img src="/electricity_assets/assets/images/acount-number.png" alt="Quick Bill Step 3" />
+                    </figure>
+                    <div class="step-summary">
+                        <h6>Step 3</h6>
+                        <h5>Make Payment</h5>
+                        <p>
+                            Pay your electricity bill using your preferred payment option.
+                        </p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    @*@Html.Sitecore().Placeholder("FAQHomePage")*@
+</div>
+
+
+
+<div id="sampleBillModal" class="modal">
+    <div class="modal-content">
+        <div class="details-col">
+            <header>
+                <h2> </h2>
+                <i class="i-cross i-24 waves-effect hide-sample-bill"></i>
+            </header>
+            <div class="bill-details text-center">
+                <img src="/electricity_assets/assets/images/sample-bill.jpg" width="100%" height="100%">
+            </div>
+        </div>
+    </div>
+</div>
+<div id="TermandCondition" class="modal">
+    <div class="modal-header">
+        <h4>Terms & Conditions</h4>
+        <aside><i class="i-cross modal-close waves-effect"></i></aside>
+    </div>
+    <div class="modal-content">
+        <ul>
+            <li>The deposit will earn you interest &#64; 7% p.a. from the date of deposit on the diminishing balance after adjusting monthly bills. This will be done on the due date of every month's bill.</li>
+            <li>Customers shall earn a Prompt Payment Incentive of 1% on the energy bill(excluding taxes and duties). Under this scheme, deduction of monthly bill amount by VDS will take place 7 days from the date of the bill. This incentive will be reflected in the subsequent month's bill after successful VDS operations.</li>
+            <li>The accumulated interest as on 31st March, after deduction of Income Tax(TDS) if any, will be credited once a year to your energy account in your April month bill. In case the deposit amount is exhausted during the year, accumulated interest after deduction of Income Tax(TDS), if any, will be adjusted in the energy bill.</li>
+            <li>'# VDS' will appear on your electricity bill with VDS balance on monthly electricity bill paid by VDS. If your VDS balance is not enough to pay current month's bill '# No VDS' will appear on your bill, In such cases the bill is to be paid by another payment mode till the time VDS amount is renewed.</li>
+            <li>No refund of the deposit will be made unless the customer moves out from the supply area of Adani.</li>
+            <li>No interest is payable for the financial year, if the deposit is refunded to the customer during the year.</li>
+        </ul>
+        <div class="modal-message">
+            <h5>
+                Note:
+            </h5>
+            <p>As per RBI guidelines, starting 01 Aug 2009, customers paying by credit card would need to authenticate the transaction with an additional PIN which can be generated through the issuing bank's website or during the payment transaction. </p>
+        </div>
+
+    </div>
+</div>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=en" async defer></script>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script src="/scripts/Accounts/QuickPayRevamp.js"></script>
+<script type="text/javascript">
+    var recaptcha;
+    var onloadCallback = function () {
+        recaptcha = grecaptcha.render('recaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>

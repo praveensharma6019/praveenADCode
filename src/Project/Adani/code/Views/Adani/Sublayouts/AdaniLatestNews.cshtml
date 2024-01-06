@@ -1,0 +1,104 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using System.Linq;
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item item = Sitecore.Context.Database.GetItem(datasource);
+    string linkurl = "#";
+    var evenOdd = 1;
+    string ImageItemUrl = "";
+    string altText = "";
+    string query = "";
+    if (System.Web.HttpContext.Current.Request.QueryString["q"] != null)
+    {
+        query = System.Web.HttpContext.Current.Request.QueryString["q"].ToString().ToLower();
+    }
+}
+
+    <title>Latest News</title>
+
+    <link rel="stylesheet" href="/-/media/Project/Adani/AdaniNewsMridul/style.css" />
+<section class="search-top">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="search-box">
+              <h3>In the News</h3>
+              <input id="search"
+                type="text"
+                class="form-control searchdata"
+                placeholder="Search by Keyword" value="@query"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+	<section class="news-card position-relative d-block">
+      <div class="container">
+		<div class="row">
+		@foreach (Item child in item.GetChildren().OrderByDescending(x => x.Fields["{89E0A406-C349-484F-A93C-296F169C6EB8}"].Value))
+		{
+			var desc = child.Fields["{302C9F8D-F703-4F76-A4AB-73D222648232}"].ToString();
+            var title = child.Fields["{63DDA48B-B0CB-45A7-9A1B-B26DDB41009B}"].ToString();
+			if(desc.ToLower().Contains(query) || title.ToLower().Contains(query))
+			{
+				Sitecore.Data.Fields.LinkField linkvalue = child.Fields["{32E7AA19-B4A1-4CB9-BE4F-110C51EC913A}"];
+				Sitecore.Data.Fields.ImageField ImageItem = ((Sitecore.Data.Fields.ImageField)child.Fields["{9F51DEAD-AD6E-41C2-9759-7BE17EB474A4}"]);
+				if (ImageItem != null && ImageItem.MediaItem != null)
+				{
+					ImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageItem.MediaItem);
+					altText = ImageItem.Alt;
+				}
+				if (linkvalue != null)
+				{
+					linkurl = linkvalue.GetFriendlyUrl();
+				}
+			<div class="col-lg-4 col-md-6 col-12 mb-4">
+            <div class="n-card position-relative">
+              <div class="n-card-bg">
+                <img src="@ImageItemUrl" alt="" />
+              </div>
+              <div class="n-card-link">
+                <h3>
+                  <a href="@linkurl" target="_blank"
+                    >@Html.Sitecore().Field("{63DDA48B-B0CB-45A7-9A1B-B26DDB41009B}", child)</a
+                  >
+                </h3>
+                <div class="date">
+                  <em>
+				  <time class="time-font" datetime="00Z"> @Html.Sitecore().Field("{89E0A406-C349-484F-A93C-296F169C6EB8}", child, new { format = "MMM dd, yyyy" })</time>
+                  </em>
+				</div>
+                <div class="icon-img">
+                  <a href="@linkurl">
+                    <img
+                      src="/-/media/Project/Adani/AdaniNewsMridul/text-icon.svg"
+                      alt=""
+                      width="auto"
+                      height="auto"
+                    />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+		}
+		}
+		</div>
+	  </div>
+	</section>
+
+
+

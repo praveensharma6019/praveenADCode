@@ -1,0 +1,154 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using AdaniGreenTalks = Sitecore.AdaniGreenTalks.Website
+@using System.Linq;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string imgurl = "#";
+    string altText = string.Empty;
+    string linkurl = "#";
+    string ReadMore = "";
+    string strPathAndQuery = HttpContext.Current.Request.Url.Query;
+    string requesturl = string.Empty;
+    var storytemplatedid = AdaniGreenTalks.Templates.StoryTemplate.ID;
+    if (string.IsNullOrEmpty(strPathAndQuery))
+    {
+        requesturl = HttpContext.Current.Request.Url.AbsoluteUri;
+    }
+    else
+    {
+        requesturl = HttpContext.Current.Request.Url.AbsoluteUri.Replace(strPathAndQuery, "");
+    }
+    int index = 1;
+    string orderby = Request.QueryString["sortby"];
+    if (string.Equals(orderby, "asc", StringComparison.CurrentCultureIgnoreCase))
+    {
+        index = 2;
+    }
+    else if (string.Equals(orderby, "desc", StringComparison.CurrentCultureIgnoreCase))
+    {
+        index = 1;
+    }
+
+    var selectListItems = new List<SelectListItem>
+{ new SelectListItem { Text = "New to Old", Value = @requesturl+"?sortby=desc#greenstoryinaction" , Selected=index == 1},
+       new SelectListItem { Text = "Old to New", Value = @requesturl+"?sortby=asc#greenstoryinaction" , Selected=index == 2}
+       };
+
+    var childlist = new List<Item>();
+}
+
+@if (model != null)
+{
+    if (string.Equals(orderby, "asc", StringComparison.CurrentCultureIgnoreCase))
+    {
+        childlist = model.GetChildren().Where(c => c.TemplateID == storytemplatedid).OrderBy(c => c.Fields["Date"].Value).ToList();
+    }
+    else if (string.Equals(orderby, "desc", StringComparison.CurrentCultureIgnoreCase))
+    {
+        childlist = model.GetChildren().Where(c => c.TemplateID == storytemplatedid).OrderByDescending(c => c.Fields["Date"].Value).ToList();
+    }
+    else
+    {
+        childlist = model.GetChildren().Where(c => c.TemplateID == storytemplatedid).OrderBy(c => c.Fields["Date"].Value).ToList();
+    }
+
+    <div id="greenstoryinaction" class="action-top-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 left-section">
+                    <h3>@Html.Sitecore().Field("ShortDescription", model)</h3>
+                    <p>@Html.Sitecore().Field("Summary", model)</p>
+                </div>
+                @if (childlist.Count > 6)
+                {
+                    <div class="col-md-3 right-section">
+
+                        <div class="select-wrapper">
+                            <label>Sort by</label>
+                            <select onChange="window.location.href=this.value" class="select-drpodown" style="display:block">
+                                @foreach (var selectitem in selectListItems)
+                                {
+                                    <option value="@selectitem.Value" selected="@selectitem.Selected">@selectitem.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bottom-section">
+        <div class="container">
+            <div class="row">
+                @foreach (Item child in childlist)
+                {
+                    if (child.TemplateID == storytemplatedid)
+                    {
+                        Sitecore.Data.Fields.LinkField linkvalue = child.Fields["LinkUrl"];
+                        if (linkvalue != null)
+                        {
+                            linkurl = linkvalue.GetFriendlyUrl();
+                        }
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)child.Fields["thumbnail"]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+                        else
+                        {
+                            imgurl = "#";
+                            altText = "";
+                        }
+
+
+                        <div class="col-md-4 item">
+                            <img src="@imgurl" alt="@altText">
+
+                            <div class="desc">
+                                <span class="date">@Html.Sitecore().Field("Date", child, new { format = "MMM dd, yyyy" })</span>
+                                <h3>@Html.Sitecore().Field("Title", child)</h3>
+                                <p>@Html.Sitecore().Field("Summary", child)</p>
+                                @if (linkvalue != null)
+                                {
+                                    if (!string.IsNullOrEmpty(linkvalue.Title))
+                                    {
+                                        ReadMore = linkvalue.Title;
+                                    }
+                                    else
+                                    {
+                                        ReadMore = "Read more";
+                                    }
+                                    if (linkvalue.LinkType == "internal")
+                                    {
+                                        <a href="@linkurl" class="read_more">@ReadMore</a>
+                                    }
+                                    if (linkvalue.LinkType == "external")
+                                    {
+                                        <a href="@linkurl" target="_blank" rel="noopener noreferrer" class="read_more">@ReadMore</a>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}
+
+

@@ -1,0 +1,137 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "position-relative section__covid-donation bg-white";
+    }
+    var count = 0;
+}
+
+@foreach (var child in element.Children.ToList())
+{
+    count++;
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+    var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+    if (count % 2 == 0)
+    {
+        <section class="py-2 grid-left-right @paramid">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 d-flex align-items-center mb-5">
+                        <img class="d-block w-100 " src="@imgurl" alt="">
+
+                    </div>
+                    <div class="col-lg-6 d-flex align-items-center mb-5">
+                        <div class="item-climate-left">
+                            <p class="title-climate">@Html.Sitecore().Field("Title", child)</p>
+                            @Html.Sitecore().Field("Body", child)
+                        </div>
+                    </div>
+                </div>
+                @if (child.HasChildren)
+                {
+                    foreach (var subchild in child.GetChildren().ToList())
+                    {
+                        <div class="row py-3 px-3">
+                            <h4><strong>@Html.Sitecore().Field("Title", subchild)</strong></h4>
+                        </div>
+
+                        <div class="row ">
+                            @if (subchild.HasChildren)
+                            {
+                                var innerSubChildren = subchild.GetChildren().ToList();
+                                var colClass = innerSubChildren.Count() % 2 == 0 ? "col-lg-6" : "col-lg-4";
+
+                                foreach (var innerSubChild in subchild.GetChildren().ToList())
+                                {
+
+                                    <div class="@colClass mb-4">
+                                        <div class="million">
+                                            <div class="num-text p-1">
+                                                <div class="num-text-num">
+                                                    <h1>@Html.Sitecore().Field("Title", innerSubChild)</h1>
+                                                </div>
+                                                <div class="num-text-text">
+                                                    <p>@Html.Sitecore().Field("Description", innerSubChild)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="py-2 @paramid" id="covid19-env">
+            <div class="container">
+                @if (count == 1)
+                {
+                    <h2 class="text-Our">@Html.Sitecore().Field("Title", element)</h2>
+                }
+                <div class="row py-3">
+                    <div class="col-lg-6 d-flex align-items-center mb-5">
+                        <div class="py-2">
+                            <p class="title-climate">@Html.Sitecore().Field("Title", child)</p>
+                            @Html.Sitecore().Field("Body", child)
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-flex align-items-center mb-5">
+                        <img class="d-block w-100 " src="@imgurl" alt="">
+                    </div>
+                </div>
+                @if (child.HasChildren)
+                {
+                    foreach (var subchild in child.GetChildren().ToList())
+                    {
+                        <div class="row py-3 px-3">
+                            <h4><strong>@Html.Sitecore().Field("Title", subchild)</strong></h4>
+                        </div>
+
+                        <div class="row">
+                            @if (subchild.HasChildren)
+                            {
+                                var innerSubChildren = subchild.GetChildren().ToList();
+                                var colClass = innerSubChildren.Count() % 2 == 0 ? "col-lg-6" : "col-lg-4";
+                                foreach (var innerSubChild in innerSubChildren)
+                                {
+
+                                    <div class="@colClass mb-4">
+                                        <div class="million">
+                                            <div class="num-text p-1">
+                                                <div class="num-text-num">
+                                                    <h1>@Html.Sitecore().Field("Title", innerSubChild)</h1>
+                                                </div>
+                                                <div class="num-text-text">
+                                                    <p>@Html.Sitecore().Field("Description", innerSubChild)</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </section>
+    }
+}
+
+
+
+

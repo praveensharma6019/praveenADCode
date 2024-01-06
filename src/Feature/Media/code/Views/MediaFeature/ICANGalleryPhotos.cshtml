@@ -1,0 +1,303 @@
+@using Sitecore.Feature.Media
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore;
+@using Sitecore.Data.Items;
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 1;
+    var imageUrl = "";
+}
+<style>
+section {
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+.flex-wrap {
+    flex-wrap: wrap;
+}
+.flex {
+    display: flex;
+}
+.flex:after, .flex:before {
+    content: none;
+}
+.news-gallery>div {
+    margin-bottom: 30px;
+}
+.flex>* {
+    float: none;
+}
+.photo-gallery {
+    background: center center/cover no-repeat;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+.photo-gallery>img {
+    opacity: 0;
+    visibility: hidden;
+}
+.photo-gallery>p, .video-gallery-thumbnail>p {
+    position: absolute;
+    bottom: 36px;
+    margin: 0;
+    padding: 9px 15px 9px 60px;
+    background: rgba(0,0,0,.5);
+    color: #fff;
+}
+.photo-gallery>p:before, .video-gallery-thumbnail>p:before {
+    height: 52px;
+    background: #fff;
+    width: 63px;
+    top: -3px;
+}
+.photo-gallery>p:after, .photo-gallery>p:before, .video-gallery-thumbnail>p:after, .video-gallery-thumbnail>p:before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    height: 60px;
+    width: 60px;
+    background: #b13d8c;
+    background: -moz-linear-gradient(45deg,#b13d8c 0,#e54f39 100%);
+    background: -webkit-linear-gradient(45deg,#b13d8c 0,#e54f39 100%);
+    background: linear-gradient(45deg,#b13d8c 0,#e54f39 100%);
+    top: -7px;
+    transform: skew(-35deg);
+}
+.photo-gallery>p:after, .photo-gallery>p:before, .video-gallery-thumbnail>p:after, .video-gallery-thumbnail>p:before, section.second-section {
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b13d8c', endColorstr='#e54f39', GradientType=1 );
+}
+.photo-gallery>a {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+}
+a {
+    -webkit-transition: all .35s;
+    -moz-transition: all .35s;
+    -ms-transition: all .35s;
+    -o-transition: all .35s;
+    transition: all .35s;
+}
+.photo-gallery .modal-dialog {
+    margin: auto;
+    width: 980px;
+    max-width: 100%;
+    top: 20px;
+    bottom: 20px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 0;
+}
+.video .modal-content {
+}
+.photo-gallery .modal-content {
+    height: 100%;
+}
+.photo-gallery .modal-header, .tab-content .modal-header {
+    padding: 13px 100px;
+    position: relative;
+    overflow: hidden;
+    background: #aa3b99;
+    color: #fff;
+    border-bottom: none;
+    text-align: center;
+}
+.photo-gallery .modal-header .close, .tab-content .modal-header .close {
+    width: 80px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+    opacity: 1;
+    height: 100%;
+    text-shadow: none;
+    color: #fff;
+    z-index: 1;
+    background: url(images/cross.png) center center no-repeat;
+}
+.video button.close {
+    position: absolute;
+    right: 0px;
+    top: -30px;
+    font-size: 25px;
+    color: #fff;
+    opacity: 1;
+    outline: 0;
+    font-weight: 400;
+}
+.photo-gallery .modal-header .close img, .tab-content .modal-header .close img {
+    width: 20px;
+}
+.photo-gallery .modal-header .close, .tab-content .modal-header .close {
+    width: 80px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+    opacity: 1;
+    height: 100%;
+    text-shadow: none;
+    color: #fff;
+    z-index: 1;
+    background: url(images/cross.png) center center no-repeat;
+}
+.zoom {
+    width: 50px;
+    left: 0;
+    cursor: pointer;
+    top: 0;
+}
+.gallery-controller .close, .zoom {
+    height: 50px;
+    padding: 12px;
+    z-index: 1;
+    position: absolute;
+}
+h5.modal-title {
+    line-height: 24px;
+}
+h5 {
+    font-size: 20px;
+}
+.photo-gallery .carousel {
+    padding: 40px 80px;
+}
+.back {
+    position: fixed;
+    opacity: 0;
+    visibility: hidden;
+    top: 0;
+    left: 0;
+    height: 50px;
+    width: 50px;
+    background: url(images/back.png) center center no-repeat rgba(0,0,0,.5);
+    cursor: pointer;
+    -webkit-transition: all .35s;
+    -moz-transition: all .35s;
+    -ms-transition: all .35s;
+    -o-transition: all .35s;
+    transition: all .35s;
+}
+.gallery-navbar{
+    background-color: #76b8e9;
+}
+.gallery-navbar a{color: #ffc727;font-size: 40px;font-weight: bold;text-decoration: none;background-color: #fff;padding: 10px;border-radius: 8px; }
+.gallery-navbar .row{text-align:center;}
+
+</style>
+<section class="gallery-navbar">
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 mb-lg-0 mb-5">
+            <i class="fa fa-picture-o" aria-hidden="true"></i><a href="#">Photos</a>
+        </div>
+        <div class="col-lg-6 mb-lg-0 mb-5">
+            <i class="fa fa-video-camera" aria-hidden="true"></i><a href="/gallery/videos">Videos</a>
+        </div>
+    </div>
+</div>
+    
+</section>
+<section class="news-gallery-section">
+    <div class="container">
+        <div class="news-gallery flex flex-wrap row">
+            @foreach (var item in model.GetChildren().ToList())
+            {
+Sitecore.Data.Fields.ImageField imageField = item.Fields["MediaImage"];
+                 if (imageField?.MediaItem != null)
+                 {
+                     var image = new MediaItem(imageField.MediaItem);
+                     imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                 }
+                <div class="col-sm-4">
+
+
+
+                    <div class="photo-gallery" style="background-image: url(@imageUrl)">
+                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, item, new { @class = "img-responsive" })
+                        <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</p>
+                        <a href="javascript:void(0)" data-toggle="modal" data-target="#gallery-@i"></a>
+
+
+
+
+                        <div id="gallery-@i" class="modal fade" role="dialog">
+
+                            <div class="modal-dialog">
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <img src="/images/Marathon/cross.png">
+                                        </button>
+                                        
+                                        <h5 class="modal-title"> @Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</h5>
+                                    </div>
+                                    <div id="gallery-@i-lighbox" class="carousel slide" data-ride="carousel">
+                                        <div class="back">
+
+                                        </div>
+
+
+                                        <div class="carousel-inner" role="listbox">
+
+                                            @foreach (var subitem in item.GetChildren().ToList())
+                                            {
+                                                if (i == 1)
+                                                {
+
+
+                                                    <div class="item active">
+                                                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, item, new { @class = "img-responsive" })
+                                                    </div>
+
+                                                }
+                                                else
+                                                {
+
+                                                    <div class="item">
+                                                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, subitem, new { @class = "img-responsive" })
+                                                    </div>
+                                                }
+
+                                                i++;
+
+
+
+                                            }
+                                        </div>
+
+
+                                        <a class="left carousel-control" href="#gallery-@i-lighbox" role="button" data-slide="prev">
+                                            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                                            <span class="sr-only">Previous</span>
+                                        </a>
+                                        <a class="right carousel-control" href="#gallery-@i-lighbox" role="button" data-slide="next">
+                                            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                                            <span class="sr-only">Next</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                i++;
+            }
+
+        </div>
+    </div>
+</section>

@@ -1,0 +1,59 @@
+﻿@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Mvc.Presentation
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+    Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)element.Fields["__Thumbnail"]);
+    var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+    Sitecore.Data.Fields.CheckboxField checkboxField = element.Fields["IsVideo"];
+
+}
+<section class="banner-below-video d-block position-relative py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="banner-vid banner-vid-1" style="display:flex; align-items:center; height:100%;">
+                    <p>
+                        @Html.Sitecore().Field("Description", element)
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="banner-vid banner-vid-2">
+                    @if (checkboxField != null && checkboxField.Checked)
+                    {
+                        Sitecore.Data.Fields.LinkField itemslinkvalues = element.Fields["Video"];
+                        if (itemslinkvalues.GetFriendlyUrl() != null && itemslinkvalues.GetFriendlyUrl() != "")
+                        {
+                            var itemslinks = itemslinkvalues.GetFriendlyUrl();
+                            <video preload="auto" loop="true" muted autoplay="true" width="400" controls class="home-vid" controlslist="nodownload">
+                                <source src=@itemslinks type="video/mp4"></source>
+                            </video>
+                        }
+                        else
+                        {
+                            <img src=@thumbimg class="img-fluid" />
+                        }
+                    }
+                    else
+                    {
+                        Sitecore.Data.Fields.ImageField ImageField2 = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+                        if (ImageField2.MediaItem != null && ImageField2.MediaItem.ToString() != "")
+                        {
+                            var imageurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField2.MediaItem);
+                            <img src=@imageurl class="img-fluid" />
+                        }
+                        else
+                        {
+                            <img src=@thumbimg class="img-fluid" />
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

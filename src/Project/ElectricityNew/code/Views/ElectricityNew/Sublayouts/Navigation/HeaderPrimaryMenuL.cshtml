@@ -1,0 +1,529 @@
+﻿@*@using Sitecore.AdaniCapital.Website.Helper*@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Feature.Accounts.SessionHelper
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+
+    Sitecore.Data.Items.Item loginPageItem = Sitecore.Context.Database.GetItem("{C086B381-8CBE-4416-8E16-9733C6E43245}");
+    string loginPageUrl = loginPageItem != null ? Sitecore.Links.LinkManager.GetItemUrl(loginPageItem) : "#";
+
+    Sitecore.Data.Items.Item registerPageItem = Sitecore.Context.Database.GetItem("{4BB176DF-85FA-49F8-A1B6-42D1E96CB72B}");
+    string registerPageUrl = registerPageItem != null ? Sitecore.Links.LinkManager.GetItemUrl(registerPageItem) : "#";
+
+    Sitecore.Data.Items.Item myAccountIndexItem = Sitecore.Context.Database.GetItem("{7F6446E3-696C-4050-A057-A489B4D13B1A}");
+    string myAccountIndexUrl = myAccountIndexItem != null ? Sitecore.Links.LinkManager.GetItemUrl(myAccountIndexItem) : "#";
+
+    Sitecore.Data.Database db = Sitecore.Configuration.Factory.GetDatabase("web");
+    var AdaniBusinessMenu = db.GetItem("{795D1B93-18A2-4775-85F5-1D47EC86712C}");
+
+    string loginsession = Session["LoginSession"] != null ? Session["LoginSession"].ToString() : string.Empty;
+
+    if (!string.IsNullOrEmpty(loginsession) && loginsession == "1")
+    {
+        Session["LoginSession"] = null;
+        loginsession = "";
+
+        <script src="/scripts/ElectricityNew/jquery-aeml-revamp.js"></script>
+
+        <div id="loginsessionAlert" class="modal modal-alert modal-toast custom-toast-success">
+            <header class="modal-header">
+                <h4>
+                    <a class="toast-close">
+                        <i class="i-tick"></i>
+                    </a>
+                    Success
+                </h4>
+                <a class="modal-close" id="closeIcon">
+                    <i class="i-cross"> </i>
+                </a>
+            </header>
+            <div class="modal-content">
+                <p id="loginsessionAlertContent">Welcome Back @Elemodel.UserName!</p>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            $(document).ready(function (e) {
+                loginsessionAlert();
+
+                dataLayer.push({
+                    'event': 'aeml_login_success',
+                    'eventCategory': 'User Login',
+                    'eventAction': 'AEML Login Success',
+                    'eventLabel': 'NA',
+                    'business_user_id': $('#BusinessUserId').val(),
+                    'login_status': $('#login_status').val(),
+                    'ca_number': $('#GACANumber').val(),
+                    'page_type': $('head title').text()
+                });
+            })
+
+            function loginsessionAlert() {
+                window.setTimeout(function () {
+                    var elem = document.getElementById('loginsessionAlert');
+                    var instance = M.Modal.init(elem, { dismissible: false });
+                    instance.open();
+
+                    if ($('#loginsessionAlertContent').html().indexOf('</a>') > 0) {
+                        window.setTimeout(function () {
+                            instance.close();
+                        }, 9000);
+                    } else {
+                        $('#closeIcon').hide();
+                        window.setTimeout(function () {
+                            instance.close();
+                        }, 4000);
+                    }
+                }, 1500);
+            }
+        </script>
+    }
+}
+@if (element != null && element.HasChildren)
+{
+    <li class="flx-list" id="headerPrimaryMenuL">
+        <ul class="dd-menu nav-list">
+            @if (Sitecore.Context.Item.Parent != null && Sitecore.Context.Item.Parent.ID.ToString() == "{7F6446E3-696C-4050-A057-A489B4D13B1A}" && Elemodel != null && !string.IsNullOrEmpty(Elemodel.UserName))
+            {
+                if (AdaniBusinessMenu != null)
+                {
+                    if (AdaniBusinessMenu.HasChildren)
+                    {
+                        <li class="hide-on-large-only" id="business-mob">
+                            <a href="#business-bottom-sheet" class="btn i-grid waves-effect waves-light hover-icon modal-trigger"></a>
+                            <div id="business-bottom-sheet" class="modal bottom-sheet bottom-sheet-p0">
+                                <div class="modal-content">
+                                    <header>
+                                        <div class="input-icon">
+                                            <a href="javascript:void(0)" class="modal-close waves-effect waves-light"><i class="i-cross"> </i></a>
+                                        </div>
+                                    </header>
+                                    <ul class="dd-menu-dd">
+
+                                        @foreach (Item item in AdaniBusinessMenu.GetChildren())
+                                        {
+                                            var classNav = @Html.Sitecore().Field("Class", item).ToString();
+                                            var itemtext = @Html.Sitecore().Field("Title", item).ToString();
+                                            Sitecore.Data.Fields.LinkField item1Linkfld = item.Fields["LinkUrl"];
+                                            var url1 = item1Linkfld != null && !string.IsNullOrEmpty(item1Linkfld.GetFriendlyUrl()) ? item1Linkfld.GetFriendlyUrl() : "#";
+                                            var url1Target = item1Linkfld != null ? item1Linkfld.Target : "";
+
+                                            var liClass = "";
+
+                                            liClass = itemtext.ToLower().Contains("electricity") ? "active" : "";
+
+                                            <li class="@liClass">
+                                                @if ((!string.IsNullOrEmpty(classNav)))
+                                                {
+                                                    if (liClass == "active")
+                                                    {
+                                                        <a href="@url1" target="@url1Target" class="waves-effect waves-brand">
+                                                            <p class="@classNav">
+                                                                @Html.Sitecore().Field("Title", item)
+                                                            </p><i class="i-tick"></i>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@url1" target="@url1Target" class="waves-effect waves-brand">
+                                                            <p class="@classNav">
+                                                                @Html.Sitecore().Field("Title", item)
+                                                            </p>
+                                                        </a>
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <a href="@url1" target="@url1Target" class="waves-effect waves-brand"><p>@Html.Sitecore().Field("Title", item)</p></a>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                }
+
+                var getName = Elemodel.UserName as string;
+                foreach (Item item in element.GetChildren().Where(p => p.Name.ToLower() == "login" || p.Name.ToLower() == "help support"))
+                {
+                    Sitecore.Data.Fields.LinkField itemLinkfld = item.Fields["LinkUrl"];
+                    var url = itemLinkfld != null && !string.IsNullOrEmpty(itemLinkfld.GetFriendlyUrl()) ? itemLinkfld.GetFriendlyUrl() : "#";
+                    var urlTarget = itemLinkfld != null ? itemLinkfld.Target : "";
+
+
+
+
+
+                    <li class="login-link">
+                        @if (item.Name.ToString().ToLower() == "login")
+                        {
+                            if (Elemodel != null && !string.IsNullOrEmpty(Elemodel.UserName) && Sitecore.Context.User.IsAuthenticated)
+                            {
+                                var result = getName.Substring(0, 1).ToUpper();
+
+                                <a class="user-icon">
+                                    <span class="user-initial">@result</span>
+                                    <img class="visible-white" src="/electricity_assets/images/login-white.svg">
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                    <i class="i-arrow-d"></i>
+                                </a>
+                                <a class="user-icon userIconMob" href="@myAccountIndexUrl">
+                                    <span class="user-initial">@result</span>
+                                    <img class="visible-white" src="/electricity_assets/images/login-white.svg">
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                    <i class="i-arrow-d"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                @*<a class="user-icon" href="@url" target="@urlTarget">
+                                        <span class="username">  @Html.Sitecore().Field("Title", item).ToString()</span>
+                                        <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                    </a>*@
+                                <a class="user-icon">
+                                    <span class="username"> @Html.Sitecore().Field("Title", item).ToString()</span>
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                </a>
+                                <a class="user-icon userIconMob" href="@url" target="@urlTarget">
+                                    <span class="username"> @Html.Sitecore().Field("Title", item).ToString()</span>
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            if (Html.Raw(item["Title"]).ToString() == "Help & Support")
+                            {
+                                <a href="@url" target="@urlTarget" class="hide-on-med-and-down">
+                                    @Html.Raw(item["Title"])
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@url" target="@urlTarget">
+                                    @Html.Raw(item["Title"])
+                                </a>
+                            }
+
+                        }
+
+                        @if (item.HasChildren)
+                        {
+                            <ul class="dd-menu-dd">
+                                @foreach (Item item1 in item.GetChildren())
+                                {
+                                    Sitecore.Data.Fields.LinkField item1Linkfld = item1.Fields["LinkUrl"];
+                                    Sitecore.Data.Fields.LinkField childLoggedOutlinkfld = item1.Fields["LoggedOutLink"];
+                                    if (Elemodel != null)
+                                    {
+                                        item1Linkfld = item1.Fields["LinkUrl"];
+                                    }
+                                    else if (childLoggedOutlinkfld != null && !string.IsNullOrEmpty(childLoggedOutlinkfld.GetFriendlyUrl()))
+                                    {
+                                        item1Linkfld = childLoggedOutlinkfld;
+                                    }
+                                    var url1 = item1Linkfld != null && !string.IsNullOrEmpty(item1Linkfld.GetFriendlyUrl()) ? item1Linkfld.GetFriendlyUrl() : "#";
+                                    var url1Target = item1Linkfld != null ? item1Linkfld.Target : "";
+
+                                    var classNav = item1.Fields["Class"].ToString();
+                                    var registercheck = item1.Fields["Title"].ToString();
+
+                                    if (item.Name.ToString().ToLower() == "login" && Sitecore.Context.User.IsAuthenticated && Elemodel != null && !string.IsNullOrEmpty(Elemodel.UserName))
+                                    {
+                                        foreach (Item accountItem in Sitecore.Context.Database.GetItem("{4BA9532B-9490-4F5E-8967-0D9456C05B39}").GetChildren())
+                                        {
+                                            Sitecore.Data.Fields.LinkField item3Linkfld = accountItem.Fields["LinkUrl"];
+                                            var url3 = item3Linkfld != null && !string.IsNullOrEmpty(item3Linkfld.GetFriendlyUrl()) ? item3Linkfld.GetFriendlyUrl() : "#";
+                                            var url3Target = item3Linkfld != null ? item3Linkfld.Target : "";
+
+                                            <li>
+                                                <a href="@url3" target="@url3Target" class="waves-effect waves-brand">@Html.Sitecore().Field("Title", accountItem)</a>
+                                            </li>
+                                        }
+                                        <li>
+                                            <a href="javascript:void(0)" class="waves-effect waves-brand" onclick="document.getElementById('formLogout').submit();">
+                                                <form action="@Url.Action("logoutrevamp","accountsrevamp")" id="formLogout" method="post">
+                                                    Logout
+                                                </form>
+                                            </a>
+                                        </li>
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        if (registercheck == "Register Here")
+                                        {
+                                            <li>
+                                                <p>@Html.Sitecore().Field("HaveAccountText", item1)</p>
+                                            </li>
+                                            <li class="login">
+                                                <button class="waves-effect waves-teal btn btn-reg" onclick="window.location.href='@registerPageUrl'">@Html.Sitecore().Field("LoginRegisterText", item1)</button>
+                                                <button onclick="window.location.href='@loginPageUrl'" id="login" class="waves-effect waves-teal btn">@Html.Sitecore().Field("LoginBtnText", item1)</button>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            if ((!string.IsNullOrEmpty(classNav)) && (!string.IsNullOrEmpty(classNav)))
+                                            {
+                                                <li>
+                                                    <a href="@url1" target="@url1Target" 
+                                                       data-gaevent="top_navigation_menu_interaction"
+                                                       data-gaeventCategory="User Interaction"
+                                                       data-gaeventAction="Top Navigation Menu Intecraction"
+                                                       data-gaeventLabel="@Html.Sitecore().Field("Title", item)|@Html.Sitecore().Field("Title", item1)"
+                                                       class="@classNav">@Html.Sitecore().Field("Title", item1)</a>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    <a href="@url1" target="@url1Target" 
+                                                       data-gaevent="top_navigation_menu_interaction"
+                                                       data-gaeventCategory="User Interaction"
+                                                       data-gaeventAction="Top Navigation Menu Intecraction"
+                                                       data-gaeventLabel="@Html.Sitecore().Field("Title", item)|@Html.Sitecore().Field("Title", item1)"
+                                                       class="waves-effect waves-brand">@Html.Sitecore().Field("Title", item1)</a>
+                                                </li>
+                                            }
+                                        }
+                                    }
+
+                                }
+                            </ul>
+                        }
+                    </li>
+                }
+            }
+            else
+            {
+                if (AdaniBusinessMenu != null)
+                {
+                    if (AdaniBusinessMenu.HasChildren)
+                    {
+                        <li class="hide-on-large-only" id="business-mob">
+                            <a href="#business-bottom-sheet" class="btn i-grid waves-effect waves-light hover-icon modal-trigger"></a>
+                            <div id="business-bottom-sheet" class="modal bottom-sheet bottom-sheet-p0">
+                                <div class="modal-content">
+                                    <header>
+                                        <div class="input-icon">
+                                            <a href="javascript:void(0)" class="modal-close waves-effect waves-light"><i class="i-cross"> </i></a>
+                                        </div>
+                                    </header>
+                                    <ul class="dd-menu-dd">
+
+                                        @foreach (Item item in AdaniBusinessMenu.GetChildren())
+                                        {
+                                            var classNav = @Html.Sitecore().Field("Class", item).ToString();
+                                            var itemtext = @Html.Sitecore().Field("Title", item).ToString();
+                                            Sitecore.Data.Fields.LinkField item1Linkfld = item.Fields["LinkUrl"];
+                                            var url1 = item1Linkfld != null && !string.IsNullOrEmpty(item1Linkfld.GetFriendlyUrl()) ? item1Linkfld.GetFriendlyUrl() : "#";
+                                            var url1Target = item1Linkfld != null ? item1Linkfld.Target : "";
+
+                                            var liClass = "";
+
+                                            liClass = itemtext.ToLower().Contains("electricity") ? "active" : "";
+
+                                            <li class="@liClass">
+                                                @if ((!string.IsNullOrEmpty(classNav)))
+                                                {
+                                                    if (liClass == "active")
+                                                    {
+                                                        <a href="@url1" target="@url1Target" class="waves-effect  waves-brand">
+                                                            <p class="@classNav">
+                                                                @Html.Sitecore().Field("Title", item)
+                                                            </p><i class="i-tick"></i>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@url1" target="@url1Target" class="waves-effect waves-brand">
+                                                            <p class="@classNav">
+                                                                @Html.Sitecore().Field("Title", item)
+                                                            </p>
+                                                        </a>
+                                                    }
+
+                                                }
+                                                else
+                                                {
+                                                    <a href="@url1" target="@url1Target" class="waves-effect waves-brand"><p>@Html.Sitecore().Field("Title", item)</p></a>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                }
+
+                foreach (Item item in element.GetChildren())
+                {
+                    Sitecore.Data.Fields.LinkField itemLinkfld = item.Fields["LinkUrl"];
+                    var url = itemLinkfld != null && !string.IsNullOrEmpty(itemLinkfld.GetFriendlyUrl()) ? itemLinkfld.GetFriendlyUrl() : "#";
+                    var urlTarget = itemLinkfld != null ? itemLinkfld.Target : "";
+
+                    var loginClass = "hide-on-med-and-down 0active";
+
+                    if (item.Name.ToString().ToLower() == "login")
+                    {
+                        loginClass = "login-link";
+                    }
+                    else
+                    {
+                        loginClass = "hide-on-med-and-down 0active";
+                    }
+
+
+
+                    <li class="@loginClass">
+
+                        @if (item.Name.ToString().ToLower() == "login")
+                        {
+                            if (Elemodel != null && !string.IsNullOrEmpty(Elemodel.UserName) && Sitecore.Context.User.IsAuthenticated)
+                            {
+                                var getName = Elemodel.UserName as string;
+                                var result = getName.Substring(0, 1).ToUpper();
+
+                                <a class="user-icon">
+                                    <span class="user-initial">@result</span>
+                                    <img class="visible-white" src="/electricity_assets/images/login-white.svg">
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                    <i class="i-arrow-d"></i>
+                                </a>
+                                <a class="user-icon userIconMob" href="@myAccountIndexUrl">
+                                    <span class="user-initial">@result</span>
+                                    <img class="visible-white" src="/electricity_assets/images/login-white.svg">
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                    <i class="i-arrow-d"></i>
+                                </a>
+                            }
+                            else
+                            {
+
+                                <a class="user-icon">
+                                    <span class="username"> @Html.Sitecore().Field("Title", item).ToString()</span>
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                </a>
+                                <a class="user-icon userIconMob" href="@url" target="@urlTarget">
+                                    <span class="username"> @Html.Sitecore().Field("Title", item).ToString()</span>
+                                    <img class="visible-colored" src="/electricity_assets/images/login.svg">
+                                </a>
+                            }
+                        }
+                        else
+                        {
+                            <a href="@url" data-gaevent="top_navigation_menu_interaction"
+                               data-gaeventCategory="User Interaction"
+                               data-gaeventAction="Top Navigation Menu Intecraction"
+                               data-gaeventLabel="@Html.Raw(item["Title"]) | "
+                               target="@urlTarget">
+                                @Html.Raw(item["Title"])
+                            </a>
+                        }
+
+                        @if (item.HasChildren)
+                        {
+                            <ul class="dd-menu-dd">
+                                @foreach (Item item1 in item.GetChildren())
+                                {
+
+                                    Sitecore.Data.Fields.LinkField item1Linkfld = item1.Fields["LinkUrl"];
+                                    Sitecore.Data.Fields.LinkField childLoggedOutlinkfld = item1.Fields["LoggedOutLink"];
+                                    if (Elemodel != null && !string.IsNullOrEmpty(Elemodel.UserName))
+                                    {
+                                        item1Linkfld = item1.Fields["LinkUrl"];
+                                    }
+                                    else if (childLoggedOutlinkfld != null && !string.IsNullOrEmpty(childLoggedOutlinkfld.GetFriendlyUrl()))
+                                    {
+                                        item1Linkfld = childLoggedOutlinkfld;
+                                    }
+                                    var url1 = item1Linkfld != null && !string.IsNullOrEmpty(item1Linkfld.GetFriendlyUrl()) ? item1Linkfld.GetFriendlyUrl() : "#";
+                                    var url1Target = item1Linkfld != null ? item1Linkfld.Target : "";
+
+                                    var classNav = item1.Fields["Class"].ToString();
+                                    var registercheck = item1.Fields["Title"].ToString();
+
+
+                                    if (item.Name.ToString().ToLower() == "login" && Sitecore.Context.User.IsAuthenticated && Elemodel != null && !string.IsNullOrEmpty(Elemodel.UserName))
+                                    {
+                                        foreach (Item accountItem in Sitecore.Context.Database.GetItem("{4BA9532B-9490-4F5E-8967-0D9456C05B39}").GetChildren())
+                                        {
+                                            Sitecore.Data.Fields.LinkField item3Linkfld = accountItem.Fields["LinkUrl"];
+                                            var url3 = item3Linkfld != null && !string.IsNullOrEmpty(item3Linkfld.GetFriendlyUrl()) ? item3Linkfld.GetFriendlyUrl() : "#";
+                                            var url3Target = item3Linkfld != null ? item3Linkfld.Target : "";
+
+                                            <li>
+                                                <a href="@url3" data-gaevent="top_navigation_menu_interaction"
+                                                   data-gaeventCategory="User Interaction"
+                                                   data-gaeventAction="Top Navigation Menu Intecraction"
+                                                   data-gaeventLabel="@Html.Sitecore().Field("Title", accountItem)"
+                                                   target="@url3Target" class="waves-effect waves-brand">
+                                                    @Html.Sitecore().Field("Title", accountItem)
+                                                </a>
+                                            </li>
+                                        }
+                                        <li>
+                                            <a href="javascript:void(0)" class="waves-effect waves-brand" onclick="document.getElementById('formLogout').submit();">
+                                                <form action="@Url.Action("logoutrevamp","accountsrevamp")" id="formLogout" method="post">
+                                                    Logout
+                                                </form>
+                                            </a>
+                                        </li>
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        if (registercheck == "Register Here")
+                                        {
+                                            <li>
+                                                <p>@Html.Sitecore().Field("HaveAccountText", item1)</p>
+                                            </li>
+                                            <li class="login">
+                                                <button class="waves-effect waves-teal btn btn-reg" onclick="window.location.href='@registerPageUrl'">@Html.Sitecore().Field("LoginRegisterText", item1)</button>
+                                                <button onclick="window.location.href='@loginPageUrl'" id="login" class="waves-effect waves-teal btn">@Html.Sitecore().Field("LoginBtnText", item1)</button>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            if ((!string.IsNullOrEmpty(classNav)) && (!string.IsNullOrEmpty(classNav)))
+                                            {
+                                                <li>
+                                                    <a href="@url1" data-gaevent="top_navigation_menu_interaction"
+                                                       data-gaeventCategory="User Interaction"
+                                                       data-gaeventAction="Top Navigation Menu Intecraction"
+                                                       data-gaeventLabel="@Html.Sitecore().Field("Title", item)|@Html.Sitecore().Field("Title", item1)"
+                                                       target="@url1Target"
+                                                       class="@classNav">@Html.Sitecore().Field("Title", item1)</a>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    <a href="@url1"
+                                                       data-gaevent="top_navigation_menu_interaction"
+                                                       data-gaeventCategory="User Interaction"
+                                                       data-gaeventAction="Top Navigation Menu Intecraction"
+                                                       data-gaeventLabel="@Html.Sitecore().Field("Title", item)|@Html.Sitecore().Field("Title", item1)"
+                                                       target="@url1Target" class="waves-effect waves-brand">@Html.Sitecore().Field("Title", item1)</a>
+                                                </li>
+                                            }
+                                        }
+                                    }
+
+                                }
+                            </ul>
+                        }
+                    </li>
+                }
+            }
+        </ul>
+    </li>
+}

@@ -1,0 +1,98 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string url = "";
+    string altText = "";
+	string thumburl = "";
+
+    string thumbaltText = "";
+    string sectionClass = "";
+}
+<div class="hero-section">
+    @if (model != null)
+    {
+        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaImage"]);
+        Sitecore.Data.Fields.ImageField thumbimgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaThumbnail"]);
+        if (imgField != null && imgField.MediaItem != null)
+        {
+            url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            altText = imgField.Alt;
+				
+			thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbimgField.MediaItem);
+            thumbaltText = thumbimgField.Alt;
+            <figure>
+                <img src="@url" alt="@altText" class="desktop-img" />
+                <img src="@thumburl" alt="@thumbaltText" class="mobile-img" />
+            </figure>
+        }
+
+        if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", model).ToString()))
+        {
+            sectionClass = model.Fields["Class"].ToString();
+        }
+
+    }
+
+    
+
+    <div class="hero-content-wrapper">
+	@Html.Sitecore().Placeholder("press-release-breadcrumb")
+        <div class="full">
+            <div class="hero-content @sectionClass">
+                @if (model != null)
+                {
+                    Sitecore.Data.Fields.LinkField linkField = model.Fields["ButtonLink"];
+                    var btnUrl = linkField.GetFriendlyUrl();
+                    string btnTitle = model.Fields["ButtonTitle"].ToString();
+
+
+                    <h1 class="full hero-heading fm-am">@Html.Sitecore().Field("MediaTitle", model)</h1>
+                    <p class="full hero-desc fm-am">@Html.Sitecore().Field("MediaDescription", model)</p>
+                    if (!String.IsNullOrEmpty(btnTitle))
+                    {
+                    <div class="banner-cta-wrp" id="getintouchBtn">
+					
+
+
+                        @if (btnUrl != null)
+                        {
+                           
+                            @Html.Sitecore().Field("Summary", model)
+                        }
+                        else
+                        {
+                            
+                            @Html.Sitecore().Field("Summary", model)
+                        }
+
+
+                    </div>
+                    }
+                }
+
+            </div>
+        </div>
+        <div class="banner-arrow">
+            <span class="circle"></span>
+            <span class="arrow"></span>
+        </div>
+    </div>
+</div>
+

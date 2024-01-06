@@ -1,0 +1,426 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.NewConnectionModel
+@{
+    var Type = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["Type"] ?? "";
+    Sitecore.Data.Database db = Sitecore.Configuration.Factory.GetDatabase("web");
+
+    if (!string.IsNullOrEmpty(Type) && Type.ToLower() == "residential")
+    {
+        Model.PartnerTypeList = Model.PartnerTypeList.Where(w => w.Value == db.GetItem(Templates.PartnerType.Fields.residential).Fields["Value"].Value).ToList();
+        Model.Partner_Type = db.GetItem(Templates.PartnerType.Fields.residential).Fields["Value"].Value;
+
+    }
+    else if (!string.IsNullOrEmpty(Type) && Type.ToLower() == "commercial")
+    {
+        Model.PartnerTypeList = Model.PartnerTypeList.Where(w => w.Value == db.GetItem(Templates.PartnerType.Fields.commercial).Fields["Value"].Value).ToList();
+        Model.Partner_Type = db.GetItem(Templates.PartnerType.Fields.commercial).Fields["Value"].Value;
+
+    }
+    else if (!string.IsNullOrEmpty(Type) && Type.ToLower() == "industrial")
+    {
+        Model.PartnerTypeList = Model.PartnerTypeList.Where(w => w.Value == db.GetItem(Templates.PartnerType.Fields.industrial).Fields["Value"].Value).ToList();
+        Model.Partner_Type = db.GetItem(Templates.PartnerType.Fields.industrial).Fields["Value"].Value;
+    }
+
+}
+<div class="pageContent">
+    <div class="container">
+        <div class="">
+            <div class="my-lg-3 py-lg-3">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" id="li_inquire">
+                        <a class="nav-link active" data-toggle="tab" href="#inquiry">New Connection Enquiry</a>
+                    </li>
+                    @*<li class="nav-item" id="li_visitcare">
+                        <a class="nav-link" data-toggle="tab" href="#visitcare">Visit Customer Care</a>
+                    </li>
+                    <li class="nav-item" id="li_pngnetwork">
+                        <a class="nav-link" data-toggle="tab" href="#network">PNG Network</a>
+                    </li>*@
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="inquiry" role="tabpanel">
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmEnquiry", @class = "form-signin" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.AddUniqueFormId()
+                            @Html.HiddenFor(x => x.CampaignID)
+                            @Html.HiddenFor(m => m.FormURL, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+                            @Html.HiddenFor(m => m.ResponseURL, new { @Value = "/NewConnection-ThankYou" })
+                            if (!string.IsNullOrEmpty(Model.ReturnViewMessage))
+                            {
+                                <p class="col-md-7 txt-red" id="errorSection">
+                                    @Model.ReturnViewMessage
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="col-md-7" id="errorSection">
+
+                                </p>
+                            }
+                            <div class="row">
+                                <div class="col-12" id="messageSection">
+                                    @{
+                                        var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                                        if (info != null)
+                                        {
+                                            Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <p class="pb-md-3 float-sm-right">fields marked <span class="required">*</span> are mandatory</p>
+                            <div class="clearfix"></div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Partner_Type, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Partner Type", "Connection Type")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @*@Html.DropDownListFor(x => x.Partner_Type, Model.PartnerTypeList, htmlAttributes: new { @class = "form-control reset-control", id = "Partnertype", required = "required", @disabled = "disabled" })*@
+                                            @Html.DropDownListFor(x => x.Partner_Type, Model.PartnerTypeList, !string.IsNullOrEmpty(Type) ? (object)new { @class = "form-control reset-control", id = "NewConPartnertype", required = "required", @disabled = "disabled" } : new { @class = "form-control reset-control", id = "Partnertype", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.Partner_Type, "", new { @class = "help-block" }, "p")
+                                            @Html.HiddenFor(x => x.Partner_Type)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.FullName, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Name", "Name")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.FullName, new { @class = "form-control reset-control", id = "NewConName", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.FullName, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Mobile, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Mobile No", "Mobile No.")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control reset-control", id = "NewConMobile", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.City, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/City", "City")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.DropDownListFor(x => Model.City, new SelectList(Model.CityList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchAreaOfCity(this.value,'#NewConArea')", @class = "form-control reset-control", id = "NewConCity", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.City, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Area, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Select Area", "Select Area")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.DropDownListFor(x => Model.Area, new SelectList(Model.AreaList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @onchange = "searchSocietyByArea(this.value,'#NewConApartmentComplex')", @class = "form-control reset-control", id = "NewConArea", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.Area, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            if (!string.IsNullOrEmpty(Type) && Type.ToLower() == "residential")
+                            {
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.HouseType, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/Select Type of House", "Type of House")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.DropDownListFor(x => Model.HouseType, new SelectList(Model.HouseTypeList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @class = "form-control reset-control", id = "NewConHouseType", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.HouseType, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.ApartmentComplex, "has-error") @Html.ValidationErrorFor(x => x.OtherApartmentComplex, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/Select Apartment Complex", "Apartment/ Society/ House")
+                                                <span class="required noBunglow">*</span>
+                                            </label>
+                                            <div class="col-sm-6 col-md-6">
+                                                @Html.DropDownListFor(x => Model.ApartmentComplex, new SelectList(Model.ApartmentComplexList, "SocietyName", "SocietyName"), "--Please Select--", htmlAttributes: new { @onchange = "updateSocietyDetails(this.value,'#NewConApartmentComplex')", @class = "form-control reset-control", id = "NewConApartmentComplex", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.ApartmentComplex, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                            <div class="col-sm-1 col-md-1">
+                                                <div class="tooltip_icon py-2" data-toggle="tooltip" data-placement="top" title="Select 'Other' option, if no Apartment/Society/House found in the list.">
+                                                    <i class="fa fa-info-circle"></i>
+                                                </div>
+                                            </div>
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label OtherSociety d-none">
+                                                @Html.Sitecore().Dictionary("/Accounts/OtherApartmentComplex", "Apartment/ Society/ House Name")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7 OtherSociety d-none">
+                                                @Html.TextBoxFor(x => x.OtherApartmentComplex, new { @class = "form-control reset-control", id = "OtherApartmentComplex" })
+                                                @Html.ValidationMessageFor(x => x.OtherApartmentComplex, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            }
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.HouseNo, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/House NoOrBuilding No", "House No/Building No")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.HouseNo, new { @class = "form-control reset-control", id = "", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.HouseNo, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.AddressLine1, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Address Line 1", "Address Line 1")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.AddressLine1, new { @class = "form-control reset-control", id = "NewConAddress1", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.AddressLine1, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.AddressLine2, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Address Line 2", "Address Line 2")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.AddressLine2, new { @class = "form-control reset-control", id = "NewConAddress2", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.AddressLine2, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Pincode, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Address Line 2", "Pincode")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.Pincode, new { @class = "form-control reset-control", id = "NewConPincode", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.Pincode, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            if (!string.IsNullOrEmpty(Type) && Type.ToLower() == "commercial")
+                            {
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.TypeOfCustomer, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/TypeOfCustomer", "Type Of Customer")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.DropDownListFor(x => Model.TypeOfCustomer, new SelectList(Model.TypeOfCustomerList, "Value", "Text"), "Select any", htmlAttributes: new { @onchange = "CustTypeChange(this.value)", @class = "form-control reset-control", id = "NewConTypeOfCustomer", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.TypeOfCustomer, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label OtherTOC d-none">
+                                                @Html.Sitecore().Dictionary("/Accounts/OtherTypeOfCustomer", "Other Type Of Customer")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7 OtherTOC d-none">
+                                                @Html.TextBoxFor(x => x.OtherTypeOfCustomer, new { @class = "form-control reset-control", id = "OtherTypeOfCustomer" })
+                                                @Html.ValidationMessageFor(x => x.OtherTypeOfCustomer, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Application, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/Application", "Application")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.DropDownListFor(x => Model.Application, new SelectList(Model.ApplicationList, "Value", "Text"), "Select any", htmlAttributes: new { @onchange = "AppChange(this.value)", @class = "form-control reset-control", id = "NewConApplication", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.Application, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label OtherApp d-none">
+                                                @Html.Sitecore().Dictionary("/Accounts/OtherApplication", "Other Application")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7 OtherApp d-none">
+                                                @Html.TextBoxFor(x => x.OtherApplication, new { @class = "form-control reset-control", id = "OtherApplication" })
+                                                @Html.ValidationMessageFor(x => x.OtherApplication, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.CurrentFuelUse, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/CurrentFuelUse", "Current fuel using?")
+                                                @*<span class="required">*</span>*@
+                                            </label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.DropDownListFor(x => Model.CurrentFuelUse, new SelectList(Model.CurrentFuelUseList, "Value", "Text"), "Select any", htmlAttributes: new { @onchange = "FuelTypeChange(this.value)", @class = "form-control reset-control", id = "NewConCurrentFuelUse" })
+                                                @Html.ValidationMessageFor(x => x.CurrentFuelUse, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label OtherFuel d-none">
+                                                @Html.Sitecore().Dictionary("/Accounts/OtherCurrentFuelUse", "Other fuel using?")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7 OtherFuel d-none">
+                                                @Html.TextBoxFor(x => x.OtherCurrentFuelUse, new { @class = "form-control reset-control", id = "OtherCurrentFuelUse" })
+                                                @Html.ValidationMessageFor(x => x.OtherCurrentFuelUse, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            }
+                            if (!string.IsNullOrEmpty(Type) && Type.ToLower() == "industrial")
+                            {
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.TypeOfIndustry, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/TypeOfIndustry", "Type Of Industry")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.DropDownListFor(x => Model.TypeOfIndustry, new SelectList(Model.TypeOfIndustryList, "Value", "Text"), "Select any", htmlAttributes: new { @onchange = "TOIChange(this.value)", @class = "form-control reset-control", id = "NewConTypeOfIndustry", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.TypeOfIndustry, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label OtherTOI d-none">
+                                                @Html.Sitecore().Dictionary("/Accounts/OtherTypeOfIndustry", "Other Type Of Industry")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7 OtherTOI d-none">
+                                                @Html.TextBoxFor(x => x.OtherTypeOfIndustry, new { @class = "form-control reset-control", id = "OtherTypeOfIndustry" })
+                                                @Html.ValidationMessageFor(x => x.OtherTypeOfIndustry, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.CurrentFuelUse, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/CurrentFuelUse", "Current fuel using?")
+                                                @*<span class="required">*</span>*@
+                                            </label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.DropDownListFor(x => Model.CurrentFuelUse, new SelectList(Model.CurrentFuelUseList, "Value", "Text"), "Select any", htmlAttributes: new { @onchange = "FuelTypeChange(this.value)", @class = "form-control reset-control", id = "NewConCurrentFuelUse" })
+                                                @Html.ValidationMessageFor(x => x.CurrentFuelUse, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label OtherFuel d-none">
+                                                @Html.Sitecore().Dictionary("/Accounts/OtherCurrentFuelUse", "Other fuel using?")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="col-sm-7 col-md-7 OtherFuel d-none">
+                                                @Html.TextBoxFor(x => x.OtherCurrentFuelUse, new { @class = "form-control reset-control", id = "OtherCurrentFuelUse" })
+                                                @Html.ValidationMessageFor(x => x.OtherCurrentFuelUse, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.MonthlyConsumption, "has-error")">
+                                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                                @Html.Sitecore().Dictionary("/Accounts/MonthlyConsumption", "Monthly Consumption(in KG/L)")
+                                                @*<span class="required">*</span>*@
+                                            </label>
+                                            <div class="col-sm-7 col-md-7">
+                                                @Html.TextBoxFor(x => x.MonthlyConsumption, new { @class = "form-control reset-control", id = "NewConMonthlyConsumption" })
+                                                @Html.ValidationMessageFor(x => x.MonthlyConsumption, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr />
+                            }
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.ReferenceSource, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Select Reference Source", "How did you know about us?")
+                                            @*<span class="required">*</span>*@
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.DropDownListFor(x => Model.ReferenceSource, new SelectList(Model.ReferenceSourceList, "Value", "Text"), "Select any", htmlAttributes: new { @class = "form-control reset-control", id = "NewConReferenceSource" })
+                                            @Html.ValidationMessageFor(x => x.ReferenceSource, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="termsCb1" class="form-check-input" id="termsCb1" required>
+                                        
+                                        <label class="form-check-label mb-2" for="termsCb1"><b><span class="required">*</span>Disclaimer –</b> Our company representative may contact you / visit you for further process. Submitting an enquiry does not entitle a PNG connection. Providing connection will be subject to feasibility assessment, technical clearance, statutory and other permissions etc.</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                        <label for="" class="">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                                        <div class="">
+                                            @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row pt-md-3 mb-0">
+                                <div class="col-12">
+                                    <button id="btnSubmit" type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("/Accounts/Submit", "Submit")</button>
+                                    <a href="javascript:void(0);" id="a_reload" class="btn btn-secondary">
+                                        @Html.Sitecore().Dictionary("/Accounts/Reset", "Reset")
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    @*<div class="tab-pane fade" id="visitcare" role="tabpanel">
+                        @Html.Sitecore().Placeholder("visitcustomer-care")
+                    </div>
+                    <div class="tab-pane fade" id="network" role="tabpanel">
+                        @Html.Sitecore().Placeholder("png-network")
+                    </div>*@
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- /Page Content -->
+</div>

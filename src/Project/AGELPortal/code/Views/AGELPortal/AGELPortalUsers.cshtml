@@ -1,0 +1,384 @@
+﻿@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration;
+@using Sitecore.Mvc.Presentation;
+
+@model Sitecore.AGELPortal.Website.Models.PortalAddUserModel
+@{
+    Layout = null;
+    int pageSize = 10;
+    var count = Math.Ceiling(System.Convert.ToDouble(Model.totalRecord) / pageSize);
+    Uri myUri = new Uri(Request.Url.AbsoluteUri);
+    var qs = System.Web.HttpUtility.ParseQueryString(Request.Url.Query);
+    qs.Remove("page");
+    var newQuerystring = Request.Url.AbsolutePath + "?" + qs.ToString();
+    var pageNumber = HttpUtility.ParseQueryString(myUri.Query).Get("page") != null ? System.Convert.ToInt32(HttpUtility.ParseQueryString(myUri.Query).Get("page")) : 1;
+    var UserType = HttpUtility.ParseQueryString(myUri.Query).Get("user_type");
+    var Site = HttpUtility.ParseQueryString(myUri.Query).Get("Site");
+    var SearchKeyword = HttpUtility.ParseQueryString(myUri.Query).Get("searchKeyword");
+    var currentRecordCount = Model.Users.Count;
+    ViewData["UserList"] = Model.Users;
+    var Text = "";
+
+    //var url1 = HttpUtility.ParseQueryString(myUri.Query);
+}
+
+<div class="container">
+
+    <div class="section-header flex-justify">
+        <h3>User Management</h3>
+        @if (Session["addUserSuccess"] != null)
+        {
+            <div id="toast-success" class="modal modal-alert modal-toast custom-toast-success" style="display:block;">
+                <header class="modal-header">
+                    <h4>
+                        <a class="toast-close">
+                            <i class="i-tick"></i>
+                        </a>
+                        @Session["addUserSuccess"]
+                    </h4>
+                    <a class="modal-close">
+                        <i class="i-cross"> </i>
+                    </a>
+                </header>
+            </div>
+            Session["addUserSuccess"] = null;
+        }
+        <div class="btn-group">
+            <a class="waves-effect waves-light btn  modal-trigger" href="#bulk-upload">Bulk upload </a>
+            <a class="waves-effect waves-light btn modal-trigger" href="/AGELPortal/Home/dashboard/add-user">+ Add</a>
+        </div>
+    </div>
+    <div class="card-with-form form-inline-box section-container">
+        <div class="user-manage-field-group">
+            <form action="" method="get" autocomplete="off">
+                <div class="searchkeyword-wrap input-field custom input-has-icon">
+                    @Html.TextBox("searchKeyword")
+                    <label id="searchLabel">Search</label>
+
+                    @*<button id="searchKeyword" class="form-control" onclick="redirect();" />
+                                <div class="input-icon">
+                        <span class="icon-holder cross-icon-holder waves-effect cross-icon" id="search-cross-icon" style="display: none;">
+                                    <i onclick="commonCrossIconPasswordField(this);" class="i-cross"></i>
+                                </span>
+                                        <span class="icon-holder waves-effect waves-light">
+                                            <i class="vi-search-2 searchuser">
+                                            </i>
+                                            <button id="searchKeyword" class="form-control" onclick="redirect();"><img src="~/images/AGELPortal/search-light.svg"></button>
+                                        </span>
+                                    </div>*@
+                </div>
+            </form>
+            <div class="input-field custom">
+                @*<button type="button" class="waves-effect waves-light btn" onkeyup="checkquerystring">Download</button>*@
+
+                <select name="user_type" id="user_type">
+                    <option value="">All</option>
+                    <option value="adani" @(UserType == "adani" ? "selected" : "")>Adani</option>
+                    <option value="vendor" @(UserType == "vendor" ? "selected" : "")>Vendor</option>
+                </select>
+                <label>Filter By User Type</label>
+            </div>
+            <div class="input-field custom">
+                <select name="Site" id="Site">
+                    <option value="">All</option>
+                    <option value="Gurgaon" @(Site == "Gurgaon" ? "selected" : "")>Gurgaon</option>
+                    <option value="Ahmedabad" @(Site == "Ahmedabad" ? "selected" : "")>Ahmedabad</option>
+                    <option value="Mumbai" @(Site == "Mumbai" ? "selected" : "")>Mumbai</option>
+                </select>
+                <label>Filter By Location</label>
+            </div>
+            <div class="btn-group">
+                <a class="waves-effect waves-light btn modal-trigger searchuser" href="#">Search</a>
+                <a class="waves-effect waves-light btn  modal-trigger cross-icon" href="#" id="search-cross-icon">Reset</a>
+            </div>
+        </div>
+       
+    </div>
+    <div class="customer_detail_wrapper customer_detail_list">
+        <table class="customer_detail_list-details">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Name</th>
+                    <th style="width: 20%;">User Type </th>
+                    <th style="width: 20%;">Vendor Name </th>
+                    <th style="width: 20%;">Site</th>
+                    <th style="width: 20%;">Mobile Number</th>
+                    <th style="width: 20%;">Email</th>
+                    <th style="width: 20%;">Status</th>
+                    <th style="width: 15%;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var users = Model.Users;
+                }
+                @foreach (var user in Model.Users)
+                {
+                    <tr id="tr-@user.Id">
+                        <td>
+                            <div class="table-cell">
+                                <label>@user.name</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@user.user_type</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@user.vendor</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@user.site</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@user.mobile</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@user.email</label>
+                            </div>
+                        </td>
+                        <td>
+
+                            <div class="table-cell">
+                                @if (user.status == true)
+                                {
+                                    <div class="status" id="DivStatus">
+                                        <a href="javascript:void();" data-id="@user.Id" class="change-status"> <h3>Active</h3></a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="status2" id="DivStatus">
+                                        <a href="javascript:void();" data-id="@user.Id" class="change-status"> <h3>Inactive</h3></a>
+                                    </div>
+
+                                }
+                                <div class="status">
+                                    <div class="table-cell">
+
+
+                                    </div>
+                                    @*<a href="javascript:void();" data-id="@user.Id" class="change-status"> <h3>@( user.status == true ? "Active" : "Inactive" )</h3></a>*@
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <div class="table3">
+                                    <a class="modal-trigger edit_category" data-id="@user.Id" href="/AGELPortal/Home/dashboard/edit-user?Id=@user.Id"><img src="/images/AGELPortal/edit.svg" alt="edit-img"></a>
+                                    <a class="delete_user" data-id="@user.Id" href="javascript:void();"><img src="/images/AGELPortal/delete.svg" alt="delete-img"></a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-wrapper">
+        <div class="total-count">
+            @{
+
+                var start = pageNumber > 0 ? (pageNumber - 1) * pageSize : 0;
+                var diff = pageSize - currentRecordCount;
+                var last = pageNumber > 0 ? (pageNumber * pageSize) - diff : currentRecordCount;
+                var totalPages = (int)Math.Ceiling((decimal)Model.totalRecord / (decimal)pageSize);
+            }
+            @(start + 1)-@last of @Model.totalRecord Records
+        </div>
+        @if (UserType == null && Site == null && SearchKeyword == null)
+        {
+            <div class="pagination">
+                @if (count > 1 && pageNumber > 1)
+                {
+                    var pre = pageNumber - 1;
+                    <a href="?page=@pre"><i class="i-arrow-l"></i></a>
+                }
+                @if (count > 1)
+                {
+                    for (int i = 1; i <= count; i++)
+                    {
+                        var _class = (pageNumber == i || pageNumber == 0) ? "current" : "wave-effect";
+                        <a href="?page=@i" class="@_class">@i</a>
+
+                    }
+                }
+
+                @if (pageNumber < totalPages)
+                {
+                    if (count > 1)
+                    {
+                        var next = pageNumber + 1;
+                        <a href="?page=@next"><i class="i-arrow-r"></i></a>
+                    }
+                }
+            </div>
+        }
+        else
+        {
+            <div class="pagination">
+                @if (count > 1 && pageNumber > 1)
+                {
+                    var pre = pageNumber - 1;
+                    var url = newQuerystring + "&page=" + pre;
+                    <a href="@url"><i class="i-arrow-l"></i></a>
+                }
+                @if (count > 1)
+                {
+                    for (int i = 1; i <= count; i++)
+                    {
+                        var _class = (pageNumber == i || pageNumber == 0) ? "current" : "wave-effect";
+                        var url = newQuerystring + "&page=" + i;
+                        <a href="@url" class="@_class">@i</a>
+
+                    }
+                }
+                @if (pageNumber < totalPages)
+                {
+                    if (count > 1)
+                    {
+                        var next = pageNumber + 1;
+                        var url = newQuerystring + "&page=" + next;
+                        <a href="@url"><i class="i-arrow-r"></i></a>
+                    }
+                }
+            </div>
+        }
+    </div>
+
+
+</div>
+
+
+<!---Upload model-->
+
+<div class="modal-wrapper">
+    <div id="bulk-upload" class="modal">
+        <div class="modal-content">
+            <a class="modal-close"><img src="/images/AGELPortal/cross-icon.svg" /></a>
+            <h4>Bulk Upload</h4>
+            <div class="card-with-form login-wrap bulk">
+                <div class="erro_csv_upload"></div>
+                <form name="upload_user_form" id="upload_user_form">
+                    <div class="modal-items new-connection-form">
+                        <div class="form-field">
+                            <div class="form-field bulk-upload-field">
+                                <h6>UPLOAD USER</h6>
+                                @*<div class="file-field custom">
+                            <label class="file-label" for="empList">
+                                <i class="i-attach i-20 with-label">Upload / Drag & Drop CSV file.</i>
+                            </label>
+                            <input class="input-file" type="file" required name="empList" id="empList" />
+                        </div>
+
+                        <div class="file-path-wrapper select-message">
+                            <i class="i-attach i-20"></i>
+                            <input class="file-path validate" type="text">
+                            <i class="remove-upload i-cross-c i-24"></i>
+                        </div>*@
+                                <div class="file-upload-wrp">
+                                    <div class="file-field">
+                                        <div class="btn000 file-select">
+                                            <label class="file-label" for="agel_file">
+                                                <i class="i-attach i-20 with-label">Upload / Drag &amp; Drop</i>
+                                            </label>
+                                            <input id="agel_file" type="file" name="agel_file" class="input-file" required>
+
+
+                                        </div>
+                                        <div class="file-path-wrapper select-message">
+                                            <i class="i-attach i-20"></i>
+                                            <input class="file-path validate" type="text">
+                                            <i class="remove-upload i-cross-c i-24"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-right btn-group2">
+                        <button type="button" class="waves-effect waves-light btn" id="uploadUserBulk">Upload</button>
+                        <a href="~/images/AGELPortal/TemplatePreview/BulkUserUploadFormat.csv" class="btn-flat waves-effect waves-light">Download Template</a>
+                    </div>
+
+
+
+                </form>
+
+                <div class="section-wrapper custom_accrdion">
+                    <div class="accordion">
+                        <ul class="collapsible collapsible-accordion">
+                            <li>
+                                <div class="collapsible-header">
+                                    How to Upload?
+                                </div>
+                                <div class="collapsible-body">
+                                    <div class="steps-content">
+                                        <div class="card outlined">
+                                            <ul>
+                                                <li>
+                                                    <h6>STEP 1</h6>
+                                                    <p>
+                                                        Download Template
+                                                    </p>
+                                                </li>
+                                                <li>
+                                                    <h6>STEP 2</h6>
+                                                    <p>
+                                                        Add your data to the template file
+                                                    </p>
+                                                </li>
+                                                <li>
+                                                    <h6>STEP 3</h6>
+                                                    <p>
+                                                        Upload it above for processing
+                                                    </p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--upload model-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#downloadForm").keydown(function (event) {
+            debugger;
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+        $('#downloadForm').submit(function () {
+            debugger;
+            Text = $("#searchKeyword").val();
+            $('#downloadForm').append('<input type="hidden"  value= @Text /> ');
+            return true;
+        });
+    });
+</script>

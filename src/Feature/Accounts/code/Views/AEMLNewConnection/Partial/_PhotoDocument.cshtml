@@ -1,0 +1,102 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{
+    var documentList = new List<Sitecore.Feature.Accounts.NEWCON_DOCUMENTMASTER>();
+    var sezdocumentList = new List<Sitecore.Feature.Accounts.NEWCON_DOCUMENTMASTER>();
+    var objID = new List<Sitecore.Feature.Accounts.NEW_CON_APPLICATION_DOCUMENT_DETAIL>();
+    var objSezID = new List<Sitecore.Feature.Accounts.NEW_CON_APPLICATION_DOCUMENT_DETAIL>();
+    var isjoint = Model.ApplicantType;
+    if (Model.DocumentList != null && Model.DocumentList.Count > 0)
+    {
+        documentList = Model.DocumentList.FindAll(d => d.DOCTY.Trim() == "PH");
+        sezdocumentList = Model.DocumentList.FindAll(d => d.DOCTY.Trim() == "PH" && d.DOCID==332);
+
+        objID = Model.GetExistingDocuments.FindAll(cv => cv.DocumentTypeCode.Contains("PH".ToString()));
+        objID.Sort((cv1, cv2) => cv1.CreatedDate.Value.CompareTo(cv2.CreatedDate.Value));
+
+        objSezID = Model.GetExistingDocuments.FindAll(cv => cv.DocumentTypeCode.Contains("PH".ToString()) && cv.DocumentType=="332");
+        objSezID.Sort((cv1, cv2) => cv1.CreatedDate.Value.CompareTo(cv2.CreatedDate.Value));
+    }
+}
+@if (documentList != null && documentList.Count > 0)
+{
+    for (int i = 1; i <= (isjoint == "2" ? 2 : 1); i++)
+    {
+        var obj = (objID.Count == 1 && i == 1) ? objID[0] : (objID.Count == 2 && i == 2 ? objID[1] : null);
+        <tr>
+            <td>
+                @Model.SNO
+                <input type="hidden" name="HDNPHOTOFILEID_@i" id="HDNPHOTOFILEID_@i" value="@(obj!=null?obj.Id.ToString():"")" />
+            </td>
+            <td>
+                <div class="row no-gutters">
+                    <div class="col-10">
+                        @(isjoint == "1" ? documentList[0].DESCRIPTION : documentList[0].DESCRIPTION + "-" + i.ToString())
+                    </div>
+                    <div class="col-2">
+                        <span class="required ml-2">*</span>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="form-group mb-0">
+                    <input type="hidden" name="HDNPHOTOFILE_@i" id="HDNPHOTOFILE_@i" value="@(obj != null?obj.DocumentType:"")" />
+                    <input type="file" id="PHOTOFILE_@i" name="PHOTOFILE_@i" onchange="ValidatePHFile(this);" class="form-control cou" />
+                    @if (obj != null)
+                    {
+                        <div class="d-block mt-2">
+                            <a class="txt-orange photofile_@i" href="@Url.Action("DownloadFile", new { id = obj.Id })">
+                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                            </a>
+                        </div>
+                    }
+                </div>
+            </td>
+        </tr>
+        Model.SNO = Model.SNO + 1;
+    }
+}
+
+@if (Model.IsSez == "1" && sezdocumentList != null && sezdocumentList.Count > 0)
+{
+    for (int i = 1; i <= (isjoint == "2" ? 2 : 1); i++)
+    {
+        var obj = (objSezID.Count == 1 && i == 1) ? objSezID[0] : (objSezID.Count == 2 && i == 2 ? objID[1] : null);
+        <tr>
+            <td>
+                @Model.SNO
+                <input type="hidden" name="HDNSEZFILEID_@i" id="HDNSEZFILEID_@i" value="@(obj!=null?obj.Id.ToString():"")" />
+            </td>
+            <td>
+                <div class="row no-gutters">
+                    <div class="col-10">
+                        @(isjoint == "1" ? sezdocumentList[0].DESCRIPTION : sezdocumentList[0].DESCRIPTION + "-" + i.ToString())
+                    </div>
+                    <div class="col-2">
+                        <span class="required ml-2">*</span>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="form-group mb-0">
+                    <input type="hidden" name="HDNSEZFILE_@i" id="HDNSEZFILE_@i" value="@(obj != null?obj.DocumentType:"")" />
+                    <input type="file" id="SEZFILE_@i" name="SEZFILE_@i" onchange="ValidatePHFile(this);" class="form-control cou" />
+                    @if (obj != null)
+                    {
+                        <div class="d-block mt-2">
+                            <a class="txt-orange photofile_@i" href="@Url.Action("DownloadFile", new { id = obj.Id })">
+                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                            </a>
+                        </div>
+                    }
+                </div>
+            </td>
+        </tr>
+        Model.SNO = Model.SNO + 1;
+    }
+}

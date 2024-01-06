@@ -1,0 +1,43 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+<nav class="menu-main-menu-container">
+    <ul id="menu-main-menu" class="menu">
+        @if (Model?.NavItems != null)
+        {
+            foreach (var item in Model.NavItems)
+            {
+                var hasChildren = item.Children != null && item.Children.NavItems.Any() && item.ShowChildren;
+
+
+
+                <li id="menu-item" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item">
+                    @if (hasChildren)
+                    {
+                        <a href="@item.Url">
+                            @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                        </a>
+                        <ul class="sub-menu">
+                            @foreach (var subitem in item.Children.NavItems)
+                            {
+                                <li id="menu-item" class="menu-item menu-item-type-post_type menu-item-object">
+                                    <a href="@subitem.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</a>
+                                </li>
+                            }
+
+                        </ul>
+                    }
+                    else
+                    {
+                        <a href="@item.Url">
+                            @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                        </a>
+                    }
+                </li>
+
+            }
+
+        }
+    </ul>
+    </nav>

@@ -1,0 +1,65 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Fields
+@*@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories*@
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@*@using Sitecore.Foundation.Theming.Extensions*@
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)model.Fields["__Thumbnail"]);
+    var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+    MultilistField Select = model.Fields["Select"];
+    var selectitem = Select.GetItems();
+}
+<section class="capabilities d-block position-relative">
+    <div class="container">
+        <div class="section-title ourcap">
+            <h1>@Html.Sitecore().Field("Title", model)</h1>
+        </div>
+        <p class="py-4">
+            @Html.Sitecore().Field("Description", model)
+        </p>
+
+        <div class="slider-capability">
+            @foreach (var element in selectitem)
+            {
+                Sitecore.Data.Fields.LinkField itemslinkvalues = element.Fields["RedirectLinkUrl"];
+                var itemslinks = itemslinkvalues.GetFriendlyUrl();
+
+                Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+                <div class="col-lg-4">
+                    <a href=@itemslinks>
+                        <div class="cap cap-1">
+                            <div class="cap-slide-img">
+                                @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                {
+                                    var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                    <img src=@imgurl class="img-fluid">
+                                }
+                                else
+                                {
+                                    <img src=@thumbimg class="img-fluid">
+                                }
+                            </div>
+                            <div class="cap-slide-img-title pt-5">
+                                <h3>@Html.Sitecore().Field("Title", element)</h3>
+                            </div>
+                            <div class="cap-slide-img-text pt-2">
+                                <p>@Html.Sitecore().Field("Description", element)</p>
+                            </div>
+                        </div>
+                    </a>
+</div>
+            }
+        </div>
+    </div>
+</section>
+

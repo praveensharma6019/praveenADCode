@@ -1,0 +1,60 @@
+﻿
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Project.Marathon
+@using Sitecore;
+@using Sitecore.Data.Items;
+@using Sitecore.Resources.Media
+
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var imageUrl = "";
+}
+
+
+<section class="news-gallery-section">
+    <div class="container">
+        <div class="news-gallery flex flex-wrap row">
+            @foreach (var item in model.GetChildren().ToList())
+            {
+			Sitecore.Data.Fields.ImageField imageField = item.Fields["MediaImage"];
+                 if (imageField?.MediaItem != null)
+                 {
+                     var image = new MediaItem(imageField.MediaItem);
+                     imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                 }
+                <div class="col-sm-4">
+                    <div class="news-gallery-thumbnail" style="background-image:url(@imageUrl)">
+                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, item)
+                        <div class="news-gallery-detail">
+                            <h5>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</h5>
+                            <div class="clearfix">@Html.Sitecore().Field(Templates.HasMedia.Fields.Description, item)</div>
+                        </div>
+                        <a href="javadcript:void(0)" class="lightbox-trigger"></a>
+                    </div>
+                    <div class="light-box">
+                        <h5>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</h5>
+                        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, item)
+                        <div class="back"></div>
+                    </div>
+                </div>
+
+            }
+
+
+
+
+
+        </div>
+        <div class="gallery-controller">
+            <div class="prev"></div>
+            <div class="next"></div>
+            <div class="close"><img src="/images/Marathon/cross.png"></div>
+            <div class="zoom"><img src="/images/Marathon/zoom.png"></div>
+        </div>
+        <div class="overlay"></div>
+    </div>
+</section>

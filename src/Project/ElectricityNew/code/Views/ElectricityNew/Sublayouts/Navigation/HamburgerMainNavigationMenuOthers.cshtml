@@ -1,0 +1,67 @@
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (element != null)
+{
+    <ul class="hamburger_section">
+        <li>
+            <h5>@Html.Sitecore().Field("Text", element)</h5>
+        </li>
+        @if (element.HasChildren)
+        {
+            var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+            int count = 1;
+            foreach (Item item in element.GetChildren().Where(p => p.Name.ToLower() != "logout"))
+            {
+                //var imgurls = Helper.ImageUrl("LinkImage", item);
+                //var url = Helper.LinkUrl(item.Fields["LinkUrl"]);
+
+                Sitecore.Data.Fields.LinkField itemLinkfld = item.Fields["LinkUrl"];
+                var url = itemLinkfld != null && !string.IsNullOrEmpty(itemLinkfld.GetFriendlyUrl()) ? itemLinkfld.GetFriendlyUrl() : "#";
+                var urlTarget = itemLinkfld != null ? itemLinkfld.Target : "";
+
+
+                var classNav = @Html.Sitecore().Field("Class", item).ToString();
+                <li>
+                    <a href="@url" target="@urlTarget">
+
+                        @if ((!string.IsNullOrEmpty(classNav)) && (!string.IsNullOrEmpty(classNav)))
+                        {
+                            <span class="icon-box"><i class="@classNav"></i></span>
+                        }
+                        else
+                        {
+                            <span class="icon-box">
+                                <i class="i-download-app"></i>
+                            </span>
+                        }
+                        <label>@Html.Sitecore().Field("Title", item)</label>
+                    </a>
+                </li>
+
+
+
+            }
+            count++;
+            if (Sitecore.Context.User.IsAuthenticated && Elemodel != null)
+            {
+                <li>
+                    <form action="@Url.Action("logoutrevamp","accountsrevamp")" id="form1" class="form-signin" method="post">
+                        <a onclick="document.getElementById('form1').submit();" style="cursor: pointer;">
+                            <span class="icon-box user-icon"><i class="logout-icon"><img src="/electricity_assets/images/Logout.svg" alt="Logout"></i></span>
+                            @*<img src="-/media/BF6A104EBFAF4430B565156BEE6B697F.ashx" alt="Logout">*@Logout
+                        </a>
+                    </form>
+                </li>
+            }
+
+        }
+
+    </ul>
+}
+

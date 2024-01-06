@@ -1,0 +1,414 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Feature.Accounts
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ComplaintFileRegistrationModel
+@{
+    var complaintPortalHomePage = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalHelpdeskHomePage)).Url();
+    var ComplaintPortalFileComplaintPage = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaintPage)).Url();
+    var ComplaintPortalTrackComplaintPage = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalTrackComplaintPage)).Url();
+    var ComplaintPortalSubmitFeedbackPage = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalSubmitFeedbackPage)).Url();
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+<section class="py-5" style="margin-top: -2rem;">
+    <div class="container">
+        <!-- <h3 class="txt-orange txt-md mb-3">Important Covid 19 Update</h3> -->
+        @using (Html.BeginForm("Logout", "Accounts", FormMethod.Post))
+        {
+            <div class="row">
+                <div class="col-sm-8 pb-3 text-left">
+                    <p><span><b>Welcome, </b></span><b class="txt-orange">@Html.DisplayTextFor(x => x.LoginName) <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                </div>
+                <div class="col-sm-4 pb-3">
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit">
+                            @Html.Sitecore().Dictionary("/ComplaintRegistration/Logout", "Logout")
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        }
+
+        @if (!Model.isReadOnly)
+        {
+            using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+            {
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(x => x.LoginName)
+                @Html.HiddenFor(x => x.ComplaintId)
+
+                if (string.IsNullOrEmpty(Model.ComplaintFromPreviousLevel) || !Model.IsComplaintFromPreviousLevelValid)
+                {
+                    <div class="panel">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Number from Complaint at Helpdesk - Level 1</b></label>
+                                    @Html.TextBoxFor(x => x.ComplaintFromPreviousLevel, new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(x => x.ComplaintFromPreviousLevel, "", new { @class = "help-block" }, "p")
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="form-group py-2 text-right mb-0">
+                                    <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ValidateComplaintNumber" id="ValidateComplaintNumber" value="Get Details" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    @Html.HiddenFor(x => x.ComplaintFromPreviousLevel)
+                    <div class="panel">
+                        <div class="row">
+                            <div class="col-lg-12 mb-3">
+                                <h3 class="txt-orange txt-md mb-3">Complaint Registration Form</h3>
+                                <p class="">Please fill in required details below</p>
+                            </div>
+                        </div>
+                        <fieldset class="px-3">
+                            <legend class="txt-orange">Consumer details</legend>
+                            <div class="row mb-3">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Consumer Account Numberr</b></label>
+                                        @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Name</b></label>
+                                        @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Address</b></label>
+                                        @Html.TextAreaFor(x => x.Address, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>City</b></label>
+                                        @Html.TextBoxFor(x => x.City, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Pincode</b></label>
+                                        @Html.TextBoxFor(x => x.Pincode, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Zone</b></label>
+                                        @Html.TextBoxFor(x => x.ZoneName, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Email</b></label>
+                                        @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Mobile</b></label>
+                                        @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Consumer Category</b></label>
+                                        @Html.DropDownListFor(x => x.SelectedConsumerCategory, new SelectList(Model.ConsumerCategorySelectList, "Value", "Text", Model.SelectedConsumerCategory), "Select", new { @class = "form-control", id = "ddlConsumerCategory", @readonly = "readonly" })
+
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <hr />
+                        <fieldset class="px-3">
+                            <legend class="txt-orange">Previous Complaint details</legend>
+                            <div class="row mb-3">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Registration Numberr</b></label>
+                                        @Html.TextBoxFor(x => x.ComplaintFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Description</b></label>
+                                        @Html.TextAreaFor(x => x.ComplaintDescriptionFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Remarks</b></label>
+                                        @Html.TextAreaFor(x => x.RemarksFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <hr />
+                        <fieldset class="px-3">
+                            <legend class="txt-orange">Complaint details</legend>
+                            <div class="row">
+                                @if (!string.IsNullOrEmpty(Model.ComplaintId))
+                                {
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Complaint Registration Number</b></label>
+                                            @Html.TextBoxFor(x => x.ComplaintRegistrationNumber, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Complaint Status</b></label>
+                                            @Html.TextBoxFor(x => x.ComplaintStatusDescription, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Category</b></label>
+                                        @Html.DropDownListFor(x => x.SelectedComplaintCategory, new SelectList(Model.ComplaintCategorySelectList, "Value", "Text", Model.SelectedComplaintCategory), "Select", new { @class = "form-control", id = "ddlComplaintCategory", required = "required", @readonly = "readonly" })
+                                        @Html.ValidationMessageFor(x => x.SelectedComplaintCategory, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Sub-Category</b></label>
+                                        @Html.DropDownListFor(x => x.SelectedComplaintSubCategory, new SelectList(Model.ComplaintSubCategorySelectList, "Value", "Text", Model.SelectedComplaintSubCategory), "Select", new { @class = "form-control", id = "ddlComplaintSubCategory", required = "required", @readonly = "readonly" })
+                                        @Html.ValidationMessageFor(x => x.SelectedComplaintSubCategory, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Description</b></label>
+                                        @Html.TextAreaFor(x => x.ComplaintDescription, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.ComplaintDescription, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                                @if (Model.IsDocumentUploaded)
+                                {
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Upload Document</b></label>
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintFile", new { id = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>
+                                            </a>
+                                            <input type="file" id="fileComplaintDoc" name="fileComplaintDoc" class="help-block w-100" />
+                                            <span class="txt-small" style="font-size:12px;">(Upload file in .jpg format, max file size 1 MB)</span>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Upload Document</b></label>
+                                            <input type="file" id="fileComplaintDoc" name="fileComplaintDoc" class="help-block w-100" />
+                                            <span class="txt-small" style="font-size:12px;">(Upload file in .jpg format, max file size 1 MB)</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <input type="checkbox" name="termsCb" class="" id="termsCb">
+                                        <label class="" for="termsCb">I agree to receive notice, alert, and status of complaint on Mobile and Email.</label>
+                                        <p class="txt-orange" id="docErrorMessage"></p>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <div class="form-group py-2 text-right mb-0">
+                                        <input type="submit" class="btn btn-secondary mb-2 mb-md-0" name="SaveAsDraft" id="SaveAsDraft" value="Save as Draft" />
+                                        <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="SubmitApplication" id="SubmitApplication" value="Submit Application" />
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="panel">
+                <div class="row">
+                    <div class="col-lg-12 mb-3">
+                        <h3 class="txt-orange txt-md mb-3">Complaint Registration Form</h3>
+                        <p class="">Please fill in required details below</p>
+                    </div>
+                </div>
+                <fieldset class="px-3">
+                    <legend class="txt-orange">Consumer details</legend>
+                    <div class="row mb-3">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Consumer Account Numberr</b></label>
+                                @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Name</b></label>
+                                @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Address</b></label>
+                                @Html.TextAreaFor(x => x.Address, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>City</b></label>
+                                @Html.TextBoxFor(x => x.City, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Pincode</b></label>
+                                @Html.TextBoxFor(x => x.Pincode, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Zone</b></label>
+                                @Html.TextBoxFor(x => x.ZoneName, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Email</b></label>
+                                @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Mobile</b></label>
+                                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Consumer Category</b></label>
+                                @Html.DropDownListFor(x => x.SelectedConsumerCategory, new SelectList(Model.ConsumerCategorySelectList, "Value", "Text", Model.SelectedConsumerCategory), "Select", new { @class = "form-control", id = "ddlConsumerCategory", @readonly = "readonly" })
+
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <hr />
+                <fieldset class="px-3">
+                    <legend class="txt-orange">Previous Complaint details</legend>
+                    <div class="row mb-3">
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Complaint Registration Numberr</b></label>
+                                @Html.TextBoxFor(x => x.ComplaintFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Complaint Description</b></label>
+                                @Html.TextAreaFor(x => x.ComplaintDescriptionFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Complaint Remarks</b></label>
+                                @Html.TextAreaFor(x => x.RemarksFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <hr />
+                <fieldset class="px-3">
+                    <legend class="txt-orange">Complaint details</legend>
+                    <div class="row">
+                        @if (!string.IsNullOrEmpty(Model.ComplaintId))
+                        {
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Registration Number</b></label>
+                                    @Html.TextBoxFor(x => x.ComplaintRegistrationNumber, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Status</b></label>
+                                    @Html.TextBoxFor(x => x.ComplaintStatusDescription, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        }
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Complaint Registration Number from Level 1</b></label>
+                                @Html.TextBoxFor(x => x.ComplaintFromPreviousLevel, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Remarks from Level 1</b></label>
+                                @Html.TextAreaFor(x => x.RemarksFromPreviousLevel, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Complaint Category</b></label>
+                                @Html.DropDownListFor(x => x.SelectedComplaintCategory, new SelectList(Model.ComplaintCategorySelectList, "Value", "Text", Model.SelectedComplaintCategory), "Select", new { @class = "form-control", id = "ddlComplaintCategory", required = "required", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Complaint Sub-Category</b></label>
+                                @Html.DropDownListFor(x => x.SelectedComplaintSubCategory, new SelectList(Model.ComplaintSubCategorySelectList, "Value", "Text", Model.SelectedComplaintSubCategory), "Select", new { @class = "form-control", id = "ddlComplaintSubCategory", required = "required", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <div class="form-group">
+                                <label for=""><b>Complaint Description</b></label>
+                                @Html.TextAreaFor(x => x.ComplaintDescription, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                            </div>
+                        </div>
+                        @if (Model.IsDocumentUploaded)
+                        {
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Download Document</b></label>
+                                    <a class="txt-orange" href="@Url.Action("DownloadComplaintFile", new { id = Model.ComplaintId })">
+                                        <i class="fa fa-download mr-2"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.ComplaintId))
+        {
+            <div class="text-right"><a href="@ComplaintPortalTrackComplaintPage" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back</a></div>
+        }
+        else
+        {
+            <div class="text-right"><a href="@complaintPortalHomePage" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back</a></div>
+        }
+    </div>
+</section>

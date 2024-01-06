@@ -1,0 +1,68 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Mvc.Presentation
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+
+    var currentPage = Sitecore.Context.Item;
+
+
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+
+    var dataSource = Sitecore.Context.Database.GetItem(dataSourceId);
+
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectField = dataSource.Fields[Templates.CustomerSays.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+
+}
+
+<div class="section-container testimonials">
+    <div class="container">
+        <header class="section-header-main">
+            @{
+                var componentTitle = @Html.Sitecore().Field(Templates.CustomerSays.Fields.Title);
+
+                <h2>@componentTitle</h2>
+            }
+
+
+        </header>
+        <div class="testimonials-content carousel_wrapper">
+            <div class="owl-carousel standard-card" data-items-desktop="2" data-items-mobile="1.5">
+                @foreach (var item in items)
+                {
+                    var title = @item.Fields["Title"].Value;
+                    var CssClass = @item.Fields["CssClass"].Value;
+                    var description = @item.Fields["Description"].Value;
+                <div class="card">
+                    @if (!string.IsNullOrEmpty(CssClass))
+                    {
+                        <i class="@CssClass"></i>
+                    }
+                    @if (!string.IsNullOrEmpty(description))
+                    {
+                        <p>@description</p>
+                    }
+                    @if (!string.IsNullOrEmpty(title))
+                    {
+                        <h6>@title</h6>
+                    }
+                    
+                </div>
+                }
+                </div>
+        </div>
+ 
+    </div>
+    </div>
+

@@ -1,0 +1,55 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@{
+                /**/
+
+                var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+                var parent = Sitecore.Context.Database.GetItem(datasource);
+                var x = 0;
+}
+<div class="container">
+    @foreach (var child in parent.Children.ToList())
+    {
+        var ddlSource = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                @Html.DropDownList("customcare", new SelectList(ddlSource.Children, "Id", "Name"), new
+           {
+               @id = "customcareddl",
+               @class = "form-control",
+               @style = "width:200px",
+               @onchange= "abs()"
+           })
+              
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+
+
+    function abs() {
+        var itemId = $('#customcareddl').val();
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/Demo/GetCustomerCare",
+            context: this,
+            success: function (addr) {
+                $("#CustomerCareCenterArea").show();
+                $("#addressColl").html("");
+                $("#addressColl").append(addr);
+            }
+        });
+    }
+</script>
+
+
+<div class="my-3 py-3"></div>
+<div id="CustomerCareCenterArea" class="panel bg-white container" style="display:none;">
+    <h4 class="txt-orange mb-3">Customer Care Center</h4>
+    <div id="addressColl">
+        </div>
+</div>

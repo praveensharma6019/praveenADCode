@@ -1,0 +1,142 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.ChangeOfNameRegistrationModel
+
+<div class="collapsible-header hide center">
+    <a href="javascript:void(0)">Submit New Request</a>
+</div>
+<div class="collapsible-body">
+    <h2>Submit New Request</h2>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmregistrationValidate" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+
+        <div class="submit-new-request">
+            <div class="card brand-gradient outlined section-inner-wrapper card-with-form">
+                @if (Model != null && !Model.IsvalidatAccount)
+                {
+                    <div class="input-field custom">
+                        @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", maxlength = "9", oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", type = "number" })
+                        <label for="" class="">@Html.Sitecore().Dictionary("/Accounts/Change Name On Bill/Enter CA Number", "Enter CA Number")</label>
+                        @Html.ValidationMessageFor(x => x.AccountNo, "", new { @class = "help-block" }, "p")
+                        <p class="field-validation-error" id="AccountNoerror"></p>
+                    </div>
+                    <div class="input-field custom">
+                        <div class="captcha_box" id="CNBRegistrationCaptcha">
+                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                <div class="row captcha_box" style="padding-left:10px;">
+                                    <div class="col-lg-12">
+                                        <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        <p class="field-validation-error" id="CNBRegistrationCaptchaerror"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <input type="submit" class="btn btn-primary" id="validate" name="ValidateAccount"  value="@Html.Sitecore().Dictionary("/CON/Register/Validate Account Button text", "Validate")"
+                               data-gaevent="name_change_new_request_initiate"
+                               data-gaeventCategory="'AEML Services"
+                               data-gaeventAction="Name Change New Request Initiate"
+                               data-gaeventLabel="NA" />
+                    </div>
+                }
+                else
+                {
+                    <div class="input-field custom">
+                        @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                        <label for="" class="">@Html.Sitecore().Dictionary("/Accounts/Change Name On Bill/Enter CA Number", "Enter CA Number")</label>
+                    </div>
+                }
+                @if (Model != null && (Model.IsvalidatAccount || Model.IsOTPSent))
+                {
+                    <div class="input-field custom input-has-icon">
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control reset-control", id = "CustomerName", @readonly = "readonly" })
+                        <label class="active" for="CustomerName">@Html.Sitecore().Dictionary("/CON/Register/Registered Customer Name", "Registered Customer Name")</label>
+                        @Html.ValidationMessageFor(x => x.Name, "", new { @class = "help-block" }, "p")
+                    </div>
+                    <div class="input-field custom input-has-icon">
+                        @Html.TextBoxFor(x => x.MobileNo, new { @class = "form-control reset-control", id = "MobileNo", required = "required" })
+                        <label class="active" for="MobileNo">@Html.Sitecore().Dictionary("/CON/Register/Mobile Number", "Mobile Number")</label>
+                        @Html.ValidationMessageFor(x => x.MobileNo, "", new { @class = "help-block" }, "p")
+                    </div>
+                    if (Model != null && Model.IsvalidatAccount && !Model.IsOTPSent)
+                    {
+                        <div class="h-right btn-group">
+                            <input type="submit" class="btn btn-secondary" name="SendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Get OTP", "Get OTP")" />
+                        </div>
+                    }
+                    if (Model != null && Model.IsOTPSent)
+                    {
+                        <div class="otp-wrapper">
+                            <label>@Html.Sitecore().Dictionary("/CON/Register/Enter OTP", "Enter OTP")</label>
+                            <p>@Html.Sitecore().Dictionary("/Accounts/Change Name On Bill/OTP Sent Message", "OTP Sent Message")</p>
+                        </div>
+                        <div class="input-field custom">
+                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber" })
+                            <label class="active" for="enter_otp">@Html.Sitecore().Dictionary("/Accounts/Change Name On Bill/Enter OTP", "Enter OTP")</label>
+                            @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                        </div>
+                        <div class="h-right btn-group">
+                            @if (!Model.IsOTPCallExceeded && Model.IsvalidatAccount && Model.IsOTPSent)
+                            {
+                                <button type="submit" class="waves-effect waves-light btn-flat" name="SendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Resend OTP", "Resend OTP")">@Html.Sitecore().Dictionary("/Accounts/Register/Button/Resend OTP", "Resend OTP")</button>
+                                @*<input type="submit" class="waves-effect waves-light btn-flat" name="SendOTP" value="@Html.Sitecore().Dictionary("/Accounts/Register/Button/Send OTP", "Resend OTP")" />*@
+                            }
+                            <input type="submit" class="btn btn-secondary" name="ValidateOTP" value="Verify" />
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script src="~/scripts/Accounts/ChangeOfNameOnBillRevamp.js"></script>
+<script type="text/javascript">
+    var CNBRegistrationCaptcha;
+    var onloadCallback = function () {
+        CNBRegistrationCaptcha = grecaptcha.render('CNBRegistrationCaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+    $('#validate').click(function () {
+        var isvalid = true;
+        if ($('#AccountNo').val().trim() == '') {
+            $("#AccountNoerror").addClass('field-validation-error').html('Please Enter CA number');
+            isvalid = false;
+        } else {
+            $("#AccountNoerror").removeClass('field-validation-error').html('');
+        }
+
+        var captcharesponse = grecaptcha.getResponse(1);
+        if (!captcharesponse) {
+            $('#CNBRegistrationCaptchaerror').show().html('Please validate captcha to continue');
+            isvalid = false;
+        }
+        else {
+            $('#CNBRegistrationCaptchaerror').hide().html('');
+        }
+
+        if (!isvalid)
+            return isvalid;
+
+        dataLayer.push({
+            'event': "name_change_new_request_initiate",
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+</script>

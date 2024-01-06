@@ -1,0 +1,57 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["cssclass"];
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["divclass"];
+    var Title = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["Title"];
+    var col = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["rowcss"];
+    var elementcount = elements.GetChildren().Count;
+    var docss = elements.GetChildren().OrderByDescending(x => x[Sitecore.FieldIDs.Updated]).ToList();;
+}
+
+
+    <div class="@divclass">
+        <h3 class="section-heading">@Title</h3>
+        <div class="owl-carousel single-carousel">
+
+           
+             @for (int i = 0; i < elementcount;)
+            {
+                <div class="item">
+                    <ul class="@paramid">
+                        @for (int j = 0; j < 12; j++)
+                        {
+
+                            //var theURLs = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docss[i]);
+                            //var urls = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURLs);
+                            //var titleNames = docss[i].Fields["Title"].Value;
+
+                            if (i < elementcount)
+                            {
+                                var theURLs = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docss[i]);
+                                var urls = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURLs);
+                                <li class="@col">
+                                    <p><a href="@urls" target="_blank">@Html.Sitecore().Field("Title", docss[i])</a></p>
+                                </li>
+                            }
+                            else
+                            {
+                                break;
+                            }
+                            i++;
+                        }
+                    </ul>
+                </div>
+
+
+            }
+
+
+        </div>
+    </div>

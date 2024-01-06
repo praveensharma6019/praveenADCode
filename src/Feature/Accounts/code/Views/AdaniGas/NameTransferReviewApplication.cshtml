@@ -1,0 +1,2728 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@model Sitecore.Feature.Accounts.Models.ByCustomerId
+
+@{
+    var UpdateNameByAdminsPopup = Request.QueryString["UpdateNameByAdmins"] != null ? Request.QueryString["UpdateNameByAdmins"] : "false";
+    var CreatedDate = Model.CreatedDate.ToString("MM/dd/yyyy");
+    var role = UserSession.nameTransferAdminRegistationSessssion.Role;
+    var BackUrl = string.Empty;
+    if (Session["NameTransferSearchUrl"] != null && !string.IsNullOrEmpty(Session["NameTransferSearchUrl"].ToString()))
+    {
+        BackUrl = Session["NameTransferSearchUrl"].ToString();
+
+    }
+    else
+    {
+        BackUrl = "/NameTransferHome";
+    }
+}
+
+@if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+{
+    <div class="form-group row">
+        <input id="submit_message" type="hidden" value="@Session["Message"].ToString()" />
+    </div>
+}
+
+@if (Session["NameTransferLogin"] != null && !string.IsNullOrEmpty(Session["NameTransferLogin"].ToString()))
+{
+    <section class="name-transfer">
+        <div class="container">
+            <div class="bg-white mb-4 p-3">
+
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "name-transfer-step1", @class = "name-transfer-step1", enctype = "multipart/form-data" }))
+                {
+
+                    @Html.AddUniqueFormId()
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    @Html.HiddenFor(x => x.CustomerName)
+                    @Html.HiddenFor(x => x.RegisterdConsumerName)
+                    @Html.HiddenFor(x => x.OutstandingAmount)
+                    @Html.HiddenFor(x => x.PreStatus)
+
+
+                    <div class="row">
+                        <div class="col-lg-12  col-md-12">
+                            <div class="text-left col-lg-4 col-md-4">
+                                <a class="btn btn-primary mb-2 mb-md-0" href="@BackUrl">Back</a>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.ShowAdditionalDetailsComment))
+                            {
+                                <div class="text-right col-lg-12 col-md-12">
+                                    <label for="" class="bg-danger bg-gradient text-alert">Additional Details Comment : @Model.ShowAdditionalDetailsComment</label>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ClosedApplicationComment))
+                            {
+                                <div class="text-right col-lg-12 col-md-12">
+                                    <label for="" class="bg-danger bg-gradient text-alert">Closed Application Comments : @Model.ClosedApplicationComment</label>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="row mt-2">
+                            <div class="col-lg-10">
+                                <div class="form-group">
+                                    <label for="">Request No. <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.RequestNumber, new { @class = "form-control reset-control", id = "RequestNo", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.RequestNumber)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="" class="font-weight-bold">New Applicant Details <span class="required"></span></label>
+                        <div class="row mt-2">
+                            @if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">First Name <span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.FirstName, new
+                                   {
+                                       @class = "form-control reset-control",
+                                       id = "ReviewFirstName",
+                                       required = "required"
+                                   })
+                                        @Html.HiddenFor(x => x.FirstName)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for="">Middle Name </label>
+                                        @Html.TextBoxFor(x => x.MiddleName, new { @class = "form-control reset-control", id = "ReviewMiddleName" })
+                                        @Html.HiddenFor(x => x.MiddleName)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for="">Last Name <span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.LastName, new
+                                   {
+                                       @class = "form-control reset-control",
+                                       id = "ReviewLastName",
+                                       required = "required"
+                                   })
+                                        @Html.HiddenFor(x => x.LastName)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <input type="submit" class="btn btn-primary w-auto" style="color: white;" name="updatenamebyadmin" value="Change Name" ) />
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">First Name <span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.FirstName, new
+                                   {
+                                       @class = "form-control reset-control",
+                                       id = "FirstName",
+                                       @readonly = "readonly"
+                                   })
+                                        @Html.HiddenFor(x => x.FirstName)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for="">Middle Name </label>
+                                        @Html.TextBoxFor(x => x.MiddleName, new { @class = "form-control reset-control", id = "MiddleName", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.MiddleName)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+
+                                        <label for="">Last Name <span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.LastName, new
+                                   {
+                                       @class = "form-control reset-control",
+                                       id = "LastName",
+                                       @readonly = "readonly"
+                                   })
+                                        @Html.HiddenFor(x => x.LastName)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            }
+
+
+
+                        </div>
+                        <div class="row mt-2">
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Date <span class="required">*</span></label>
+                                    <input class="form-control reset-control" data-val="true" data-val-date="The field Date must be a date." data-val-required="The Date field is required." name="CreatedDate" readonly="readonly" type="text" value="@CreatedDate">
+                                    <input data-val="true" data-val-date="The field Date must be a date." data-val-required="The Date field is required." id="CreatedDate_Date" name="CreatedDate" type="hidden" value="@CreatedDate">
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+                            @if (Model.PreStatus != "Submitted")
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Transaction Number<span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.TransactionNumber, new { @class = "form-control reset-control", id = "TransactionNumber", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.TransactionNumber)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Amount Paid<span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.Amount, new { @class = "form-control reset-control", id = "Amount", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.Amount)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Address<span class="required">*</span></label>
+                                    @Html.TextAreaFor(x => x.CustomerAddress, new { @class = "form-control reset-control", id = "CustomerAddress", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.CustomerAddress)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Application Type <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.ApplicationType, new { @class = "form-control reset-control", id = "ApplicationType", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.ApplicationType)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+                            @if (Model.ApplicationType == "Property_ReSale" || Model.ApplicationType == "Demise")
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Society Type<span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.SocietyType, new { @class = "form-control reset-control", id = "SocietyType", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.SocietyType)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Mobile Number <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.EmailId))
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Registerd Email Address<span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.CustomerEmailId, new { @class = "form-control reset-control", id = "CustomerEmailId", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.CustomerEmailId)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Comment))
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Comments<span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.Comment, new { @class = "form-control reset-control", id = "Comment", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.Comment)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.GasSupply))
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Gas Supply<span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.GasSupply, new { @class = "form-control reset-control", id = "GasSupplyReview", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.GasSupply)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            }
+
+
+
+                        </div>
+
+                    </div>
+
+                    <div class="mt-3">
+                        <label for="" class="font-weight-bold">Existing Account Details <span class="required"></span></label>
+
+                        <div class="row mt-2">
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Customer ID <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.CustomerID, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.CustomerID)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Registerd Customer Name <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.RegisterdConsumerName, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.RegisterdConsumerName)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Connection Type <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.ConnectionType, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.ConnectionType)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Meter Number <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.MeterNumber)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="form-group">
+                                    <label for="">Mobile Number <span class="required">*</span></label>
+                                    @Html.TextBoxFor(x => x.PreMobileNumber, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                    @Html.HiddenFor(x => x.PreMobileNumber)
+                                    <small id="" class="form-text text-muted"></small>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.EmailId))
+                            {
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="form-group">
+                                        <label for="">Registerd Email Address<span class="required">*</span></label>
+                                        @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control reset-control", id = "FirstName", @readonly = "readonly" })
+                                        @Html.HiddenFor(x => x.EmailId)
+                                        <small id="" class="form-text text-muted"></small>
+                                    </div>
+                                </div>
+                            }
+
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane col-lg-12" id="Documents" role="tabpanel" aria-labelledby="Documents-tab">
+                        <div class="mt-3">
+                            <b><label class="form-label font-weight-bold" for="customFile">Uploaded Documents<span class="required"></span></label></b>
+                        </div>
+                        @if (Model.ApplicationType != null && Model.ApplicationType == "Builder_Case")
+                        {
+                            <div class="row buildercase">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="mt-2">
+                                            <label for="">Ownership Document<span class="required">*</span>: @Model.IndexBuilder_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.IndexBuilderId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+                                @if (Model.DocumentStatus1 != null && Model.DocumentStatus1 == "Rejected Document")
+                                {
+
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus1</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="IndexBuilderId1" onclick="rejectdocument('@Model.IndexBuilderId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="IndexBuilderId_1" id="IndexBuilderId_1">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus1 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus1</label>
+                                        </div>
+                                    }
+                                }
+
+
+                            </div>
+
+                            if (!string.IsNullOrEmpty(Model.PossessionletterBuilderId))
+                            {
+                                <div class="row buildercase">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <label for="">Possession Letter or Allotment Letter<span class="required">*</span>: @Model.PossessionletterBuilder_content_type</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.PossessionletterBuilderId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+
+                                    @if (Model.DocumentStatus2 != null && Model.DocumentStatus2 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus2</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="PossessionletterBuilderId2" onclick="rejectdocument('@Model.PossessionletterBuilderId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="PossessionletterBuilderId_2" id="PossessionletterBuilderId_2">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus2 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus2</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+
+
+                            <div class="row buildercase">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <label for="">ID Proof Document<span class="required">*</span>: @Model.PhotoIDBuilder_content_type</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.PhotoIDBuilderId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+                                @if (Model.DocumentStatus3 != null && Model.DocumentStatus3 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus3</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="PhotoIDBuilderId3" class="rejecteddocument" onclick="rejectdocument('@Model.PhotoIDBuilderId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="PhotoIDBuilderId_3" id="PhotoIDBuilderId_3">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus3 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus3</label>
+                                        </div>
+                                    }
+                                }
+
+                            </div>
+
+                            if (!string.IsNullOrEmpty(Model.CoownerBuilderId))
+                            {
+                                <div class="row buildercase">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <label for="">NOC (In case of Joint property and 2nd owner is applying then NOC of 1st owner): @Model.CoownerBuilder_content_type</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.CoownerBuilderId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.DocumentStatus4 != null && Model.DocumentStatus4 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus4</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="CoownerBuilderId4" onclick="rejectdocument('@Model.CoownerBuilderId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="CoownerBuilderId_4" id="CoownerBuilderId_4">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus4 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus4</label>
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+                            }
+
+                            if (!string.IsNullOrEmpty(Model.SignedIDproofId))
+                            {
+                                <div class="row buildercase">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <label for="">Signed ID proof of 1st owner: @Model.SignedIDproof_content_type</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.SignedIDproofId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.DocumentStatus5 != null && Model.DocumentStatus5 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus5</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="CoownerBuilderId4" onclick="rejectdocument('@Model.CoownerBuilderId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="SignedIDproofId_5" id="SignedIDproofId_5">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus5 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus5</label>
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+                            }
+
+
+
+                        }
+                        @if (Model.ApplicationType != null && Model.ApplicationType == "Demise" && Model.SocietyType != null && Model.SocietyType == "Registered Housing Society")
+                        {
+                            <div class="row demise">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="mt-2">
+                                            <label for="">Death Certificate<span class="required">*</span> : @Model.DeathCertificateDemise_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.DeathCertificateDemiseId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+                                @if (Model.DocumentStatus6 != null && Model.DocumentStatus6 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus6</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="DeathCertificateDemiseId_6" id="DeathCertificateDemiseId_6">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus6 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus6</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <div class="row demise">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">Ownership Document<span class="required">*</span>: @Model.DocumentaryDemise_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.DocumentaryDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+                                @if (Model.DocumentStatus7 != null && Model.DocumentStatus7 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus7</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="DocumentaryDemiseId_7" id="DocumentaryDemiseId_7">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus7 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus7</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <div class="row demise">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">ID Proof Document<span class="required">*</span>: @Model.IDProofDemise_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.IDProofDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+                                @if (Model.DocumentStatus8 != null && Model.DocumentStatus8 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus8</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="IDProofDemiseId_8" id="IDProofDemiseId_8">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus8 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus8</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            if (!string.IsNullOrEmpty(Model.NOCDemiseId))
+                            {
+                                <div class="row demise">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">NOC (In case of Joint property and 2nd owner is applying then NOC of 1st owner) : @Model.NOCDemise_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.NOCDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.DocumentStatus9 != null && Model.DocumentStatus9 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus9</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="NOCDemiseId_9" id="NOCDemiseId_9">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus9 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus9</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+
+                            if (!string.IsNullOrEmpty(Model.SignedIDproofDemiseId))
+                            {
+                                <div class="row demise">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">Signed ID proof of 1st owner: @Model.SignedIDproofDemise_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.SignedIDproofDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.DocumentStatus10 != null && Model.DocumentStatus10 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus10</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="SignedIDproofDemiseId_10" id="SignedIDproofDemiseId_10">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus10 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus10</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                        }
+
+                        @if (Model.ApplicationType != null && Model.ApplicationType == "Demise" && Model.SocietyType != null && Model.SocietyType == "Unregistered Housing Society")
+                        {
+                            if (!string.IsNullOrEmpty(Model.DeathCertificateDemiseUnregisteredHousingId))
+                            {
+                                <div class="row demiseUnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">Death Certificate : @Model.DeathCertificateDemiseUnregisteredHousing_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.DeathCertificateDemiseUnregisteredHousingId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+                                    @if (Model.DocumentStatus23 != null && Model.DocumentStatus23 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus23</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="DeathCertificateDemiseUnregisteredHousingId_23" id="DeathCertificateDemiseUnregisteredHousingId_23">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus23 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus23</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+
+                            if (!string.IsNullOrEmpty(Model.MunicipalCorporationTaxBillDemiseUnregisteredHousingId))
+                            {
+                                <div class="row demiseUnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">Municipal corporation tax bill : @Model.MunicipalCorporationTaxBillDemiseUnregisteredHousing_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.MunicipalCorporationTaxBillDemiseUnregisteredHousingId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+                                    @if (Model.DocumentStatus20 != null && Model.DocumentStatus20 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus20</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="MunicipalCorporationTaxBillDemiseUnregisteredHousingId_20" id="MunicipalCorporationTaxBillDemiseUnregisteredHousingId_20">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus20 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus20</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            if (!string.IsNullOrEmpty(Model.ElectricityBillDemiseUnregisteredHousingId))
+                            {
+                                <div class="row demiseUnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">Electricity Bill (Updated with new owner name) : @Model.ElectricityBillDemiseUnregisteredHousing_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.ElectricityBillDemiseUnregisteredHousingId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+                                    @if (Model.DocumentStatus21 != null && Model.DocumentStatus21 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus21</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="ElectricityBillDemiseUnregisteredHousingId_21" id="ElectricityBillDemiseUnregisteredHousingId_21">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus21 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus21</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            if (!string.IsNullOrEmpty(Model.OtherDemiseUnregisteredHousingId))
+                            {
+                                <div class="row demiseUnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">Other : @Model.OtherDemiseUnregisteredHousing_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.OtherDemiseUnregisteredHousingId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+                                    @if (Model.DocumentStatus22 != null && Model.DocumentStatus22 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus22</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="OtherDemiseUnregisteredHousingId_22" id="OtherDemiseUnregisteredHousingId_22">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus22 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus22</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            if (!string.IsNullOrEmpty(Model.IDProofDemiseUnregisteredHousingId))
+                            {
+                                <div class="row demiseUnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">ID Proof : @Model.IDProofDemiseUnregisteredHousing_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.IDProofDemiseUnregisteredHousingId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+                                    @if (Model.DocumentStatus24 != null && Model.DocumentStatus24 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus24</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="IDProofDemiseUnregisteredHousingId_24" id="IDProofDemiseUnregisteredHousingId_24">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus24 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus24</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            if (!string.IsNullOrEmpty(Model.NOCDemiseUnregisteredHousingId))
+                            {
+                                <div class="row demiseUnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">NOC (Note: In case of joint property, NOC of 1st owner is required) : @Model.NOCDemiseUnregisteredHousing_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.NOCDemiseUnregisteredHousingId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+                                    @if (Model.DocumentStatus25 != null && Model.DocumentStatus25 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus25</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="NOCDemiseUnregisteredHousingId_25" id="NOCDemiseUnregisteredHousingId_25">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus25 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus25</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            if (!string.IsNullOrEmpty(Model.SignedIDprooDemiseUnregisteredHousingID))
+                            {
+                                <div class="row demiseUnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <div class="mt-2">
+                                                <label for="">Signed ID proof of 1st owner : @Model.SignedIDproofDemiseUnregisteredHousing_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.SignedIDprooDemiseUnregisteredHousingID')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+                                    @if (Model.DocumentStatus26 != null && Model.DocumentStatus26 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus26</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="SignedIDprooDemiseUnregisteredHousingID_26" id="SignedIDprooDemiseUnregisteredHousingID_26">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus26 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus26</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                        }
+
+                        @if (Model.ApplicationType != null && Model.ApplicationType == "Demise" && Model.SocietyType == null)
+                        {
+                            <div class="row demise">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">Death Certificate<span class="required">*</span> : @Model.DeathCertificateDemise_content_type</label>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.DeathCertificateDemiseId')" @*target="_blank"*@ name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+                                @if (Model.DocumentStatus6 != null && Model.DocumentStatus6 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus6</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="DeathCertificateDemiseId5" onclick="rejectdocument('@Model.DeathCertificateDemiseId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="DeathCertificateDemiseId_6" id="DeathCertificateDemiseId_6">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus6 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus6</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <div class="row demise">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">Ownership Document<span class="required">*</span>: @Model.DocumentaryDemise_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.DocumentaryDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+                                @if (Model.DocumentStatus7 != null && Model.DocumentStatus7 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus7</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="DocumentaryDemiseId_7" id="DocumentaryDemiseId_7">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus7 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus7</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <div class="row demise">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">ID Proof Document<span class="required">*</span>: @Model.IDProofDemise_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.IDProofDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+                                @if (Model.DocumentStatus8 != null && Model.DocumentStatus8 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus8</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="IDProofDemiseId_8" id="IDProofDemiseId_8">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus8 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus8</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            if (!string.IsNullOrEmpty(Model.NOCDemiseId))
+                            {
+                                <div class="row demise">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">NOC (In case of Joint property and 2nd owner is applying then NOC of 1st owner)<span class="required">*</span> : @Model.NOCDemise_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.NOCDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.DocumentStatus9 != null && Model.DocumentStatus9 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus9</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="NOCDemiseId_9" id="NOCDemiseId_9">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus9 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus9</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+
+                            if (!string.IsNullOrEmpty(Model.SignedIDproofDemiseId))
+                            {
+                                <div class="row demise">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">Signed ID proof of 1st owner<span class="required">*</span>: @Model.SignedIDproofDemise_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.SignedIDproofDemiseId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+                                    @if (Model.DocumentStatus10 != null && Model.DocumentStatus10 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus10</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="DocumentaryDemiseId6" onclick="rejectdocument('@Model.DocumentaryDemiseId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="SignedIDproofDemiseId_10" id="SignedIDproofDemiseId_10">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus10 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus10</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+
+
+
+                        }
+
+                        @if (Model.ApplicationType != null && Model.SocietyType != null && Model.ApplicationType == "Property_ReSale" && Model.SocietyType == "Registered Housing Society")
+                        {
+                            <div class="row RegisteredHousing">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">Ownership Document<span class="required">*</span>: @Model.FirstRegisteredHousingSocietypropertyresale_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.FirstRegisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+                                @if (Model.DocumentStatus11 != null && Model.DocumentStatus11 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus11</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="FirstRegisteredHousingSocietypropertyresaleId7" onclick="rejectdocument('@Model.FirstRegisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="FirstRegisteredHousingSocietypropertyresaleId_11" id="FirstRegisteredHousingSocietypropertyresaleId_11">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus11 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus11</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <div class="row RegisteredHousing">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">ID Proof Document<span class="required">*</span>: @Model.SecondRegisteredHousingSocietypropertyresale_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.SecondRegisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+                                @if (Model.DocumentStatus12 != null && Model.DocumentStatus12 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus12</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="SecondRegisteredHousingSocietypropertyresaleId8" onclick="rejectdocument('@Model.SecondRegisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="SecondRegisteredHousingSocietypropertyresaleId_12" id="SecondRegisteredHousingSocietypropertyresaleId_12">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus12 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus12</label>
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            if (!string.IsNullOrEmpty(Model.NOCRegisteredHousingSocietypropertyresaleId))
+                            {
+                                <div class="row RegisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">
+                                                    NOC (In case of Joint property and 2nd owner is applying then NOC of 1st owner): @Model.NOCRegisteredHousingSocietypropertyresale_content_type
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.NOCRegisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+
+                                    @if (Model.DocumentStatus13 != null && Model.DocumentStatus13 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus13</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="SecondRegisteredHousingSocietypropertyresaleId8" onclick="rejectdocument('@Model.SecondRegisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="NOCRegisteredHousingSocietypropertyresaleId_13" id="NOCRegisteredHousingSocietypropertyresaleId_13">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus13 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus13</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+
+                            if (!string.IsNullOrEmpty(Model.SignedIDproofRegisteredHousingSocietypropertyresaleId))
+                            {
+                                <div class="row RegisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">
+                                                    Signed ID proof of 1st owner: @Model.SignedIDproofRegisteredHousingSocietypropertyresale_content_type
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.SignedIDproofRegisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+
+                                    @if (Model.DocumentStatus14 != null && Model.DocumentStatus14 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus14</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="SecondRegisteredHousingSocietypropertyresaleId8" onclick="rejectdocument('@Model.SecondRegisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="SignedIDproofRegisteredHousingSocietypropertyresaleId_14" id="SignedIDproofRegisteredHousingSocietypropertyresaleId_14">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus14 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus14</label>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+
+
+                        }
+                        @if (Model.ApplicationType != null && Model.SocietyType != null && Model.ApplicationType == "Property_ReSale" && Model.SocietyType == "Unregistered Housing Society")
+                        {
+                            <div class="row UnregisteredHousing">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <div class="mt-2">
+                                            <label for="">Sales Agreement<span class="required">*</span>: @Model.FirstUnregisteredHousingSocietypropertyresale_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.FirstUnregisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+
+                                @if (Model.DocumentStatus15 != null && Model.DocumentStatus15 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus15</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="FirstUnregisteredHousingSocietypropertyresaleId9" onclick="rejectdocument('@Model.FirstUnregisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="FirstUnregisteredHousingSocietypropertyresaleId_15" id="FirstUnregisteredHousingSocietypropertyresaleId_15">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus15 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus15</label>
+                                        </div>
+                                    }
+                                }
+
+                            </div>
+                            <div class="row UnregisteredHousing">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">Power Of Attorney<span class="required">*</span>: @Model.SecondUnregisteredHousingSocietypropertyresale_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.SecondUnregisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+
+                                @if (Model.DocumentStatus16 != null && Model.DocumentStatus16 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus16</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="SecondUnregisteredHousingSocietypropertyresaleId10" onclick="rejectdocument('@Model.SecondUnregisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="SecondUnregisteredHousingSocietypropertyresaleId_16" id="SecondUnregisteredHousingSocietypropertyresaleId_16">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus16 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus16</label>
+                                        </div>
+                                    }
+                                }
+
+                            </div>
+
+                            <div class="row UnregisteredHousing">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <label for="">ID Proof Document<span class="required">*</span>: @Model.IDProofUnregisteredHousingSocietypropertyresale_content_type</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.IDProofUnregisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+
+                                @if (Model.DocumentStatus17 != null && Model.DocumentStatus17 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus17</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="SecondUnregisteredHousingSocietypropertyresaleId10" onclick="rejectdocument('@Model.SecondUnregisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="IDProofUnregisteredHousingSocietypropertyresaleId_17" id="IDProofUnregisteredHousingSocietypropertyresaleId_17">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus17 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus17</label>
+                                        </div>
+                                    }
+                                }
+
+                            </div>
+
+                            if (!string.IsNullOrEmpty(Model.NOCUnregisteredHousingSocietypropertyresaleId))
+                            {
+                                <div class="row UnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">NOC (In case of Joint property and 2nd owner is applying then NOC of 1st owner) : @Model.NOCUnregisteredHousingSocietypropertyresale_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.NOCUnregisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+
+
+                                    @if (Model.DocumentStatus18 != null && Model.DocumentStatus18 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus18</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="SecondUnregisteredHousingSocietypropertyresaleId10" onclick="rejectdocument('@Model.SecondUnregisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="NOCUnregisteredHousingSocietypropertyresaleId_18" id="NOCUnregisteredHousingSocietypropertyresaleId_18">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus18 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus18</label>
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+                            }
+
+                            if (!string.IsNullOrEmpty(Model.SignedIDproofUnregisteredHousingSocietypropertyresaleId))
+                            {
+                                <div class="row UnregisteredHousing">
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+
+                                            <div class="mt-2">
+                                                <label for="">Signed ID proof of 1st owner : @Model.SignedIDproofUnregisteredHousingSocietypropertyresale_content_type</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 col-md-3">
+                                        <div class="form-group">
+                                            <a onclick="test('@Model.SignedIDproofUnregisteredHousingSocietypropertyresaleId')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                        </div>
+                                    </div>
+
+
+
+                                    @if (Model.DocumentStatus19 != null && Model.DocumentStatus19 == "Rejected Document")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus19</label>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                        {
+                                            <div>
+                                                @*<button id="SecondUnregisteredHousingSocietypropertyresaleId10" onclick="rejectdocument('@Model.SecondUnregisteredHousingSocietypropertyresaleId');">Reject Document</button>*@
+                                                <button type="button" class="btn btn-primary w-auto" name="SignedIDproofUnregisteredHousingSocietypropertyresaleId_19" id="SignedIDproofUnregisteredHousingSocietypropertyresaleId_19">Reject Document</button>
+                                            </div>
+                                        }
+                                        if (Model.DocumentStatus19 == "Re-UploadDocument")
+                                        {
+                                            <div>
+                                                <label class="form-label" for="customFile">@Model.DocumentStatus19</label>
+                                            </div>
+                                        }
+                                    }
+
+                                </div>
+                            }
+                        }
+                        @if (Model.isAdditionalDocumentID != null)
+                        {
+                            <div class="row">
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+
+                                        <div class="mt-2">
+                                            <input type="text" class="form-control" value="Upload Additional Document" readonly="">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-md-3">
+                                    <div class="form-group">
+                                        <a onclick="test('@Model.isAdditionalDocumentID')" name="ViewDocument1" value="View" class="btn btn-primary" style="background-color: black; color: white; border-color: black;">View</a>
+                                    </div>
+                                </div>
+
+
+
+                                @if (Model.DocumentStatus0 != null && Model.DocumentStatus0 == "Rejected Document")
+                                {
+                                    <div>
+                                        <label class="form-label" for="customFile">@Model.DocumentStatus0</label>
+                                    </div>
+                                }
+                                else
+                                {
+                                    if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                                    {
+                                        <div>
+                                            @*<button id="isAdditionalDocumentID0" onclick="rejectdocument('@Model.isAdditionalDocumentID');">Reject Document</button>*@
+                                            <button type="button" class="btn btn-primary w-auto" name="isAdditionalDocumentID_0" id="isAdditionalDocumentID_0">Reject Document</button>
+                                        </div>
+                                    }
+                                    if (Model.DocumentStatus0 == "Re-UploadDocument")
+                                    {
+                                        <div>
+                                            <label class="form-label" for="customFile">@Model.DocumentStatus0</label>
+                                        </div>
+                                    }
+                                }
+
+                            </div>
+                        }
+
+                    </div>
+
+                    <div>
+                        @if (Model.PreStatus != "Approved" && Model.PreStatus != "Submitted" && Model.PreStatus != "Rejected")
+                        {
+
+                            if (Model.PreStatus == "Additional_Details/document_Required" || Model.PreStatus == "Additional_Details/document/Payment_Required")
+                            {
+
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary w-auto" name="ApproveNameTrnasfer" value="Approve" id="Approve_By_Admin">Approve Application</button>
+                            }
+
+
+                            <button type="button" class="btn btn-primary w-auto" name="RejectNameTrnasfer" value="Reject" id="Reject_By_Admin">Reject Application</button>
+
+                            <button type="button" class="btn btn-primary w-auto" name="UpdateNameTrnasfer" value="Ask for additional Details / Documents" id="Additional_Details_By_Admin">Ask for additional Details / Documents</button>
+
+                        }
+                        @if (Model.PreStatus == "Submitted")
+                        {
+
+                            <button type="button" class="btn btn-primary w-auto" id="btn_NameTransferClosedApplication">Close Application</button>
+
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+
+
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+
+<div id="confirmation_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="confirmation_modal_message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary confirmation_modalbtnYesNO" value="1">Proceed</button>
+                <button type="button" class="btn btn-primary confirmation_modalbtnYesNO" value="0">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="message_modal_message"></p>
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+    </div>
+</div>
+
+<div id="submit_message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                            <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="submit_Approved_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="CloseApproved" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <form action="/api/AdaniGas/NameTransferReviewApplication" method="post">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                                @Html.TextAreaFor(x => x.ApprovedComment, new { @class = "form-control", id = "ApprovedComment", required = "required", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(x => x.ApprovedComment, "", new { @class = "help-block" }, "p")
+                                @Html.HiddenFor(x => x.ApprovedComment)
+                                <small id="" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <input type="submit" class="btn btn-primary w-auto" name="SaveApprovedDetails" value="Approve Application" id="Save_Approved_Details" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="submit_Rejected_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="CloseRejected" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+
+                    <form action="/api/AdaniGas/NameTransferReviewApplication" method="post">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                                @Html.TextAreaFor(x => x.RejectedComment, new { @class = "form-control", id = "ApprovedComment", required = "required", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(x => x.RejectedComment, "", new { @class = "help-block" }, "p")
+                                @Html.HiddenFor(x => x.RejectedComment)
+                                <small id="" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <input type="submit" class="btn btn-primary w-auto" name="SaveRejectedDetails" value="Reject Application" id="Save_Rejected_Details" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="submit_AdditionalDetails_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="CloseAdditionalDetails" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+
+                    <form action="/api/AdaniGas/NameTransferReviewApplication" method="post">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                                @Html.TextAreaFor(x => x.AdditionalDetailsComment, new { @class = "form-control", id = "ApprovedComment", required = "required" })
+                                @Html.ValidationMessageFor(x => x.AdditionalDetailsComment, "", new { @class = "help-block" }, "p")
+                                @Html.HiddenFor(x => x.AdditionalDetailsComment)
+                                <small id="" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                @Html.CheckBoxFor(x => x.isAdditionalDocumentRequired, new { @class = "form-check-input", id = "ApprovedComment" })
+                                <label for="" class="form-check-label txt-green">For Additional Document</label>
+                                <small id="" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                @Html.CheckBoxFor(x => x.isAdditionalPaymentRequired, new { @class = "form-check-input", id = "AdditionalPaymentRequired" })
+                                <label for="" class="form-check-label txt-green">For Additional Payment</label>
+                                <small id="" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="col-12" id="AddAdditionalPayment" role="dialog" style="display: none;">
+                            <div class="form-group">
+                                <label for="" class="col-sm-12 col-form-label txt-green">Add Additional Payment</label>
+                                @Html.TextBoxFor(x => x.AddAdditionalPayment, new { @class = "form-control", id = "AddAdditionalPaymentRequired", required = "required", maxlength = "10", @type = "number", @autocomplete = "off" })
+                                @Html.ValidationMessageFor(x => x.AddAdditionalPayment, "", new { @class = "help-block" }, "p")
+                                @Html.HiddenFor(x => x.AddAdditionalPayment)
+                                <small id="" class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <input type="submit" class="btn btn-primary w-auto" name="SaveAdditionalDetails" value="Ask for Additional Details/Documents" id="Save_Additional_Details" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Closed_NTApplication" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="btn_Closed_NTApplication" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <form action="/api/AdaniGas/NameTransferReviewApplication" method="post">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label for="" class="col-sm-12 col-form-label txt-green">Application Closed Comments: </label>
+                                @Html.TextAreaFor(x => x.ClosedApplicationComment, new { @class = "form-control", id = "AdminCommentForclosedapplication", required = "required" })
+                                @Html.ValidationMessageFor(x => x.ClosedApplicationComment, "", new { @class = "help-block" }, "p")
+                                @Html.HiddenFor(x => x.ClosedApplicationComment)
+                                @*<label class="text-danger" id="ClosedApplicationCommentCheckError" style="display:none">This Field is required.</label>*@
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <input type="submit" class="btn btn-primary w-auto" name="ClosedApplication" value="Submit Closed Application" id="btn_Submit_ClosedApplication" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmation_Additional_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="confirmation_modal_Additional_message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary confirmation_Additional_modalbtnYesNO" value="1">Proceed</button>
+                <button type="button" class="btn btn-primary confirmation_Additional_modalbtnYesNO" value="0">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="Rejected_Document1" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected1" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument1, new { @class = "form-control", id = "AdminCommentForRejectDocument1", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument1, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument1)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="IndexBuilderId11" onclick="rejectdocument('@Model.IndexBuilderId',document.getElementById('AdminCommentForRejectDocument1').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document2" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected2" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument2, new { @class = "form-control", id = "AdminCommentForRejectDocument2", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument2, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument2)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="PossessionletterBuilderId22" onclick="rejectdocument('@Model.PossessionletterBuilderId',document.getElementById('AdminCommentForRejectDocument2').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document3" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected3" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument3, new { @class = "form-control", id = "AdminCommentForRejectDocument3", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument3, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument3)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="PhotoIDBuilderId33" onclick="rejectdocument('@Model.PhotoIDBuilderId',document.getElementById('AdminCommentForRejectDocument3').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document4" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected4" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument4, new { @class = "form-control", id = "AdminCommentForRejectDocument4", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument4, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument4)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="CoownerBuilderId44" onclick="rejectdocument('@Model.CoownerBuilderId',document.getElementById('AdminCommentForRejectDocument4').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document5" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected5" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument5, new { @class = "form-control", id = "AdminCommentForRejectDocument5", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument5, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument5)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="CoownerBuilderId55" onclick="rejectdocument('@Model.SignedIDproofId',document.getElementById('AdminCommentForRejectDocument5').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Rejected_Document6" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected6" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument6, new { @class = "form-control", id = "AdminCommentForRejectDocument6", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument6, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument6)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="DeathCertificateDemiseId66" onclick="rejectdocument('@Model.DeathCertificateDemiseId',document.getElementById('AdminCommentForRejectDocument6').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document7" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected7" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument7, new { @class = "form-control", id = "AdminCommentForRejectDocument7", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument7, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument7)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="DocumentaryDemiseId77" onclick="rejectdocument('@Model.DocumentaryDemiseId',document.getElementById('AdminCommentForRejectDocument7').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document8" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected8" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument8, new { @class = "form-control", id = "AdminCommentForRejectDocument8", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument8, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument8)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="DocumentaryDemiseId88" onclick="rejectdocument('@Model.IDProofDemiseId',document.getElementById('AdminCommentForRejectDocument8').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document9" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected9" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument9, new { @class = "form-control", id = "AdminCommentForRejectDocument9", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument9, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument9)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="DocumentaryDemiseId99" onclick="rejectdocument('@Model.NOCDemiseId',document.getElementById('AdminCommentForRejectDocument9').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document10" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected10" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument10, new { @class = "form-control", id = "AdminCommentForRejectDocument10", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument10, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument10)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="DocumentaryDemiseId101" onclick="rejectdocument('@Model.SignedIDproofDemiseId',document.getElementById('AdminCommentForRejectDocument10').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="Rejected_Document11" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected11" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument11, new { @class = "form-control", id = "AdminCommentForRejectDocument11", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument11, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument11)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="FirstRegisteredHousingSocietypropertyresaleId102" onclick="rejectdocument('@Model.FirstRegisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument11').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document12" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected12" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument12, new { @class = "form-control", id = "AdminCommentForRejectDocument12", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument12, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument12)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="SecondRegisteredHousingSocietypropertyresaleId103" onclick="rejectdocument('@Model.SecondRegisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument12').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document13" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected13" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument13, new { @class = "form-control", id = "AdminCommentForRejectDocument13", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument13, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument13)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="NOCRegisteredHousingSocietypropertyresaleId104" onclick="rejectdocument('@Model.NOCRegisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument13').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document14" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected14" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument14, new { @class = "form-control", id = "AdminCommentForRejectDocument14", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument14, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument14)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="SignedIDproofRegisteredHousingSocietypropertyresaleId105" onclick="rejectdocument('@Model.SignedIDproofRegisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument14').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Rejected_Document15" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" id="Rejected15" class="close" data-dismiss="modal" onclick="toggleText()">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument15, new { @class = "form-control", id = "AdminCommentForRejectDocument15", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument15, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument15)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button id="FirstUnregisteredHousingSocietypropertyresaleId106" onclick="rejectdocument('@Model.FirstUnregisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument15').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document16" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" id="Rejected16" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument16, new { @class = "form-control", id = "AdminCommentForRejectDocument16", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument16, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument16)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button id="SecondUnregisteredHousingSocietypropertyresaleId107" onclick="rejectdocument('@Model.SecondUnregisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument16').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document17" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" id="Rejected17" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument17, new { @class = "form-control", id = "AdminCommentForRejectDocument17", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument17, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument17)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button id="IDProofUnregisteredHousingSocietypropertyresaleId108" onclick="rejectdocument('@Model.IDProofUnregisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument17').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document18" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" id="Rejected18" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument18, new { @class = "form-control", id = "AdminCommentForRejectDocument18", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument18, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument18)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button id="NOCUnregisteredHousingSocietypropertyresaleId109" onclick="rejectdocument('@Model.NOCUnregisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument18').value);">Reject Document</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document19" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" id="Rejected19" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument19, new { @class = "form-control", id = "AdminCommentForRejectDocument19", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument19, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument19)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button id="SignedIDproofUnregisteredHousingSocietypropertyresaleId110" onclick="rejectdocument('@Model.NOCUnregisteredHousingSocietypropertyresaleId',document.getElementById('AdminCommentForRejectDocument19').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Rejected_Document0" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected0" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument0, new { @class = "form-control", id = "AdminCommentForRejectDocument0", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument0, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument0)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button id="isAdditionalDocumentID01" onclick="rejectdocument('@Model.isAdditionalDocumentID',document.getElementById('AdminCommentForRejectDocument0').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="Rejected_Document20" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected20" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument20, new { @class = "form-control", id = "AdminCommentForRejectDocument20", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument20, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument20)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="MunicipalCorporationTaxBillDemiseUnregisteredHousingId120" onclick="rejectdocument('@Model.MunicipalCorporationTaxBillDemiseUnregisteredHousingId',document.getElementById('AdminCommentForRejectDocument20').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document21" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected21" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument21, new { @class = "form-control", id = "AdminCommentForRejectDocument21", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument21, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument21)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="ElectricityBillDemiseUnregisteredHousingId121" onclick="rejectdocument('@Model.ElectricityBillDemiseUnregisteredHousingId',document.getElementById('AdminCommentForRejectDocument21').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document22" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected22" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument22, new { @class = "form-control", id = "AdminCommentForRejectDocument22", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument22, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument22)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="OtherDemiseUnregisteredHousingId122" onclick="rejectdocument('@Model.OtherDemiseUnregisteredHousingId',document.getElementById('AdminCommentForRejectDocument22').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document23" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected23" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument23, new { @class = "form-control", id = "AdminCommentForRejectDocument23", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument23, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument23)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="DeathCertificateDemiseUnregisteredHousingId123" onclick="rejectdocument('@Model.DeathCertificateDemiseUnregisteredHousingId',document.getElementById('AdminCommentForRejectDocument23').value);">Reject Document</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document24" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected24" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument24, new { @class = "form-control", id = "AdminCommentForRejectDocument24", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument24, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument24)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="IDProofDemiseUnregisteredHousingId124" onclick="rejectdocument('@Model.IDProofDemiseUnregisteredHousingId',document.getElementById('AdminCommentForRejectDocument24').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document25" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected25" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument25, new { @class = "form-control", id = "AdminCommentForRejectDocument25", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument25, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument25)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="NOCDemiseUnregisteredHousingId125" onclick="rejectdocument('@Model.NOCDemiseUnregisteredHousingId',document.getElementById('AdminCommentForRejectDocument25').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="Rejected_Document26" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button id="Rejected26" type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row d-block">
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="" class="col-sm-12 col-form-label txt-green">Comment</label>
+                            @Html.TextAreaFor(x => x.AdminCommentForRejectDocument26, new { @class = "form-control", id = "AdminCommentForRejectDocument26", required = "required" })
+                            @Html.ValidationMessageFor(x => x.AdminCommentForRejectDocument26, "", new { @class = "help-block" }, "p")
+                            @Html.HiddenFor(x => x.AdminCommentForRejectDocument26)
+                            <small id="" class="form-text text-muted"></small>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <button class="btn btn-primary w-auto" id="SignedIDprooDemiseUnregisteredHousingID126" onclick="rejectdocument('@Model.SignedIDprooDemiseUnregisteredHousingID',document.getElementById('AdminCommentForRejectDocument26').value);">Reject Document</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (UpdateNameByAdminsPopup == "true")
+{
+    <div id="Update_NameBy_Admins_message_modal" class="modal fade show" role="dialog" style="padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                </div>
+                <div class="modal-body">
+                    <label for="" class="col-sm-12 col-form-label txt-green">Name Changed Successfully.</label>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" id="Close_Update_NameBy_Admins_message_modals">OK</button>
+            </div>
+        </div>
+    </div>
+}

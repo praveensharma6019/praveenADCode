@@ -1,0 +1,708 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Electricity.Website.Model;
+@model Sitecore.Electricity.Website.Model.ITSRBidderProcessFormModel
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormSubmission);
+}
+
+<div class="pageContent">
+    <div class="container">
+
+        <!-- Section -->
+        <div class="pb-3">
+            <div>
+                @if (Model.IsSubmitted)
+                {
+                    <p>Your application is submitted successfully. </p>
+                }
+                else if (Model.IsSaved)
+                {
+                    <p>Your application is saved successfully, please update remaining details and submit. </p>
+                }
+                else if (Model.IsExists || Model.IsOTPSent || Model.IsOTPValid)
+                {
+                    <div class="mr-auto ml-auto">
+                        <div class="card card-outline-secondary">
+                            <div class="card-header">
+                                <h3 class="mb-0">@Html.Sitecore().Dictionary("Electricity/Tender/Submit form Label", "Submit Form")</h3>
+                            </div>
+                            @if (!Model.IsExistingUser)
+                            {
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreate", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.HiddenFor(m => m.FormId)
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    <input type="submit" class="btn btn-link" value="Existing form" name="GetExistingForm" />
+                                }
+                            }
+                            <div class="card-body">
+                                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreate", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.HiddenFor(m => m.FormId)
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    if (Model.IsExistingUser && !Model.IsOTPSent)
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Mobile Number", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.MobileNumber, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.MobileNumber, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <div class="ml-2">
+                                                    <input type="submit" value="GetOTP" name="GetOTPForExistingForm" class="btn btn-primary" />
+                                                    <a class="btn btn-dark ml-2" href="@item.Url()?id=@Model.FormId" style="color: #fff;">Cancel</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model.IsExistingUser && Model.IsOTPSent && !Model.IsOTPValid)
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Mobile Number", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.MobileNumber, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                        @Html.ValidationMessageFor(model => model.MobileNumber, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Enter OTP", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.OTPNumber, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.OTPNumber, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group text-right mb-0">
+                                            <input type="submit" value="ValidateOTP" name="ValidateOTPForExistingForm" class="btn btn-primary" />
+                                            <input type="submit" value="Resend OTP" name="GetOTPForExistingForm" class="btn btn-secondary" />
+                                            <a class="btn btn-dark ml-2" href="@item.Url()?id=@Model.FormId" style="color: #fff;">Cancel</a>
+                                        </div>
+                                    }
+                                    else if (!Model.IsOTPSent)
+                                    {
+
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Company Name", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.CompanyName, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CompanyName, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Location", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.Location, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("SPOC Person Name", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.SPOCPersonName, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.SPOCPersonName, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Email Address", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.EmailId, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.EmailId, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Mobile Number", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.MobileNumber, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.MobileNumber, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group">
+                                                <div class="col-md-offset-2 col-md-10">
+                                                    <input type="submit" value="GetOTP" name="GetOTP" class="btn btn-primary" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model.IsOTPSent && !Model.IsOTPValid)
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Company Name", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.CompanyName, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                        @Html.ValidationMessageFor(model => model.CompanyName, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Location", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.Location, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                        @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("SPOC Person Name", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.SPOCPersonName, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                        @Html.ValidationMessageFor(model => model.SPOCPersonName, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Email Address", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.EmailId, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                        @Html.ValidationMessageFor(model => model.EmailId, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Mobile Number", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.MobileNumber, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                        @Html.ValidationMessageFor(model => model.MobileNumber, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Enter OTP", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.OTPNumber, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.OTPNumber, "", new { @class = "text-danger" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group text-right mb-0">
+
+
+
+                                            <input type="submit" value="ValidateOTP" name="ValidateOTP" class="btn btn-primary" />
+                                            <input type="submit" value="Resend OTP" name="GetOTP" class="btn btn-secondary" />
+
+                                        </div>
+                                    }
+                                    else if (Model.IsOTPValid)
+                                    {
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Company Name", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.CompanyName, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Location", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.Location, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("SPOC Person Name", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.SPOCPersonName, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Email Address", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.EmailId, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row form-group pt-md-2">
+                                                    <label class="col-sm-5 col-md-5 col-form-label">
+                                                        @Html.Label("Mobile Number", htmlAttributes: new { @class = "control-label" })
+                                                    </label>
+                                                    <div class="col-sm-7 col-md-7">
+                                                        @Html.TextBoxFor(model => model.MobileNumber, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <hr>
+                                            </div>
+                                        </div>
+                                        <div class="panel bid_form">
+                                            <p class="text-note mb-3">Note: Fields marked with (<span class="required"> * </span>) are Mandatary question.</p>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <h5 class="mb-3"><span class="h5-number">1.</span>@Html.Sitecore().Dictionary("/ITSR/Questions/Question1Text", "Bidder shall read Bid Qualifying Requirement (QR) document carefully and do upload the relevant supporting documents.")</h5>
+                                                    <div class="row">
+                                                        <div class="col-lg-4 col-md-6">
+                                                            <div class="form-group">
+                                                                <label>@Html.Sitecore().Dictionary("/ITSR/Questions/Question1Option1", "Past experience list") <span class="required">*</span><a onclick="ClearSelected(PastExperienceList)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a></label>
+                                                                @Html.TextBoxFor(model => model.PastExperienceList, "", new { id = "PastExperienceList", @type = "file", @class = "w-100 bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                @Html.ValidationMessageFor(model => model.PastExperienceList, "", new { @class = "text-danger" })
+
+                                                                @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                {
+                                                                    var PastExperienceList = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "PastExperience").ToList();
+
+                                                                    if (PastExperienceList != null && PastExperienceList.Count > 0)
+                                                                    {
+                                                                        foreach (var doc in PastExperienceList)
+                                                                        {
+                                                                            var pastExpDoc = PastExperienceList.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                            var divId = "divDeleteFile" + pastExpDoc.Id;
+                                                                            <p id="@divId">
+                                                                                <a class="txt-orange" href="@Url.Action("DownloadBidderFile", new { id = pastExpDoc.Id })">
+                                                                                    <i class="fa fa-download mr-2"></i> @pastExpDoc.DocumentName
+                                                                                </a>
+                                                                                <a class="btn-delete" onclick="DeleteBidderUploadedFile(@pastExpDoc.Id)">
+                                                                                    <span title="Delete file" class="fa fa-times"></span>
+                                                                                </a>
+                                                                            </p>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4 col-md-6">
+                                                            <div class="form-group">
+                                                                <label>@Html.Sitecore().Dictionary("/ITSR/Questions/Question1Option2", "Performance Certificate") <a onclick="ClearSelected(PerformanceCertificate)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a></label>
+                                                                @Html.TextBoxFor(model => model.PerformanceCertificate, "", new { @type = "file", @class = "w-100 bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                @Html.ValidationMessageFor(model => model.PerformanceCertificate, "", new { @class = "text-danger" })
+                                                                @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                {
+                                                                    var PerformanceCertificateUploaded = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "PerformanceCertificate").ToList();
+                                                                    if (PerformanceCertificateUploaded != null && PerformanceCertificateUploaded.Count > 0)
+                                                                    {
+                                                                        foreach (var doc in PerformanceCertificateUploaded)
+                                                                        {
+                                                                            var pastExpDoc = PerformanceCertificateUploaded.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                            var divId = "divDeleteFile" + pastExpDoc.Id;
+                                                                            <p id="@divId">
+                                                                                <a class="txt-orange" href="@Url.Action("DownloadBidderFile", new { id = pastExpDoc.Id })">
+                                                                                    <i class="fa fa-download mr-2"></i> @pastExpDoc.DocumentName
+                                                                                </a>
+                                                                                <a class="btn-delete" onclick="DeleteBidderUploadedFile(@pastExpDoc.Id)">
+                                                                                    <span title="Delete file" class="fa fa-times"></span>
+                                                                                </a>
+                                                                            </p>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-4 col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Past Orders <a onclick="ClearSelected(PastOrders)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a></label>
+                                                                @Html.TextBoxFor(model => model.PastOrders, "", new { @type = "file", @class = "w-100 bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                @Html.ValidationMessageFor(model => model.PastOrders, "", new { @class = "text-danger" })
+                                                                @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                {
+                                                                    var PastOrder = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "PastOrder").ToList();
+                                                                    if (PastOrder != null && PastOrder.Count > 0)
+                                                                    {
+                                                                        foreach (var doc in PastOrder)
+                                                                        {
+                                                                            var PastOrderDoc = PastOrder.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                            var divId = "divDeleteFile" + PastOrderDoc.Id;
+                                                                            <p id="@divId">
+                                                                                <a class="txt-orange" href="@Url.Action("DownloadBidderFile", new { id = PastOrderDoc.Id })">
+                                                                                    <i class="fa fa-download mr-2"></i> @PastOrderDoc.DocumentName
+                                                                                </a>
+                                                                                <a class="btn-delete" onclick="DeleteBidderUploadedFile(@PastOrderDoc.Id)">
+                                                                                    <span title="Delete file" class="fa fa-times"></span>
+                                                                                </a>
+                                                                            </p>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <p>Deviation if any, against clauses specified in Qualifying requirement (QR) </p>
+
+                                                                <div class="form-check form-check-inline">
+                                                                    @Html.RadioButtonFor(model => model.Deviation, "No", new { id = "DeviationNo", @class = "form-check-input", @checked = "checked" })
+                                                                    <label class="form-check-label" for="DeviationNo">No</label>
+                                                                </div>
+                                                                <div class="form-check form-check-inline">
+                                                                    @Html.RadioButtonFor(model => model.Deviation, "Yes", new { id = "DeviationYes", @class = "form-check-input" })
+                                                                    <label class="form-check-label" for="DeviationYes">Yes</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">2.</span>Acceptance of Bill of Quantity (BoQ), Scope of Work and Specifications (Bidder shall read all bid documents carefully</h5>
+                                                                <div class="">
+                                                                    <div class="form-check form-check-inline">
+                                                                        @Html.RadioButtonFor(model => model.AcceptanceOfBillOfQuantity, "Accepted", new { id = "AcceptanceOfBillAccepted", @class = "form-check-input", @checked = "checked" })
+                                                                        <label class="form-check-label" for="AcceptanceOfBillAccepted">Accepted</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        @Html.RadioButtonFor(model => model.AcceptanceOfBillOfQuantity, "Deviation", new { id = "AcceptanceOfBillDeviation", @class = "form-check-input" })
+                                                                        <label class="form-check-label" for="AcceptanceOfBillDeviation">Deviation</label>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">3.</span>Kindly fill the GTP (Guarantee Technical Particulars) in prescribed format, please do refer bid documents to get the GTP format <span class="required">*</span></h5>
+                                                                <div class="">
+                                                                    @Html.TextBoxFor(model => model.GuaranteeTechnicalParticulars, "", new { @type = "file", @class = "w-auto bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                    <a onclick="ClearSelected(GuaranteeTechnicalParticulars)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a>
+                                                                    @Html.ValidationMessageFor(model => model.GuaranteeTechnicalParticulars, "", new { @class = "text-danger" })
+                                                                    @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                    {
+                                                                        var GuaranteeTechnicalParticulars = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "GuaranteeTechnicalParticulars").ToList();
+                                                                        if (GuaranteeTechnicalParticulars != null && GuaranteeTechnicalParticulars.Count > 0)
+                                                                        {
+                                                                            foreach (var doc in GuaranteeTechnicalParticulars)
+                                                                            {
+                                                                                var PastOrderDoc = GuaranteeTechnicalParticulars.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                                var divId = "divDeleteFile" + PastOrderDoc.Id;
+                                                                                <p id="@divId">
+                                                                                    <a class="txt-orange" href="@Url.Action("DownloadBidderFile", new { id = PastOrderDoc.Id })">
+                                                                                        <i class="fa fa-download mr-2"></i> @PastOrderDoc.DocumentName
+                                                                                    </a>
+                                                                                    <a class="btn-delete" onclick="DeleteBidderUploadedFile(@PastOrderDoc.Id)">
+                                                                                        <span title="Delete file" class="fa fa-times"></span>
+                                                                                    </a>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">4.</span>Attach complete GA (General Arrangement) / SLD (Single Line Diagram) <span class="required">*</span></h5>
+                                                                <div class="">
+                                                                    @Html.TextBoxFor(model => model.GeneralArrangement, "", new { @type = "file", @class = "w-auto bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                    <a onclick="ClearSelected(GeneralArrangement)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a>
+                                                                    @Html.ValidationMessageFor(model => model.GeneralArrangement, "", new { @class = "text-danger" })
+                                                                    @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                    {
+                                                                        var GeneralArrangement = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "GeneralArrangement").ToList();
+                                                                        if (GeneralArrangement != null && GeneralArrangement.Count > 0)
+                                                                        {
+                                                                            foreach (var doc in GeneralArrangement)
+                                                                            {
+                                                                                var PastOrderDoc = GeneralArrangement.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                                var divId = "divDeleteFile" + PastOrderDoc.Id;
+                                                                                <p id="@divId">
+                                                                                    <a class="txt-orange" href="@Url.Action(" DownloadBidderFile", new { id=PastOrderDoc.Id })">
+                                                                                        <i class="fa fa-download mr-2"></i> @PastOrderDoc.DocumentName
+                                                                                    </a>
+                                                                                    <a class="btn-delete" onclick="DeleteBidderUploadedFile(@PastOrderDoc.Id)">
+                                                                                        <span title="Delete file" class="fa fa-times"></span>
+                                                                                    </a>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">5.</span>Attach Type Test Certificate</h5>
+                                                                <div class="">
+                                                                    @Html.TextBoxFor(model => model.TestCertificate, "", new { @type = "file", @class = "w-auto bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                    <a onclick="ClearSelected(TestCertificate)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a>
+                                                                    @Html.ValidationMessageFor(model => model.TestCertificate, "", new { @class = "text-danger" })
+                                                                    @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                    {
+                                                                        var TestCertificate = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "TestCertificate").ToList();
+                                                                        if (TestCertificate != null && TestCertificate.Count > 0)
+                                                                        {
+                                                                            foreach (var doc in TestCertificate)
+                                                                            {
+                                                                                var PastOrderDoc = TestCertificate.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                                var divId = "divDeleteFile" + PastOrderDoc.Id;
+                                                                                <p id="@divId">
+                                                                                    <a class="txt-orange" href="@Url.Action("DownloadBidderFile", new { id = PastOrderDoc.Id })">
+                                                                                        <i class="fa fa-download mr-2"></i> @PastOrderDoc.DocumentName
+                                                                                    </a>
+                                                                                    <a class="btn-delete" onclick="DeleteBidderUploadedFile(@PastOrderDoc.Id)">
+                                                                                        <span title="Delete file" class="fa fa-times"></span>
+                                                                                    </a>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">6.</span>Delivery schedule after PO/WO placement (Please do mention in terms of weeks) <span class="required">*</span></h5>
+                                                                <div class="">
+                                                                    @Html.TextAreaFor(x => x.Deliveryschedule, new { @class = "form-control reset-control", @autocomplete = "off" })
+                                                                    @Html.ValidationMessageFor(model => model.Deliveryschedule, "", new { @class = "text-danger" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">7.</span>It is advised to carry out the site visit by the bidder for scope clarity, understanding the site constraints, adequacy of BOQ for executing the complete scope etc. <span class="required">*</span></h5>
+                                                                <div class="">
+                                                                    <div class="form-check form-check-inline">
+                                                                        @Html.RadioButtonFor(model => model.SiteVisitDone, "Yes", new { id = "SiteVisitDoneYes", @class = "form-check-input", @checked = "checked" })
+                                                                        <label class="form-check-label" for="SiteVisitDoneYes">Site Visit done</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        @Html.RadioButtonFor(model => model.SiteVisitDone, "No", new { id = "SiteVisitDoneNo", @class = "form-check-input" })
+                                                                        <label class="form-check-label" for="SiteVisitDoneNo">Site Visit not required</label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">8.</span>Demonstration of Product at buyer’s location <span class="required">*</span></h5>
+                                                                <div class="">
+                                                                    <div class="form-check form-check-inline">
+                                                                        @Html.RadioButtonFor(model => model.DemonstrationOfProduct, "Yes", new { id = "DemonstrationOfProductYes", @class = "form-check-input", @checked = "checked" })
+                                                                        <label class="form-check-label" for="DemonstrationOfProductYes">Yes</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        @Html.RadioButtonFor(model => model.DemonstrationOfProduct, "No", new { id = "DemonstrationOfProductNo", @class = "form-check-input" })
+                                                                        <label class="form-check-label" for="DemonstrationOfProductNo">No</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        @Html.RadioButtonFor(model => model.DemonstrationOfProduct, "Virtual", new { id = "DemonstrationOfProductVirtual", @class = "form-check-input" })
+                                                                        <label class="form-check-label" for="DemonstrationOfProductVirtual">Virtual</label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">9.</span>Other documents specified in Technical Specification if any.</h5>
+                                                                <div class="">
+                                                                    @Html.TextBoxFor(model => model.OtherdocumentsSpecified, "", new { @type = "file", @class = "w-auto bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                    <a onclick="ClearSelected(OtherdocumentsSpecified)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a>
+                                                                    @Html.ValidationMessageFor(model => model.OtherdocumentsSpecified, "", new { @class = "text-danger" })
+                                                                    @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                    {
+                                                                        var OtherdocumentSpecified = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "OtherdocumentSpecified").ToList();
+                                                                        if (OtherdocumentSpecified.Count > 0)
+                                                                        {
+                                                                            foreach (var doc in OtherdocumentSpecified)
+                                                                            {
+                                                                                var OtherdocumentSpecifiedDoc = OtherdocumentSpecified.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                                var divId = "divDeleteFile" + OtherdocumentSpecifiedDoc.Id;
+                                                                                <p id="@divId">
+                                                                                    <a class="txt-orange" href="@Url.Action("DownloadBidderFile", new { id = OtherdocumentSpecifiedDoc.Id })">
+                                                                                        <i class="fa fa-download mr-2"></i> @OtherdocumentSpecifiedDoc.DocumentName
+                                                                                    </a>
+                                                                                    <a class="btn-delete" onclick="DeleteBidderUploadedFile(@OtherdocumentSpecifiedDoc.Id)">
+                                                                                        <span title="Delete file" class="fa fa-times"></span>
+                                                                                    </a>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12"><hr></div>
+                                                        <div class="col-lg-12" id="question10optional">
+                                                            <div class="form-group">
+                                                                <h5 class="mb-3"><span class="h5-number">10.</span>Consolidated Deviation Sheet in prescribed format given in Tender. <span id="IsConsolidatedDeviationSheetMandatory" style="display:none;" class="required">*</span></h5>
+                                                                <div class="">
+                                                                    @Html.TextBoxFor(model => model.ConsolidatedDeviationSheet, "", new { @type = "file", @class = "w-auto bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                    <a onclick="ClearSelected(ConsolidatedDeviationSheet)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a>
+                                                                    @Html.ValidationMessageFor(model => model.ConsolidatedDeviationSheet, "", new { @class = "text-danger" })
+                                                                    @if (Model.UploadedDocuments != null && Model.UploadedDocuments.Count > 0)
+                                                                    {
+                                                                        var ConsolidatedDeviationSheet = Model.UploadedDocuments.Where(d => d.DocumenttypeCode == "ConsolidatedDeviationSheet").ToList();
+                                                                        if (ConsolidatedDeviationSheet != null && ConsolidatedDeviationSheet.Count > 0)
+                                                                        {
+                                                                            foreach (var doc in ConsolidatedDeviationSheet)
+                                                                            {
+                                                                                var PastOrderDoc = ConsolidatedDeviationSheet.Where(d => d.Id == doc.Id).FirstOrDefault();
+                                                                                var divId = "divDeleteFile" + PastOrderDoc.Id;
+                                                                                <p id="@divId">
+                                                                                    <a class="txt-orange" href="@Url.Action("DownloadBidderFile", new { id = PastOrderDoc.Id })">
+                                                                                        <i class="fa fa-download mr-2"></i> @PastOrderDoc.DocumentName
+                                                                                    </a>
+                                                                                    <a class="btn-delete" onclick="DeleteBidderUploadedFile(@PastOrderDoc.Id)">
+                                                                                        <span title="Delete file" class="fa fa-times"></span>
+                                                                                    </a>
+                                                                                </p>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                </div>
+                                                                <p class="field-validation-error" id="ErrorMsg"></p>
+                                                                <p class="mt-3" style="display:none;" id="Q10deviation1">Please note: You have taken the deviation in Sr. No. 1 , please do submit consolidated deviation details against Sr. No. 1</p>
+                                                                <p class="" style="display:none;" id="Q10deviation2">Please note: You have taken the deviation in Sr. No. 2 , please do submit consolidated deviation details against Sr. No. 2</p>
+                                                            </div>
+                                                        </div>
+                                                        @*<div class="col-lg-12" id="question10mandatory">
+                                                                <div class="form-group">
+                                                                    <h5 class="mb-3"><span class="h5-number">10.</span>Consolidated Deviation Sheet in prescribed format given in Tender. <span class="required">*</span></h5>
+                                                                    <div class="">
+                                                                        @Html.TextBoxFor(model => model.ConsolidatedDeviationSheet, "", new { @type = "file", @class = "w-auto bg-white p-1", @multiple = "multiple", @onchange = "ValidateFile(this);", @accept = ".jpg,.jpeg,.png,.pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" })
+                                                                        <a onclick="ClearSelected(ConsolidatedDeviationSheet)" class="btn-delete"><span title="Delete file" class="fa fa-times"></span></a>
+                                                                    </div>
+                                                                    <p class="pl-5 mt-3">Please note: Question no. 10 shall be mandatary if you have chosen the option b i.e., Deviation of Question 1d as well Question 2</p>
+                                                                </div>
+                                                            </div>*@
+                                                        <div class="col-lg-12">
+                                                            <p>Note :</p><ul>
+                                                                <li>1.	Fields marked with * are mandatary to respond.</li>
+                                                                <li>
+                                                                    2.	You can attach the multiple files by selecting all.
+                                                                </li>
+                                                                <li>
+                                                                    3.	Question no. 10 shall be mandatary if bidder chosen the option b i.e., Deviation of Question 1d as well Question 2.
+                                                                </li>
+                                                                <li>4.	Do use the “Google Chrome” browser for better experience.</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="col-lg-12">
+                                                            <div>@Html.ValidationMessageFor(x => x.Message, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                        </div>
+                                                        <div class="col-lg-12">
+                                                            <input type="submit" value="Submit" name="Submit" class="btn btn-primary" />
+                                                            <input type="submit" value="Save as draft" name="SaveAsDraft" class="btn btn-secondary" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p>The page you are trying to open does not exists or expired.</p>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>*@
+
+
+

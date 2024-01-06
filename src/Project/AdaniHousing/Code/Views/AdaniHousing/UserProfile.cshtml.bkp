@@ -1,0 +1,49 @@
+﻿@model Sitecore.AdaniHousing.Website.Models.LoginInfoModel
+@{
+    ViewBag.TextMeassage = Session["EnquiryMessage"];
+}
+<div class="wrapper-body">
+    <div class="row">
+        @foreach (var loans in Model.getLoansList)
+        {
+            var new_string = "";
+            for (var i = 0; i < Model.MobileNo.Length - 3; i++)
+            {
+                new_string += "X";
+            }
+            new_string += Model.MobileNo.Substring(Model.MobileNo.Length - 3);
+            var lan = loans.loanDetailsList.Select(x => x.loanAccountNumber).FirstOrDefault();
+            <div class="col-lg-12 mb-4 AllLAN @lan" style="display:block;">
+                <div class="box_userprofile box_shadow">
+                    <h1>Name: <span class="d-block">@loans.customerName </span></h1>
+                    <p>Customer No<span class="d-block">@loans.customerNumber</span></p>
+                    <p>Mobile No.<span class="d-block">@new_string</span></p>
+                    @if (loans.identificationDetailsList != null)
+                    {
+                        var idList = loans.identificationDetailsList.GroupBy(x => x.identificationNumber).Select(y => y.First()).ToList();
+                        //var t = idList.GroupBy(x => x.identificationNumber).Select(y => y.First());
+                        foreach (var Ids in idList)
+                        {
+                            if (Ids.identificationNumber != null && Ids.identificationNumber.Length > 3)
+                            {
+                                var new_string2 = "";
+                                for (var i = 0; i < Ids.identificationNumber.Length - 3; i++)
+                                {
+                                    new_string2 += "X";
+                                }
+                                new_string2 += Ids.identificationNumber.Substring(Ids.identificationNumber.Length - 3);
+                                <p>@Ids.identificationType<span class="d-block">@new_string2</span></p>
+                            }
+                            else
+                            {
+                                <p>@Ids.identificationType<span class="d-block">@Ids.identificationNumber</span></p>
+                            }
+                        }
+                    }
+                    <p>LAN.<span class="d-block">@Model.LoanAccountNumber</span></p>
+                </div>
+            </div>
+            break;
+        }
+    </div>
+</div>

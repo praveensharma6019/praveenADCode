@@ -1,0 +1,300 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.ElectricityNew.Website.Attributes
+
+@model Sitecore.ElectricityNew.Website.Model.Survey
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+<style>
+    .disabled {
+        pointer-events: none;
+    }
+</style>
+<div class="col s12 l8 offset-l1">
+    <div class="tab-pane fade show active" id="energywizard" role="tabpanel">
+        @Html.Sitecore().Placeholder("switch-account-content")
+        <header class="section-header">
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+            <p>@Html.Raw(contextItem["Body"])</p>
+        </header>
+        <div class="section-container section-wrapper">
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @id = "survey" }))
+            {
+                @Html.HiddenIndexerInputForModel()
+                <h2>Customer Details</h2>
+                <div class="row customerDetails">
+                    <div class="col s12 m6">
+                        <div class="input-field custom">
+                            @Html.TextBoxFor(x => x.Name, new { @class = "form-control" })
+                            @Html.LabelFor(x => x.Name)
+                            <p style="display:none" class="field-validation-error req energyName">Please enter a value for First Name</p>
+                        </div>
+                    </div>
+
+                    <div class="col s12 m6">
+                        <div class="input-field custom">
+                            @Html.TextBoxFor(model => model.CANumber, new { @class = "form-control", @type = "number", @maxlength = "9" })
+                            @Html.LabelFor(x => x.CANumber)
+                            <p style="display:none" class="field-validation-error req energyCANumber">Please enter a value for CA Number</p>
+                        </div>
+                    </div>
+
+                    <div class="col s12 m6">
+                        <div class="input-field custom">
+                            @Html.TextBoxFor(model => model.Email, new { @class = "form-control email" })
+                            @Html.LabelFor(model => model.Email)
+                            <p style="display:none" class="field-validation-error req energyEmail">Please enter a value for Email ID</p>
+                            <p style="display:none" class="field-validation-error validEmail">Please enter a valid Email Id</p>
+                        </div>
+                    </div>
+
+                    <div class="col s12 m6">
+                        <div class="input-field custom">
+                            @Html.TextBoxFor(model => model.MobileNo, new { @class = "form-control mobile", @type = "number", @maxlength = 10, @autocomplete = "off" })
+                            @Html.LabelFor(model => model.MobileNo)
+                            <p style="display:none" class="field-validation-error req energyMobile">Please enter a value for Mobile Number</p>
+                            <p style="display:none" class="field-validation-error validMobile">Please enter a valid Mobile Number</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-progress-bar stepper-wrapper four">
+                    @if (Model != null)
+                    {
+                        <input type="hidden" value="@Model.TypeofApplianceList.Count" name="TypeofApplianceList" />
+                        <div class="" id="">
+                            <div class="section-wrapper">
+                                <ul class="stepper-header" id="stepper-holder" data-stepper-content-wrapper="stepperContent" data-stepper-content-holder="stepper-content-body">
+                                    @{ for (var i = 0; i < Model.TypeofApplianceList.Count; i++)
+                                        {
+                                            string activeClass = i == 0 ? "complete active-step" : string.Empty;
+                                            string class1 = "content" + (i + 1).ToString();
+                                            <li id="stepper-holder-action-@i" class="stepper-action disabled @activeClass" data-content-target="@class1">
+                                                @Model.TypeofApplianceList[i].Name
+                                                @Html.HiddenFor(m => m.TypeofApplianceList[i].Name)
+                                                <input type="hidden" value="@Model.TypeofApplianceList[i].ApplianceList.Count" name="ApplianceList" />
+                                            </li>
+                                        }
+
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="stepper-content" id="stepperContent">
+                            @{ for (var i = 0; i < Model.TypeofApplianceList.Count; i++)
+                                {
+                                    string activeClass = i == 0 ? "active" : "hide";
+                                    string class1 = "content" + (i + 1).ToString();
+                                    <div class="stepper-content-body @activeClass" id="@class1">
+                                        <div class="new-connection-form">
+                                            <div class="step-2-form section-wrapper">
+                                                <div class="card outlined card-with-form brand-gradient">
+
+                                                    <div class="card-body">
+                                                        @{ for (var j = 0; j < Model.TypeofApplianceList[i].ApplianceList.Count; j++)
+                                                            {
+                                                                <div class="form-field">
+                                                                    <h6 style="text-transform: initial">@Model.TypeofApplianceList[i].ApplianceList[j].Name</h6>
+                                                                    @Html.HiddenFor(m => m.TypeofApplianceList[i].ApplianceList[j].Name)
+                                                                    <input type="hidden" value="@Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList.Count" name="QuestionCount" />
+                                                                    @for (var k = 0; k < Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList.Count; k++)
+                                                                    {
+
+
+                                                                        @Html.HiddenFor(m => m.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Question)
+                                                                        <input type="hidden" value="@Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option.Count" name="QuestionOptionCount" />
+
+                                                                        <div class="field-group  radio-stack-mob" rel="@Model.TypeofApplianceList[i].ApplianceList[j].Name">
+                                                                            <h5> @Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Question</h5>
+                                                                            @for (var l = 0; l < Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option.Count; l++)
+                                                                            {
+                                                                                <div class="radio-field">
+                                                                                    <label>
+                                                                                        @Html.RadioButtonFor(model => model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k], Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option, new { @class = "with-gap", @onchange = "checkbox(this)", id = i + "" + j + "" + k + "" + l })
+                                                                                        <span for="@(i + "" + j + "" + k + "" + l)">@Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option</span>
+                                                                                    </label>
+                                                                                </div>
+                                                                                @Html.ValidationMessageFor(model => model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option)
+                                                                                @Html.HiddenFor(model => model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option, new { @id = i + "" + j + "" + k + "" + l })
+                                                                                @Html.HiddenFor(model => model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Response, Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Response)
+                                                                            }
+                                                                        </div>
+                                                                    }
+                                                                </div>
+
+                                                                <div class="py-2"></div>
+                                                                if (Model.TypeofApplianceList[i].ApplianceList.Count - 1 > j)
+                                                                {
+                                                                    <div class="form-group row pt-md-2">
+                                                                        <div rel="validationMsg" class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                                            <div class="col-12 col-lg-auto"><h2 class="field-validation-error" style="color:red;">Please answer all the question.</h2></div>
+                                                                            <div class=""></div>
+                                                                        </div>
+                                                                        <div class="btn-group">
+                                                                            @if (i != 0)
+                                                                            {
+                                                                                <button type="button" class="waves-effect waves-light btn-flat" onclick="goToStepNo('stepper-holder', @i);">Back</button>
+                                                                            }
+
+                                                                            <span class="waves-effect waves-light btn btn-continue" onclick="changesubpage('@Model.TypeofApplianceList[i].ApplianceList[j].Name', this, 'stepper-holder', @(i+2))">
+                                                                                Next
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                                else if (Model.TypeofApplianceList.Count != (i + 1))
+                                                                {
+                                                                    <div class="form-group row pt-md-2">
+                                                                        <div rel="validationMsg" class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                                            <div class="col-12 col-lg-auto"><h2 class="field-validation-error" style="color:red;">Please answer all the question.</h2></div>
+                                                                            <div class=""></div>
+                                                                        </div>
+                                                                        <div class="btn-group">
+                                                                            @if (i != 0)
+                                                                            {
+                                                                                <button type="button" class="waves-effect waves-light btn-flat" onclick="goToStepNo('stepper-holder', @i);">Back</button>
+                                                                            }
+
+                                                                            <span class="waves-effect waves-light btn btn-continue" onclick="changesubpage('@Model.TypeofApplianceList[i].ApplianceList[j].Name', this, 'stepper-holder', @(i+2))">
+                                                                                Next
+                                                                            </span>
+                                                                        </div>
+
+                                                                    </div>
+                                                                }
+                                                            }
+                                                            if (Model.TypeofApplianceList.Count == (i + 1))
+                                                            {
+                                                                <div class="form-group row pt-md-2">
+                                                                    <div rel="validationMsg" class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                                        <div class="col-12 col-lg-auto"><h2 class="field-validation-error" style="color:red;">Please answer all the question.</h2></div>
+
+                                                                        <div class=""></div>
+                                                                    </div>
+                                                                    <div class="btn-group">
+                                                                        <button type="button" class="waves-effect waves-light btn-flat" onclick="goToStepNo('stepper-holder', @i);">Back</button>
+
+                                                                        <button formtarget="_blank" type="button" class="btn btn-primary" onclick='Submitpage("Appliance_3",this)'>Submit<i class="fa fa-angle-right"></i></button>
+                                                                    </div>
+                                                                </div>
+
+                                                            }
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    function checkbox(obj) {
+        var array = $(obj).parent().parent().parent().find('input[type="hidden"]')
+        for (var i = 0; i < array.length; i++) {
+            if (array[i].id.indexOf(obj.id) != -1) {
+                array[i].value = true;
+                $("#" + obj.id).prop("checked", true);
+            } else {
+                array[i].value = false;
+            }
+            i = i + 1;
+        }
+        var inputarray = $(obj.parentNode.parentNode.parentNode).find('div.radio-field');
+        for (var i = 0; i < inputarray.length; i++) {
+            let id = inputarray[i].children[0].children[0].id;
+            if (id.indexOf(obj.id) == -1) {
+                $("#" + id).prop("checked", false);
+            }
+        }
+    }
+
+    function nextStep(stepper, sIndex) {
+        if (window.goToStepNo && stepper && sIndex) {
+            window.goToStepNo(stepper, sIndex)
+        }
+    }
+
+    function Submitpage(relName, current) {
+        //debugger;
+        try {
+            var flag = true;
+            var array = $(current.parentNode.parentNode.parentNode);
+            // var array = $("div[rel='" + relName + "']");
+            $.each(array, function (index, data) {
+                if ($(data).find('input[type=radio]:checked').length == 0) {
+                    flag = false;
+                    $(current.parentNode.parentNode).find("div[rel='validationMsg']")[0].style.display = "block";
+                    return false;
+                }
+            });
+            if (flag) {
+                var checkval = true;
+                //if ($('#Name').val() == '' && $('#MobileNo').val() == '' && $('#Email').val() == '' && $('#CANumber').val() == '') {
+                //    $('.field-validation-error req').removeAttr('display');
+                //    return false;
+                //}
+                if ($('#Name').val() == '') {
+                    $('.energyName').show();
+                    $('#Name').addClass('invalid');
+                    checkval = false;
+                }
+                if ($('#CANumber').val() == '' && $('#CANumber').val().length != 9) {
+                    $('.energyCANumber').show();
+                    $('#CANumber').addClass('invalid');
+                    checkval = false;
+                }
+                if ($('#MobileNo').val() == '') {
+                    $('.energyMobile').show();
+                    $('#MobileNo').addClass('invalid');
+                    checkval = false;
+                }
+                if ($('#Email').val() == '') {
+                    $('.energyEmail').show();
+                    $('#Email').addClass('invalid');
+                    checkval = false;
+                }
+
+                if (checkval) {
+                    $("#survey").submit();
+                    return true;
+                }
+            }
+
+        }
+        catch { }
+    }
+
+    function changesubpage(relName, current, stepper, sIndex) {
+        try {
+            var flag = true;
+            var array = $("div[rel='" + relName + "']");
+            $.each(array, function (index, data) {
+                if ($(data).find('input[type=radio]:checked').length == 0) {
+                    flag = false;
+                    $(current.parentNode.parentNode).find("div[rel='validationMsg']")[0].style.display = "block";
+                    return false;
+                }
+            });
+            if (flag) {
+                $(current.parentNode.parentNode).find("div[rel='validationMsg']")[0].style.display = "none";
+                nextStep(stepper, sIndex);
+                setTimeout(function () {
+                    var leftOff = $('.step-progress-bar ul.stepper-header li.active-step').offset().left - 32;
+                    $('.step-progress-bar ul.stepper-header').scrollLeft(leftOff);
+                    $(".step-progress-bar")[0].scrollIntoView(true);
+                }, 500);
+            }
+        } catch { }
+    }
+</script>

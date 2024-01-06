@@ -1,0 +1,68 @@
+﻿@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.Services
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.LoginInfo
+
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", ReturnUrl = Request.QueryString["ReturnUrl"] }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(x => x.ReturnUrl)
+<div class="card outlined section-inner-wrapper card-with-form login-wrap section-container">
+    <header class="section-header">
+        <h2>Login</h2>
+
+        <p>You do not have an account? <a href="@Html.Sitecore().Dictionary("/Other Redirect URL/Login/Registration URL", "/registration-validateotp")" class="bold">Sign Up</a></p>
+    </header>
+    <div class="input-field custom">
+        @Html.TextBoxFor(x => x.LoginName, new { @class = "validate", @autocomplete = "off", id = "LoginUserName", required = "required", title = "LoginName" })
+        @Html.ValidationMessageFor(x => x.LoginName, "", new { @class = "help-block" }, "p")
+        <label class="active" for="LoginUserName">@Html.Sitecore().Dictionary("/Accounts/Login/Enter User Name", "Enter User Name")</label>
+    </div>
+    <div class="input-field custom input-has-icon">
+        @Html.PasswordFor(x => x.Password, new { @class = "validate", id = "LoginPassword", @autocomplete = "off", required = "required", title = "Passwords" })
+        @Html.ValidationMessageFor(x => x.Password, "", new { @class = "help-block" }, "p")
+        <label class="active" for="LoginPassword">@Html.Sitecore().Dictionary("/Accounts/Login/Password", "Enter Password")</label>
+        <div class="input-icon">
+            <span class="icon-holder waves-effect waves-light show-pass">
+                <i class="vi-show-password"></i>
+
+                <i class="vi-hide-password"></i>
+            </span>
+        </div>
+    </div>
+    <div class="input-field custom">
+        <div class="captcha_box">
+            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                <div class="row captcha_box" style="padding-left:10px;">
+                    <div class="col-lg-12">
+                        <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="h-right btn-group">
+        <a class="btn-flat" href="@Html.Sitecore().Dictionary("/sitecore/content/ElectricityNew/Global/Dictionary/Other Redirect URL/Login/Forgot Password URL", "/Forgot Password")">
+            Forgot Password
+        </a>
+        <button type="submit" class="waves-effect waves-light btn">
+            @Html.Sitecore().Dictionary("/Accounts/Login/Login", "Login")
+        </button>
+    </div>
+</div>
+
+    <script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+}

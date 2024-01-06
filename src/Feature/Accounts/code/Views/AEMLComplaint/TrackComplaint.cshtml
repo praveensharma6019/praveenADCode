@@ -1,0 +1,269 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.TrackComplaintModel
+@{
+    /**/
+
+    var editComplaintURL = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaintPage)).Url();
+
+    var item1 = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPage);
+    var editCGRFComplaintURL = item1.Url();
+
+    var escalateToCGRF = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPage)).Url();
+    var trackCGRF = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalTrackCGRFComplaintPage)).Url();
+}
+@if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+{
+    <div class="form-group row">
+        <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+    </div>
+}
+
+<div class="contentSection account">
+    <!-- Page Content -->
+    <section class="section_ICRS-form pb-5">
+        <div class="bg-images"><img src="/images/ICRS-BG.png"></div>
+        <div class="container">
+            <ul class="breadcrumb">
+                <li><a href="/complaint-registration-home">Home</a></li>
+            </ul>
+            <h2 class="pageTitle">Complaint Registration and Tracking</h2>
+        </div>
+        <div class="container">
+            <div class="complaint-panel p-4">
+                @using (Html.BeginForm("Logout", "Accounts", FormMethod.Post))
+                {
+                    <div class="row mb-3">
+                        <div class="col-lg-6">
+                            <h3>Welcome, <span class="txt-orange">@UserSession.AEMLComplaintUserSessionContext.LoginName</span></h3>
+                        </div>
+                        <div class="col-lg-6">
+                            <ul class="search_sidebar">
+                                <li>
+                                    <p class="user_logout">
+                                        <button class="" type="submit">
+                                            @Html.Sitecore().Dictionary("/ComplaintRegistration/Logout", "Logout")
+                                            <span class="fa fa-sign-out-alt mr-2"></span>
+                                        </button>
+                                    </p>
+
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                }
+
+                <div class="row mb-3">
+                    <div class="col-lg-9">
+                        <div class="">
+                            <h5 class="">Status of complaints registered with us</h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <ul class="search_sidebar">
+                            <li>
+                                <div class="form-group">
+                                    <input class="form-control" aria-describedby="Search.." id="searchCONStatusApp" type="text" placeholder="Search..">
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                @if (Model.ComplaintList == null || Model.ComplaintList.Count == 0)
+                {
+                    <div class="mb-4">
+                        <h4>You have no complaints registered with us!</h4>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive mb-4" style="max-height:400px;">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 60px;">Sr. No</th>
+                                    <th>Complaint Number</th>
+                                    <th>Status</th>
+                                    <th>Category</th>
+                                    <th>Complaint date</th>
+                                    <th>Expected resolution date</th>
+                                    <th>Escalate to</th>
+                                </tr>
+                            </thead>
+                            <tbody id="CONApps">
+                                @{
+                                    var count = 1;
+                                    foreach (var app in Model.ComplaintList)
+                                    {
+                                        var createdDate1 = "-";
+                                        var modifiedDate1 = "-";
+                                        var tatDate1 = "-";
+
+                                        if (app.CreatedOnSAP != null)
+                                        {
+                                            DateTime createdDate = DateTime.Parse(app.CreatedOnSAP.ToString());
+                                            createdDate1 = createdDate.ToString("dd.MM.yyyy");
+                                        }
+                                        if (app.ModifiedOnSAP != null)
+                                        {
+                                            DateTime modifiedDate = DateTime.Parse(app.ModifiedOnSAP.ToString());
+                                            modifiedDate1 = modifiedDate.ToString("dd.MM.yyyy");
+                                        }
+                                        if (app.TATDate != null)
+                                        {
+                                            DateTime tatDate = DateTime.Parse(app.TATDate.ToString());
+                                            tatDate1 = tatDate.ToString("dd.MM.yyyy");
+                                        }
+                                        <tr>
+                                            <td>@count</td>
+                                            <td>@app.ComplaintNumber</td>
+                                            <td>
+                                                @if (app.ComplaintStatusName == "INPROCESS")
+                                                {
+                                                    <span>In progress</span>
+                                                }
+                                                else if (app.ComplaintStatusName == "COMPLETED")
+                                                {
+                                                    <span>Completed</span>
+                                                }
+                                                else if (app.ComplaintStatusName != "Cancelled")
+                                                {
+                                                    <span>@app.ComplaintStatusName</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Further necessary action initiated</span>
+                                                }
+                                            </td>
+
+                                            <td>
+                                                @if (app.ComplaintSubCategory == "M52")
+                                                {
+                                                    <span>High Consumption Complaint</span>
+                                                }
+                                                else if (app.ComplaintSubCategory == "M40")
+                                                {
+                                                    <span>New connection complaint</span>
+                                                }
+                                                else
+                                                {
+                                                    @app.ComplaintCategory
+                                                }
+                                            </td>
+                                            <td>@createdDate1</td>
+                                            @*<td>@modifiedDate1</td>*@
+                                            <td>@tatDate1</td>
+                                            <td>
+                                                @*<a href="#" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory,@app.CreatedDate" data-toggle="modal" data-target="#escalatetoICRS_modal" class="btn btn-primary escalateToICRS">Level 1</a>*@
+
+                                                @Html.Hidden(app.IsIGR.ToString())
+                                                @Html.Hidden(app.ComplaintStatusCode.ToString())
+                                                @Html.Hidden(app.ComplaintStatusName.ToString())
+                                                @Html.Hidden(app.ComplaintSubCategory)
+                                                
+
+                                                @if (app.IsIGR != true && app.ComplaintStatusCode == "1" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                                {
+                                                    <a href="#" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory,@app.CreatedDate" data-toggle="modal" data-target="#escalatetoICRS_modal" class="btn btn-primary escalateToICRS">Level 1</a>
+                                                }
+                                                else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintSubCategory == "M20")
+                                                {
+                                                    <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="btn btn-primary">Level 2: CGRF</a>
+                                                }
+                                                else if (app.IsIGR && (app.TATDate != null && Convert.ToDateTime(app.TATDate) < DateTime.Now) && app.ComplaintSubCategory == "M20")
+                                                {
+                                                    <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="btn btn-primary">Level 2: CGRF</a>
+                                                }
+                                                else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintStatusName != "Cancelled" && app.ComplaintSubCategory != "M20" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                                {
+                                                    <a href="#" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory" data-toggle="modal" data-target="#escalatetoICRS_modal" class="btn btn-primary escalateToICRS">Level 1</a>
+                                                }
+                                            </td>
+                                        </tr>
+                                        count++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="">
+                        <p class="text-note mb-3">Note: Once the complaint is closed, escalation can be done to Level-1, Internal Complaint Redressal System (ICRS). For closed ICRS Complaints, escalation can be done to Level-2, Consumer Grievance Redressal Forum(CGRF)</p>
+                    </div>
+                }
+                <div class="text-left mb-5">
+                    <a href="@editComplaintURL" class="btn btn-primary mr-2">File Complaint</a>
+                    <a href="@trackCGRF" class="btn btn-dark">Track CGRF Complaints</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- /Page Content -->
+</div>
+
+<div id="escalatetoICRS_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "filterByStatusForm", name = "filterByStatusForm" }))
+            {
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                <div class="modal-body">
+                    @Html.HiddenFor(m => m.ExcalationComplaintId)
+                    @Html.HiddenFor(m => m.ExcalationRemarks)
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">Are you sure that you want to escalate complaint to ICRS</label>
+                    </div>
+
+                    <input type="submit" class="btn btn-primary" name="createComplaint" id="createComplaint" value="Yes" />
+                    <button type="reset" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                                <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.filterByStatusForm.submit();
+    }
+</script>

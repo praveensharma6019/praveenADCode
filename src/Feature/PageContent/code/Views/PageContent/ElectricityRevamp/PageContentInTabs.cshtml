@@ -1,0 +1,56 @@
+﻿@using Sitecore.Feature.PageContent
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+
+}
+@if (parent != null)
+{
+    string firstElliClass = string.Empty;
+    string firstElStyleAttr = "none";
+    if (parent["IsFirstOpen"].ToString() == "1")
+    {
+        firstElliClass = "active";
+        firstElStyleAttr = "block";
+    }
+
+    <div class="section-container">
+        <div class="section-wrapper help-support custom_accrdion">
+            <div class="accordion">
+                <ul class="collapsible collapsible-accordion">
+                    @foreach (var child in parent.Children.InnerChildren)
+                    {
+                        <li class="@firstElliClass">
+                            <div class="collapsible-header">
+                                <h2>
+                                    @Html.Sitecore().Field("Title", child)
+                                </h2>
+                            </div>
+                            <div class="collapsible-body" id="customerCareControl" style="display:@firstElStyleAttr">
+                                <div class="text_format">
+                                    @Html.Sitecore().Field("Body", child)
+                                </div>
+                            </div>
+                        </li>
+                        firstElliClass = string.Empty;
+                        firstElStyleAttr = "none";
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    const sidenavaccord = {
+        init: function () {
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems);
+        }
+    }
+    sidenavaccord.init();
+</script>

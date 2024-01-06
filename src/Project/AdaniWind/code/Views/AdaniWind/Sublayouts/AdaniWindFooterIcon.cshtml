@@ -1,0 +1,44 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	var FooterLogoUrl = "";
+    var FooterLogoAltTxt = "";
+
+
+	Sitecore.Data.Fields.ImageField FooterLogoImage = ((Sitecore.Data.Fields.ImageField)model.Fields["ImageSource"]);
+	if(FooterLogoImage != null && FooterLogoImage.MediaItem != null)
+	{
+		FooterLogoUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(FooterLogoImage.MediaItem);
+		FooterLogoAltTxt = FooterLogoImage.Alt;
+	}			
+    var socialIconurl="#";	
+
+	
+}
+
+		<img class="ninTh-img" src="@FooterLogoUrl" alt="@FooterLogoAltTxt">
+		<div class="div-with-line"></div>
+			<ul class="ninTh-socialMediaList">
+				@foreach(var child in model.GetChildren().ToList())
+				{
+				    Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]); 
+						if(linkfield != null) 
+						{ 
+							socialIconurl = linkfield.GetFriendlyUrl();
+						} 
+												
+					var mainClass = child.Fields["IconClass"]?.Value;
+					<li class="ninTh-socialMediaIcon">
+					    <a href="@socialIconurl">
+					        <i class="@mainClass" aria-hidden="true"> </i>
+					    </a>
+					</li>
+				}
+			</ul>
+

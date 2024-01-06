@@ -1,0 +1,111 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+
+@model RenderingModel
+@{
+
+
+
+    var brochure = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["brochure"];
+	var contextItem = Sitecore.Context.Item;
+	
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	
+	int i = 0;
+
+}
+<section class="py-5 bg-white" id="first-section">
+    <div class="container">
+        <h2 class="section-heading txt-green"></h2>
+
+
+<div>
+    @Html.Sitecore().Field("Description",contextItem)
+    <div class="row mt-4">
+        <div class="col-12 p-0">
+            <div id="accordion" class="accordion investor-faq">
+			  
+			
+				 @foreach (Item item in model.GetChildren().ToList())
+					{
+						var subItemModel = Sitecore.Context.Database.GetItem(item.ID);
+						var childCount = subItemModel.GetChildren().Count();
+						
+						<div class="card mb-4 border">
+						
+									<div class="card-header" data-toggle="collapse" href="#Sustainability-@i" aria-expanded="true">
+										<a class="card-title">
+											@Html.Sitecore().Field("Text",subItemModel)
+										</a>
+									</div>
+									
+									@if(childCount > 0)
+									{
+										<div id="Sustainability-@i" class="card-body collapse show" data-parent="#accordion">
+											<div class="p-4">
+												@foreach (Item child in subItemModel.GetChildren())
+												{
+													LinkField URL = child.Fields["LinkUrl"];
+													var name = child.Fields["Title"];
+													if (URL.TargetItem != null)
+													{
+														var urlItem = URL.TargetItem;
+														<div class="container mt-4">
+															<h2 class="heading pl-4 mb-4">@name</h2>
+															<div class="row">
+															@foreach (var docs in urlItem.Children.ToList())
+																{
+																	var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+																	var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+																	
+																	<div class="col-md-4 mb-4">
+																		<a href="@url">
+																			<div class="tariff-block bg-white border p-3">
+																				<!-- <img src="/images/Ports/pdf-icon.svg" class="img-fluid"> -->
+																				<p>@docs.Name</p>
+																			</div>
+																		</a>
+																	</div>
+																}
+																
+															</div>
+														</div>
+														
+													}
+													
+												}
+											</div>
+										</div>
+									}  
+									                  
+						</div>
+				
+					i++;
+					}
+			
+             
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</section>
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,292 @@
+﻿@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration;
+@using Sitecore.Mvc.Presentation;
+
+@model Sitecore.AGELPortal.Website.Models.PortalCategoryModel
+@{
+    Layout = null;
+    int pageSize = 10;
+    var count = Math.Ceiling(System.Convert.ToDouble(Model.totalRecord) / pageSize);
+    Uri myUri = new Uri(Request.Url.AbsoluteUri);
+    var pageNumber = HttpUtility.ParseQueryString(myUri.Query).Get("page") != null ? System.Convert.ToInt32(HttpUtility.ParseQueryString(myUri.Query).Get("page")) : 1;
+    var currentRecordCount = Model.categories.Count;
+    var mType = Model?.mType;
+}
+
+<div class="container">
+    <div class="section-header flex-justify">
+        <h3>Category</h3>
+        @if (Session["addCatSuccess"] != null)
+        {
+            <div id="toast-success" class="modal modal-alert modal-toast custom-toast-success" style="display: block;">
+                <header class="modal-header">
+                    <h4>
+                        <a class="toast-close">
+                            <i class="i-tick"></i>
+                        </a>
+                        @Session["addCatSuccess"]
+                    </h4>
+                    <a class="modal-close">
+                        <i class="i-cross"> </i>
+                    </a>
+                </header>
+            </div>
+            Session["addCatSuccess"] = null;
+        }
+
+        @if (Session["ExistCatagory"] != null)
+        {
+            <div id="toast-success" class="modal modal-alert modal-toast custom-toast-success" style="display: block;">
+                <header class="modal-header">
+                    <h4>
+                        <a class="toast-close">
+                            <i class="i-tick"></i>
+                        </a>
+                        @Session["ExistCatagory"]
+                    </h4>
+                    <a class="modal-close">
+                        <i class="i-cross"> </i>
+                    </a>
+                </header>
+            </div>
+            Session["ExistCatagory"] = null;
+        }
+        <aside>
+            <div class="btn-group btn-equal-size">
+                <div class="btn-no-margin">
+                    <a id="add_category" class="waves-effect waves-light btn modal-trigger" href="#add-cat">+ Add</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+    <div class="customer_detail_wrapper customer_detail_list">
+        <table class="customer_detail_list-details">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Category Name</th>
+                    <th style="width: 20%;">Videos</th>
+                    <th style="width: 20%;">Documents</th>
+                    <th style="width: 20%;">Status</th>
+                    <th style="width: 15%;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in Model.categories)
+                {
+                    <tr id="tr-@category.Id">
+                        <td>
+                            <div class="table-cell">
+                                <label>@category.name</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@(Model.GetContentCount(category.Id, "video"))</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@(Model.GetContentCount(category.Id, "document"))</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                @if (category.status == true)
+                                {
+                                    <div class="status" id="DivStatus">
+                                        <a href="javascript:void();" data-id="@category.Id" class="change-catagory-status"> <h3>Active</h3></a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="status2" id="DivStatus">
+                                        <a href="javascript:void();" data-id="@category.Id" class="change-catagory-status"> <h3>Inactive</h3></a>
+                                    </div>
+
+                                }
+
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <div class="table3">
+                                    <a class="modal-trigger edit_category" data-id="@category.Id" href="#edit-cat"><img src="/images/AGELPortal/edit.svg" alt="edit-img"></a>
+                                    @if (Model.GetContentCount(category.Id, "video") == 0 && Model.GetContentCount(category.Id, "document") == 0)
+                                    {
+                                        <a class="delete_category" data-id="@category.Id" href="javascript:void();"><img src="/images/AGELPortal/delete.svg" alt="delete-img"></a>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination-wrapper">
+        <div class="total-count">
+            @{
+
+                var start = pageNumber > 0 ? (pageNumber - 1) * pageSize : 0;
+                var diff = pageSize - currentRecordCount;
+                var last = pageNumber > 0 ? (pageNumber * pageSize) - diff : currentRecordCount;
+                var totalPages = (int)Math.Ceiling((decimal)Model.totalRecord / (decimal)pageSize);
+            }
+            @(start + 1)-@last of @Model.totalRecord Records
+        </div>
+
+        <div class="pagination">
+            @if (count > 1 && pageNumber > 1)
+            {
+                var pre = pageNumber - 1;
+                <a href="?page=@pre"><i class="i-arrow-l"></i></a>
+            }
+            @if (count > 1)
+            {
+                for (int i = 1; i <= count; i++)
+                {
+                    var _class = (pageNumber == i || pageNumber == 0) ? "current" : "wave-effect";
+                    <a href="?page=@i" class="@_class">@i</a>
+
+                }
+            }
+            @if (pageNumber < totalPages)
+            {
+                if (count > 1)
+                {
+                    var next = pageNumber + 1;
+                    <a href="?page=@next"><i class="i-arrow-r"></i></a>
+                }
+            }
+        </div>
+    </div>
+
+    <!--Add category Model-->
+    <div class="modal-wrapper">
+        <div id="add-cat" class="modal">
+
+            <div class="modal-content">
+                <a class="modal-close"><img src="/images/AGELPortal/cross-icon.svg" /></a>
+                <h4>Add Category</h4>
+                <div class="card-with-form login-wrap">
+                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "add_category_form", name = "add_category_form", @class = "add_category_form", autocomplete="off" }))
+                    {
+                        <div class="input-field custom">
+                            <input id="addname" type="text" name="name" required class="validate" maxlength="40">
+                            <label class="active" for="first_name2">Enter Category Name</label>
+                            @Html.ValidationMessageFor(model => model.name, "", new { @class = "help-block text-danger" }, "p")
+                        </div>
+                        <div class="modal-items new-connection-form">
+                            <div class="form-field">
+                                <h6>Status</h6>
+                                <div class="field-group">
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="status" required value="1" type="radio"
+                                                   checked="" />
+                                            <span>Active</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="status" required value="0" type="radio" />
+                                            <span>Inactive</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.status, "", new { @class = "help-block text-danger" }, "p")
+                        </div>
+                        <div class="h-right btn-group2">
+                            @Html.ValidationMessageFor(model => model.validation, "", new { @class = "help-block text-danger" }, "p")
+                            @*@Html.ValidationMessageFor(model => model.UserValidation, "", new { @class = "help-block text-danger" }, "p")*@
+
+
+                            <input type="hidden" name="page" value="@pageNumber" />
+                            <button id="save_catagory" type="submit" class="waves-effect waves-light btn">Create Category</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end-->
+    <!--Category edit model-->
+    <div class="modal-wrapper">
+        <div id="edit-cat" class="modal">
+            <div class="modal-content">
+                <a class="modal-close"><img src="/images/AGELPortal/cross-icon.svg" /></a>
+                <h4>Edit Category</h4>
+                <div class="card-with-form login-wrap">
+                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "edit_category_form", name = "edit_category_form", @class = "edit_category_form" , autocomplete="off"}))
+                    {
+                        <div class="input-field custom">
+                            <input id="editname" value="" type="text" name="name" required class="validate" maxlength="40">
+                            <label class="active" for="first_name2">Enter Category Name</label>
+                        </div>
+                        <div class="modal-items new-connection-form">
+                            <div class="form-field">
+                                <h6>Status</h6>
+                                <div class="field-group">
+                                    <div class="radio-field">
+                                        <label>
+                                            <input id="catStatus1" class="with-gap" name="status" value="1" type="radio" />
+
+                                            <span>Active</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input id="catStatus0" class="with-gap" name="status" value="0" type="radio" />
+                                            <span>Inactive</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-right btn-group2">
+                            <input id="insertId" type="hidden" name="Id" />
+                            @Html.ValidationMessageFor(model => model.validation, "", new { @class = "help-block text-danger" }, "p")
+
+
+                            <button type="submit" class="waves-effect waves-light btn">Save</button>
+
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--end-->
+</div>
+<script>
+    var mType = "@mType";
+
+</script>
+
+@*<script>
+
+
+    $(function () {
+
+        $("form").submit(function (e) {
+            e.preventDefault();
+            var f = $(this);
+            $.post(f.attr("action"), f.serialize(), function (res) {
+                if (res.Status === "success") {
+                    //alert(res.Message);
+                    window.location.href = "your new url here";
+                }
+            });
+        });
+
+    });
+
+</script>*@

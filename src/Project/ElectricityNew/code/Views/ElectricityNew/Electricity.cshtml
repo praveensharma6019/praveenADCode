@@ -1,0 +1,269 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Electricity.Website.Attributes
+@model Sitecore.Electricity.Website.Model.Survey
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+<div class="tab-pane fade show active" id="energywizard" role="tabpanel">
+    <p>We tend to ignore many minute aspects of energy conservation.</p>
+    <p>Respond to this short questionnaire and Pandeyji will provide you with recommendations helping you make small changes in your energy usage pattern.</p>
+    <p>Do your bit for the environment for a better tomorrow !!</p>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @id = "survey" }))
+    {
+        @Html.HiddenIndexerInputForModel()
+        <h5 class="txt-orange">Customer Details</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group row pt-md-2">
+                    <label class="col-sm-5 col-md-5 col-form-label">
+                        @Html.LabelFor(x => x.Name)
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-7 col-md-7">
+                        @Html.TextBoxFor(x => x.Name, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(x => x.Name)
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group row pt-md-2">
+                    <label class="col-sm-5 col-md-5 col-form-label">
+                        @Html.LabelFor(x => x.CANumber)
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-7 col-md-7">
+                        @Html.TextBoxFor(model => model.CANumber, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.CANumber)
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group row pt-md-2">
+                    <label class="col-sm-5 col-md-5 col-form-label">
+                        @Html.LabelFor(model => model.Email)
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-7 col-md-7">
+                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.Email)
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group row pt-md-2">
+                    <label class="col-sm-5 col-md-5 col-form-label">
+                        @Html.LabelFor(model => model.MobileNo)
+                        <span class="required">*</span>
+                    </label>
+                    <div class="col-sm-7 col-md-7">
+                        @Html.TextBoxFor(model => model.MobileNo, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.MobileNo)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            @if (Model != null)
+            {
+                <input type="hidden" value="@Model.TypeofApplianceList.Count" name="TypeofApplianceList" />
+                for (var i = 0; i < Model.TypeofApplianceList.Count; i++)
+                {
+                    <div class="col-sm-12 container question" id="question_@i">
+                        <div class="col-sm-12">
+                            <div class="py-2"></div>
+                            <h5 class="txt-orange">@Model.TypeofApplianceList[i].Name</h5>
+                            @Html.HiddenFor(m => m.TypeofApplianceList[i].Name)
+                        </div>
+                        <div class="container surveyquetionpanel">
+                            <div class="image-container set-full-height cooling-bg-overlay p-2">
+                                <div class="form-inner-box overlaybox">
+                                    <input type="hidden" value="@Model.TypeofApplianceList[i].ApplianceList.Count" name="ApplianceList" />
+                                    <div class="row">
+                                        @for (var j = 0; j < Model.TypeofApplianceList[i].ApplianceList.Count; j++)
+                                        {
+                                            <div class="col-sm-12 ApplianceList" id="Appliance_@j">
+                                                <h5>@Model.TypeofApplianceList[i].ApplianceList[j].Name</h5>
+                                                @Html.HiddenFor(m => m.TypeofApplianceList[i].ApplianceList[j].Name)
+                                                <div class="py-3"></div>
+                                                <input type="hidden" value="@Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList.Count" name="QuestionCount" />
+                                                @for (var k = 0; k < Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList.Count; k++)
+                                                {
+                                                    <p>@Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Question</p>
+                                                    @Html.HiddenFor(m => m.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Question)
+                                                    <div class="row form-group row pt-md-2 opt">
+                                                        <input type="hidden" value="@Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option.Count" name="QuestionOptionCount" />
+                                                        @for (var l = 0; l < Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option.Count; l++)
+                                                        {
+                                                            <div class="col-sm-6">
+                                                                @Html.RadioButtonFor(m => m.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l], Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option, new { @onchange = "checkbox(this)" })
+                                                                <span>@Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option</span>
+                                                                @Html.ValidationMessageFor(m => m.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option)
+                                                                @Html.HiddenFor(m => m.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option, Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Option)
+                                                                @Html.HiddenFor(m => m.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Response, Model.TypeofApplianceList[i].ApplianceList[j].QuestionsList[k].Option[l].Response)
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                                <div class="py-2"></div>
+                                                @if (Model.TypeofApplianceList[i].ApplianceList.Count - 1 > j)
+                                                {
+                                                    <div class="form-group row pt-md-2">
+                                                        <div class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                            <div class="col-12 col-lg-auto"><p>Please answer all the question.</p></div>
+                                                            <div class=""></div>
+                                                        </div>
+                                                        <div class="col-sm-7 col-md-6">
+                                                            <button type="button" class="btn btn-primary" onclick='changesubpage($("#Appliance_@j"),this)'>Next&nbsp;<i class="fa fa-angle-right"></i></button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (Model.TypeofApplianceList.Count != (i + 1))
+                                                {
+                                                    <div class="form-group row pt-md-2">
+                                                        <div class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                            <div class="col-12 col-lg-auto"><p>Please answer all the question.</p></div>
+                                                            <div class=""></div>
+                                                        </div>
+                                                        <div class="col-sm-7 col-md-6">
+                                                            <button type="button" class="btn btn-primary" onclick='Changepage($("#question_@i"),this)'>Next&nbsp;<i class="fa fa-angle-right"></i></button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        @if (Model.TypeofApplianceList.Count == (i + 1))
+                                        {
+                                            <div class="form-group row pt-md-2">
+                                                <div class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                    <div class="col-12 col-lg-auto"><p>Please answer all the question.</p></div>
+                                                    <div class=""></div>
+                                                </div>
+                                                <div class="col-sm-7 col-md-6">
+                                                    <button formtarget="_blank" type="submit" class="btn btn-primary" onclick='Changepage($("#question_@i"),this)'>Submit&nbsp;<i class="fa fa-angle-right"></i></button>
+                                                </div>
+                                            </div>
+                                            @*<div class="form-group row pt-md-2">
+                                                    <div class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                        <div class="col-12 col-lg-auto"><p>Please answer all the question.</p></div>
+                                                        <div class=""></div>
+                                                    </div>
+                                                    <div class="col-sm-7 col-md-6">
+                                                        <button type="button" class="btn btn-primary" onclick='Changepage($("#question_@i"),this)'>Next&nbsp;<i class="fa fa-angle-right"></i></button>
+                                                    </div>
+                                                </div>*@
+                                        }
+                                        @*else
+                                            {
+                                                <div class="form-group row pt-md-2">
+                                                    <div class="row col-sm-6 col-md-11 our-centers-box" style="display:none">
+                                                        <div class="col-12 col-lg-auto"><p>Please answer all the question.</p></div>
+                                                        <div class=""></div>
+                                                    </div>
+                                                    <div class="col-sm-7 col-md-6">
+                                                        <button formtarget="_blank" type="submit" class="btn btn-primary" onclick='Changepage($("#question_@i"),this)'>Submit&nbsp;<i class="fa fa-angle-right"></i></button>
+                                                    </div>
+                                                </div>
+                                            }*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var rowdiv = $(".question");
+        for (var i = 0; i < rowdiv.length; i++) {
+            if (i != 0) {
+                $(".question")[i].style.display = "none";
+            }
+        }
+        var innerdiv = $(rowdiv[0]).find('.ApplianceList');
+        for (var i = 0; i < rowdiv.length; i++) {
+            if (i == 0) {
+                $(innerdiv)[i].style.display = "block";
+            }
+            else {
+                $(innerdiv)[i].style.display = "none";
+            }
+        }
+    });
+    function checkbox(obj) {
+        var array = $(obj).parent().parent().find('input[type="hidden"]')
+        for (var i = 1; i < array.length; i++) {
+            if (array[i].id.indexOf(obj.id) != -1) {
+                array[i].value = true;
+                $("#" + obj.id).prop("checked", true);
+            } else {
+                array[i].value = false;
+                //if ($("#" + array[i].id).is(':checked'))
+                //    $("#" + array[i].id).attr("checked", false);
+            }
+            i = i + 1;
+        }
+        var inputarray = obj.parentNode.parentNode.children;
+        for (var i = 1; i < inputarray.length; i++) {
+            if (inputarray[i].children[0].id.indexOf(obj.id) == -1) {
+                $("#" + inputarray[i].children[0].id).prop("checked", false);
+            }
+        }
+    }
+    function Changepage(obj, current) {
+        var flag = true;
+        var array = $(obj[0]).find('.opt');
+        $.each(array, function (index, data) {
+            if ($(data).find('input[type=radio]:checked').length == 0) {
+                flag = false;
+                $(current.parentNode.parentNode)[0].children[0].style.display = "block";
+                return false;
+            }
+        });
+        if (flag) {
+            if ($($(obj)[0].nextElementSibling).length > 0) {
+                var next = $(obj)[0].nextElementSibling.style.display = "block";
+                $(current.parentNode.parentNode)[0].children[0].style.display = "none";
+                $(obj)[0].style.display = "none";
+            }
+
+            //var previous = $(obj)[0].previousElementSibling;
+            //$.each(next, function (index, sbling) {
+            //    $(sbling).style.display = "block";
+            //    $(obj)[0].style.display = "none";
+            //});
+            return true;
+        }
+    }
+    function changesubpage(obj, current) {
+        var flag = true;
+        var array = $(obj).find('.opt');
+        $.each(array, function (index, data) {
+            if ($(data).find('input[type=radio]:checked').length == 0) {
+                flag = false;
+                $(current.parentNode.parentNode)[0].children[0].style.display = "block";
+                return false;
+            }
+        });
+        if (flag) {
+            if ($($(obj)[0].nextElementSibling).length > 0) {
+                var next = $(obj)[0].nextElementSibling.style.display = "block";
+                $(current.parentNode.parentNode)[0].children[0].style.display = "none";
+            }
+            $(obj)[0].style.display = "none";
+            //var previous = $(obj)[0].previousElementSibling;
+            //$.each(next, function (index, sbling) {
+            //    $(sbling).style.display = "block";
+            //    $(obj)[0].style.display = "none";
+            //});
+            return true;
+        }
+    }
+</script>

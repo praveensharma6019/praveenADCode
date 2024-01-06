@@ -1,0 +1,141 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string url = string.Empty;   
+    string altText = string.Empty;  
+	string thumburl = string.Empty;   
+    string thumbaltText = string.Empty;
+}
+
+@if (model != null)
+    {
+		           <div class="section-holder sustainability-wrapper bg-grey dr_our_locations">
+            <div class="content-wrapper">
+               <div class="full sustainability-content grid-wrapper mob-col-reverse">
+                  <div class="left-col custom-col">
+                     <h2 class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</h2>
+                     <div class="locations_dec">
+					 
+						@if(model.HasChildren)
+							{
+							   int flag = 1;
+							   foreach (Item item in model.GetChildren())
+								{
+									string location = item.Fields["MediaTitle"].ToString();
+									if(flag == 1)
+									{	
+										 <div class="dr_locations_image active @location">
+										   <p class="h3 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+										   <p class="full d-txt desc">@Html.Sitecore().Field("MediaDescription", item)
+										   </p>
+										</div>
+										flag++;
+									}
+									else
+									{
+										<div class="dr_locations_image @location">
+										   <p class="h3 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+										   <p class="full d-txt desc">@Html.Sitecore().Field("MediaDescription", item)
+										   </p>
+										</div>
+									}
+								}
+							}	
+                     </div>
+					 
+					 
+                     <div class="dr_locations_icon">
+                        <ul>
+						@if(model.HasChildren)
+							{
+							   int flag = 1;
+							   foreach (Item item in model.GetChildren())
+								{
+									Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaThumbnail"]);
+									if (imgField != null && imgField.MediaItem != null)
+									{
+										url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+										altText = imgField.Alt;										
+									}
+									string location = item.Fields["MediaTitle"].ToString();
+									if(flag == 1)
+									{	
+										  <li class="active" data-href="@location">
+											  <a href="javascript:void(0);">
+												  <img src="@url" alt="@altText">
+												 <p>@Html.Sitecore().Field("MediaTitle", item)</p>
+											  </a>
+										   </li>
+										flag++;
+									}
+									else
+									{
+										 <li data-href="@location">
+										  <a href="javascript:void(0);">
+											 <img src="@url" alt="@altText">
+											 <p>@Html.Sitecore().Field("MediaTitle", item)</p>
+										  </a>
+									   </li>
+									}
+								}
+							}
+                        </ul>
+                     </div>
+                  </div>
+				  
+				  
+                  <div class="right-col custom-col">
+                     <div class="full movie-holder">
+					 @if(model.HasChildren)
+							{
+							   int flag = 1;
+							   foreach (Item item in model.GetChildren())
+								{
+									Sitecore.Data.Fields.ImageField thumbimgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+									if (thumbimgField != null && thumbimgField.MediaItem != null)
+									{										
+										thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbimgField.MediaItem);
+										thumbaltText = thumbimgField.Alt;										
+									}
+									string location = item.Fields["MediaTitle"].ToString();
+									if(flag == 1)
+									{	
+										   <div class="dr_locations_image active @location">
+											   <figure>
+												  <img src="@thumburl" alt="@thumbaltText">
+											   </figure>
+											</div>
+										flag++;
+									}
+									else
+									{
+										 <div class="dr_locations_image  @location">
+										   <figure>
+											   <img src="@thumburl" alt="@thumbaltText">
+										   </figure>
+										</div>
+									}
+								}
+							}
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+	}

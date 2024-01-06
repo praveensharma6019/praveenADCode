@@ -1,0 +1,245 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.TrackComplaintModel
+@{
+                /**/
+
+                /**/
+
+                var editComplaintURL = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaintPage)).Url();
+                var editComplaintURLLevel2 = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaint2Page)).Url();
+                var editComplaintURLLevel3 = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileComplaint3Page)).Url();
+
+                var item1 = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPage);
+                var editCGRFComplaintURL = item1.Url();
+
+                var item2 = Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalHelpdeskHomePage);
+                var complaintPortalHomePage = item2.Url();
+
+                var escalateToCGRF = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPage)).Url();
+}
+@if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+{
+    <div class="form-group row">
+        <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+    </div>
+}
+
+<section class="py-5" style="margin-top: -2rem;">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "Accounts", FormMethod.Post))
+        {
+            <div class="row">
+                <div class="col-sm-8 pb-3 text-left">
+                    <p><span><b>Welcome, </b></span><b class="txt-orange">@UserSession.AEMLComplaintUserSessionContext.LoginName <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                </div>
+                <div class="col-sm-4 pb-3">
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit">
+                            @Html.Sitecore().Dictionary("/ComplaintRegistration/Logout", "Logout")
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        }
+        <hr />
+
+        <div class="row">
+            <div class="col-lg-12 mr-auto mt-2">
+                @{
+                    var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                    if (info != null)
+                    {
+                        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                    }
+                }
+            </div>
+        </div>
+        <div class="row" style="padding: 0rem 0rem;">
+            <div class="w-100">
+                <div class="row mb-3">
+                    <div class="col-md-12 text-right">
+                        <input class="form-control w-auto d-inline-block mr-2" id="searchCONStatusApp" type="text" placeholder="Search..">
+                    </div>
+                </div>
+                <div class="scroll_table_short fixed-header">
+                    <table class="table-striped border text-center bg-white">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">Sr. No</th>
+                                <th style="width: 15%;">Complaint Number</th>
+                                <th style="width: 15%;">Status</th>
+                                <th style="width: 20%;">Category</th>
+                                @*<th>Sub Category</th>*@
+                                <th style="width: 15%;">Date of complaint registration</th>
+                                @*<th>Date Modified</th>*@
+                                <th style="width: 15%;">Expected resolution date</th>
+                                <th style="width: 15%;">Escalate to</th>
+                            </tr>
+                        </thead>
+                        <tbody id="CONApps">
+                            @{
+                                var count = 1;
+                                foreach (var app in Model.ComplaintList)
+                                {
+                                    var createdDate1 = "-";
+                                    var modifiedDate1 = "-";
+                                    var tatDate1 = "-";
+
+                                    if (app.CreatedOnSAP != null)
+                                    {
+                                        DateTime createdDate = DateTime.Parse(app.CreatedOnSAP.ToString());
+                                        createdDate1 = createdDate.ToString("dd.MM.yyyy");
+                                    }
+                                    if (app.ModifiedOnSAP != null)
+                                    {
+                                        DateTime modifiedDate = DateTime.Parse(app.ModifiedOnSAP.ToString());
+                                        modifiedDate1 = modifiedDate.ToString("dd.MM.yyyy");
+                                    }
+                                    if (app.TATDate != null)
+                                    {
+                                        DateTime tatDate = DateTime.Parse(app.TATDate.ToString());
+                                        tatDate1 = tatDate.ToString("dd.MM.yyyy");
+                                    }
+
+                                    <tr>
+                                        <td>@count</td>
+                                        <td>@app.ComplaintNumber</td>
+                                        <td>
+                                            @if (app.ComplaintStatusName == "INPROCESS")
+                                            {
+                                                <span>In progress</span>
+                                            }
+                                            else if (app.ComplaintStatusName != "Cancelled")
+                                            {
+                                                <span>@app.ComplaintStatusName</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Further necessary action initiated</span>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            @if (app.ComplaintSubCategory == "M52")
+                                            {
+                                                <span>High Consumption Complaint</span>
+                                            }
+                                            else if (app.ComplaintSubCategory == "M40")
+                                            {
+                                                <span>New connection complaint</span>
+                                            }
+                                            else
+                                            {
+                                                @app.ComplaintCategory
+                                            }
+                                        </td>
+                                        <td>@createdDate1</td>
+                                        @*<td>@modifiedDate1</td>*@
+                                        <td>@tatDate1</td>
+                                        <td>
+                                            @*<a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="btn btn-primary">Level 2: CGRF</a>*@
+                                            @*<a href="#" title="Click here to Escalate" data-toggle="modal" data-target="#escalatetoICRS_modal" class="btn btn-primary">ICRS</a>
+                                                <a href="@escalateToCGRF" title="Click here to Escalate" class="btn btn-primary">CGRF</a>*@
+                                            @*<a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="btn btn-primary">CGRF</a>*@
+
+                                            @if (app.IsIGR != true && app.ComplaintStatusCode == "1" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                            {
+                                                <a href="#" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory,@app.CreatedDate" data-toggle="modal" data-target="#escalatetoICRS_modal" class="btn btn-primary escalateToICRS">Level 1</a>
+                                            }
+                                            else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintSubCategory == "M20")
+                                            {
+                                                <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="btn btn-primary">Level 2: CGRF</a>
+                                            }
+                                            else if (app.IsIGR && (app.TATDate != null && Convert.ToDateTime(app.TATDate) < DateTime.Now) && app.ComplaintSubCategory == "M20")
+                                            {
+                                                <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="btn btn-primary">Level 2: CGRF</a>
+                                            }
+                                            else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintStatusName != "Cancelled" && app.ComplaintSubCategory != "M20" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                            {
+                                                <a href="#" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory" data-toggle="modal" data-target="#escalatetoICRS_modal" class="btn btn-primary escalateToICRS">Level 1</a>
+                                            }
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <br />
+                <p style="font-style:italic;">Please note: Once the complaint is closed, escalation can be done to Internal Complaint Redressal System (ICRS). For closed ICRS Complaints, escalation can be done to Consumer Grievance Redressal Forum (CGRF).</p>
+            </div>
+        </div>
+
+        <div class="text-right"><a href="@complaintPortalHomePage" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back</a></div>
+    </div>
+</section>
+
+<div id="escalatetoICRS_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "filterByStatusForm", name = "filterByStatusForm" }))
+            {
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                <div class="modal-body">
+                    @Html.HiddenFor(m => m.ExcalationComplaintId)
+                    @Html.HiddenFor(m => m.ExcalationRemarks)
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">Are you sure that you want to escalate complaint to ICRS</label>
+                    </div>
+
+                    <input type="submit" class="btn btn-primary" name="createComplaint" id="createComplaint" value="Yes" />
+                    <button type="reset" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                                <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.filterByStatusForm.submit();
+    }
+</script>

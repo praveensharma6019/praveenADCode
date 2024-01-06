@@ -1,0 +1,65 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Project.Marathon
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 1; var j = 1;
+
+}
+
+<section class="initiatives-section">
+    <div class="container full-length">
+        <div class="initiatives-column" role="tablist">
+            <ul class="initiatives-tab-title flex flex-wrap">
+                @foreach (var item in model.GetChildren().ToList())
+                {
+                    var subtitle = item.Fields["SubTitle"].ToString();
+                    <li class="initiatives-title-list">
+                        <a id="nav-tab-@i" data-toggle="tab" href="#tab-@i" role="tab">
+                            <div class="initiatives-thumbnail">
+                                @{
+                                    Sitecore.Data.Fields.LinkField linkField = @item.Fields[Templates.HasMedia.Fields.Link];
+                                    var NavigateUrl = linkField.Url;
+                                }
+
+
+                                <div class="th_img">
+                                    @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, item)
+                                    <iframe src="@NavigateUrl" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                                </div>
+                                <h5>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</h5>
+                                <h6>@subtitle</h6>
+                            </div>
+                        </a>
+                    </li>
+                    i++;
+                }
+            </ul>
+            <div id="nav-parent">
+                @foreach (var items in model.GetChildren().ToList())
+                {
+                    var subtitles = items.Fields["SubTitle"].ToString();
+
+                    <div class="initiatives-tab-content initiatives-detail nav-tab-@j" role="tabpanel">
+                        <div class="initiatives-thumbnail visible-xs">
+                            <h5>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, items)</h5>
+                            <h6>@subtitles</h6>
+                        </div>
+                        @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, items)
+                    </div>
+                    j++;
+
+                }
+            </div>
+
+
+
+
+        </div>
+    </div>
+</section>

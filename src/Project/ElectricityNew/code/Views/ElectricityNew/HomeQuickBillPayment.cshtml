@@ -1,0 +1,475 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+
+@{
+    Sitecore.Data.Items.Item managerConnectionItem = Sitecore.Context.Database.GetItem("{755E7DB7-B360-446B-860D-19A03A5497AB}");
+    var ManageConnectionUrl = managerConnectionItem != null ? Sitecore.Links.LinkManager.GetItemUrl(managerConnectionItem) : "#";
+
+    Sitecore.Data.Items.Item myCurrentBillItem = Sitecore.Context.Database.GetItem("{32F3D1BD-0069-4BA3-9BBC-4D0CFB2B4842}");
+    var myCurrentBillUrl = myCurrentBillItem != null ? Sitecore.Links.LinkManager.GetItemUrl(myCurrentBillItem) : "#";
+
+    Sitecore.Data.Items.Item vccItem = Sitecore.Context.Database.GetItem("{6B27FAA0-91F9-467A-8D63-C5CEA20E7011}");
+    var vccItemUrl = vccItem != null ? Sitecore.Links.LinkManager.GetItemUrl(vccItem) : "#";
+
+    // var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+}
+
+<div class="hero-form">
+
+    @if (!Sitecore.Context.User.IsAuthenticated)
+    {
+        //log out User
+        <div class="form-cols">
+
+            <ul class="tabs hero-tab">
+                <li class="tab">
+                    <a href="#hero_quick_bill"
+                       data-gaevent="hf_quick_bill_payment"
+                       data-gaeventCategory="Home Page"
+                       data-gaeventAction="Bill Payment"
+                       data-gaeventLabel="NA"
+                       class="waves-effect waves-light active">Quick Bill Payment</a>
+                </li>
+                <li class="tab">
+                    <a href="#hero_new_connect"
+                       data-gaevent="hf_new_connection"
+                       data-gaeventCategory="Home Page"
+                       data-gaeventAction="New Connection"
+                       data-gaeventLabel="NA"
+                       class="waves-effect waves-light" onclick="CloseFetchQuickPay()">New Connection</a>
+                </li>
+            </ul>
+            <div id="hero_quick_bill">
+                <div class="form-field">
+                    <div class="input-field custom input-has-icon">
+                        <input id="caNumber" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" onKeyPress="showCrossIcon()" onKeyUp="showCrossIcon()" />
+                        <label id="lblCANumber" for="CA_number">@Html.Sitecore().Dictionary("/Accounts/My Account/QuickPay/Enter CA No", "Enter CA Number")</label>
+                        <div class="input-icon">
+                            <span id="iconholderid" class="icon-holder waves-effect"><i id="icrossid" class="i-cross"> </i></span><a onclick="viewSampleBill()" href="javascript:void(0)">Sample Bill</a>
+                        </div>
+                    </div>
+                </div>
+                <p class="help-text ca-number-help">
+                    Please enter your 9 digit consumer account number
+                </p>
+                <div class="hero-captcha-box">
+                    <div id="recaptcha"></div>
+                    <span class="field-validation-error" id="Captchaerror"></span>
+                </div>
+                <a class="waves-effect waves-light btn full" data-gaevent="quick_pay_initiation"
+                   data-gaeventCategory="Home Page"
+                   data-gaeventAction="Quick Pay Initiation"
+                   data-gaeventLabel="Hero Form Interaction"
+                   onclick="ShowDetails()" id="fetchBill">Proceed</a>
+
+                <div class="hero-form-footer">
+                    <h4>Quick Links</h4>
+                    <div class="hero-quick-links">
+                        <a href="@vccItemUrl">
+                            <span class="btn waves-effect waves-light">
+                                <i>
+                                    <svg width="21" height="15" viewBox="0 0 21 15" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> <defs> <path id="qvdwhs3r1a" d="M0 0h5v8H0z" /> </defs> <g fill="none" fill-rule="evenodd"> <g transform="translate(16 3)"> <mask id="keuf5ghb0b" fill="#fff"> <use xlink:href="#qvdwhs3r1a" /> </mask> <path d="M4.993 4.036c0 .901.006 1.803-.002 2.704-.009 1.052-.75 1.541-1.718 1.095-.89-.41-1.743-.9-2.625-1.329C.19 6.284.044 5.917.035 5.47.017 4.55.012 3.633 0 2.715c-.007-.53.177-.947.69-1.204C1.598 1.057 2.486.56 3.405.13 4.21-.248 4.96.233 4.986 1.134c.027.967.006 1.934.007 2.902" fill="#F04C23" mask="url(#keuf5ghb0b)" /> </g> <path d="M12.176 15H2.824A2.824 2.824 0 0 1 0 12.176V2.824A2.824 2.824 0 0 1 2.824 0h9.352A2.824 2.824 0 0 1 15 2.824v9.352A2.824 2.824 0 0 1 12.176 15" fill="#F04C23" /> <path d="M7.539 12.5c-.457 0-.872-.123-1.233-.366-.364-.246-.641-.626-.821-1.128L3.077 4.218A1.107 1.107 0 0 1 3 3.786c0-.311.106-.598.314-.854.224-.274.545-.419.928-.419.253 0 .487.07.698.21.218.143.373.343.46.593l2.145 6.315 2.152-6.33c.096-.242.255-.439.471-.584a1.23 1.23 0 0 1 .693-.217c.386 0 .706.147.925.424a1.34 1.34 0 0 1 .231 1.285L9.58 11.005c-.18.504-.457.883-.821 1.13-.36.242-.771.365-1.22.365" fill="#FFF" /> </g> </svg>
+                                </i>
+                                Virtual Contact Centre
+                            </span>
+                            <span class="vcc-new">NEW</span>
+                        </a>
+                        <a href="@Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Links/Change Name on Bill", "https://electricity.dev.local/changeofnameregistration" )"
+                           data-gaevent="hf_quick_link_access"
+                           data-gaeventCategory="Home Page"
+                           data-gaeventAction="HF Quick Link Access"
+                           data-gaeventLabel="Quick Link_Change Name on Bill">
+                            <span class="btn waves-effect waves-light">
+                                @Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Labels/Change Name on Bill", "Change Name on Bill")
+                            </span>
+                        </a>
+                        <a href="@Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Links/Paperless Billing", "https://iss.adanielectricity.com/WelcomeBack/" )"
+                           data-gaevent="hf_quick_link_access"
+                           data-gaeventCategory="Home Page"
+                           data-gaeventAction="HF Quick Link Access"
+                           data-gaeventLabel="Quick Link_Paperless Billing">
+                            <span class="btn waves-effect waves-light">
+                                @Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Labels/Paperless Billing", "Paperless Billing")
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div id="hero_new_connect">
+                <div class="hero-new-connect-links">
+                    <a target="_blank" href="@Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Links/Apply New Connection", "http://electricity.dev.local/ApplyNewConnection")" class="waves-effect waves-light btn">
+                        @Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Labels/Apply New Connection", "New Electricity Connection")
+                    </a>
+                    <a target="_blank" href="@Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Links/Port To Adani", "https://iss.adanielectricity.com/WelcomeBack/")" class="waves-effect waves-light btn">
+                        @Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Labels/Port To Adani", "Port To Adani")
+                    </a>
+                    <a target="_blank" href="@Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Links/Rooftop Solar", "https://iss.adanielectricity.com/mumbainsc/")" class="waves-effect waves-light btn">
+                        @Html.Sitecore().Dictionary("/HomePage/QuickBillLinks/Labels/Rooftop Solar", "Rooftop Solar")
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="form-cols carousel_wrapper">
+            <header class="hero-form-heading">
+                <h1>My Current Bill(s)</h1>
+                <div class="hero-heading-aside">
+
+                    <div class="carousel-nav hide-on-small-only"></div>
+
+                    <div class="form-nav-wrapper">
+                        <div class="form-nav-trigger dropdown-trigger waves-effect waves-light" data-target="details">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <ul class="dd-menu-dd1 dropdown-content current-bill-menu" id="details">
+                            <li>
+                                <a href="@myCurrentBillUrl" class="waves-effect waves-brand">
+                                    <p style="padding-left: 10px;">Quick Bill Payment </p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@ManageConnectionUrl" class="waves-effect waves-brand">
+                                    <p style="padding-left: 10px;">
+                                        Link Electricity Accounts
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </header>
+            <div class="owl-carousel" data-items-desktop="1.1" data-items-mobile="1.1" data-nav="true" data-full-width="true" data-margin="11">
+                @Html.Sitecore().Placeholder("switch-account-homepage")
+            </div>
+            <div class="hero-form-footer hide-on-large-only">
+                <h4>Quick Links</h4>
+                <div class="hero-quick-links">
+                    <a target="_blank" href="@ManageConnectionUrl" class="waves-effect waves-light btn">
+                        Link Electricity Accounts
+                    </a>
+                    <a target="_blank" href="@myCurrentBillUrl" class="waves-effect waves-light btn">
+                        Quick Bill Payment
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    }
+    <div class="form-cols details-col QBillDetails logged-out hide">
+        <span class="hide-bill-details-icon icon-holder waves-effect waves-light">
+            <i class="i-cross i-20 hide-bill-details"></i>
+        </span>
+        <div class="logged-out-box">
+            <ul class="tabs hero-pay-tab">
+                <li class="tab"><a href="#energy_bills" class="waves-effect waves-light active">Energy Bill</a></li>
+                <li class="tab"><a href="#security_deposit" class="waves-effect waves-light">Security Deposit</a></li>
+                <li class="tab"><a href="#vds_amount" class="waves-effect waves-light">VDS Amount</a></li>
+            </ul>
+            <div id="energy_bills" class="hero-pay-tab-content active">
+                <div class="bill-details current-bills card">
+                    <header>
+                        <aside>
+                            <label class="QACANumber">CA Number <span></span></label>
+                            <h4>&#8377 <span class="QPayable"></span></h4>
+
+                            <div class="tooltip-wrapper tooltipNoBillDue">
+                                <div class="tooltip-box">
+                                    <i><img src="/electricity_assets/assets/icons/error-icon.svg"></i>
+                                    <div class="tooltip-content">Pay now to avoid late fee</div>
+                                </div>
+                            </div>
+                            <p class="due-date QDuedate"></p>
+
+                        </aside>
+
+                        <a href="javascript:void(0)" onclick="FetchQuickPay('')" class="waves-effect  btn QPayBill" style="display:none">Pay Bill</a>
+
+                        <a href="javascript:void(0)" onclick="FetchQuickPay('')" class="waves-effect btn QPayAdvance" style="display:none"
+                          data-gaevent="quick_hp_bill_payment_step_1"
+                          data-gaeventCategory="Bill Payment"
+                          data-gaeventAction="Quick Bill Payment Step 1"
+                          data-gaeventLabel= >Pay Advance</a>
+                    </header>
+                    <ul class="consumer-details">
+                        <li>
+                            <label for="">CA Number</label>
+                            <strong class="QACANumber"></strong>
+                        </li>
+                        <li class="consumer-name">
+                            <label for="">Consumer Name</label>
+                            <span>  <strong class="QAConsumerName"></strong></span>
+                        </li>
+
+                        <li>
+                            <label for="">Units Consumed</label>
+                            <strong class="QUnitConsumed"></strong>
+                        </li>
+                        <li>
+                            <label for="">Bill Month</label>
+                            <strong class="QBillMonth"></strong>
+                        </li>
+                        <li>
+                            <label for="">Total Bill Amount</label>
+                            <strong class="QTBillAmount"></strong>
+                        </li>
+                        <li>
+                            <label for="">Minimum Payable</label>
+                            <strong class="QMinimumPayable"></strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div id="security_deposit" class="hero-pay-tab-content">
+                <div class="bill-details current-bills card">
+                    <header>
+                        <aside>
+                            <input type="hidden" class="hdnSecurityDepositAmount" />
+                            <h4>&#8377 <span class="SecurityDepositAmount"></span></h4>
+                            <p for="" style="color:black" class="col-form-label SecurityDepositText"></p>
+                        </aside>
+                        <button onclick="FetchQuickPaySecurity('')" class="waves-effect waves-light btn btn-continue PayNowSecurity">Pay</button>
+
+                    </header>
+
+                    <ul class="consumer-details">
+                        <li>
+                            <label for="">CA Number</label>
+                            <strong class="SCANumber"></strong>
+                        </li>
+                        <li class="consumer-name">
+                            <label for="">Consumer Name</label>
+                            <span><strong class="SConsumerName"></strong></span>
+                        </li>
+                        @*<li>
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Address", "Address")</label>
+                               <strong class="SAddress"></strong>
+                            </li>*@
+                        <li>
+                            <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Book Number", "Book Number")</label>
+                            <strong class="SBookNumber"></strong>
+                        </li>
+                        <li>
+                            <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Cycle Number New", "Cycle Number")</label>
+                            <strong class="SCycleNumber"></strong>
+                        </li>
+                        <li>
+                            <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Zone", "Zone")</label>
+                            <strong class="SZone"></strong>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+            <div id="vds_amount" class="hero-pay-tab-content">
+                <div class="bill-details current-bills card">
+                    <div class="withoutOutstanding-hero">
+                        <ul class="list-with-icon">
+                            <li>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Minimum Amount", "Minimum Amount") <span>&#8377 </span><b><span class="spanAverageVDSAmount"></span></b>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Maximum Amount", "Maximum Amount") <span>&#8377 </span><b><span class="spanMaxVDSAmount"></span></b>
+                            </li>
+                            <li>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Payable Maximum", "Payable Maximum")
+                            </li>
+                        </ul>
+                        <button class="waves-effect waves-light btn full btn-add-money">Add Money</button>
+                    </div>
+
+                    <div class="VDSAmountCurrentOutstanding-hero">
+                        <div class="message warning warning-info">
+                            <aside><i class="i-info"></i></aside>
+                            <p>Dear Consumer, you need to clear your current outstanding for VDS payments.</p>
+                        </div>
+
+                        <header>
+                            <aside>
+                                <input type="hidden" class="hdnCurrentOutstanding" name="Amountpayable" />
+                                <h4>&#8377 <span class="CurrentOutstanding"></span></h4>
+                                <p for="" style="color:black" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Current Outstanding Bill", "Current Outstanding Bill")</p>
+
+                            </aside>
+                            <a href="javascript:void(0)" class="waves-effect  btn PayOutstandingBill">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Pay Bill", "Pay Bill")</a>
+
+
+                        </header>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div id="billDetailsMobile" class="modal bottom-sheet" style="display:none">
+        <div class="modal-content">
+            <div class="form-cols details-col QBillDetails hide">
+                <header>
+                    <h1>Bill Details</h1>
+                    <i class="i-cross i-20 hide-bill-details"></i>
+                </header>
+                <div class="hero-pay-tab-mob-wrp">
+                    <ul class="tabs hero-pay-tab-mob">
+                        <li class="tab"><a href="#energy_bills_mob" class="waves-effect waves-light active">Energy Bill</a></li>
+                        <li class="tab"><a href="#security_deposit_mob" class="waves-effect waves-light">Security Deposit</a></li>
+                        <li class="tab"><a href="#vds_amount_mob" class="waves-effect waves-light">VDS Amount</a></li>
+                    </ul>
+                </div>
+                <div id="energy_bills_mob" class="hero-pay-tab-content-mob active">
+                    <div class="bill-details current-bills brand-gradient card">
+                        <header>
+                            <aside>
+                                <label class="QACANumber">CA Number <span></span></label>
+                                <h4>&#8377 <span class="QPayable"></span></h4>
+
+                                <div class="tooltip-wrapper tooltipNoBillDue">
+                                    <div class="tooltip-box">
+                                        <i><img src="/electricity_assets/assets/icons/error-icon.svg"></i>
+                                        <div class="tooltip-content">Pay now to avoid late fee</div>
+                                    </div>
+                                </div>
+                                <p class="due-date QDuedate"></p>
+
+                            </aside>
+
+                            <a href="javascript:void(0)" onclick="FetchQuickPay('')" class="waves-effect  btn QPayBill" style="display:none">Pay Bill</a>
+
+                            <a href="javascript:void(0)" onclick="FetchQuickPay('')" class="waves-effect btn QPayAdvance" style="display:none">Pay Advance</a>
+
+                        </header>
+                        <ul class="consumer-details">
+                            <li>
+                                <label for="">CA Number</label>
+                                <strong class="QACANumber"></strong>
+                            </li>
+                            <li class="consumer-name">
+                                <label for="">Consumer Name</label>
+                                <span>  <strong class="QAConsumerName"></strong></span>
+                            </li>
+                            <li>
+                                <label for="">Units Consumed</label>
+                                <strong class="QUnitConsumed"></strong>
+                            </li>
+                            <li>
+                                <label for="">Bill Month</label>
+                                <strong class="QBillMonth"></strong>
+                            </li>
+                            <li>
+                                <label for="">Total Bill Amount</label>
+                                <strong class="QTBillAmount"></strong>
+                            </li>
+                            <li>
+                                <label for="">Minimum Payable</label>
+                                <strong class="QMinimumPayable"></strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="security_deposit_mob" class="hero-pay-tab-content-mob">
+                    <div class="bill-details current-bills brand-gradient card">
+                        <div class="bill-details current-bills card">
+                            <header>
+                                <aside>
+                                    <input type="hidden" class="hdnSecurityDepositAmount" />
+                                    @*<h4 class="SecurityDepositAmount"></h4>*@
+                                    <h4>&#8377 <span class="SecurityDepositAmount"></span></h4>
+                                    <p for="" style="color:black" class="col-form-label SecurityDepositText"></p>
+                                </aside>
+                                <button onclick="FetchQuickPaySecurity('')" class="waves-effect waves-light btn btn-continue PayNowSecurity">Pay</button>
+
+                            </header>
+
+                            <ul class="consumer-details">
+                                <li>
+                                    <label for="">CA Number</label>
+                                    <strong class="SCANumber"></strong>
+                                </li>
+                                <li class="consumer-name">
+                                    <label for="">Consumer Name</label>
+                                    <span><strong class="SConsumerName"></strong></span>
+                                </li>
+                                @*<li>
+                                        <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Address", "Address")</label>
+                                       <strong class="SAddress"></strong>
+                                    </li>*@
+                                <li>
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Book Number", "Book Number")</label>
+                                    <strong class="SBookNumber"></strong>
+                                </li>
+                                <li>
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Cycle Number New", "Cycle Number")</label>
+                                    <strong class="SCycleNumber"></strong>
+                                </li>
+                                <li>
+                                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Zone", "Zone")</label>
+                                    <strong class="SZone"></strong>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="vds_amount_mob" class="hero-pay-tab-content-mob">
+                    <div class="bill-details current-bills card">
+                        <div class="section-wrapper withoutOutstanding-hero">
+                            <ul class="list-with-icon">
+                                <li>
+                                    @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Minimum Amount", "Minimum Amount") <span>&#8377 </span><b><span class="spanAverageVDSAmount"></span></b>
+                                    @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Maximum Amount", "Maximum Amount") <span>&#8377 </span><b><span class="spanMaxVDSAmount"></span></b>
+                                </li>
+                                <li>
+                                    @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Payable Maximum", "Payable Maximum")
+                                </li>
+                            </ul>
+                            <a href="javascript:void(0)" class="waves-effect waves-light btn full btn-add-money">Add Money</a>
+                        </div>
+
+                        <div class="VDSAmountCurrentOutstanding-hero">
+                            <div class="message warning warning-info">
+                                <aside><i class="i-info"></i></aside>
+                                <p>Dear Consumer, you need to clear your current outstanding for VDS payments.</p>
+                            </div>
+
+                            <header>
+                                <aside>
+                                    <input type="hidden" class="hdnCurrentOutstanding" name="Amountpayable" />
+                                    <h4>&#8377 <span class="CurrentOutstanding"></span></h4>
+                                    <p for="" style="color:black" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Current Outstanding Bill", "Current Outstanding Bill")</p>
+
+                                </aside>
+                                <a href="javascript:void(0)" class="waves-effect btn PayOutstandingBill">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Pay Bill", "Pay Bill")</a>
+
+                            </header>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+    var recaptcha;
+    var onloadCallback = function () {
+        recaptcha = grecaptcha.render('recaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>
+
+
+

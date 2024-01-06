@@ -1,0 +1,49 @@
+﻿@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Mvc.Presentation
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)elements.Fields["Image"]);
+    
+
+    Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)elements.Fields["__Thumbnail"]);
+    var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+}
+<section class="mds--msg position-relative d-block">
+    <div class="container">
+        <div class="row reverse">
+            <div class="col-md-6 position-relative">
+                <div class="mg-pic">
+                    @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                    {
+                        var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                        <img src=@imgurl class="img-fluid md-img">
+                    }
+                    else
+                    {
+                        <img src=@thumbimg class="img-fluid md-img">
+                    }
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="md-msg-block">
+                    <div class="md-msg">
+                        <h4 class="md--msg-h4">@Html.Sitecore().Field("Title", elements)</h4>
+                        <p class="py-4">
+                            @Html.Sitecore().Field("Description", elements)
+                        </p>
+
+                    </div>
+                    <div class="md-name">
+                        <h3>@Html.Sitecore().Field("OwnerName", elements)</h3>
+                        <p id="CSR">@Html.Sitecore().Field("Designation", elements)</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>

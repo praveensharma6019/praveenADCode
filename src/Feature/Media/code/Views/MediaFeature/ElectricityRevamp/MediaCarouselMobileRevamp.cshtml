@@ -1,0 +1,40 @@
+﻿@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Sitecore.Data.Items.Item datasourceItem = Sitecore.Context.Database.GetItem(datasource);
+
+}
+@if (datasourceItem != null)
+{
+    Sitecore.Data.Fields.MultilistField bannerItems = datasourceItem.Fields["MediaSelector"];
+    Sitecore.Data.Items.Item[] items = bannerItems.GetItems();
+    <div class="section-container carousel_wrapper hide-on-large-only">
+        <div class="owl-carousel card-media removeSliderMob spl-slider" data-items-desktop="4" data-items-mobile="1.02" data-items-loop-mobile="true" data-items-autoplay="true">
+            @if (items != null && items.Length > 0)
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)items[i].Fields["MediaImage"]);
+                    string ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+                    Sitecore.Data.Fields.LinkField linkfld = items[i].Fields["CTALink"];
+                    var url = linkfld.GetFriendlyUrl();
+                    var urlTarget = linkfld.Target;
+
+                    <div class="card">
+                        <div class="card-content" style="background-image: url(@ImageUrl);">
+                            <div>
+                                <a href="@url" target="@urlTarget">
+                                    <h4>
+                                        @Html.Raw(items[i]["MediaTitle"])
+                                    </h4>
+                                    <p> @Html.Raw(items[i]["SubTitle"])</p>
+                                    <span href="@url" target="@urlTarget" class="know-more-mob">@Html.Raw(items[i]["CTAText"])</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}

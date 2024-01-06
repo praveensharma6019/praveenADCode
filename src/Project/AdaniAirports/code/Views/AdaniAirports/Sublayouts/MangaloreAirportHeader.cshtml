@@ -1,0 +1,183 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var TBLogo = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "TBLogo").FirstOrDefault().Value;
+  var menu = Sitecore.Context.Database.GetItem("{569C8FE1-336A-48F9-8181-34E05D715127}");
+	  var activeClass ="active";
+}
+
+
+<div class="navPanel">
+	<div class="container-fluid navtopbar">
+	 <nav class="navbar navbar-expand-lg navbar-light">
+      <a class="navbar-brand" href="/">
+	  <div class="row">
+		<div class="col-sm-4 col-5 pl-lg-1">
+			<img src="-/media/03DE4B17A81E41E69F0ED40D5A2B0944.ashx" alt="Adani Airports">
+			<img alt="" src="-/media/BFEE4B981ACB4A7E82702DAFD1807984.ashx" alt="Adani Airports" />
+		</div>
+		<div class="col-sm-8 col-7">
+			<p>Mangaluru<span class="d-block">International Airport</span></p>
+		</div>
+	  </div>
+	  </a>
+      <div class="navbar-collapse collapse" id="mainMenu" style="">
+		<span class="nav-close"></span>
+        <ul class="navbar-nav mx-auto primaryMenu">
+		@foreach (var element in menu.GetChildren().ToList())
+		{
+		var childCount = element.GetChildren().Count();
+		if(childCount != 0)
+		{
+		<li class="@childCount nav-item dropdown @activeClass">
+			@Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+															 @Html.Sitecore().Field("NavigationTitle", element)
+                                                        
+                                                        @Html.Sitecore().EndField()
+														
+			 
+		
+		
+			<span class="fa fa-angle-down"></span>
+		<div class="dropdown-menu megamenu">
+			<ul>
+					@foreach (var subMenu in element.GetChildren().ToList())
+														{
+															
+															<li class="dropdown-item">
+															@Html.Sitecore().BeginField("Link", subMenu, new { haschildren = true, @class = "dropdown-item" })
+
+															 @Html.Sitecore().Field("NavigationTitle", subMenu) 
+                                                        
+                                                        @Html.Sitecore().EndField()
+															</li>
+														}														
+															
+			</ul>
+			
+            </div>
+          </li>
+		}
+		else{
+		<li class="@childCount nav-item">
+			@Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+															 @Html.Sitecore().Field("NavigationTitle", element)
+                                                        
+                                                        @Html.Sitecore().EndField()
+														  </li>
+														
+		}
+		activeClass = "";
+		}
+		
+		
+        </ul>
+		
+		<div class="nav_cta d-lg-none d-block">
+			<ul>
+			<li><a href="/AirportService"><img src="-/media/21836FD4235E4031A4A085975913D4E3.ashx"><span>Check-out Services</span></a></li>
+			<li><a href="/Contactus?na=Suspicious"><img src="-/media/0941E1DE111C4693B24329DBDA9CB9D6.ashx"><span>Report Suspicion</span></a></li>
+			</ul>
+		</div>
+      </div>
+	  
+	   <ul class="primarymenu ml-auto">
+		<li class="user-login d-none"><a href="#" class="nav-link"><svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="19.5" viewBox="0 0 17.5 19.5"><defs></defs><g transform="translate(-3.25 -2.25)"><path class="a" d="M20,21V19a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/><circle class="a" cx="4" cy="4" r="4" transform="translate(8 3)"/></g></svg></a></li>
+		<li class="weather-plugin"><a href="#" class="nav-link"><span id="tempInfo"></span><img src="-/media/2374C10805614E11941FD17EB9ACC1D1.ashx"></a></li>
+		<li class="search" id="search-toggle"><a href="#" class="nav-link"><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)"/><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)"/></g></svg></a>
+		<div class="search-container">
+    <div class="container-fluid">
+        <form class="search-container__form">
+			<div class="form-group mb-3 wrapper">
+			  <input type="text" class="form-control" placeholder="Search" id="SearchBox" aria-label="">
+				<button type="button" onclick="Search()" value="X" id="SearchBtn"><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)"></circle><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)"></line></g></svg></button>
+			</div>
+		</form>
+<div class="search-container__results"> 
+    <p>Popular Searches</p> 
+     <ul id="SearchResult"> 
+          <li><a href="/PassangerGuide">Passenger Guide</a></li>
+        <li><a href="/Transport">Cab Services</a></li> 
+         <li><a href="/ShopAndDine/Shop">Duty Free & Shopping</a></li> 
+        <li><a href="/AirportService/LostandFound">Lost and Found</a></li> 
+         </ul> 
+ </div>
+</div>
+</div>
+		</li>
+		<li class="toggle_nav"><button class="navbar-toggler d-block" id="nav-button" type="button" data-toggle="collapse" data-target="#mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+		<span></span>
+		<span></span>
+		<span></span>
+      </button></li>
+	  </ul>
+	 
+    </nav>
+	</div>
+	</div>
+	
+	
+	<script src="/scripts/MangaloreAirport/jquery.min.js"></script>
+<script>
+
+    $('#SearchBox').keypress(function (event) {
+       // event.preventDefault();
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            window.location.href ="/searchresult?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+        }
+
+    });
+
+ function SearchRedirect()
+ {
+ window.location.href ="/searchresult?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+
+ }
+
+    function Search() {
+      //  $('#SearchBtn').submit();
+
+        var itemId = $('#SearchBox').val();
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/MangaloreAirport/GetSearchResult",
+            context: this,
+            success: function (objects) {
+                // alert("s1");
+                console.log(objects);
+                $('#SearchResult').html('');
+                var html = "";
+
+                for (var i = 0; i < objects.length; i++) {
+                    var value = objects[i]["Value"];
+                    if (value.indexOf("New Local Datasource Folder") > 0) {
+
+                    }
+                    else {
+                        if (value.indexOf("MangaloreAirport/Home") > 0)
+                            value = "/" + value.replace("/MangaloreAirport/Home/", "");
+
+                        html = html + " <li><a href='" + value + "'>" + objects[i]["Key"] + "</a></li>";}
+                }
+                $('#SearchResult').html(html);
+                return false;
+
+            }
+        });
+
+    }
+
+
+</script>
+

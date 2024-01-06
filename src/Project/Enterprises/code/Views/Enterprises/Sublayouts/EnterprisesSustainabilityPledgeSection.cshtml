@@ -1,0 +1,34 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "position-relative bg-image bg-white";
+    }
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+    var bckgroundImgUrl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+}
+
+<section class="py-5 @paramid">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 bg-image-1" style="
+                    background-image: url(@bckgroundImgUrl);">
+                <div class="col-lg-4">
+                    <p class="bg-img-text-1">@Html.Sitecore().Field("Title", element)</p>
+                    <p class="bg-img-text-2">@Html.Sitecore().Field("Summary", element)</p>
+                    <p class="bg-img-content-1">@Html.Sitecore().Field("Body", element)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

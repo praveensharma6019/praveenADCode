@@ -1,0 +1,45 @@
+﻿
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var docss = elements.GetChildren().OrderByDescending(x => x.Fields["__Created"].Value);
+    var count = 0;
+}
+<section class="grid_gallery py-lg-5 py-4 bg-white">
+    <div class="container gallery-container">
+        @foreach (var item in docss.ToList())
+        {
+            if (count >= 1)
+            {
+                break;
+            }
+            else
+            {
+                count++;
+            }
+            <h2>@item.DisplayName.ToString()</h2>
+            <div class="row">
+                @foreach (var items in item.Children.ToList())
+                {
+                    Sitecore.Data.Items.MediaItem sampleMedia = new Sitecore.Data.Items.MediaItem(items);
+                    var urls = Sitecore.Resources.Media.MediaManager.GetMediaUrl(sampleMedia);
+                    <div class="col-lg-3 col-md-4 col-sm-6 mt-4">
+                        <a href="@urls" data-group="1" class="galleryItem">
+                            <div>
+                                <img src="@urls" class="img-fluid w-100">
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        @Html.Hidden("PageId", datasource)
+        <a href="#" class="load-more" count="@count">Load More...</a>
+    </div>
+</section>

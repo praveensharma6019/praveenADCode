@@ -1,0 +1,71 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@using Sitecore.DTPL.Website.Models
+@model Sitecore.DTPL.Website.Models.DTPL_LNGLoginModel
+@{
+    var DashboardType = Sitecore.Context.Database.GetItem("{63139DDD-4A99-479D-BA9C-99D36BB5BB00}");
+}
+<nav class="navbar navbar-expand-lg bg-white sticky-top">
+    <div class=" container">
+        <a class="navbar-brand" href="#">
+            <img src="-/media/B86C22A5DFE6478AAFCEB128D78CB092.ashx" alt="">
+        </a>
+        <div>
+            <a href="/DTPL_UserDashboard" class="back--button">
+              Existing User List
+            </a>
+
+        </div>
+    </div>
+</nav>
+<div class="container-fluid ship" style="background-image:url(/Images/bg_image.jpg)">
+    <div class="container">
+        <div class="login-page">
+            <div class="form" style="background-color: #28a745;">
+			<h2 style="padding-bottom: 15px; font-size: 1.5rem; font-weight: bold;">Create Dashboard User</h2>
+               
+
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "DTPL_LNGuserLogin", name = "DTPL_LNGuserLogin", enctype = "multipart/form-data", autocomplete = "off" }))
+                {
+                    <form class="login-form">
+                        @Html.AntiForgeryToken()
+                        @Html.AddUniqueFormId()
+                        @Html.ValidationSummary(true)
+                        <h6 style="padding-bottom:0.5rem;">Username</h6>
+                        <input type="text" id="UserName" name="UserName" placeholder="Enter Name" required />
+                        <h6 style="padding-bottom:0.5rem;">Email ID</h6>
+                        <input type="email" id="Email_ID" name="Email_ID" placeholder="Enter Email ID" />
+                        <h6 style="padding-bottom:0.5rem;">Password</h6>
+                        <input type="password" id="Password" name="Password" placeholder="Enter Password" required />
+                        <div class="form-group">
+                            <label style="color:white;">Dashboard Type</label>
+                            <select class="form-control-select" name="DashboardType" required id="DashboardType">
+                                
+                                @foreach (var element in DashboardType.GetChildren().ToArray())
+                                {
+
+                                    if (element != null)
+                                    {
+                                        <option value="@Html.Sitecore().Field("Title", element)">@Html.Sitecore().Field("Title", element)</option>
+                                    }
+                                }
+                            </select>
+
+                        </div>
+						 @if (ViewBag.Message != null)
+                    {
+                       <h6 style="color: red;">@ViewBag.Message</h6>
+                    }
+                        <button type="submit" class="btn btn-primary" id="login">Create User</button>
+                    </form>
+                }
+
+            </div>
+        </div>
+        
+    </div>
+   
+
+</div>

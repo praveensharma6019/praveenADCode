@@ -1,0 +1,203 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.NameTransferAdminRegistation
+
+@{
+    var id = Request.QueryString["Aids"] != null ? Request.QueryString["Aids"] : string.Empty;
+}
+
+@if (Session["NameTransferLogin"] != null && !string.IsNullOrEmpty(Session["NameTransferLogin"].ToString()))
+{
+    
+    <section class="name-transfer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                   
+                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "adminregistration", @class = "adminregistration" }))
+                    {
+                        @Html.AddUniqueFormId()
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true)
+
+                        if (Session["UpdateAdminDetails"] == null || id == null)
+                        {
+                            <div class="row">
+                                <div class="panel">
+                                    <div class="text-right">
+                                        <a class="btn btn-primary mb-2 mb-md-0" href="/NameTransferHome/NameTransferAdminList">Back</a>
+                                    </div>
+                                    <h3>Create Admin For Name Transfer</h3>
+
+                                    <div class="row mt-2">
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">Name <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control reset-control", id = "Name", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.Name, "", new { @class = "help-block" }, "p")
+                                                @Html.HiddenFor(x => x.Name)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">Mobile Number <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", required = "required", maxlength = "10", @type = "number" })
+                                                @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                                @Html.HiddenFor(x => x.MobileNumber)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">Email ID <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.Email, new { @class = "form-control reset-control", id = "Email", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                                                @Html.HiddenFor(x => x.Email)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">City <span class="required">*</span></label>
+                                                @*@Html.DropDownListFor(x => Model.City, new SelectList(Model.CityList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @class = "form-control reset-control", id = "AdminCityList", required = "required", name = "AdminCityList[]", multiple = "multiple" })
+                    @Html.ValidationMessageFor(x => x.City, "", new { @class = "help-block" }, "p")*@
+                                                <small id="" class="form-text text-muted"></small>
+
+                                                @if (Model.checkCityList != null)
+                                                {
+                                                    for (int i = 0; i < Model.checkCityList.Count; i++)
+                                                    {
+                                                        var c = @Model.checkCityList[i].Value;
+                                                        <div class="col-lg-3 col-md-4">
+                                                            <div class="form-check form-check-inline">
+
+
+                                                                @Html.HiddenFor(m => m.checkCityList[i].Value)
+                                                                @Html.HiddenFor(m => m.checkCityList[i].Text)
+
+                                                                @Html.CheckBoxFor(m => m.checkCityList[i].Checked, new
+                                                                {
+                                                                    @class = "form-check-input",
+                                                                   data_text = @Model.checkCityList[i].Value,
+                                                                   data_value = @Model.checkCityList[i].Text,
+                                                                   id = @Model.checkCityList[i].Value
+                                                                          })
+                                                                <label class="form-check-label" for="@c">@Model.checkCityList[i].Text</label>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                }
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-12 py-4">
+                                            <input type="submit" name="createnametransferadmin" value="Create Admin" id="submitdata" class="btn btn-primary" style="background-color: black; color: white; border-color: black;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div class="panel">
+                                    <div class="text-right">
+                                        <a class="btn btn-primary mb-2 mb-md-0" href="/NameTransferHome/NameTransferAdminList">Back</a>
+                                    </div>
+                                    <h3>Update Admin Details For Name Transfer</h3>
+
+                                    <div class="row mt-2">
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">Name <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.Name, new { @class = "form-control reset-control", id = "Name", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.Name, "", new { @class = "help-block" }, "p")
+                                                @Html.HiddenFor(x => x.Name)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">Mobile Number <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                                @Html.HiddenFor(x => x.MobileNumber)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">Email <span class="required">*</span></label>
+                                                @Html.TextBoxFor(x => x.Email, new { @class = "form-control reset-control", id = "Email", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                                                @Html.HiddenFor(x => x.Email)
+                                                <small id="" class="form-text text-muted"></small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for="">City <span class="required">*</span></label>
+                                                @*@Html.DropDownListFor(x => Model.City, new SelectList(Model.CityList, "Value", "Text"), "--Please Select--", htmlAttributes: new { @class = "form-control reset-control", id = "City", required = "required" })
+                    @Html.ValidationMessageFor(x => x.City, "", new { @class = "help-block" }, "p")*@
+                                                <small id="" class="form-text text-muted"></small>
+
+                                                @if (Model.checkCityList != null)
+                                                {
+                                                    for (int i = 0; i < Model.checkCityList.Count; i++)
+                                                    {
+                                                        var c = @Model.checkCityList[i].Value;
+                                                        <div class="col-lg-3 col-md-4">
+                                                            <div class="form-check form-check-inline">
+
+
+                                                                @Html.HiddenFor(m => m.checkCityList[i].Value)
+                                                                @Html.HiddenFor(m => m.checkCityList[i].Text)
+
+                                                                @Html.CheckBoxFor(m => m.checkCityList[i].Checked, new
+                                                                {
+                                                                    @class = "form-check-input",
+                                                                   data_text = @Model.checkCityList[i].Value,
+                                                                   data_value = @Model.checkCityList[i].Text,
+                                                                   id = @Model.checkCityList[i].Value
+                                                                          })
+                                                                <label class="form-check-label" for="@c">@Model.checkCityList[i].Text</label>
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                }
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-12 py-4">
+                                            <input type="submit" name="updatenametransferadmin" value="Update Details" id="submitdata" class="btn btn-primary" style="background-color: black; color: white; border-color: black;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+}
+

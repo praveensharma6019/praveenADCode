@@ -1,0 +1,83 @@
+﻿@*@using Sitecore.AdaniCapital.Website.Helper*@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+}
+@if (element != null)
+{
+    <ul class="collapsible expandable hamburger_section single-item business-list">
+        <li>
+            @if (element.HasChildren)
+            {
+                int count = 1;
+                foreach (Item item in element.GetChildren())
+                {
+                    //var imgurls = Helper.ImageUrl("LinkImage", item);
+
+                    <a class="collapsible-header collapsible_link waves-effect">
+                        <span class="icon-box"><i class="i-grid"></i></span>
+                        <label>@Html.Sitecore().Field("Title", item)</label>
+                    </a>
+                    if (item.HasChildren)
+                    {
+                        <div class="collapsible-body">
+                            <ul class="submenu">
+                                @foreach (Item item1 in item.GetChildren())
+                                {
+                                    var classNav = @Html.Sitecore().Field("Class", item1).ToString();
+                                    //var url1 = Helper.LinkUrl(item1.Fields["LinkUrl"]);
+                                    //var imgurls1 = Helper.ImageUrl("LinkImage", item1);
+                                    var itemtext = @Html.Sitecore().Field("Title", item1).ToString();
+                                    Sitecore.Data.Fields.LinkField item1Linkfld = item1.Fields["LinkUrl"];
+                                    var url1 = item1Linkfld != null && !string.IsNullOrEmpty(item1Linkfld.GetFriendlyUrl()) ? item1Linkfld.GetFriendlyUrl() : "#";
+                                    var url1Target = item1Linkfld != null ? item1Linkfld.Target : "";
+
+                                    var liClass = "";
+
+                                    liClass = itemtext.ToLower().Contains("electricity") ? "active" : "";
+
+                                    <li class="@liClass">
+                                        @if ((!string.IsNullOrEmpty(classNav)))
+                                        {
+                                            if (liClass == "active")
+                                            {
+                                                <a href="@url1" target="@url1Target" class="waves-effect">
+                                                    <p class="@classNav"></p>
+                                                    <label>@Html.Sitecore().Field("Title", item1)</label><i class="i-tick"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="@url1" target="@url1Target" class="waves-effect">
+                                                    <p class="@classNav"></p>
+                                                    <label>@Html.Sitecore().Field("Title", item1)</label>
+                                                </a>
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            <a href="@url1" target="@url1Target" class="waves-effect"><label>@Html.Sitecore().Field("Title", item1)</label></a>
+                                        }
+                                    </li>
+                                }
+
+
+                            </ul>
+                        </div>
+
+                    }
+                    count++;
+                }
+
+            }
+        </li>
+    </ul>
+}
+

@@ -1,0 +1,35 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<section class="bg-gray section_padding">
+    <div class="container">
+        @if (element != null)
+        {
+            <h2 class="text-left sectionHeading">@Html.Sitecore().Field("Text", element)</h2>
+            <div class="owl-carousel owl-theme" id="other-ventures">
+                @if (element.HasChildren)
+                {
+                    foreach (Item item in element.GetChildren())
+                    {
+                        var url = Helper.LinkUrl(item.Fields["LinkUrl"]);
+                        var imgurl = Helper.ImageUrl("LinkImage", item);
+                        if (!string.IsNullOrWhiteSpace(imgurl))
+                        {
+                            <div class="item">
+                                <img src="@imgurl" class="img-fluid" alt="@Html.Sitecore().Field("Title", item)">
+                                <p><a href="@url" target="_blank">@Html.Sitecore().Field("Title", item)</a></p>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        }
+    </div>
+</section><!--/section-->

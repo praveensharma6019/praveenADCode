@@ -1,0 +1,63 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@using System.Text.RegularExpressions
+@using Sitecore.Data
+@using Sitecore.Data.Items
+@using Sitecore.Data.Fields
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+<style>
+li{
+display:none;
+}
+h1{
+display:none;
+}
+</style>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+const urlParams = new URLSearchParams(window.location.search);
+const myParam = urlParams.get('FincYear');
+console.log(myParam);
+$('.'+myParam).css('display', 'block');
+});
+</script>
+@{
+    
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+	var i=0;
+}
+
+
+<section class="py-5  position-relative d-block">
+<div class="container">
+<div class="row">
+<div class="col-lg-12">
+<div class="p-4 bg-white">
+<div class="item">
+	@foreach (Item item in model.GetChildren())
+    {		
+			<h1 class="@item.Name.Trim().Replace(" ","") heading mb-4 py-2">@item.Name</h1>
+			<ul class="ul-download-icon row">	
+			@foreach(Item subitem in item.GetChildren())
+			{
+				var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(subitem);
+				var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+					<li class="col-4 @item.Name.Trim().Replace(" ","")"><a href="@url" target="_blank">@subitem.Name</a></li>
+
+			}
+			</ul>
+	} 
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>

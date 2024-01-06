@@ -1,0 +1,51 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Mvc
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+
+    var imgbg = Sitecore.Context.Database.GetItem(paramid["background-image"]);
+
+}
+
+
+<!--Openings-->
+<section class="position-relative d-block  py-5">
+    <div class="bg-images">
+        @Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, imgbg);
+
+    </div>
+    <div class="container position-relative">
+        <div class="row">
+            @foreach (var item in models.GetChildren().ToList())
+            {
+                var redirecturl = item.Fields[4].ID;
+
+                var itemss = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(item.ID));
+
+                var url1 = itemss.LinkFieldUrl(redirecturl);
+                var department = @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item);
+                //replace & with #
+                var replacestring = department.ToString().Replace('&', '{');
+                url1 += "?dpt=" +replacestring;
+
+                <div class="col-6 col-md-2 mb-3">
+                    <a href="@url1">
+                        <table class="openings">
+                            <tr><td><h3>@department</h3></td></tr>
+                        </table>
+                    </a>
+                </div>
+            }
+
+
+
+        </div>
+    </div>
+</section>

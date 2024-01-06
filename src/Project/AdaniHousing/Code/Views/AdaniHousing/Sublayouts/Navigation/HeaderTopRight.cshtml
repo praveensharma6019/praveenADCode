@@ -1,0 +1,41 @@
+﻿@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var imgurls = Helper.ImageUrl("Image", element);
+}
+@if (element != null)
+{
+    <div class="top_bar_nav">
+        <a href="#businesses">
+            <img src="@imgurls" alt="@Html.Sitecore().Field("Text", element)" /> @Html.Sitecore().Field("Text", element)
+        </a>
+        <div class="business_dropdown">
+            @if (element.HasChildren)
+            {
+                foreach (Item item in element.GetChildren())
+                {
+                    var url = Helper.LinkUrl(item.Fields["LinkUrl"]);
+                    var imgurl = Helper.ImageUrl("LinkImage", item);
+                    var href = "javascript:void(0)";
+                    var target = "";
+                    if (url != "")
+                    {
+                        href = url;
+                        target= "target=_blank";
+                    }
+                    if (!string.IsNullOrWhiteSpace(imgurl))
+                    {
+                        <a href="@href" @target class="@Html.Sitecore().Field("Class", item)">
+                            <i><img src="@imgurl" alt="@Html.Sitecore().Field("Title", item)"> </i>
+                            <label>@Html.Sitecore().Field("Title", item)</label>
+                        </a>
+                    }
+                }
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,116 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Globalization
+@model Sitecore.Feature.Accounts.Models.SwitchAccount
+
+
+<div class="carousel_wrapper radio-carousel carousel-center-nav">
+    <div class="carousel-nav hide-on-small-only"></div>
+    <div class="owl-carousel standard-card" data-items-desktop="2.5" data-items-mobile="1.15" id="SwitchAccountComponentCardsDiv">
+
+        @if (Model.SwitchAccountList != null && Model.SwitchAccountList.Any())
+        {
+            foreach (var item in Model.SwitchAccountList)
+            {
+                if (!string.IsNullOrEmpty(item.AccountItemId))
+                {
+                    var accountHolderName = string.Empty;
+                    if (!string.IsNullOrEmpty(item.AccountHolderName))
+                    {
+                        accountHolderName = item.AccountHolderName.ToLower().Replace("_", " ");
+                        TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+                        accountHolderName = info.ToTitleCase(accountHolderName);
+                    }
+                    else
+                    {
+                        var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+                        if (Elemodel != null && Elemodel.UserName != null)
+                        {
+                            accountHolderName = Elemodel.UserName;
+                        }
+                    }
+
+
+
+                    if (item.AccountNumber != Model.MasterAccountNumber)
+                    {
+                        <div class="card cusomer_detail" onclick="SwitchInternalAccount('@item.AccountItemId')">
+                            <div class="wrapper">
+                                <label>
+                                    <input class="with-gap" name="trip type" type="radio" />
+                                    <span></span>
+                                </label>
+                                @*<button>Active</button>*@
+                            </div>
+                            <div>
+                                <input class="with-gap" name="Applicant Type" type="radio" />
+                            </div>
+                            <div class="card-content">
+                                <h6>@accountHolderName</h6>
+                                <p class="small">CA Number @item.AccountNumber</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+
+                        <div class="card active cusomer_detail">
+                            <div class="wrapper">
+                                <label>
+                                    <input class="with-gap" name="trip type" type="radio" checked />
+                                    <span></span>
+                                </label>
+                                @*<button>Active</button>*@
+                            </div>
+                            <div class="card-content">
+                                <h6>@accountHolderName</h6>
+                                <p class="small">CA Number @item.AccountNumber</p>
+                            </div>
+                        </div>
+                    }
+
+                }
+            }
+        }
+
+
+    </div>
+</div>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script type="text/javascript">
+    function SwitchInternalAccount(itemId) {
+        $.ajax({
+            url: apiSettings + "/AccountsRevamp/SwitchAccountInternallyRevamp",
+            type: 'GET',
+            data: { ItemId: itemId },
+            dataType: 'json',
+            beforeSend: function () {
+                // setting a timeout
+                $('.loader-wrap').show();
+            },
+            success: function (data, textStatus, xhr) {
+                //$("#meterInfo").html();
+                //$("#meterNumber").html();
+                location.reload();
+                $('.loader-wrap').show();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                $('.loader-wrap').hide();
+                console.log('Error in Operation');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+
+        setTimeout(
+            function () {
+                $('#SwitchAccountComponentCardsDiv .owl-item').children().each(function (index) {
+                    $(this).attr('data-position', index);
+                });
+                $('#SwitchAccountComponentCardsDiv').trigger('to.owl.carousel', [$('.owl-item>div.card.active').data('position'), 300]);
+            }, 2000);
+    })
+
+</script>

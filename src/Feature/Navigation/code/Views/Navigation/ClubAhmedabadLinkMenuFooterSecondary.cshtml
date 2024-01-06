@@ -1,0 +1,94 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+    var i = 0;
+}
+
+
+<div class="row">
+
+    @Html.Sitecore().Placeholder("footer-logo")
+ 
+    <div class="col-lg-9">
+        <div class="row">
+
+            @foreach (var items in Model.NavItems.ToList())
+            {
+                if (items.Children != null)
+                {
+
+
+                    <div class="col-sm-4 col-6 mb-3">
+
+                        @if (items.IsNewTab)
+                        {
+
+                            <h5>
+                                <a target="_blank" href="@items.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item)</a>
+                            </h5>
+                        }
+                        else
+                        {
+                            <h5>
+                                <a href="@items.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item)</a>
+                            </h5>
+
+                        }
+                        @if (items.Item.DisplayName.ToLower() != "Lets Connect")
+                        {
+
+                            <ul class="mobile-none">
+
+                                @foreach (var child in items.Children.NavItems)
+                                {
+                                    if (child.IsNewTab)
+                                    {
+
+                                        <li>
+                                            <a target="_blank" href="@child.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, child.Item)</a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li>
+                                            <a href="@child.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, child.Item)</a>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        }
+                    </div>
+                }
+
+
+
+
+                else if (items.Item.DisplayName == "Lets Connect")
+                {
+                    
+                    <div class="col-sm-4">
+                        <h5>@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item)</h5>
+                  
+                        @Html.Sitecore().Placeholder("socialmenu-footer")
+                    </div>
+                }
+                else
+                {
+                    <div class="col-sm-4 col-6 mb-3">
+                        <h5>
+                            <a href="@items.Url"> @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items.Item) </a>
+                        </h5>
+                    </div>
+                }
+
+            }
+        </div>
+        </div>
+    </div>

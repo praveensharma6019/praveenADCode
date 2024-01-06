@@ -1,0 +1,42 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var btnUrl = "#";
+}
+
+@if (model != null)
+{
+    if (model.HasChildren)
+    {
+        Sitecore.Data.Fields.LinkField linkField = model.Fields["ButtonLink"];
+        if (linkField != null)
+        {
+            btnUrl = linkField.GetFriendlyUrl();
+        }
+        <div class="row mb-5" style="background-color: #f1fff0;">
+            <div class="d-block p-5  text-center w-75 m-auto ">
+                <h3 class="py-4 headingfirsttalk">@Html.Sitecore().Field("MediaTitle", model)</h3>
+                <h6 class="text-dark">@Html.Sitecore().Field("Summary", model)</h6>
+                @if (linkField.LinkType == "internal")
+                {
+                    <button class="mt-2 p-3 rounded-pill bg-success text-white">@Html.Sitecore().Field("ButtonTitle", model)</button>
+                }
+                @if (linkField.LinkType == "external")
+                {
+                    <button class="mt-2 p-3 rounded-pill bg-success text-white">@Html.Sitecore().Field("ButtonTitle", model)</button>
+                }
+            </div>
+        </div>
+    }
+}

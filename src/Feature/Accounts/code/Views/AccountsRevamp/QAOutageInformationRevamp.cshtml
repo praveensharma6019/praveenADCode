@@ -1,0 +1,293 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model SapPiService.Domain.OutageDetail
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    Sitecore.Data.Items.Item contactUsItem = Sitecore.Context.Database.GetItem("{D9F22825-0BA5-443D-9BD6-3B7604DBF710}");
+    var contactusUrl = contactUsItem != null ? Sitecore.Links.LinkManager.GetItemUrl(contactUsItem) : "#";
+}
+<div class="col s12 m8 offset-m1 section-container">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+
+        <div class="submit-new-request">
+            <div class="border-none-mobile card outlined section-inner-wrapper card-with-form">
+                <div class="input-field custom">
+                    @Html.TextBoxFor(x => x.AccountNumber, new { @class = "", id = "AccountNumber", @maxlength = "9", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                    @*<input value="" id="AccountNumber" name="AccountNumber" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />*@
+                    <label for="AccountNumber">CA Number</label>
+                    @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "help-block", @id = "AccountNumberValidation" }, "p")
+                </div>
+                <div class="input-field custom input-has-icon" style="padding-left: 12px;">
+                    <div class="form-group col-lg-3">
+                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                            <label for="" class="col-sm-5 col-md-5 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                            <div class="col-sm-12 col-md-12">
+                                <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block", @id = "captchaError" }, "p")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-right btn-group" id="QAPowerOutageInformationRevamp">
+                    <button type="button" id="btnReset" onclick="ResetPage()" class="waves-effect btn-flat login-btn"
+                            data-gaevent="power_outage_information"
+                            data-gaeventCategory="AEML Services"
+                            data-gaeventAction="Power Outage Informations"
+                            data-gaeventLabel="CA Number Reset">
+                        @Html.Sitecore().Dictionary("/Accounts/Forgot Password/Button/Cancel", "Reset")
+                    </button>
+                    <input type="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Button Submit", "Submit")" class="btn btn-primary QAPowerOutage" />
+                </div>
+                <div id="outageinfoDiv">
+                    @if (Model == null)
+                    {
+                        <p>Unable to get details, please try again later!</p>
+                    }
+                    else if (Model.AccountNumber == null || !string.IsNullOrEmpty(Model.Message))
+                    {
+                        <p>@Model.Message</p>
+                    }
+                    else if (Model.AccountNumber != null && Model.CurrentOutageDetails != null && Model.FutureOutageDetails != null)
+                    {
+                        <div class="section-wrapper">
+                            <h2 id="Outageheading">Current Outage</h2>
+                            <div id="currentOutagediv" class="section-wrapper">
+                                @if (Model.CurrentOutageDetails.Count == 0)
+                                {
+                                    <div class="alert-box success">
+                                        <div class="alert-box-content">
+                                            <img src="/electricity_assets/images/no-power-cut.png" alt="power-outage" />
+                                            <div class="alert-text">
+                                                <h6>Currently there is no power cut in your area</h6>
+                                                <p>In case you are still facing any issues with power supply, please register a complaint or you can call our 24x7 toll-free helpline 19122 to report outage and know the status of power restoration.</p>
+                                            </div>
+                                        </div>
+                                        <div class="need-help-wrp">
+                                            <a href="@contactusUrl"
+                                                data-gaevent="power_outage_need help"
+                                               data-gaeventCategory="AEML Services"
+                                               data-gaeventAction="Power Outage Need Help"
+                                               data-gaeventLabel="NA">Need Help?</a>
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <div class="alert-box ">
+                                        <div class="alert-box-content">
+                                            <img src="/electricity_assets/images/power-cut.png" alt="power-outage" />
+                                            <div class="alert-text">
+                                                <h6>Dear Consumer</h6>
+                                                <p>We regret that you may be facing a power outage in your area. Reason for outage and restoration time is mentioned below</p>
+                                                <table class="table table-hover table-striped bg-white table-bordered">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th scope="col">Outage Date</th>
+                                                            <th scope="col">Start Time</th>
+                                                            <th scope="col">Expected restoration time</th>
+                                                            <th scope="col">Activity</th>
+                                                            <th scope="col">Outage Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var currObj in Model.CurrentOutageDetails)
+                                                        {
+                                                            <tr>
+                                                                <th scope="row">@currObj.Date</th>
+                                                                <th scope="row">@currObj.StartTime</th>
+                                                                <th scope="row">@currObj.EndTime</th>
+                                                                <th scope="row">@currObj.ActivityDescription</th>
+                                                                <th scope="row">@currObj.OutageType</th>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="need-help-wrp">
+                                            <a href="@contactusUrl"
+                                               data-gaevent="power_outage_need help"
+                                               data-gaeventCategory="AEML Services"
+                                               data-gaeventAction="Power Outage Need Help"
+                                               data-gaeventLabel="NA">Need Help?</a>
+                                        </div>
+                                    </div>
+
+                                }
+
+                            </div>
+                            <div id="futureOutagediv" class="section-wrapper">
+                                @if (Model.FutureOutageDetails.Count == 0)
+                                {
+                                    <div class="alert-box success">
+                                        <div class="alert-box-content">
+                                            <img src="/electricity_assets/images/no-power-cut.png" alt="power-outage" />
+                                            <div class="alert-text">
+                                                <h6>There is no planned maintenance activity scheduled in your area.</h6>
+                                                <p>In case you are still facing any issues with power supply, please register a complaint or you can call our 24x7 toll-free helpline 19122 to report outage and know the status of power restoration.</p>
+                                            </div>
+                                        </div>
+                                        <div class="need-help-wrp">
+                                            <a href="@contactusUrl"
+                                                data-gaevent="power_outage_need help"
+                                               data-gaeventCategory="AEML Services"
+                                               data-gaeventAction="Power Outage Need Help"
+                                               data-gaeventLabel="NA">Need Help?</a>
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <div class="alert-box">
+                                        <div class="alert-box-content">
+                                            <img src="/electricity_assets/images/power-cut.png" alt="power-outage" />
+                                            <div class="alert-text">
+                                                @if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "f")
+                                                {
+                                                    <h6>Dear Consumer</h6>
+                                                    <p>For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                                }
+                                                else if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "r")
+                                                {
+                                                    <h6>Dear Consumer</h6>
+                                                    <p>Due to technical reasons, we have rescheduled maintenance activity in your area, Revised schedule is mentioned below for your reference.  </p>
+                                                }
+                                                @if (Model.FutureOutageDetails.Count > 1)
+                                                {
+                                                    <h6>Dear Consumer</h6>
+                                                    <p>For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                                }
+                                                <table class="table table-hover table-striped bg-white table-bordered">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th scope="col">Outage Date</th>
+                                                            <th scope="col">Start Time</th>
+                                                            <th scope="col">Expected restoration time</th>
+                                                            <th scope="col">Activity</th>
+                                                            <th scope="col">Outage Type</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var futureObj in Model.FutureOutageDetails)
+                                                        {
+                                                            <tr>
+                                                                <th scope="row">@futureObj.Date</th>
+                                                                <th scope="row">@futureObj.StartTime</th>
+                                                                <th scope="row">@futureObj.EndTime</th>
+                                                                <th scope="row">@futureObj.ActivityDescription</th>
+                                                                <th scope="row">@futureObj.OutageType</th>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="need-help-wrp">
+                                            <a href="@contactusUrl"
+                                                data-gaevent="power_outage_need help"
+                                               data-gaeventCategory="AEML Services"
+                                               data-gaeventAction="Power Outage Need Help"
+                                               data-gaeventLabel="NA">Need Help?</a>
+                                        </div>
+                                    </div>
+
+                                }
+                            </div>
+                            <div class="full-width-cta-wrp" id="currentOutagebtn" onclick="currentOutagebtnclick()">
+                                <a class="waves-effect waves-light btn btn-000 outlined full">Current Outage</a>
+                            </div>
+                            <div class="full-width-cta-wrp" id="futureOutagebtn" onclick="futureOutagebtnclick()">
+                                <a class="waves-effect waves-light btn btn-000 outlined full">Future Outage</a>
+                            </div>
+                        </div>
+
+                        <script>
+                            $(document).ready(function () {
+                                $('#QAPowerOutageInformationRevamp #save').addClass('disabled');
+                            })
+                        </script>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#futureOutagediv').hide();
+        $('#currentOutagebtn').hide();
+    });
+    function futureOutagebtnclick() {
+        $('#futureOutagediv').show();
+        $('#currentOutagediv').hide();
+        $('#Outageheading').text("Future Outage");
+        $('#currentOutagebtn').show();
+        $('#futureOutagebtn').hide();
+
+    }
+    function currentOutagebtnclick() {
+        $('#futureOutagediv').hide();
+        $('#currentOutagediv').show();
+        $('#Outageheading').text("Current Outage");
+        $('#currentOutagebtn').hide();
+        $('#futureOutagebtn').show();
+
+    }
+
+    function ResetPage() {
+        $('#AccountNumber').val('');
+        $('#AccountNumberValidation').remove();
+        $('#captchaError').remove();
+        $('#outageinfoDiv').remove();
+
+        $('#AccountNumber').closest('.input-field').find('label').removeClass('active')
+
+        $('#QAPowerOutageInformationRevamp #save').removeClass('disabled');
+
+        if ((grecaptcha && grecaptcha.getResponse().length !== 0)) {
+            window.location.href = "http://" + $(location).attr('host') + '/my-account/outage-information';
+        }
+    }
+
+    $('.QAPowerOutage').click(function () {
+        if ($('#AccountNumber').val().trim() == '') {
+            $('#AccountNumber').closest('.input-field').find(`.field-validation-error`).remove();
+            $('#AccountNumber').closest('.input-field').append(`<p class="field-validation-error help-block">Please enter a value for Account No.</p>`);
+            $('#AccountNumber').addClass('invalid');
+            return false;
+        } else {
+            $('#AccountNumber').closest('.input-field').find(`.field-validation-error`).remove();
+            $('#AccountNumber').removeClass('invalid');
+        }
+    })
+
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".alert-box success").ready()
+        dataLayer.push({
+            'event': "power_outage_information",
+            'eventCategory': "AEML Services",
+            'eventAction': "Power Outage Informations",
+            'eventLabel': "CA Number Submit",
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        })
+    });
+</script>

@@ -1,0 +1,58 @@
+﻿@using Sitecore.Data
+@using Sitecore.Adani.Website
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var itemcollections = models.Axes.GetDescendants();
+}
+<!-- Block tiles-->
+<section class="section bottomtilesa bg-white" id="tiles">
+    <div class="container">
+        @if (itemcollections != null)
+        {
+            <div class="row">
+                @foreach (var item in itemcollections)
+                {
+                    Sitecore.Data.ID linkFieldurl = Templates.NavigationBar.Fields.LinkURL;
+                    var lnkurl = item.LinkFieldUrl(linkFieldurl).ToString();
+                    var redirectPartId = item.Fields[Templates.NavigationBar.Fields.LinkText].Value;
+                    <div class="col-lg-4 mb-2">
+                        @if (string.IsNullOrEmpty(lnkurl))
+                        {
+                            <a href="#">
+                                <div class="prop-tiles txt-center py-5">
+                                    <div class="bg-images">
+                                        @Html.Sitecore().Field(Templates.NavigationBar.Fields.VideoThumb, item)
+                                    </div>
+                                    <p>
+                                        @Html.Sitecore().Field(Templates.NavigationBar.Fields.Logo, item)
+                                        @Html.Sitecore().Field(Templates.NavigationBar.Fields.Title, item)
+                                    </p>
+                                </div>
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="javascript:void(window.open('@lnkurl').onload=function(){this.document.getElementById('@redirectPartId').scrollIntoView()})">
+                                <div class="prop-tiles txt-center py-5">
+                                    <div class="bg-images">
+                                        @Html.Sitecore().Field(Templates.NavigationBar.Fields.VideoThumb, item)
+                                    </div>
+                                    <p>
+                                        @Html.Sitecore().Field(Templates.NavigationBar.Fields.Logo, item)
+                                        @Html.Sitecore().Field(Templates.NavigationBar.Fields.Title, item)
+                                    </p>
+                                </div>
+                            </a>
+                        }
+
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+</section>
+<!-- / Block tiles-->

@@ -1,0 +1,212 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.RatusRevamp
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var category = "";
+    var Rating = "";
+}
+
+
+
+<div class="col s12 m8 offset-m1 section-container">
+    <header class="section-header">
+        <h2>@Html.Raw(contextItem["Title"])</h2>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    <div class="card brand-gradient outlined section-inner-wrapper card-with-form">
+        @Html.Sitecore().Placeholder("switch-account-content")
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmRateusRevamp" }))
+        {
+            <div class="section-wrapper rating-type">
+                <h4> @Html.Sitecore().Dictionary("/Account/Rateus/RatingType", "Select Rating Type") </h4>
+                <input type="hidden" value="@Model.TypeofCategoryList.Count" name="TypeofApplianceList" />
+                <ul class="rating-items">
+                    @{ for (var i = 0; i < Model.TypeofCategoryList.Count; i++)
+                        {
+
+                            <li>
+                                <a href="javascript:void(0)" id="CategoryList-@i" onclick="checkcategoryvalue('@Model.TypeofCategoryList[i].Name')" class="subcategory">
+                                    @Model.TypeofCategoryList[i].Name
+                                    @Html.HiddenFor(m => m.TypeofCategoryList[i].Name)
+                                </a>
+                            </li>
+                        }
+
+                    }
+                    @*<li><a href="#" class="">Change Name on Bill</a></li>
+                        <li><a href="#">Port To Adani</a></li>
+                        <li><a href="#">Paperless Billing</a></li>
+
+                        <li><a href="#">Paperless Billing</a></li>*@
+                </ul>
+                <p class="help-text Category-help">
+                </p>
+            </div>
+
+            <div class="rating-wrapper rating-type">
+                <h4>@Html.Sitecore().Dictionary("/Account/Rateus/RateCustomerCare", "Give us a rating")</h4>
+                <div class="star-rating">
+                    @{
+
+                        for (var i = 0; i < Model.RatingSelectList.Count; i++)
+                        {
+                            <input type="radio" id="@Model.RatingSelectList[i].Text" onclick="checkradiovalue('@Model.RatingSelectList[i].Text',@Model.RatingSelectList[i].Value)" name="rating" value="@Model.RatingSelectList[i].Value" />
+                            <label for="@Model.RatingSelectList[i].Text" class="star">&#9733;</label>
+                        }
+
+                    }
+
+                    @*<input type="radio" id="5-stars" name="rating" value="5" />
+                        <label for="5-stars" class="star">&#9733;</label>
+                        <input type="radio" id="4-stars" name="rating" value="4" />
+                        <label for="4-stars" class="star">&#9733;</label>
+                        <input type="radio" id="3-stars" name="rating" value="3" />
+                        <label for="3-stars" class="star">&#9733;</label>
+                        <input type="radio" id="2-stars" name="rating" value="2" />
+                        <label for="2-stars" class="star">&#9733;</label>
+                        <input type="radio" id="1-star" name="rating" value="1" />
+                        <label for="1-star" class="star">&#9733;</label>*@
+                </div>
+
+                <p class="help-text Rate-help"></p>
+            </div>
+
+            <div class="input-field custom">
+                <textarea id="textarea1" class="materialize-textarea" data-length="120"></textarea>
+                <label for="textarea1">@Html.Sitecore().Dictionary("/Account/Rateus/AppreciationNote", "Additional Comments") </label>
+                <p class="help-text Appreciation-help"></p>
+            </div>
+            <div class="input-field custom">
+                <div class="hero-captcha-box">
+                    <div id="recaptcha"></div>
+                    <span class="field-validation-error" id="Captchaerror"></span>
+                </div>
+            </div>
+            <div class="h-right btn-group">
+                <a class="waves-effect waves-light btn" onclick="FetchRating()">Submit</a>
+                @*<button onclick="FetchRating()" class="waves-effect waves-light btn">Submit</button>*@
+            </div>
+        }
+    </div>
+</div>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=en" async defer></script>
+<script type="text/javascript">
+
+    var recaptcha;
+    var onloadCallback = function () {
+        recaptcha = grecaptcha.render('recaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+
+    var anchors = $(".rating-items li a").click(function () {
+        $(this).addClass("active")
+        anchors.not(this).removeClass("active")
+        // alert("Rating" + Rating + "  category" + category);
+    });
+
+    function checkradiovalue(selectedradio, checledvalue) {
+        Rating = checledvalue;
+        $('#' + selectedradio).addClass('starColor');
+    }
+
+    function checkcategoryvalue(selectvalue) {
+        category = selectvalue;
+
+    }
+    function FetchRating() {
+        //debugger;
+        var setRatingflag = "";
+        var setCategoryflag = "";
+        var items = $('.star-rating >label');
+
+
+        if ($('.star-rating .starColor').length > 0) {
+            setRatingflag = 'true';
+        }
+
+        if ($('.rating-items >li a.active').length > 0) {
+            setCategoryflag = 'true';
+        }
+
+        if (setCategoryflag == "") {
+            $('.help-text.Category-help').html("Please select any one of the category");
+            $('.help-text.Category-help').attr("class", "help-text Category-help field-validation-error");
+        }
+        else {
+            $('.help-text.Category-help').html("");
+        }
+
+        if (setRatingflag == "") {
+            $('.help-text.Rate-help').html("Please select any one of the star");
+            $('.help-text.Rate-help').attr("class", "help-text Rate-help field-validation-error");
+        }
+        else {
+            $('.help-text.Rate-help').html("");
+        }
+
+        if ($('#textarea1').val() == "") {
+            $('.help-text.Appreciation-help').html("Please enter your comment");
+            $('.help-text.Appreciation-help').attr("class", "help-text Appreciation-help field-validation-error");
+        }
+        else {
+            $('.help-text.Appreciation-help').html("");
+        }
+        var captcharesponse = grecaptcha.getResponse(recaptcha);
+        if (!captcharesponse) {
+            $('#Captchaerror').show().html('Please validate captcha to continue');
+        }
+        else {
+            $('#Captchaerror').hide().html('');
+        }
+
+
+
+        if (setRatingflag == "" || setCategoryflag == "" || $('#textarea1').val() == "") {
+            return false;
+        }
+        else {
+            dataLayer.push({
+                'event': "rate_us",
+                'eventCategory': "My Account",
+                'eventAction': 'Rate Us',
+                'eventLabel': category + '|' + Rating,
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+
+            $('.loader-wrap').show();
+            $.ajax({
+                url: apiSettings + "/AccountsRevamp/RatingRevamp",
+                type: 'Post',
+                data: { Category: category, Rating: Rating, Textareavalue: $('#textarea1').val(), Captcha: captcharesponse },
+                dataType: 'JSON',
+                success: function (data) {
+
+                    if (data == "success") {
+                       // window.location.href = "http://" + $(location).attr('host') + '/my-account/rateus';
+                        location.reload();
+                        $('.loader-wrap').hide();
+                    } else if (data == "captchinvalid"){
+                        $('#Captchaerror').show().html('Please validate captcha to continue');
+                        $('.loader-wrap').hide();
+                    }else {
+                        location.reload();
+                        $('.loader-wrap').hide();
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    $('.loader-wrap').hide();
+                    console.log("ed" + errorThrown);
+                }
+            });
+        }
+    }
+
+</script>

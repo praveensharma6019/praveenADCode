@@ -1,0 +1,94 @@
+﻿@model List<Sitecore.Electricity.Website.Model.TenderDetails>
+@using Sitecore.Electricity.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.Tender.AdminUserTenderListing);
+    var createTenderItem = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderCreate);
+    var UpdateTenderItem = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderUpdate);
+    var EnvelopUser = Sitecore.Context.Database.GetItem(Templates.Tender.EnvelopeUserListing);
+    var corrigendumListing = Sitecore.Context.Database.GetItem(Templates.Tender.CorrigendumTenderListing);
+    var userlistingURL = item.Url();
+}
+<div class="pageContent">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "Electricity", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <div class="col-12 p-0 pb-3">
+            <h2 class="txt-orange">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Listing", "Tender Listing")</h2>
+        </div>
+
+        <div class="table-responsive tableOuter listing-table">
+            <table class="table table-borderless table-white table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Number Text", "NIT No./PR No.")</th>
+                        @*<th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Business Text", "Business")</th>
+                        <th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Description Text", "Tender Description")</th>*@
+                        @*<th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Description Text", "Estimated Cost (Rs. Lakhs)")</th>
+                        <th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Description Text", "Cost of EMD (Rs. Lakhs)")</th>*@
+                        <th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Tender DOA Text", "Date of Advertisement")</th>
+                        <th scope="col" style="width:20%;">@Html.Sitecore().Dictionary("Electricity/Tender/Tender DOC Text", "Bid Submision Closing Date")</th>
+                        <th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Status Text", "Status")</th>
+                        <th scope="col" style="width:10%;">@Html.Sitecore().Dictionary("Electricity/Tender/Tender View Text", "Download")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var openTN in Model.Where(x => x.Status != null).OrderByDescending(x => x.Adv_Date))
+                    {
+                        <tr>
+                            <td>@openTN.NITPRNo</td>
+                            @*<td>@openTN.Business</td>
+                            <td>@openTN.Description</td>*@
+                            @*<td>@openTN.Estimated_Cost</td>
+                            <td>@openTN.Cost_of_EMD</td>*@
+                            <td>@openTN.Adv_Date.Value.ToString("dd/MM/yyyy")</td>
+                            <td>@openTN.ClosingDate.Value.ToString("dd/MM/yyyy  h:mm tt")</td>
+                            <td>@openTN.Status</td>
+                            <td>
+                                <table class="table">
+                                    @if (openTN.Tenderdocs != null)
+                                    {
+                                        foreach (var item1 in openTN.Tenderdocs)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @{
+                                                        var myFilePath = item1.DocumentPath.Trim();
+                                                        string ext = Path.GetExtension(myFilePath);
+                                                    }
+                                                    @if (ext.ToLower() == ".pdf")
+                                                    {
+                                                        <a href="@item1.DocumentPath" target="_blank" class="txt-orange">@Html.DisplayFor(modelItem => item1.FileName)</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@item1.DocumentPath" download="" class="txt-orange">@Html.DisplayFor(modelItem => item1.FileName)</a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- /Tenders -->
+</div>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.selectedTender.submit();
+    }
+</script>  

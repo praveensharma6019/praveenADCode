@@ -1,0 +1,101 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+
+@using Sitecore.Mvc.Presentation
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+
+    var currentPage = Sitecore.Context.Item;
+
+
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+
+    var dataSource = Sitecore.Context.Database.GetItem(dataSourceId);
+
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectField = dataSource.Fields[Templates.Offers.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+}
+<div class="container">
+    <div class="col s12 l8 offset-l1">
+        <header class="section-header">
+            @{
+                var componentTitle = @Html.Sitecore().Field(Templates.Offers.Fields.Title);
+
+                //var message = @Html.Sitecore().Field(Templates.Offers.Fields.Description);
+                <h1>@componentTitle</h1>
+
+                var componentDescription = @Html.Sitecore().Field(Templates.Offers.Fields.Description);
+                <p>@componentDescription</p>
+            }
+
+        </header>
+
+
+        <div class="offers-card standard-card carousel_wrapper row">
+            @foreach (var item in items)
+            {
+                Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                string ImageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+
+
+                //Sitecore.Data.Fields.LinkField linkfld = item.Fields["CTALink"];
+                //var urlTile = linkfld.GetFriendlyUrl();
+
+
+                Sitecore.Data.Fields.LinkField linkfld = item.Fields["CTALink"];
+
+                var urlTile = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "#";
+                var urlTarget = linkfld != null ? linkfld.Target : "";
+
+                var titleTile = @Html.Sitecore().Field(Templates.Services.Fields.Title, item);
+
+                var descriptionTile = @Html.Sitecore().Field(Templates.Services.Fields.Description, item);
+
+                var ctaTextTile = @Html.Sitecore().Field(Templates.Services.Fields.CTAText, item);
+
+            <div class="card col s12 l6">
+                @{
+                                <a href="@urlTile" target="@urlTarget">
+                                    <div class="card-image">
+
+                                        @if (!string.IsNullOrEmpty(ImageUrl))
+                                        {
+                                            <img src="@ImageUrl" alt="@titleTile" title="@titleTile">
+                                        }
+
+                                    </div>
+                                    <div class="card-content">
+                                        @if (!string.IsNullOrEmpty(titleTile.ToString()))
+                                        {
+                                            <h4>@titleTile  </h4>
+                                        }
+                                        @if (!string.IsNullOrEmpty(descriptionTile.ToString()))
+                                        {
+                                            @descriptionTile
+                                        }
+                                        @if (!string.IsNullOrEmpty(urlTile) && !string.IsNullOrEmpty(ctaTextTile.ToString()))
+                                        {
+                                            <span class="link-btn">@ctaTextTile </span>
+                                            @*<a href="@urlTile">@ctaTextTile </a>*@
+                                        }
+
+                                    </div>
+                                </a>
+                        }
+                </div>
+            }
+
+        </div>
+
+
+
+    </div>
+
+</div>

@@ -1,0 +1,50 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    MultilistField Select = element.Fields["Buisnesses"];
+    var selectitem = Select.GetItems();
+	var imgurl = "";
+	var ImgAltTxt = "";
+}
+
+<section class="testimonials">
+    <div class="bg">
+        <div class="container">
+            <h2 class="text-Our">@Html.Sitecore().Field("Title", element)</h2>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div id="customers-testimonials" class="owl-carousel">
+                        @foreach (var item in selectitem)
+                        {
+                            <!-- Sitecore.Data.Fields.ImageField Imagefield = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]); -->
+							
+							Sitecore.Data.Fields.ImageField Image = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+							if(Image != null && Image.MediaItem != null){
+							imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(Image.MediaItem);
+							ImgAltTxt = Image.Alt;
+                           }
+							
+                            <!-- var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(Imagefield.MediaItem); -->
+                            <div class="item">
+                                <div class="shadow-effect">
+                                    <img class="img-responsive" src="@imgurl" alt="ImgAltTxt">
+                                    <div class="item-details">
+                                        <p>@Html.Sitecore().Field("Title", item)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

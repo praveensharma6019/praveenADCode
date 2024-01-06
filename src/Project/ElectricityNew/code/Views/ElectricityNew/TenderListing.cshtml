@@ -1,0 +1,365 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model Sitecore.ElectricityNew.Website.Model.TenderStatus
+@using Sitecore.ElectricityNew.Website.Model;
+@{
+    var Id = new Guid();
+    var currentDate = DateTime.Now;
+
+    var CorrigendumTender = Sitecore.Context.Database.GetItem(Templates.Tender.TenderCorrigendum);
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+@if (Model.OpenTender.Count > 0)
+{
+    <section class="corporate-main-banner section-container">
+        <div class="inner">
+            <figure>
+                <picture>
+                    <source media="(min-width:992px)" srcset="-/media/8693F40A7CC2485F82B83EC9C05E7C3D.ashx" alt="Open Tenders">
+                    <img alt="Open Tenders" class="banner-image" src="-/media/20AC3F0692BF465DBE5679E054A99947.ashx" />
+                </picture>
+            </figure>
+            <div class="content">
+                <div class="container">
+                    <div class="inner">
+                        <h1>Open Tenders</h1>
+                        <p>Check out the ongoing invitation of bids for large projects that must be submitted within a finite timeline</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    if (TempData["Success"] != null)
+    {
+        <div id="registernewsuccess" class="modal modal-alert modal-success">
+            <header class="modal-header">
+                <h4><i class="i-tick"></i>Registration successful!</h4>
+                <span class="icon-holder waves-effect waves-light modal-close close"><i class="i-cross hide-notification"></i></span>
+            </header>
+
+            <div class="modal-content"><p>A mail has been sent to you on your registered email ID.</p> </div>
+        </div>
+
+        @*<p class="alert alert-success container" id="successMessage">@TempData["Success"]</p>*@
+
+        <script>
+            $(document).ready(function (e) {
+                TenderSuccessAlertMessage();
+            })
+            function TenderSuccessAlertMessage() {
+                $('.loader-wrap').hide();
+                window.setTimeout(function () {
+                    var elem = document.getElementById('registernewsuccess');
+                    var instance = M.Modal.init(elem, { dismissible: false });
+                    instance.open();
+                }, 1500);
+            }
+        </script>
+    }
+    if (TempData["Error"] != null)
+    {
+        <div id="registernewfailure" class="modal modal-alert modal-toast custom-toast-error">
+            <header class="modal-header">
+                <span class="icon-holder waves-effect waves-light modal-close close"><i class="i-cross hide-notification"></i></span>
+            </header>
+            <div class="modal-content"><p>Please provide valid information for registration and try again!</p> </div>
+        </div>
+        @*<p class="alert alert-success container" id="successMessage">@TempData["Error"]</p>*@
+
+        <script>
+            $(document).ready(function (e) {
+
+                TenderErrorAlertMessage();
+            })
+            function TenderErrorAlertMessage() {
+                $('.loader-wrap').hide();
+                window.setTimeout(function () {
+                    var elem = document.getElementById('registernewfailure');
+                    var instance = M.Modal.init(elem, { dismissible: false });
+                    instance.open();
+                }, 1500);
+            }
+        </script>
+    }
+    <div class="container section-container">
+
+        <div class="tenders-detail">
+            <div class="tender-header">
+                <div class="tender-main-header">
+                    <h2>Open Tenders</h2>
+                    <div class="header-links  ">
+                        <a href="/tenderlogin" data-gaevent="tendor_login_cta_click"
+                           data-gaeventCategory="Corporate Portal | Tendors"
+                           data-gaeventAction="Tendor Login CTA Click"
+                           data-gaeventLabel="NA" class="link-btn">Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="customer_detail_wrapper customer_detail_list table-border-hide-mob">
+            <table class="customer_detail_list-details hide-on-med-and-down" id="tenderListingTable">
+                <thead>
+                    <tr>
+                        <th width="11%">NIT No./PR No.</th>
+                        <th width="14%">Business</th>
+                        <th width="14%">Tender Description</th>
+                        <th width="12%">Estimated Cost (Rs. Lakhs)</th>
+                        <th width="11%">Cost of EMD (Rs. Lakhs)</th>
+                        <th width="11%">Date of Advertisement</th>
+                        <th width="11%">Bid Submision Closing Date</th>
+                        <th width="5%">Register</th>
+                        <th width="11%">Corrigendum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var openTN in Model.OpenTender.Where(x => x.Status.ToLower() == "open" && x.NITPRNo != "-").OrderByDescending(x => x.Adv_Date))
+                    {
+                        <tr>
+                            <td><div class="table-cell"><label>@openTN.NITPRNo</label></div></td>
+                            <td><div class="table-cell"><label>@openTN.Business</label></div></td>
+                            <td><div class="table-cell"><label>@openTN.Description</label></div></td>
+                            <td><div class="table-cell"><label>@openTN.Estimated_Cost</label></div></td>
+                            <td><div class="table-cell"><label>@openTN.Cost_of_EMD</label></div></td>
+                            <td><div class="table-cell"><label>@openTN.Adv_Date.Value.ToString("dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture)</label></div></td>
+                            @if (openTN.NITPRNo == "-")
+                            {
+                                <td>
+                                    <div class="table-cell">
+                                        <label>
+                                            -
+                                        </label>
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <div class="table-cell">
+                                        <label>
+                                            @openTN.ClosingDate.Value.ToString("dd/MM/yy  h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                                            @if (openTN.OnHold)
+                                            {
+                                                <b class="txt-orange">ON HOLD</b>
+                                            }
+                                        </label>
+                                    </div>
+                                </td>
+                            }
+                            @{
+                                var tempDate = openTN.ClosingDate.Value;
+                            }
+                            @if (openTN.NITPRNo == "-")
+                            {
+                                <td>
+                                    <div class="table-cell">
+                                        <label>
+                                            <a href="@openTN.Location" target="_blank" title="Click here">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Update Text", "Click Here")</a>
+                                        </label>
+                                    </div>
+                                </td>
+                            }
+                            else if (currentDate <= tempDate && !openTN.OnHold)
+                            {
+                                <td>
+                                    <div class="table-cell">
+                                        <label>
+
+                                            <a class="sidenav-trigger" id="@openTN.Id" href="#@openTN.Id">
+
+                                                <img src="/electricity_assets/images/register-tendor.svg" class="register-icon" alt="" />
+                                            </a>
+
+
+                                        </label>
+
+                                    </div>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <div class="table-cell">
+                                        <label></label>
+                                    </div>
+                                </td>
+                            }
+                            <td>
+                                @if (openTN.isCorrigendumPresent)
+                                {
+                                    <div class="table-cell">
+                                        <label>
+                                            <a href="@CorrigendumTender.Url()?id=@openTN.Id" target="_blank" title="Click here">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Update Text", "Click Here")</a>
+                                        </label>
+                                    </div>
+                                }
+                            </td>
+                            @Html.Partial("~/Views/ElectricityNew/_UserRegistration.cshtml", new UserDetails() { TenderID = @openTN.Id })
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @*@Html.Partial("~/Views/ElectricityNew/_UserRegistration.cshtml", new UserDetails() { TenderID = Id })*@
+
+        </div>
+
+
+
+
+        <div class="pagination hide-on-med-and-down" id="desktopPagination"></div>
+
+        @{
+
+            var count = 0;
+            int paginationCount = 1;
+        }
+
+        <div class="mob-listing-cards hide-on-med-and-up section-wrapper " id="TenderListingPaginationDiv">
+            <input type="hidden" id="paginationTableDiv" value="TenderListingPaginationDiv" />
+            <input type="hidden" id="paginationDataSelector" value="#TenderListingDiv>div" />
+            <input type="hidden" id="paginationNumberElementSelector" value="#tenderListingPaginationNumber" />
+            <input type="hidden" id="paginationScrollToElementSelector" value="#TenderListingPaginationDiv" />
+            <input type="hidden" id="paginationPageSize" value="10" />
+            <div id="TenderListingDiv">
+                @foreach (var openTN in Model.OpenTender.Where(x => x.Status.ToLower() == "open" && x.NITPRNo != "-").OrderByDescending(x => x.Adv_Date))
+                {
+                    string divstyle = "none";
+                    if (paginationCount == 1)
+                    {
+                        divstyle = "block";
+                    }
+                    else
+                    {
+                        divstyle = "none";
+                    }
+                    <div class="mob-listing" data-id="@paginationCount" style="display:@divstyle">
+
+                        <ul>
+
+                            <li>
+
+                                <label>NIT No./PR No.</label>
+
+                                <span>@openTN.NITPRNo</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>Business</label>
+
+                                <span>@openTN.Business</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>Tender Description</label>
+
+                                <span>@openTN.Description</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>Estimated Cost (In Lakhs)</label>
+
+                                <span>@openTN.Estimated_Cost</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>
+                                    Cost of EMD
+
+                                    (In Lakhs)
+                                </label>
+
+                                <span>@openTN.Cost_of_EMD</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>Bid Submision Closing Date</label>
+
+                                <span>@openTN.Adv_Date.Value.ToString("dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture)</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>Register</label>
+
+                                <span>
+                                    <a class="sidenav-trigger" id="@openTN.Id" href="#@openTN.Id">
+                                        <img src="/electricity_assets/images/register-tendor.svg" class="register-icon" alt="" />
+                                    </a>
+                                </span>
+
+                            </li>
+
+                            <li>
+
+                                <label>Corrigendum</label>
+                                @if (openTN.isCorrigendumPresent)
+                                {
+                                    <span class="full-width">
+                                        <a class="modal-trigger" href="@CorrigendumTender.Url()?id=@openTN.Id">@Html.Sitecore().Dictionary("Electricity/Tender/Tender Update Text", "Click Here")</a>
+                                    </span>
+                                }
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                    count++;
+                    if (count / (paginationCount * 10) == 1)
+                    {
+                        paginationCount = paginationCount + 1;
+                    }
+                }
+            </div>
+            <ul class="pagination hide-on-med-and-up" id="tenderListingPaginationNumber"></ul>
+        </div>
+
+    </div>
+
+
+    <script src="~/Scripts/ElectricityNew/datatable-min-aeml-revamp.js"></script>
+
+    <script src="~/Scripts/Accounts/ElectricityRevampCustomPagination.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#tenderListingTable').DataTable({
+                lengthChange: false,
+                pageLength: 10,
+                searching: false,
+                autoWidth: false,
+                ordering: false,
+                info: false,
+                language: {
+                    paginate: {
+                        next: '<i class="i-arrow-r"></i>',
+                        previous: '<i class="i-arrow-l"></i>'
+                    }
+                },
+                bPaginate: true,
+                "fnDrawCallback": function (oSettings) {
+                    $(".corporate-main-banner")[0].scrollIntoView(true);
+                }
+            });
+
+            $('#tenderListingTable_paginate').appendTo('#desktopPagination');
+
+            DrawPaginationNumber(1, '#TenderListingPaginationDiv');
+        })
+    </script>
+}

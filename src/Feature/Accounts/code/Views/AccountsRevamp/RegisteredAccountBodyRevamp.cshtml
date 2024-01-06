@@ -1,0 +1,149 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.RegisteredAccount
+
+@if (Session["LinkRegisterAccountSubmit"] != null && Session["LinkRegisterAccountSubmit"].ToString() == "1")
+{
+
+    Session["LinkRegisterAccountSubmit"] = null;
+    <script type="text/javascript">
+         $(document).ready(function () {
+        dataLayer.push({
+            'event': 'manage_connections_link_registered_accounts_submit',
+            'eventCategory': 'My Account',
+            'eventAction': 'Manage Connections | Link Registered Accounts Submit',
+            'eventLabel': 'NA',
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+        });
+    </script>
+
+}
+
+
+<div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap">
+    <div class="submit-new-request">
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmRegisteredAccount" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+        <div class="input-field custom @Html.ValidationErrorFor(x => x.ExistingAcNo, "has-error")">
+            @Html.TextBoxFor(x => x.ExistingAcNo, new { @class = "form-control reset-control", id = "ExistingAcNo" })
+            <label class="active" for="ExistingAcNo">
+                @Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Registered Account/Existing Account Number", "Existing Account Number")
+            </label>
+            @Html.ValidationMessageFor(x => x.ExistingAcNo, "", new { @class = "help-block" }, "p")
+            <p class="field-validation-error" id="ExistingAcValidation" style="display:none"></p>
+        </div>
+        <div class="input-field custom @Html.ValidationErrorFor(x => x.ExistingUserId, "has-error")">
+            @Html.TextBoxFor(x => x.ExistingUserId, new { @class = "form-control reset-control", id = "ExistingUserId" })
+            <label class="active" for="MeterNumber">
+                @Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Registered Account/Existing Account User ID", "Existing Account User ID")
+            </label>
+            @Html.ValidationMessageFor(x => x.ExistingUserId, "", new { @class = "help-block" }, "p")
+            <p class="field-validation-error" id="ExistingIdValidation" style="display:none"></p>
+        </div>
+        <div class="input-field custom input-has-icon @Html.ValidationErrorFor(x => x.Password, "has-error")">
+            @Html.PasswordFor(x => x.Password, new { @class = "form-control reset-control", @autocomplete = "off", id = "ExistingPassword" })
+            <label class="active" for="Password">
+                @Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Registered Account/Existing Account Password", "Existing Account Password")
+            </label>
+            <div class="input-icon">
+                <span class="icon-holder waves-effect waves-light show-pass">
+                    <i class="vi-show-password"></i>
+                    <i class="vi-hide-password"></i>
+                </span>
+            </div>
+            @Html.ValidationMessageFor(x => x.Password, "", new { @class = "help-block" }, "p")
+            <p class="field-validation-error" id="ExistingPasswordVal" style="display:none"></p>
+        </div>
+            <div class="input-field custom">
+                <div class="captcha_box" id="RegisteredAcCaptcha">
+                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                        <div class="row captcha_box" style="padding-left:10px;">
+                            <div class="col-lg-12">
+                                <div class="g-recaptcha" data-callback="RegisteredAcCaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                <p class="field-validation-error" id="ChangeCaptchaerror" style="display:none"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-right btn-group">
+                <button type="button" class="waves-effect waves-light btn-flat"
+                        data-gaevent="manage_connections_link_registered_accounts_reset"
+                        data-gaeventCategory="My Account"
+                        data-gaeventAction="Manage Connections | Link Registered Accounts Reset"
+                        data-gaeventLabel="NA"
+                        id="btnReset" onclick="ResetElement('frmRegisteredAccount')">
+                    @Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Non Registered Account/Button/Reset", "Reset")
+                </button>
+                <button type="submit" class="waves-effect waves-light btn RegisteredAccountBodySubmitButton">@Html.Sitecore().Dictionary("/Accounts/My Account/Multiple Accounts/Non Registered Account/Button/Submit", "Submit")</button>
+            </div>
+
+        }
+    </div>
+</div>
+@*<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>*@
+<script type="text/javascript">
+    var RegisteredAcCaptcha;
+    var onloadCallback = function () {
+        RegisteredAcCaptcha = grecaptcha.render('RegisteredAcCaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+    $('.RegisteredAccountBodySubmitButton').click(function () {
+        var isValid = true;
+        var rcaptcharesponse = grecaptcha.getResponse(RegisteredAcCaptcha);
+
+        if ($("#ExistingAcNo").val() == "") {
+            $('#ExistingAcValidation').show().html('Please enter a value for Existing Account Number');
+            isValid = false;
+        }
+        else {
+            $('#ExistingAcValidation').hide().html('');
+        }
+        if ($("#ExistingUserId").val() == "") {
+            $('#ExistingIdValidation').show().html('Please enter a value for Existing User ID');
+            isValid = false;
+        }
+        else {
+            $('#ExistingIdValidation').hide().html('');
+        }
+        if ($("#ExistingPassword").val() == "") {
+            $('#ExistingPasswordVal').show().html('Please enter a value for Existing Password');
+            isValid = false;
+        }
+        else {
+            $('#ExistingPasswordVal').hide().html('');
+        }
+        if (!rcaptcharesponse) {
+            $('#ChangeCaptchaerror').show().html('Please validate captcha to continue');
+            isValid = false;
+        }
+        else {
+            $('#ChangeCaptchaerror').hide().html('');
+        }
+        return isValid;
+
+        if ($('#ExistingAcNo').val().trim() != '' && $('#ExistingUserId').val().trim() && $('#Password').val().trim() != '') {
+            dataLayer.push({
+                'event': "manage_connections_link_registered_account_submit",
+                'eventCategory': "My Account",
+                'eventAction': "Manage Connections | Link Registered Accounts Submit",
+                'eventLabel': "NA",
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#CANumber').val(),
+                'page_type': $('head title').text()
+            });
+        }
+    })
+</script>

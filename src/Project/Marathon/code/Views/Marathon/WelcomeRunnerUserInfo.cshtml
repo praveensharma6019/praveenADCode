@@ -1,0 +1,296 @@
+﻿@using Sitecore.Marathon.Website
+@using System.Globalization
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.Dictionary.Repositories
+
+@model Sitecore.Marathon.Website.Models.RegistrationModel
+@{
+    var currentYear = DateTime.Now.Year;
+	var todayDate = DateTime.Now;
+	var LastFormSubmittedYear =Model.FormSubmitOn.Year;
+    var raceLocationDetails = Sitecore.Context.Database.GetItem("{9D55601D-21DA-46AC-94B7-DCB0DE626927}");
+    var RaceLocation = raceLocationDetails.Fields["Location"].Value;
+    List<string> yearcheck = new List<string>();
+    var count = Model.Count;
+
+	var NormalRace = Sitecore.Context.Database.GetItem("{0FAABDDF-9C8E-4283-B499-9853674E97D4}");
+    var CharityRace = Sitecore.Context.Database.GetItem("{7B220E91-F649-4E9C-8DDA-A72451876EDE}");
+	var Taxexemption = Sitecore.Context.Database.GetItem("{997F0F57-0DBF-497E-831D-57C564E4FC01}");
+	
+	var PromoRunDate = DictionaryPhraseRepository.Current.Get("PromoRunDate/RaceDate", "");
+	var PromoDate = DateTime.Parse(PromoRunDate, CultureInfo.GetCultureInfo("en-gb")).AddDays(1);
+}
+
+@Html.AntiForgeryToken()
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "donation_form", name = "donation_form", @class = "row donation_form", style = "display:block", enctype = "multipart/form-data" }))
+{
+    <div class="row mb-5" id="WelcomeRunner">
+	    <div class="col-lg-6">
+			<div class="row mb-4">
+                <div class="col-6">
+				    <h4 class="txt-purple">Charity Runner ID</h4>
+				</div>
+				<div class="col-6 acode" id="RegistrationId">
+				    @if (Model.PaymentStatus != null && Model.PaymentStatus == "successful")
+					{
+						<span class="form-control affiliateCode_validated" id="affiliatecode">
+                            @Model.AffiliateCode
+                        </span>
+					}
+					else{
+						<span class="form-control affiliateCode_validated" id="affiliatecode">
+                            @Model.AffiliateCode
+                        </span>
+					}
+				</div>
+			</div>
+			<div class="row mb-4">
+                <div class="col-6">
+                     <h4>First name</h4>
+                </div>
+                <div class="col-6 FirstName">
+                    <span class="form-control validated" id="first_name">
+                         @Model.FirstName
+                    </span>
+                </div>
+            </div>
+			<div class="row mb-4">
+                <div class="col-6">
+                    <h4>Last name</h4>
+                </div>
+                <div class="col-6 LastName">
+                    <span class="form-control validated" id="last_name">
+                        @Model.LastName
+                    </span>
+                </div>
+            </div>
+			<div class="row mb-4">
+                <div class="col-6">
+                     <h4>D.O.B</h4>
+                </div>
+                <div class="col-6">
+                    <span class="form-control validated" id="date_birth">
+                        @Model.DateofBirth
+                    </span>
+                </div>
+            </div>
+		</div>
+	    <div class="col-lg-6">
+			<div class="row mb-4">
+                <div class="col-6">
+                    <h4>Email</h4>
+                </div>
+                <div class="col-6 tbldiv Email">
+                    <span class="form-control validated" id="email_id">
+                        @Model.Email
+                    </span>
+                </div>
+            </div>
+			<div class="row mb-4">
+                <div class="col-6">
+                     <h4>Contact number</h4>
+                </div>
+                <div class="col-6 ContactNumber">
+                    <span class="form-control validated" id="contactno" onchange="numberchk(this)">
+                        @Model.ContactNumber
+                    </span>
+                </div>
+            </div>
+			<div class="row mb-4">
+                <div class="col-6">
+                     <h4>T-shirt Size</h4>
+                </div>
+                <div class="col-6">
+                    <span class="form-control validated" id="tshirt_sizeMale">
+                        @Model.TShirtSize 
+                    </span>
+				</div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-6">
+                    <h4>ID Proof</h4>
+                </div>
+                <div class="col-6">
+                    <a id="uploadedId" href="@Model.IdentityProofNumber.ToString()" target="_blank">Click here to view your uploaded file</a>
+                    
+				</div>
+            </div>
+		</div>
+	</div>
+	<div class="row border_bottom">
+		<div class="col-6 text-left">
+		</div>
+		<p class="usergender d-none">@Model.Gender</p>
+		<div class="col-6 text-right"><a href="/userinfo" class="btn btn-gradient">Update Information</a></div>
+	</div>
+}
+
+@if(currentYear==LastFormSubmittedYear)
+{
+	<div class="row text-left" id="remove_title">Ahmedabad Marathon @currentYear :Race Info</div>
+    <div class="row mb-5 " id="remove_btn">
+	    <div class="col-lg-6">
+			<div class="row mb-4">
+                <div class="col-6">
+                    <h4>Run Category</h4>
+                </div>
+                <div class="col-6">
+                    <span class=" validated" id="RaceDistance1">
+                        @Model.RaceDistance
+                    </span>
+                </div>
+            </div>
+			<div class="row mb-4">
+                <div class="col-6">
+                    <h4>Payment Status</h4>
+                </div>
+                <div class="col-6">
+                    <span class="validated" id="PaymentStatus">
+                        @Model.PaymentStatus
+					</span>
+                </div>
+            </div>
+		 </div>
+	    <div class="col-lg-6">
+			<div class="row mb-4">
+                <div class="col-6">
+                    <h4>Registration Status</h4>
+                </div>
+                <div class="col-6">
+                    <span class=" validated" id="RegistrationStatus">
+                        @Model.RegistrationStatus
+                    </span>
+                </div>
+            </div>
+			<div class="row mb-4">
+                <div class="col-6">
+                    @if (Model.PaymentStatus != null && Model.PaymentStatus == "pending")
+                    {
+                        <button type="submit" id="PayNowbutton" value="button" class="btn btn-primary mb-2 mb-md-0" style="margin-left: -51%;">Pay Now</button>
+                        <button type="submit" id="RemoveNowbutton" value="button" class="btn btn-primary mb-2 mb-md-0" margin-left: -51%; data-id="Ahmedabad">Update Race Info</button>
+                    }
+                </div>
+            </div>
+		</div>
+	</div>
+}
+@if(currentYear>LastFormSubmittedYear)
+{
+	<div class="newRaceapplyDiv">
+        <section style="background: #b13d8c; background: -moz-linear-gradient(45deg,#b13d8c 0,#e54f39 100%);
+            background: -webkit-linear-gradient(45deg,#b13d8c 0,#e54f39 100%);background: linear-gradient(45deg,#b13d8c 0,#e54f39 100%);color: #fff;">
+            <div class="newRaceapplyDiv">
+                <h4 style="font-weight: 500;color: white;text-align: center;">
+                    Take a part of @RaceLocation Marathon @currentYear
+                </h4>
+                <div class="row action_buttons">
+                    <div class="col-lg-12">
+                        <p class="text-centert" style="text-align: center;">
+                            <input name="submit_form" type="button" class="btn btn-default  newRaceapply" value="Apply Now">
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+	<div class="row text-left labelStyle" style="display:none" id="applynew">
+        <form autocomplete="off" id="AlreadyRegisteredUserPayment">
+			<div class="row border-bottom">
+				<div class="col-md-6 text-left">@RaceLocation Marathon @currentYear</div>
+			</div>
+			<div class="col-md-6 d-none">
+				<div class="form-group mb-3">
+					<label for="">Run Mode<span class="required">*</span></label>
+					<input class="form-check-input" type="radio" name="RunMode" required id="runMode1" value="Physical" checked>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group mb-3">
+					<label for="reference_code">Reference code:</label>
+					@Html.EditorFor(model => model.ReferenceCode, new { htmlAttributes = new { placeholder = "Reference Code (Optional)", @class = "form-control reference_validated", id = "reference_code", name = "ReferenceCode" } })
+					<label class="reference_code_error field-required"></label>
+                    <label class="reference_code_success field-required"></label>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="form-group form-group-run mb-3">
+					<label for="">Bib Type<span class="required">*</span></label>
+				</div>
+				<div class="form-group form-group-run mb-3">
+					<div class="form-check form-check-inline">
+						<input class="form-check-input runtype" type="radio" name="RunType" id="RunType1" value="Normal" required checked>
+						<label class="form-check-label" for="inlineRadio1">Regular Bib</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input runtype" type="radio" name="RunType" id="RunType2" value="Charity"  required>
+						<label class="form-check-label" for="inlineRadio2">Charity Bib</label>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group mb-3">
+					<label for="">Distance<span class="required">*</span></label>
+						<select class="form-control NormalList " id="select_distance" name="RaceDistance" required="required">
+							<option value="">Select your distance</option>
+								@foreach(var value in NormalRace.GetChildren().ToList())
+								{
+									<option class="all-dist " value='@value.Fields["Distance"]'>@value.Fields["Text"]</option>
+								}
+						</select>
+						<select class="form-control CharityList  d-none" id="select_distance_charity" name="RaceDistance" required="required">
+							<option value="">Select your distance</option>
+							@foreach(var value in CharityRace.GetChildren().ToList())
+							{
+								<option class="all-dist " value='@value.Fields["Distance"]'>@value.Fields["Text"]</option>
+							}
+						</select>
+				</div>
+			</div>
+			<div class="col-md-6 EmployeeID d-none">
+				<div class="form-group">
+					<label for="">Employee Id:<span class="required">*</span></label>
+					@Html.EditorFor(model => model.EmployeeID, new { htmlAttributes = new { @class = "form-control validated", name = "EmployeeID", id = "EmployeeID" } })
+				</div>
+			</div>
+			<div class="col-md-6 EmployeeEmailId d-none">
+				<div class="form-group">
+					<label for="">Employee Email:<span class="required">*</span></label>
+					@Html.EditorFor(model => model.EmployeeEmailId, new { htmlAttributes = new { @class = "form-control validated", name = "EmployeeEmailId", id = "EmployeeEmailId" } })
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group donationAmount d-none">
+					<label for="">Amount:<span class="required">*</span></label>
+					@Html.EditorFor(model => model.DonationAmount, new { htmlAttributes = new { @class = "form-control validated", name = "DonationAmount", id = "DonationAmount" } })
+					<p class='size-chart2 d-none AmountDetails'> Registration Fee :<span class="registrationValue"></span></p>						
+					<p class='size-chart2 d-none AmountDetails'> Donation Value :<span class="DonationValue"></span></p>
+					@Html.CheckBoxFor(model => model.TaxExemptionCertificate)<span class="size-chart2"> Would you like Income Tax exemption certificate</span>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group PAN d-none">
+					<label for="">PAN Number:<span class="required">*</span></label>
+					@Html.EditorFor(model => model.PANNumber, new { htmlAttributes = new { @class = "form-control validated", name = "PANNumber", id = "PANNumber" } })
+					<span class='errormsg d-none'>Invalid PAN Number</span>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group PAN d-none">
+					<label for="">Select Cause:<span class="required">*</span></label>
+					<select class="form-control TaxExemptionCause " id="TaxExemptionCause" name="TaxExemptionCause" >
+						<option value="">Select your Cause</option>
+						@foreach(var value in Taxexemption.GetChildren().ToList())
+						{
+							<option class="all-dist " value='@value.Fields["Text"]'>@value.Fields["Text"]</option>
+						}
+					</select>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<button type="submit" id="AlreadyRegistredUserSubmit" value="button" class="submit_btn" style="margin: 50px 0px 50px 20px;">PROCEED TO PAYMENT</button>
+			</div>
+	    <form>
+	</div>
+}
+
+

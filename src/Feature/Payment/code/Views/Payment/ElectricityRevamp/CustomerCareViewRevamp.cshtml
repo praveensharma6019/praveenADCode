@@ -1,0 +1,50 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var x = 0;
+}
+
+<div class="row">
+    @foreach (var child in parent.Children.ToList())
+    {
+        var ddlSource = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(child.ID));
+        <div class="input-field custom col s12 m6">
+            <div class="select-wrapper">
+                @Html.DropDownList("customcare", new SelectList(ddlSource.Children, "Id", "Name"), new {@id = ddlSource.DisplayName, @class = "", @onchange = "abs(" + "'" + ddlSource.DisplayName + "'" + ")" })
+
+            </div>
+            <label>Select</label>
+        </div>
+
+    }
+</div>
+<span id="CustomerCareCenterArea" style="display:none;">
+    <span id="addressColl">
+    </span>
+</span>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script>
+    //$.noConflict();
+
+    function abs(id) {
+        var itemId = $('#' + id).val();
+        jQuery.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: apiSettings + "/payment/GetCustomerCare",
+            context: this,
+            success: function (addr) {
+                $('#' + id).closest('#customerCareControl').find('#CustomerCareCenterArea').show();
+                $('#' + id).closest('#customerCareControl').find('#addressColl').html("");
+                $('#' + id).closest('#customerCareControl').find('#addressColl').append(addr);
+
+                /*$("#CustomerCareCenterArea").show();
+                $("#addressColl").html("");
+                $("#addressColl").append(addr);*/
+            }
+        });
+    }
+</script>

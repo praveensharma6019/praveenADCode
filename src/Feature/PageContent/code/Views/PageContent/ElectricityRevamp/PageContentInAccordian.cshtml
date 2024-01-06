@@ -1,0 +1,65 @@
+﻿@using Sitecore.Feature.PageContent
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@model RenderingModel
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<div class="col s12 l8 offset-l1">
+
+    @if (contextItem != null)
+    {
+        var divID = "";
+        <div class="section-wrapper custom_accrdion single-item">
+            <header class="section-header">
+                <h1>@Html.Raw(contextItem["Title"])</h1>
+
+                @if (contextItem["Body"].Trim() != "")
+                {
+                    <p>@Html.Raw(contextItem["Body"])</p>
+                }
+
+            </header>
+        </div>
+
+        if (datasource != null && parent != null)
+        {
+            <div class="section-container custom_accrdion quick-access">
+                <div class="accordion">
+                    <ul class="collapsible collapsible-accordion help-support">
+                        @foreach (var child in parent.Children.InnerChildren)
+                        {
+                            divID = Regex.Replace(Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                            <li>
+                                <div class="collapsible-header">
+                                    <h2>
+                                        @Html.Sitecore().Field("Title", child)
+                                    </h2>
+                                </div>
+                                <div class="collapsible-body" id="customerCareControl">
+                                    <div class="cms-content" id="@divID">
+                                        @{
+                                            var body = Html.Sitecore().Field("Body", child);
+
+                                            if (!string.IsNullOrEmpty(body.ToString()))
+                                            {
+                                                <p>@body</p>
+
+                                            }
+                                        }
+
+                                    </div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    }
+</div>

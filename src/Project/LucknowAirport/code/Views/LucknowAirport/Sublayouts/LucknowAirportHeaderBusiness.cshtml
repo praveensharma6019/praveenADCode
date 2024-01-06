@@ -1,0 +1,141 @@
+﻿@using Sitecore
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    
+	var cargo = Sitecore.Context.Database.GetItem("{28813F3E-9AA3-4366-A0C1-AF46F01FDE7C}");
+    var Airlines = Sitecore.Context.Database.GetItem("{9F804A40-00DF-4207-84D8-CCADEEBF533A}");
+    var cargoImage = Sitecore.Context.Database.GetItem("{A7B858C2-9526-4920-AD4C-568DFF4C259C}");
+  
+    var Commercial = Sitecore.Context.Database.GetItem("{CB520561-2E75-4488-8183-D675854056C7}");
+    var CargoProcedure = Sitecore.Context.Database.GetItem("{C43117E6-1707-4705-A535-29870FB9BDC3}");
+    var CargoTariff = Sitecore.Context.Database.GetItem("{024FF788-0D6A-46D9-AEDC-64BAC6BB2053}");
+    var CargoCallBackForm = Sitecore.Context.Database.GetItem("{B1B4E74A-4F8E-498E-8607-453EAFE86BE3}");
+	
+	var url = "#";
+	
+}
+
+        <div class="collapse navbar-collapse" id="navbar">
+                    <ul class="navbar-nav mx-auto">
+                        	<li class="nav-item dropdown-toggle__megamenu dropdown-toggle__megamenu--shop-dine">
+                                    <a class="nav-link" href="@Airlines.Url()">Airline Relationships</a>
+										
+                                </li>
+									<li class="nav-item dropdown-toggle__megamenu dropdown-toggle__megamenu--airport-services">
+                                    <a class="nav-link" href="@Commercial.Url()">Commercial</a>
+							  </li>
+								
+								 <li class="nav-item dropdown-toggle__megamenu dropdown-toggle__megamenu--passenger_guide">
+                                    <a class="nav-link" href="@cargo.Url()">Cargo</a>
+									
+									<div class="megamenu">
+									<h3>Cargo <span class="fa fa-angle-right"></span></h3>
+										<div class="row">
+										<div class="col-lg-4">
+												<div class="row">
+													<div class="col-5">
+															<div>
+															<a href="">
+																<div>
+																@Html.Sitecore().ImageField("Image", cargoImage, 0, 0, "img-fluid")
+																</div>
+															</a>
+															</div>
+													</div>
+													<div class="col-6">
+														<div>
+														<p><a href="@cargo.Url()#Procedure">@Html.Sitecore().Field("Title", CargoProcedure)</a></p>
+														<p><a href="@cargo.Url()#Tariff">@Html.Sitecore().Field("Title", CargoTariff)</a></p>
+														<p><a href="@cargo.Url()#Tracking">Cargo Tracking & Community Login</a></p>
+														</div>
+													</div>
+												</div>
+											</div>											
+		
+											<div class="col-lg-2">
+												<div class="row">
+													<div class="col-12">
+															<div>
+															<a href="@cargo.Url()#callback"><h3>Request a Call Bcak <span class="fa fa-angle-right"></span></h3></a>
+															</div>
+													</div>
+												</div>
+											</div>
+									
+										</div>
+										</div>
+										
+                                </li>
+								
+                        @foreach (var item in model.GetChildren().ToList())
+                        {
+                            var subItemModel = Sitecore.Context.Database.GetItem(item.ID);
+                            var childCount = subItemModel.GetChildren().Count();
+                            var cssClass = "";
+
+                            if (childCount > 0)
+                            {
+                                cssClass = "nav-item dropdown-toggle__megamenu";
+                            }
+                            else
+                            {
+                                cssClass = "nav-item";
+                            }
+							if (childCount > 0)
+                            {
+                            <li class="@cssClass">
+
+                                @Html.Sitecore().BeginField("Link", item, new { haschildren = true, @class = "nav-link" })
+                                @Html.Sitecore().Field("NavigationTitle", item)
+                                @if (childCount > 0)
+                                {<i class="fas fa-ellipsis-v"></i>}
+                                @Html.Sitecore().EndField()
+
+
+                                @if (subItemModel != null)
+                                {
+                                    <div class="megamenu">
+                                        <ul>
+                                            @foreach (var subItem in subItemModel.GetChildren().ToList())
+                                            {
+                                                <li class="">
+                                                    <div>
+                                                        @Html.Sitecore().BeginField("Link", subItem, new { haschildren = true, @class = "dropdown-item" })
+
+															<h3> @Html.Sitecore().Field("NavigationTitle", subItem) <span class="fa fa-angle-right"></span></h3>
+                                                        <div>
+                                                            <!-- <img src="https://via.placeholder.com/350x150" class="img-fluid"> -->
+															@Html.Sitecore().Field("Image", subItem)
+                                                        </div>
+                                                        
+                                                        @Html.Sitecore().EndField()
+                                                    </div>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            </li>
+                        }
+                        }
+
+                    </ul>
+                    <ul id="search-toggle">
+                        <li>
+                            <i class="fa fa-search d-none1"></i>
+                            <div class="search-container">
+                                <div class="container-fluid">
+                                    @Html.Sitecore().Placeholder("header-searchbar")
+
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+          

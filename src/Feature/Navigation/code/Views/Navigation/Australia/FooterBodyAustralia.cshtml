@@ -1,0 +1,83 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Feature.Navigation
+@using Sitecore.Mvc.Presentation
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+}
+
+<!-- Expanded Footer -->
+<div class="footerExpanded">
+    @Html.Sitecore().Placeholder("footer-logo")
+    <div class="footerMenuWrapper">
+        @foreach (var items in model.Children.ToList())
+        {
+            <h1>@items.Children.Count </h1>
+            if (items.Children.Count > 0)
+            {
+                <div class="footerNav">
+                    <h5>
+                        @{
+                            var style = items.Fields[Templates.Link.Fields.Link];
+                        }
+                        @Html.Sitecore().Field(Templates.Link.Fields.Link, items)
+                    </h5>
+                    <h1>@style</h1>
+
+                    @if (items.Name.ToLower() != "follow us")
+                    {
+                        <ul class="footerSubNav">
+                            @foreach (var child in items.GetChildren().ToList())
+                            {
+                                <li>@Html.Sitecore().Field(Templates.Link.Fields.Link, child)</li>
+
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        @Html.Sitecore().Placeholder("socialmenu-footer")
+                    }
+                </div>
+            }
+            else
+            {
+                if (items.Name.ToLower() == "work with us")
+                {
+                }
+                <h5>
+                    @Html.Sitecore().Field(Templates.Link.Fields.Link, items)
+                </h5>
+            }
+
+        }
+    </div>
+</div>
+<!-- Expanded Footer -->
+<!-- Collapsed Footer -->
+<div class="footerCollapsed">
+    <div class="row">
+        @Html.Sitecore().Placeholder("footer-logo-2")
+        <div class="col-12">
+            @foreach (var items in model.Children.ToList())
+            {
+                if (items.Name.ToLower() != "follow us")
+                {
+                    <div class="footerNav">
+                        <h5>@Html.Sitecore().Field(Templates.Link.Fields.Link, items)</h5>
+                    </div>
+                }
+                else
+                {
+                    <div class="footerNav">
+                        <h5>@Html.Sitecore().Field(Templates.Link.Fields.Link, items)</h5>
+                        @Html.Sitecore().Placeholder("socialmenu-footer")
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<!-- /Collapsed Footer -->

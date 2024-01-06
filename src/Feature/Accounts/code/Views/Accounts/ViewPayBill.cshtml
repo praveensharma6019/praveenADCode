@@ -1,0 +1,437 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Accounts.Models.ViewPayBill
+
+<!-- Toggle button to show/hide side nav -->
+<div class="d-block d-md-none sideNavBtn">
+    <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+        <i class="fas fa-align-left"></i>
+        <span>&nbsp;Menu</span>
+    </button>
+</div>
+<!-- /Toggle button to show/hide side nav -->
+<div class="panel">
+    @Html.Sitecore().Placeholder("page-body")
+    @if (ViewBag.FetchBillPayment != null)
+    {
+        <div class="py-3"></div><div class="py-3"></div>
+        <p>@ViewBag.FetchBillPayment</p>
+    }
+    else
+    {
+        <div class="py-3"></div>
+        <h5 class="txt-orange">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Billing Details Text", "Your Billing Details")</h5>
+        <div class="py-3"></div>
+        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmRegister", @class = "form-signin" }))
+        {
+            HtmlHelper.UnobtrusiveJavaScriptEnabled = false;
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(x => x.LoginName)
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Name", "Name")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @*<input type="text" readonly="" class="form-control-plaintext" id="" name="loginName" value="johndoe">*@
+                    @Html.TextBoxFor(x => x.Name, new { @class = "form-control-plaintext", id = "Name", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Edit Profile/Account Number", "Account Number")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control-plaintext", id = "AccountNumber", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Edit Profile/Book Number", "Book Number")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.BookNumber, new { @class = "form-control-plaintext", id = "bookNumber", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Cycle Number", "Cycle Number")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.CycleNumber, new { @class = "form-control-plaintext", id = "cycleNumber", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Zone", "Zone")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.Zone, new { @class = "form-control-plaintext", id = "zone", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Address", "Address")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    <span class="form-control-plaintext" rows="2" id="" name="Address">@Model.Address</span>
+                </div>
+            </div>
+            <div class="py-3"></div>
+            <h5 class="txt-orange">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Your bill glance", "Your bill at a glance")</h5>
+            <div class="py-3"></div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Bill Month", "Bill Month")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.BillMonth, new { @class = "form-control-plaintext", id = "billMonth", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Payment Due Date", "Payment Due Date")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.PaymentDueDate, new { @class = "form-control-plaintext", id = "paymentDueDate", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Tariff Slab", "Tariff Slab")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.TariffSlab, new { @class = "form-control-plaintext", id = "tariffSlab", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Meter Number", "Meter Number")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control-plaintext", id = "MeterNumber", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Units Consumed", "Units Consumed")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.UnitsConsumed, new { @class = "form-control-plaintext", id = "unitsConsumed", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Total Charges", "Total Charges (Rs.)")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.TotalCharges, new { @class = "form-control-plaintext", id = "totalCharges", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Current Months Bills", "Current Months Bills (Rs.)")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.CurrentMonthsBills, new { @class = "form-control-plaintext", id = "currentMonthsBills", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Brought Forward", "Brought Forward (Rs.)")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.BroughtForward, new { @class = "form-control-plaintext", id = "broughtForward", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Total Bill Amount", "Total Bill Amount (Rs.)")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.TotalBillAmount, new { @class = "form-control-plaintext", id = "totalBillAmount", @readonly = "" })
+                </div>
+            </div>
+            @*<div class="form-group row">
+                    <label for="" class="col-sm-4 col-md-3 col-form-label">
+                        @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit", "Security Deposit (Rs.)")
+                    </label>
+                    <div class="col-sm-8 col-lg-6">
+                        @Html.TextBoxFor(x => x.SecurityDeposit, new { @class = "form-control-plaintext", id = "securityDeposit", @readonly = "" })
+
+                    </div>
+                </div>*@
+            <div class="form-group row mb-0">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Amount Payable", "Amount Payable (Rs.)")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    <input type="hidden" value="@Model.AmountPayable" id="amount_payable_actual" />
+                    @{
+                        double outputval1 = 0;
+                        if (double.TryParse(Model.AmountPayable, out outputval1))
+                        {
+                            if (outputval1 > 0)
+                            {
+                                @Html.TextBoxFor(x => x.AmountPayable, new { @class = "form-control", id = "amountPayable" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(x => x.AmountPayable, new { @class = "form-control-plaintext", id = "amountPayable", @readonly = "readonly" })
+                            }
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.AmountPayable, new { @class = "form-control", id = "amountPayable" })
+                        }
+                    }
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4 col-md-4 col-form-label">
+                    <p class="txt-sm txt-orange">This is the net amount payable (subject to realisation)</p>
+                </div>
+            </div>
+            if (Model.EMIEligible)
+            {
+                <div class="bg-white p-3 border mb-3">
+                    <div class="form-group row mb-0">
+                        <div class="col-lg-12"><p class="txt-sm txt-orange mb-3"><b>With reference to Maharashtra Electricity Regulatory Commission's practice directions dated 29-Jun, you are eligible for paying your outstanding  bill amount via 3 EMIs.</b></p></div>
+                        <label for="" class="col-sm-4 col-md-4 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/Pay Bill/EMI Text", "Proceed with EMI")
+                            <span class="required">*</span>
+                        </label>
+                        <div class="col-sm-8 col-lg-6 text-left">
+                            @Html.CheckBoxFor(x => x.ProceedWithEMI, new { @class = "form-group", id = "emiOption" })
+                            @Html.ValidationMessageFor(x => x.ProceedWithEMI, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="form-group row mb-0" id="divEmiInstallment" style="display:none">
+                        <label for="" class="col-sm-4 col-md-4 col-form-label">
+                            @Html.Sitecore().Dictionary("/Accounts/Pay Bill/EMI amount", "EMI amount Rs.")
+                        </label>
+                        <div class="col-sm-8 col-lg-6">
+                            @Html.TextBoxFor(x => x.EMIInstallmentAmount, new { @class = "form-control-plaintext", id = "EMIamount", @readonly = "" })
+                        </div>
+                    </div>
+                    @Html.HiddenFor(m => m.EMIOutstandingAmount, new { id = "EMIOutstandingAmount" })
+                </div>
+
+            }
+            //if (UserSession.UserSessionContext != null && UserSession.UserSessionContext.userType.ToLower() != Sitecore.Feature.Accounts.Models.UserTypes.Premium.ToLower())
+            //{
+            <div class="form-group row" id="divAdvanceAmount">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Advance Amount", "Advance Payment (Rs.)")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @{
+                        double outputval = 0;
+                        if (double.TryParse(Model.AmountPayable, out outputval))
+                        {
+                            if (outputval > 0)
+                            {
+                                @Html.TextBoxFor(x => x.AdvanceAmmount, new { @class = "form-control", id = "advanceAmmount", @type = "number", @readonly = "readonly" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(x => x.AdvanceAmmount, new { @class = "form-control", id = "advanceAmmount", @type = "number" })
+                            }
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.AdvanceAmmount, new { @class = "form-control", id = "advanceAmmount", @type = "number", @readonly = "readonly" })
+                        }
+                    }
+                </div>
+                @Html.ValidationMessageFor(x => x.AmountPayable, "", new { @class = "help-block" }, "p")
+            </div>
+
+            <div class="py-3"></div>
+            <h5 class="txt-orange">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Payment Methods", "Payment Methods")</h5>
+            <div class="my-lg-3 py-lg-3">
+                <ul class="nav nav-tabs" id="paymentSteps" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#paygateway">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Payment Gateway tab", "Payment Gateway")</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#VDSpay">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/VDS Payment Mode tab", "VDS Payment Mode")</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#otherpay">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Other Payment Option tab", "Other Payment Option")</a>
+                    </li>
+                </ul>
+                <div class="tab-content bg-gray-light" id="paymentStepsContent">
+                    <div class="tab-pane fade show active" id="paygateway" role="tabpanel">
+                        <p>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Payment Gateway Body Text", "Kindly select the payment Gateway of your choice:")</p>
+                        <div class="py-3"></div>
+                        <div class="row">
+                            @*<div class="col-sm-4">
+                @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.PayUMoney, new { required = "required" })
+                <img src="/-/media/Project/Electricity/Payment Gateway Image/payumoney" class="pay_box">
+            </div>
+        <div class="col-sm-4">
+            @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.ICICIBank, new { required = "required", @checked = "checked" })
+            <img src="/-/media/Project/Electricity/Payment Gateway Image/icici" class="pay_box">
+        </div>*@
+
+                            <div class="col-sm-4">
+                                @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.BillDesk, new { required = "required", @checked = "checked" })
+                                <img src="/-/media/Project/Electricity/Payment Gateway Image/billdesk" class="pay_box">
+                            </div>
+                            <div class="col-sm-4">
+                                @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.Paytm, new { required = "required" })
+                                <img src="/-/media/Project/Electricity/Payment Gateway Image/paytm" class="pay_box">
+                            </div>
+                            @*<div class="col-sm-4">
+            @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.Ebixcash, new { required = "required" })
+            <img src="/-/media/Project/Electricity/Payment Gateway Image/ebixcash" class="pay_box">
+        </div>*@
+
+                            <div class="col-sm-4">
+                                @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.Benow, new { required = "required" })
+                                <img src="/-/media/Project/Electricity/Payment Gateway Image/UPI" class="pay_box">
+                            </div>
+                            <div class="col-sm-4 d-none">
+                                @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.DBSUPI, new { required = "required" })
+                                <img src="/-/media/Project/Electricity/Payment Gateway Image/DBS" class="pay_box">
+                            </div>
+                            <div class="col-sm-4 d-none">
+                                @Html.RadioButtonFor(m => m.PaymentGateway, (int)EnumPayment.GatewayType.CITYUPI, new { required = "required" })
+                                <img src="/-/media/Project/Electricity/Payment Gateway Image/CITY" class="pay_box">
+                            </div>
+                        </div>
+                        <div class="py-3"></div>
+                        <input type="submit" class="btn btn-primary mr-lt-30" name="Pay_PaymentGateway" id="Pay_PaymentGateway" value="Pay Now" />
+                    </div>
+                    <div class="tab-pane fade" id="VDSpay" role="tabpanel">
+                        <p>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/VDS Payment Body Text", "You can now opt for VDS online")</p>
+                        <div class="py-3"></div>
+                        <div class="form-group row">
+                            <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Select Text", "Select your payment option")</label>
+                            <div class="col-sm-8 col-lg-6">
+                                @*<select class="form-control">
+                                        <option>Select your payment option</option>
+                                        <option>Pay by Credit Card </option>
+                                        <option>Pay by Net Banking</option>
+                                    </select>*@
+                                @Html.DropDownListFor(m => m.VDSPaymentSelection, Model.VDSPaymentList, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(x => x.VDSPaymentSelection, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-primary mr-lt-30" name="Pay_VDSpayment" value="Pay Now" id="btnsubmitVDS" />
+                    </div>
+                    <div class="tab-pane fade" id="otherpay" role="tabpanel">
+                        <p>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Other Payment Body Text", "Kindly select the payment Option of your choice:")</p>
+                        <div class="py-3"></div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    @Html.RadioButtonFor(m => m.SecurityDepositAmountType, "Actual", new { required = "required" })
+                                    <label for="" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit", "Security Deposit (Rs.)")</label>
+                                </div>
+                                <div class="col-sm-6">
+                                    @Html.TextBoxFor(x => x.SecurityDeposit, new { @class = "form-control-plaintext", id = "securityDeposit", @readonly = "" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    @Html.RadioButtonFor(m => m.SecurityDepositAmountType, "Partial", new { required = "required" })
+                                    <label for="" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit Partial", "Security Deposit Partial(Rs.)")</label>
+                                </div>
+                                <div class="col-sm-6">
+                                    @Html.TextBoxFor(x => x.SecurityDepositPartial, new { @class = "form-control", id = "securityDepositPartial" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="" class="col-sm-12 col-md-6 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Select Text", "Select your payment option")</label>
+                            <div class="col-sm-8 col-lg-6">
+                                @Html.DropDownListFor(m => m.SecurityPayment, Model.SecurityPaymentList, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(x => x.SecurityPayment, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-primary mr-lt-30" name="Pay_Other" value="Pay Now" id="btnsubmitSD" />
+                    </div>
+                </div>
+                <div class="py-3"></div>
+                <p><span class="txt-underline">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/NoteText", "Note")</span>: @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Note Details", "As per RBI Guidelines, starting 01.08.2009, customers paying by credit card would need to authenticate the transaction with an additional PIN which can be generated through the issuing bank's website or during the payment transaction.")</p>
+            </div>
+            //}
+        }
+    }
+</div>
+
+<div id="default_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p id="partpaymentmessage" class="required"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="default_modal2" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p id="partpaymentmessage1" class="required"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btnYesNO" value="1">Proceed</button>
+                <button type="button" class="btn btn-primary btnYesNO" value="0">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="emi_model" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p id="emi_modelmessage" class="required"></p>
+                <ul class="ul-bullets mb-4 txt-orange">
+                    <li style="list-style-type: disc;">
+                        Your outstanding amount of Rs. <span id="modelEMIOutstandingAmount"></span> has been converted to 3 EMIs of Rs. <span id="modelEMIamount"></span>. Your first EMI gets cleared with this payment, your other 2 EMIs will be payable along with the next two monthly bills. Your next bill's amount payable will include your EMI amount and the current bill for the month.
+                    </li>
+                    <li style="list-style-type: disc;">
+                        This is a voluntary payment option.
+                    </li>
+                    <li style="list-style-type: disc;">
+                        Interest-free applicability is for timely instalment payments. Delayed instalment payments will invite applicable delayed payment charges and interest.
+                    </li>
+                    <li style="list-style-type: disc;">
+                        For detailed explanation on billing calculation, please refer your online bill copy via My Account or Elektra on adanielectricity.com.
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btnYesNO" value="1">Accept & Proceed</button>
+                <button type="button" class="btn btn-primary btnYesNO" data-dismiss="modal" value="0">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

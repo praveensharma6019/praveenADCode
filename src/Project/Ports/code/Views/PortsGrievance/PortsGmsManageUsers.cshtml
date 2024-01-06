@@ -1,0 +1,86 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@model Sitecore.Ports.Website.Models.PortsGmsManageUsers
+@using Sitecore.Ports.Website.Models
+@{
+     var Home = Sitecore.Context.Database.GetItem("{11DA71B0-CCA3-4C7C-A77A-53A15DE042C6}");
+     var ManageUsers = Sitecore.Context.Database.GetItem("{95237E8E-BD70-46C1-BDE1-73F211231340}");
+	 var Logout = Sitecore.Context.Database.GetItem("{47B87494-30B8-4AA7-AE92-C9BC02116B90}");
+	 var Dashboard = Sitecore.Context.Database.GetItem("{0F4D92C2-B7E4-4704-A876-09D8E82C79F0}");
+	 var UserManagement = Sitecore.Context.Database.GetItem("{68D08CDA-DAA3-4714-96CB-941BC5CA01B2}");
+     var Role = Sitecore.Context.Database.GetItem("{4BE992D6-6CF4-4E78-AB53-4D54E35E4325}");
+     var Username = Sitecore.Context.Database.GetItem("{5C43473F-A47A-4BD9-9BA1-287F1634F789}");
+     var Mobile = Sitecore.Context.Database.GetItem("{0CC857FD-6981-44B4-9E13-CC1C3577DDF6}");
+     var Email = Sitecore.Context.Database.GetItem("{513A23AC-D4A5-4ED1-9EE5-DDBC653F0F56}");     
+    var currentDate = DateTime.Now;
+    var addUser = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceAddUser);
+    var updateUser = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceUpdateUser);
+    var item = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceAdminDashbord);
+    var Homelink = item.Url();
+}
+<section class="breadcrumb-sub-layout bg-white  pt-5 pb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul class="breadcrumb-sublayout-ul">
+                    <li><a href="@Homelink">@Home["Title"]</a></li>
+                    <li>@ManageUsers["Title"]</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 text-right">
+                <p class="user_logout"><a href="/Grievance/Logout"><span class="fa fa-sign-out mr-2"></span>@Logout["Title"]</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pb-5 bg-white">
+    <div class="container">
+        @if (Session["SuccessMsg"] != null)
+        {
+            <div class="alert-success mb-4 p-2">@Session["SuccessMsg"]</div>
+            Session["SuccessMsg"] = null;
+        }
+        @if (Session["ErrorMsg"] != null)
+        {
+            <div class="alert-danger mb-4 p-2">@Session["ErrorMsg"]</div>
+            Session["ErrorMsg"] = null;
+        }
+        <div class="form_panel bg-l-gray p-4 box-shadow">
+            <h3 class="heading mb-4 pl-3">@UserManagement["Title"]<span class="float-md-right mt-3 mt-md-0"><a href="@addUser.Url()" class="btn btn-gradient">Add User</a></span></h3>
+            <div class="">
+                <div class="">
+                    @if (Model.AllGMSUsers.Count > 0)
+                    {
+                        <table id="manage-users" class="table table-bordered table-hover dt-responsive border">
+                            <thead>
+                                <tr>
+                                    <th>@Username["Title"]</th>
+                                    <th>@Role["Title"]</th>
+                                    <th>@Mobile["Title"]</th>
+                                    <th>@Email["Title"]</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var uData in Model.AllGMSUsers)
+                                {
+                                    <tr>
+                                        <td><a href="@updateUser.Url()?user=@uData.Id">@uData.Name</a></td>
+                                        <td>@uData.User_Type</td>
+                                        <td>@uData.Mobile</td>
+                                        <td>@uData.Email</td>                                       
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

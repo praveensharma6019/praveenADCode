@@ -1,0 +1,67 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var imgurl = "#";
+    var altText = "";
+    int count = 1;
+}
+
+@if (model != null)
+{
+
+        <div id="container" class="container ">
+            <h1 id="SPHead" class="text-center headingindexconcern"><strong>@Html.Sitecore().Field("Heading", model)</strong></h1>
+            <div id="mainSP" class="row justify-content-center">
+                @if (model.HasChildren)
+                {
+                    foreach (Item item in model.GetChildren())
+                    {
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+                        if (imgField != null && imgField.MediaItem != null)
+                        {
+                            imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                            altText = imgField.Alt;
+                        }
+                        else
+                        {
+                            imgurl = "#";
+                            altText = "";
+                        }
+                    <div class="card m-3  dharvimarketimg">
+                        <div class="card-body p-0 rounded">
+                            <div id="text">
+                                <h5 class="card-title spl-prog-title">
+                                    <strong>@Html.Sitecore().Field("Title", item)</strong>
+                                </h5>
+                                <p class="text-dark lh-1">
+                                    <small>@Html.Sitecore().Field("Summary", item)</small>
+                                </p>
+                            </div>
+                            <img class="card-img-top" src="@imgurl" alt="@altText">
+                        </div>
+                    </div>
+                        count++;
+                        if (count > 3)
+                        {
+                            break;
+                        }
+
+                    }
+                }
+            </div>
+        </div>
+
+    
+
+}

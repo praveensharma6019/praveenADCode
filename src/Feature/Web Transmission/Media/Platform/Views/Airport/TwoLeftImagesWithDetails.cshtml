@@ -1,0 +1,50 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Data.Items
+@using Adani.BAU.Transmission.Foundation.SitecoreHelper.Platform.Helper
+@model RenderingModel
+@{
+    Item currentItem = RenderingContext.Current.Rendering.Item;
+    var divClass = "mb-5";
+    var i = 0;
+    Helper linkHelepr = new Helper();
+}
+
+@if (currentItem != null)
+{
+    <div class="tranport_wrap pt-wrap">
+        <div class="section-wrapper">
+            <div class="container">
+                <h3>@Html.Sitecore().Field("__Short description", currentItem)</h3>
+                @foreach (Item LeftImage in currentItem.Children)
+                {
+                    if (i == 1)
+                    {
+                        divClass = string.Empty;
+                    }
+                    <div class="card-box">
+                        <div class="card @divClass">
+                            @Html.Sitecore().BeginField("Link", LeftImage, new { haschildren = true, @class = "row g-0 align-items-center zoomEffect", @auto_id = @Html.Sitecore().Field("AutoId", LeftImage) })
+                            <div class="col-md-5">
+                                <figure>
+                                    @Html.Sitecore().Field("Image", LeftImage, new { @alt = "Transport", @class = "img-fluid" })
+                                 </figure>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="card-body">
+                                    <h3 class="card-title">@Html.Sitecore().Field("Title", LeftImage)</h3>
+                                    <p class="card-text vertical_ellipsis"> @Html.Sitecore().Field("Description", LeftImage)</p>
+                                    <span class="black_link">
+                                        @linkHelepr.GetLinkText(LeftImage, "Link")
+                                    </span>
+                                </div>
+                            </div>
+                            @Html.Sitecore().EndField()
+                        </div>
+                    </div>
+                    i++;
+                }
+            </div>
+        </div>
+    </div>
+}

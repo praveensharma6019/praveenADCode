@@ -1,0 +1,43 @@
+﻿@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Item;
+    if (datasource != null)
+    {
+        element = Sitecore.Context.Database.GetItem(datasource);
+    }
+    Sitecore.Data.Fields.MultilistField multiselectField = element.Fields["TenderCard"];
+    Sitecore.Data.Items.Item[] items = multiselectField != null ? multiselectField.GetItems() : null;
+
+}
+<div class="tenders section-container">
+    <div class="tender-content">
+        <header class="section-header-main">
+            <h2>@element.Fields["Heading"]</h2>
+            <p>@element.Fields["Description"]</p>
+        </header>
+        <div class="tender-card">
+            @if (items != null && items.Length > 0)
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    Sitecore.Data.Items.Item benefitItem = items[i];
+                    Sitecore.Data.Fields.LinkField linkfld = benefitItem.Fields["CTALink"];
+                    <div class="card">
+                        <figure>
+                            <i class="@benefitItem.Fields["IconCss"]"></i>
+                        </figure>
+                        <h6>@benefitItem.Fields["Title"]</h6>
+                        @if (!string.IsNullOrEmpty(benefitItem.Fields["Short Title"].ToString()))
+                        {
+
+                            <p>@benefitItem.Fields["Short Title"]</p>
+                        }
+                        <a href="@linkfld.GetFriendlyUrl()">@benefitItem.Fields["CTAText"]</a>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+
+</div>

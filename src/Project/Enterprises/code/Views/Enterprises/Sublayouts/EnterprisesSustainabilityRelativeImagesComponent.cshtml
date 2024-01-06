@@ -1,0 +1,54 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    var mediaurl = "#";
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "position-relative bg-image bg-white";
+    }
+}
+
+<section class="@paramid">
+
+    <div class="container">
+        <div class="row">
+            @foreach (var child in element.Children.ToList())
+            {
+                Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)child.Fields["MediaImage"]);
+                var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["MediaLink"]);
+                if (linkfield != null)
+                {
+                    mediaurl = linkfield.GetFriendlyUrl();
+                }
+                <div class="col-lg-4 mb-3 bg-relative-image">
+                    <div class="bg-image-1" style="background: transparent url('@imgurl') 0% 0% no-repeat padding-box;">
+
+
+                        <div class="relative-image-content">
+                            <p class="bg-ESG-text">@Html.Sitecore().Field("MediaTitle", child)</p>
+                            <p class="bg-ESG-content">@Html.Sitecore().Field("MediaDescription", child)</p>
+                            <div class="read-div">
+                                <a href="@mediaurl" target="_blank" class="bg-ESG-read mt-2">
+                                    @Html.Sitecore().Field("SubTitle", child)
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</section>

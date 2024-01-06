@@ -1,0 +1,54 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var NavigateUrl = "";
+   
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)elements.Fields["Image"]);
+
+    string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+	var i = 1;
+}
+
+
+
+<section class="section_commitment">
+    @Html.Sitecore().Field("Summary", elements)
+    <amp-selector class="tabs-with-flex" role="tablist">
+        @foreach (var item in elements.Children.ToList())
+        {
+            
+            var itename = item.Fields["MediaTitle"];
+            Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaLink"];
+            NavigateUrl = linkField.Url;
+            <div id="tab-@i" role="tab" aria-controls="tabpanel-@i" option selected>@itename</div>
+            <div id="tabpanel-@i" class="tab-container" role="tabpanel" aria-labelledby="tab-@i">
+                @foreach (var items in item.Children.ToList())
+                {
+                    Sitecore.Data.Fields.ImageField imgFields = ((Sitecore.Data.Fields.ImageField)items.Fields["MediaImage"]);
+
+                    string urls = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgFields.MediaItem);
+                    <div class="tab_rows">
+
+                        <div class="tab_rows--first">
+                            <amp-img src="@urls" alt="" width="77" height="77"></amp-img>
+                        </div>
+                        <div class="tab_rows--second">
+                            @Html.Sitecore().Field("MediaDescription", items)
+                        </div>
+                    </div>
+                }
+
+
+                <p><a href="@NavigateUrl" class="btn btn-gradient">Explore @itename</a></p>
+            </div>
+           i++; 
+        }
+
+
+    </amp-selector>
+</section>

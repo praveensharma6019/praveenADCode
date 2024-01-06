@@ -1,0 +1,81 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string url = string.Empty;   
+string altText = string.Empty;       
+string thumbUrl = string.Empty;   
+string thumbaltText = string.Empty;    
+}
+@if (model != null)
+{
+<div class="section-holder edge-connex-hoder bg-grey" id="dr_guiding_force">
+   <div class="content-wrapper">
+      <h2 class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</h2>
+      <p class="full d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</p>
+      <div class="dr_overflow ">
+         <div class="dr_mx_minus">
+            <div class="full awards-list owl-carousel dot-bc brand-dots d-txt" id="dr_values_slider">
+               @if(model.HasChildren)
+               {
+               foreach (Item item in model.GetChildren())
+               {
+               Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+               if ((imgField != null && imgField.MediaItem != null))
+               {
+               url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+               altText = imgField.Alt;											
+               }
+               Sitecore.Data.Fields.ImageField imgthumbField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaThumbnail"]);
+               if ((imgthumbField != null && imgthumbField.MediaItem != null))
+               {
+               thumbUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgthumbField.MediaItem);
+               thumbaltText = imgthumbField.Alt;											
+               }
+               <div>
+                  <div class="award-item">
+                     <div class="card-box card-media-top small-card">
+                        <div class="card-media">
+                           <img src="@url" alt="@altText" class="">
+                        </div>
+                        <div class="card-content">
+                           <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                           <p class="full card-desc d-txt">@Html.Sitecore().Field("MediaDescription", item)</p>
+                           <div class="dr_inverse_btn">
+                              <a href="javascript:void(0);" class="btn dr_btn_click">@Html.Sitecore().Field("CTAText", item)</a>
+                           </div>
+                           <div class="dr_hide_div">
+                              <span class="close-modal">
+                              <i class="i-close i-20"></i>
+                              </span>
+                              <img src="@thumbUrl" alt="@thumbaltText" class="">
+                              <p class="full card-desc d-txt">@Html.Sitecore().Field("DateText", item)
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+               }
+               }
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+}

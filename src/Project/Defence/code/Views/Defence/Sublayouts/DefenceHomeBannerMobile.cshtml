@@ -1,0 +1,38 @@
+﻿
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@using Sitecore.Defence.Website.Helper
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var banner = parent.Children;
+
+}
+
+
+<section class="hero_banner_container d-md-none d-block">
+    <div class="owl-carousel video-banner">
+        @foreach (var item in banner.ToList())
+        {
+            string url = "";
+            if (!String.IsNullOrEmpty(item.Fields["MediaLink"].Value))
+            {
+                url = AdaniDefenceHelper.LinkUrl(item.Fields["MediaLink"]);
+            }            
+            <div class="item" data-videosrc="@url">
+                @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "")
+                <div class="banner-content banner-content-centered">
+                    <div class="container">
+                        @Html.Sitecore().Field("MediaDescription", item)
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+

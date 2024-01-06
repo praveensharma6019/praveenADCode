@@ -1,0 +1,48 @@
+﻿@using Sitecore
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var linkUrls = "#";
+	var WebsiteBannerlinkurl = "#";
+	var MobileBannerlinkurl = "#";
+}
+
+<section class="home-banner">
+    <div class="home-page-banner owl-theme owl-carousel">
+		
+        @foreach (var child in model.GetChildren().ToList())
+        {
+			 Sitecore.Data.Fields.LinkField WebsiteBannerVideo = child.Fields["WebsiteVideoLink"];
+			 Sitecore.Data.Fields.LinkField MobileBannerVideo = child.Fields["MobileVideoLink"]; 
+				if(MobileBannerVideo != null || WebsiteBannerVideo != null) 
+				{					
+					WebsiteBannerlinkurl = WebsiteBannerVideo.GetFriendlyUrl();
+					MobileBannerlinkurl = MobileBannerVideo.GetFriendlyUrl();
+				} 
+				Sitecore.Data.Fields.LinkField linkvalues = child.Fields["CTALink"];
+				linkUrls = linkvalues.GetFriendlyUrl();
+                <div class="item">
+                    <video class="img-fluid img-web-banner" src="@WebsiteBannerlinkurl" loop="" muted="" autoplay="" playsinline="" style="width:100%;"></video>
+					<video class="img-fluid img-mobile-banner" src="@MobileBannerlinkurl" loop="" muted="" autoplay="" playsinline="" style="width:100%;"></video> 
+					
+					<div class="banner-title">
+						<div class="container">
+							<h2 class="headline">@Html.Sitecore().Field("Title", child)</h2>
+							<div class="banner-btn">
+								<a class="banner--more" href="@linkUrls" tabindex="0">
+									@Html.Sitecore().Field("CTAText", child)
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+        }
+		
+    
+
+</section>
+<div class="banner-race-info">
+</div>

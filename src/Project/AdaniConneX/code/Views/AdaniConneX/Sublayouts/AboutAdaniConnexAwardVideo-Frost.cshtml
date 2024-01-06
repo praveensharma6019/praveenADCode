@@ -1,0 +1,179 @@
+﻿@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string btnUrl = string.Empty;
+    string imgurl = string.Empty;
+    string altText = string.Empty;
+    int flag = 1;
+    int itemdataIndex = 0;
+    int itemdataGallery = 1;
+    int itemmobiledatagallery = 1;
+    string mobiledatagallery = string.Empty;
+    string datagallery = string.Empty;
+    string mobileExtraSlide = string.Empty;
+}
+<div class="section-holder sustainability-wrapper dr_our_locations rectangle-copy-2">
+    <div class="content-wrapper">
+
+        <h2 class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Text", model)</h2>
+        <p class="h3 fm-asb tx-000 slider_heading d-txt desc">@Html.Sitecore().Field("MediaInfo", model)</p>
+        <div class="full sustainability-content grid-wrapper mob-col-reverse user_quote_slider_con">
+            @if (model.HasChildren)
+            {
+                <div class="left-col custom-col">
+                    <div class="locations_dec edge-connex-hoder" id="user_quote_slider">
+                        @foreach (Item parent in model.GetChildren())
+                        {
+                            if (parent.HasChildren)
+                            {
+                                <div>
+                                    @foreach (Item child in parent.GetChildren())
+                                    {
+                                        if (itemdataIndex == 0)
+                                        {
+                                            <div class="dr_locations_image active one" data-index="@itemdataIndex">
+                                                <p class="h3 fm-asb tx-000">@Html.Sitecore().Field("Heading", child)</p>
+                                                <p class="full d-txt desc">@Html.Sitecore().Field("Title", child)</p>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="dr_locations_image one" data-index="@itemdataIndex">
+                                                <p class="h3 fm-asb tx-000">@Html.Sitecore().Field("Heading", child)</p>
+                                                <p class="full d-txt desc">@Html.Sitecore().Field("Title", child)</p>
+                                            </div>
+                                        }
+
+                                        itemdataIndex++;
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="view_more_btn view_more_trigger"><a href="javascript:void(0);"></a></div>
+                </div>
+
+                <div class="right-col custom-col">
+                    <div class="full movie-holder" id="user_videos_slider">
+                        @foreach (Item parent in model.GetChildren())
+                        {
+                            if (parent.HasChildren)
+                            {
+                                foreach (Item child in parent.GetChildren())
+                                {
+
+                                    Sitecore.Data.Fields.ImageField imgField =
+                                    ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                                    if (imgField != null && imgField.MediaItem != null)
+                                    {
+                                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                        altText = imgField.Alt;
+                                    }
+
+                                    Sitecore.Data.Fields.LinkField linkField = child.Fields["Link"];
+                                    btnUrl = linkField.GetFriendlyUrl();
+                                    datagallery = "gallery" + itemdataGallery;
+
+                                    if (itemdataGallery == 1)
+                                    {
+                                        <div>
+                                            <div class="dr_locations_image active">
+                                                <a href="@btnUrl" class="Videolightbox" data-gallery="@datagallery">
+                                                    <img src="@imgurl" alt="@altText" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div>
+                                            <div class="dr_locations_image">
+                                                <a href="@btnUrl" class="Videolightbox" data-gallery="@datagallery">
+                                                    <img src="@imgurl" alt="@altText" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    itemdataGallery++;
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="tab-accordion-wrapper dr-only-mobile mobile_tabs_slider">
+            @if (model.HasChildren)
+            {
+                foreach (Item parent in model.GetChildren())
+                {
+                    if (parent.HasChildren)
+                    {
+                        foreach (Item child in parent.GetChildren())
+                        {
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                            if (imgField != null && imgField.MediaItem != null)
+                            {
+                                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                altText = imgField.Alt;
+                            }
+
+                            Sitecore.Data.Fields.LinkField linkField = child.Fields["Link"];
+                            btnUrl = linkField.GetFriendlyUrl();
+                            mobiledatagallery = "mobile_gallery" + itemmobiledatagallery;
+                            string heading = child.Fields["Heading"].ToString();
+                            heading = heading.Replace('"', ' ');
+                            heading = heading.Trim();
+                            if (itemmobiledatagallery == 1)
+                            {
+                                <div class="acc-wrp active">
+                                    <div title="@heading" class="acc-title hidden-desktop active">
+                                        @Html.Sitecore().Field("Heading", child)
+                                    </div>
+                                    <p class="full d-txt desc mobile_slider_para">@Html.Sitecore().Field("Title", child)</p>
+                                    <div tab-content="@heading" class="tab-acc-content" style="display: block;">
+                                        <div class="section-holder sustainability-wrapper">
+                                            <a href="@btnUrl" class="Videolightbox" data-gallery="mobile_gallery1">
+                                                <img src="@imgurl" alt="@altText" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                if (itemmobiledatagallery > 5)
+                                {
+                                    mobileExtraSlide = "extra_slide";
+                                }
+                                <div class="acc-wrp @mobileExtraSlide">
+                                    <div title="@heading" class="acc-title hidden-desktop">
+                                        @Html.Sitecore().Field("Heading", child)
+                                    </div>
+                                    <p class="full d-txt desc mobile_slider_para">@Html.Sitecore().Field("Title", child)</p>
+                                    <div tab-content="@heading" class="tab-acc-content">
+                                        <div class="section-holder sustainability-wrapper">
+                                            <a href="@btnUrl" class="Videolightbox" data-gallery="mobile_gallery1">
+                                                <img src="@imgurl" alt="@altText" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            itemmobiledatagallery++;
+                        }
+
+                    }
+                }
+            }
+            <div class="view_more_mobile view_more_trigger">View more</div>
+        </div>
+
+    </div>
+</div>

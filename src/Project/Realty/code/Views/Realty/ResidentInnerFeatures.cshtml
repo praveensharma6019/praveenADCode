@@ -1,0 +1,41 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Realty.Website
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@if (!Model?.Item?.IsDerived(Templates.HasBannerSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasBannerSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+}
+
+<!-- Features -->
+<section class="section bg-features" id="features">
+    <div class="bg-images">@Html.Sitecore().ImageField(Templates.HasBannerSelector.Fields.Image, model)</div>
+    <div class="container">
+        <h3 class="sectionHeading txt-white txt-center">
+            @Html.Sitecore().Field(Templates.HasBannerSelector.Fields.Title, model)
+        </h3>
+        <div class="row">
+            @foreach (var item in model.Axes.GetDescendants())
+            {
+                <div class="col-lg-2 col-md-4 col-6 mb-3 txt-center">
+                    @Html.Sitecore().Field(Templates._HasMedia.Fields.HighResolutionImage, item, new { @class = "img-fluid mb-3" })
+                    <p>@Html.Sitecore().Field(Templates._HasMedia.Fields.Title, item)</p>
+                </div>
+            }
+        </div>
+    </div>
+
+</section>
+<!-- /Features -->

@@ -1,0 +1,207 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@*@model Sitecore.Feature.Accounts.Models.QuickAccessServices*@
+@model SapPiService.Domain.OutageDetail
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    <!-- Toggle button to show/hide side nav -->
+    <div class="d-block d-md-none sideNavBtn">
+        <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+            <i class="fas fa-align-left"></i>
+            <span>&nbsp;Menu</span>
+        </button>
+    </div>
+    <!-- /Toggle button to show/hide side nav -->
+    <div class="pageContent">
+        <div class="container">
+            <div class="panel">
+                <div class="float-right pb-2 pb-md-0 powerLogo"><img alt="Know Power" src="-/media/03B9A515CD5D43B38462E1C5698E1690.ashx?h=16&thn=1&w=16"></div>
+                <div class="float-left">
+                    <p class="pb-3">It always helps to know about planned power shutdowns in your neighbourhood.</p>
+                    @*<p>Or Are you facing a supply interruption now?</p>*@
+                </div>
+                <div class="clearfix"></div>
+                <div class="">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group col-md-5 col-lg-4">
+                                <label for="accountNo">To know more key in your 9-digit account no<span class="required">*</span></label>
+                                @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control", required = "required" })
+                                @Html.ValidationMessageFor(model => model.AccountNumber, "", new { @class = "help-block" }, "p")
+                            </div>
+                            <div class="form-group col text-md-right">
+                                <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                    <label for="" class="col-sm-5 col-md-5 col-form-label">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                                    @*<div class="col-sm-7 col-md-7" style="text-align: left;">
+                                            @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        </div>*@
+                                    <div class="col-sm-7 col-md-7" style="text-align: left;">
+                                        <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                <div class="d-none d-md-block">&nbsp;</div>
+                                @*<button class="btn btn-primary" type="submit">View</button>*@
+                                <input type="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/Edit Profile/Button Submit", "Submit")" class="btn btn-primary" />
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+
+                @if (Model == null)
+                {
+                    <div class="">
+                        <p>Unable to get details, please try again later!</p>
+                    </div>
+                }
+                else if (Model.AccountNumber == null || !string.IsNullOrEmpty(Model.Message))
+                {
+                    <div class="">
+                        <p>@Model.Message</p>
+                    </div>
+                }
+                else
+                {
+                    if (@Model.AccountNumber != null && @Model.CurrentOutageDetails != null && @Model.FutureOutageDetails != null)
+                    {
+                        <div class="">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link show PaymentKiosk active" id="CurrentOutage" data-toggle="tab" href="#CurrentOutageTab">Current Outage</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="FutureOutage" data-toggle="tab" href="#FutureOutageTab">Future Outage</a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content bg-gray-light">
+                                <div class="tab-pane fade active show" id="CurrentOutageTab" role="tabpanel">
+                                    @if (Model.CurrentOutageDetails.Count == 0)
+                                    {
+                                        <div class="">
+                                            <h5 class="txt-orange">Dear Consumer</h5>
+                                            <div class=""></div>
+                                            <p class="mt-2 mb-2">Power outage is not reported in your area.</p>
+                                            <p>In case you are suffering from Power Outage, you can call our 24x7 toll-free helpline - 19122, anytime to report outage &amp; know the status of restoration.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <h5 class="txt-orange">Dear Consumer</h5>
+                                        <div class=""></div>
+                                        <p class="mt-2 mb-2">We regret that you may be facing a power outage in your area. Reason for outage and restoration time is mentioned below</p>
+                                        <div class="">
+                                            <table class="table table-hover table-striped bg-white table-bordered">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th scope="col">Outage Date</th>
+                                                        <th scope="col">Start Time</th>
+                                                        <th scope="col">Expected restoration time</th>
+                                                        <th scope="col">Activity</th>
+                                                        <th scope="col">Outage Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var currObj in Model.CurrentOutageDetails)
+                                                    {
+                                                        <tr>
+                                                            <th scope="row">@currObj.Date</th>
+                                                            <th scope="row">@currObj.StartTime</th>
+                                                            <th scope="row">@currObj.EndTime</th>
+                                                            <th scope="row">@currObj.ActivityDescription</th>
+                                                            <th scope="row">@currObj.OutageType</th>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="tab-pane fade" id="FutureOutageTab" role="tabpanel">
+                                    @if (Model.FutureOutageDetails.Count == 0)
+                                    {
+                                        <div class="">
+                                            <h5 class="txt-orange">Dear Consumer</h5>
+                                            <div class=""></div>
+                                            <p class="mt-2 mb-2">Planned maintenance activity is not scheduled in your area. </p>
+                                            <p>In case you are suffering from Power Outage , you can call our 24x7 toll-free helpline - 19122, anytime to report outage &amp; know the status of restoration.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "f")
+                                        {
+                                            <div class="">
+                                                <h5 class="txt-orange">Dear Consumer</h5>
+                                                <div class=""></div>
+                                                <p class="mt-2 mb-2">For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                            </div>
+                                        }
+                                        else if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "r")
+                                        {
+                                            <div class="">
+                                                <h5 class="txt-orange">Dear Consumer</h5>
+                                                <div class=""></div>
+                                                <p class="mt-2 mb-2">Due to technical reasons, we have rescheduled maintenance activity in your area, Revised schedule is mentioned below for your reference.  </p>
+                                            </div>
+                                        }
+                                        if (Model.FutureOutageDetails.Count > 1)
+                                        {
+                                            <div class="">
+                                                <h5 class="txt-orange">Dear Consumer</h5>
+                                                <div class=""></div>
+                                                <p class="mt-2 mb-2">For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                            </div>
+                                        }
+                                        <div class="">
+                                            <table class="table table-hover table-striped bg-white table-bordered">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th scope="col">Outage Date</th>
+                                                        <th scope="col">Start Time</th>
+                                                        <th scope="col">Expected restoration time</th>
+                                                        <th scope="col">Activity</th>
+                                                        <th scope="col">Outage Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var futureObj in Model.FutureOutageDetails)
+                                                    {
+                                                        <tr>
+                                                            <th scope="row">@futureObj.Date</th>
+                                                            <th scope="row">@futureObj.StartTime</th>
+                                                            <th scope="row">@futureObj.EndTime</th>
+                                                            <th scope="row">@futureObj.ActivityDescription</th>
+                                                            <th scope="row">@futureObj.OutageType</th>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                <div class="text-right"><a href="/Quickaccess" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back to Quick Access</a></div>
+            </div>
+        </div>
+    </div>
+
+
+}
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+

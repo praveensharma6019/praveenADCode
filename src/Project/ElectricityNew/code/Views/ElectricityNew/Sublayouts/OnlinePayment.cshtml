@@ -1,0 +1,403 @@
+﻿@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.Dictionary.Extensions
+@model RenderingModel
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    double outputval1 = 0;
+}
+
+@if (contextItem != null)
+{
+    <div class="col s12 l8 offset-l1 QuickBillPaySection">
+        <header class="section-header">
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+            <p>@Html.Raw(contextItem["Body"])</p>
+        </header>
+        <div class="content-area mb0">
+            @Html.Raw(contextItem["Summary"])
+        </div>
+        <div class="section-container">
+            <div class="submit-new-request" id="OnlinePaymentForm">
+                <div class="card brand-gradient section-inner-wrapper outlined card-with-form">
+                    <h2>@Html.Sitecore().Dictionary("/Payments/OnlinePayment/Pay your bill now", "Pay your bill now")</h2>
+                    <div class="single-line-field">
+                        <div class="input-field custom input-has-icon">
+                            <input value="" id="CAnumber" type="number" class="validate" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" onKeyPress="showCrossIcon()" onKeyUp="showCrossIcon()" />
+
+                            <label id="lblCAnumber" class="active" for="CAnumber">@Html.Sitecore().Dictionary("/Payments/OnlinePayment/Enter CA Number", "CA Number")</label>
+
+                            <div class="input-icon">
+                                <span class="icon-holder waves-effect waves-light"><i class="i-cross"> </i></span>
+                            </div>
+                        </div>
+                        <p class="help-text ca-number-help">Please enter your 9 digit consumer account number</p>
+                    </div>
+
+
+                    <div class="input-field custom">
+                        <div id="recaptcha"></div>
+                        <span class="field-validation-error" id="Captchaerror"></span>
+                    </div>
+
+
+
+                    <div class="btn-group">
+                        <a href="javascript:void(0)" onclick="showDetailsValidation()" class="waves-effect waves-light btn qproceed">@Html.Sitecore().Dictionary("/Payments/OnlinePayment/Button/Proceed", "Proceed")</a>
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+            <div class="submit-new-request" id="NoDataFound" style="display: none;">
+                <h2>No Data Found</h2>
+            </div>
+            <div class="submit-new-request" id="billDetailsContent" style="display: none;">
+                <div class="section-container">
+                    <h2>Bill Details</h2>
+                    <input type="hidden" id="AmountPayable" />
+                    <div class="card brand-gradient section-inner-wrapper outlined card-with-form">
+
+                        <div class="bill-detail-header BillQuickPay" style="display:none">
+                            <div class="bill-detail-content">
+                                <h4 class="QuickBillAmount"></h4>
+                                <p class="field-validation-error due-date QDuedate"></p>
+                            </div>
+                            <div class="bill-detail-cta">
+                                <a href="javascript:void(0)" onclick="FetchQuickPayOnlinePayment()" class="waves-effect waves-light btn btn-continue" data-target="modal2">Pay Bill</a>
+                            </div>
+                        </div>
+                        <div class="bill-detail-body BillQuickPayDetailBody " style="display:none">
+                            <h4>Bill Details</h4>
+                            <ul>
+                                <li class="QConsumerName">
+                                    <label>Consumer Name</label>
+                                    <span></span>
+                                </li>
+                                <li class="QBookNumber">
+                                    <label>Book Number</label>
+                                    <span></span>
+                                </li>
+                                <li class="QCycleNumber">
+                                    <label>Cycle Number</label>
+                                    <span></span>
+                                </li>
+                                <li class="QZone">
+                                    <label>Zone</label>
+                                    <span></span>
+                                </li>
+                                @*<li class="QAddress">
+                                    <label>Address</label>
+                                    <span></span>
+                                </li>*@
+                                <li class="QCANumber">
+                                    <label>CA Number</label>
+                                    <span></span>
+                                </li>
+                                <li class="QBillMonth">
+                                    <label>Bill Month</label>
+                                    <span></span>
+                                </li>
+                                <li class="QBillConsumed">
+                                    <label>Unit Consumed</label>
+                                    <span></span>
+                                </li>
+                                <li class="QTBillConsumed">
+                                    <label>Total Bill Amount</label>
+                                    <span></span>
+                                </li>
+                                <li class="QMinimumAmount">
+                                    <label>Minimum Payable</label>
+                                    <span></span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bill-detail-header AdvanceQuickPay" style="display:none">
+                            <div class="bill-detail-content">
+                                <h4 class="QuickAdvanceAmount">₹@outputval1.ToString("0.00")</h4>
+                                <p>No Bill Due</p>
+                            </div>
+                            <div class="bill-detail-cta">
+                                <button onclick="FetchQuickPayOnlinePayment()" class="waves-effect waves-light btn btn-continue">Pay Advance</button>
+                            </div>
+                        </div>
+                        <div class="bill-detail-body AdvanceQuickPayDetailBody" style="display:none">
+                            <h4>Bill Details</h4>
+                            <ul>
+                                <li class="QAConsumerName">
+                                    <label>Consumer Name</label>
+                                    <span></span>
+                                </li>
+                                <li class="QABookNumber">
+                                    <label>Book Number</label>
+                                    <span></span>
+                                </li>
+                                <li class="QACycleNumber">
+                                    <label>Cycle Number</label>
+                                    <span></span>
+                                </li>
+                                <li class="QAZone">
+                                    <label>Zone</label>
+                                    <span></span>
+                                </li>
+                                @*<li class="QAAddress">
+                                    <label>Address</label>
+                                    <span></span>
+                                </li>*@
+                                <li class="QACANumber">
+                                    <label>CA Number</label>
+                                    <span></span>
+                                </li>
+                                <li class="QABillMonth">
+                                    <label>Bill Month</label>
+                                    <span></span>
+                                </li>
+                                <li class="QABillConsumed">
+                                    <label>Unit Consumed</label>
+                                    <span></span>
+                                </li>
+                                <li class="QATBillConsumed">
+                                    <label>Total Bill Amount</label>
+                                    <span></span>
+                                </li>
+                                <li class="QAMinimumAmount">
+                                    <label>Minimum Payable</label>
+                                    <span></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @Html.Sitecore().Placeholder("onlinepay-page-content")
+    </div>
+
+}
+<div id="modal2" class="modal modal-alert" style="display:none">
+    <header class="modal-header">
+        <h4>
+            <i class="i-tick"></i>
+            Invalid Account Number
+
+        </h4>
+        <a href="javascript:void(0)" class="modal-close">
+            <img src="/electricity_assets/icons/close-icon.svg" alt="" />
+        </a>
+    </header>
+</div>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script type="text/javascript">
+
+    function getEncriptedKey(stringToEncrypt) {
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(stringToEncrypt), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }).toString();
+        return encrypted;
+    }
+
+    function FetchQuickPayOnlinePayment() {
+        var accountNumber = $('#CAnumber').val();
+        $.ajax({
+            url: apiSettings + "/AccountsRevamp/PayBillRevamp",
+            type: 'GET',
+            data: { AccountNumber: getEncriptedKey(accountNumber), AmountPayable: $('#advanceAmmount').val(), Pay_PaymentGateway: "Proceed to Pay" },
+            success: function (data) {
+                //console.log(data);
+                window.location.href = "http://" + $(location).attr('host') + '/Payment/pay-your-bill?ca_number=' + getEncriptedKey(accountNumber);
+                //$('#leftPanel').hide();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log('Error in Operation--' + errorThrown);
+            }
+        });
+    }
+    function showDetailsValidation() {
+        var response = grecaptcha.getResponse(recaptcha);
+
+
+        if (response.length == 0) {
+            event.preventDefault();
+            $("#Captchaerror").html("Please validate captcha to continue");
+
+            return false;
+        }
+        else {
+            $("#Captchaerror").html("");
+            ShowDetailsOnlinePayment();
+        }
+    }
+    function ShowDetailsOnlinePayment() {
+        var accountNumber = $('#CAnumber').val().trim();
+        if (accountNumber != '' && accountNumber.length == 9) {
+            var BeforeLoadingText = $('.qproceed').html();
+            //$('.qproceed').html('<svg viewBox="0 0 100 100" class="loader-white"> <circle cx="6" cy="50" r="6"> <animateTransform attributeName="transform" dur="1s" type="translate" values="0 15 ; 0 -15; 0 15" repeatCount="indefinite" begin="0.1"></animateTransform> </circle> <circle stroke="none" cx="30" cy="50" r="6"> <animateTransform attributeName="transform" dur="1s" type="translate" values="0 10 ; 0 -10; 0 10" repeatCount="indefinite" begin="0.2"></animateTransform> </circle> <circle stroke="none" cx="54" cy="50" r="6"> <animateTransform attributeName="transform" dur="1s" type="translate" values="0 5 ; 0 -5; 0 5" repeatCount="indefinite" begin="0.3"></animateTransform> </circle> </svg>');
+            $('.qproceed').html(`<span class="custom-loader-dots-box button-loader">
+                                <span class="custom-loader-dot custom-loader-dot-1"></span>
+                                <span class="custom-loader-dot custom-loader-dot-2"></span>
+                                <span class="custom-loader-dot custom-loader-dot-3"></span>
+                              </span>`);
+            var captcharesponse = grecaptcha.getResponse(recaptcha);
+            $.ajax({
+                url: apiSettings + "/AccountsRevamp/QuickPayRevampNew",
+                type: 'GET',
+                data: { AccountNumber: getEncriptedKey(accountNumber), recaptcha: captcharesponse },
+                dataType: 'JSON',
+                success: function (data) {
+                    //console.log(data);
+                    $('.qproceed').html(BeforeLoadingText);
+                    $('#NoDataFound').hide();
+                    $('.qproceed').attr("disabled", "disabled");
+                    $('.BillDetailsQuick').attr("class", "active");
+                    $('#billDetailsContent').show();
+                    // $('#OnlinePaymentForm').hide();
+                    if (data.data["Captcha"] == "Invalid") {
+                        $('.qproceed').removeAttr("disabled", "disabled");
+                        $('.QBillDetails').hide();
+                        $("#Captchaerror").html("Please validate captcha to continue");
+                    } else {
+                        $('#AmountPayable').val(data.data.AmountPayable);
+                        $('#CAnumber').removeClass("validate invalid");
+                        if (data.data["AccountNumber"] == "") {
+                            //console.log(1);
+                            $('.qproceed').removeAttr("disabled", "disabled");
+                            $("#CAnumber").addClass("invalid validate");
+                            $('.BillDetailsQuick').removeAttr("class", "active");
+                            $('#billDetailsContent').hide();
+                            $('.ca-number-help').html("Enter valid CA Number and click Quick Pay");
+                            $('.ca-number-help').attr("class", "help-text ca-number-help field-validation-error");
+                            //  $('.ca-number-help').attr("class", "error-text");
+                        }
+                        else {
+                            $("#CAnumber").removeClass("invalid");
+                            $('.ca-number-help').removeClass("field-validation-error");
+                            $('.ca-number-help').html("Please enter your 9 digit consumer account number");
+                            if ((parseInt(data.data["AmountPayable"])) > 0) {
+                                $('#modal2').hide();
+                                $('#benefitsContent').hide();
+                                $('.QuickBillAmount').html('₹' + parseFloat(data.data["AmountPayable"]).toFixed(2));
+                                if (data.data["PaymentDueDate"] == null || data.data["PaymentDueDate"] == "0000-00-00") {
+                                    $(".QDuedate").html("Payment Due Date: Not Updated");
+                                }
+                                else {
+
+                                    if (data.data["DueDateGraterthenFourDays"]) {
+                                        $(".QDuedate").html("Due on " + data.data["PaymentDueDate"]);
+                                        $(".QDuedate").css("color", "red");
+                                    }
+                                    else {
+                                        $(".QDuedate").html("Due on " + data.data["PaymentDueDate"]);
+                                        $(".QDuedate").css("color", "red");
+                                    }
+                                }
+
+                                $('.AdvanceQuickPayDetailBody').hide();
+                                $('.AdvanceQuickPay').hide();
+                                $('.BillQuickPayDetailBody').show();
+                                $('.BillQuickPay').show();
+                                $(".QConsumerName span").html(data.data["Name"]);
+                                $(".QCANumber span").html(data.data["AccountNumber"]);
+                                $(".QBookNumber span").html(data.data["BookNumber"]);
+                                $(".QCycleNumber span").html(data.data["CycleNumber"]);
+                                $(".QZone span").html(data.data["Zone"]);
+                               /* $(".QAddress span").html(data.data["Address"]);*/
+                                $(".QBillMonth span").html(data.data["BillMonth"]);
+                                $(".QBillConsumed span").html(data.data["UnitsConsumed"]);
+                                $(".QTBillConsumed span").html(data.data["TotalBillAmount"]);
+                                $(".QMinimumAmount span").html(data.data["AmountPayable"]);
+                                console.log(data.data["AmountPayable"]);
+                            }
+                            else {
+                                $('#modal2').hide();
+                                $('#benefitsContent').show();
+                                $('.AdvanceQuickPayDetailBody').show();
+                                $(".QAConsumerName span").html(data.data["Name"]);
+                                $(".QABookNumber span").html(data.data["BookNumber"]);
+                                $(".QACycleNumber span").html(data.data["CycleNumber"]);
+                                $(".QAZone span").html(data.data["Zone"]);
+                               /* $(".QAAddress span").html(data.data["Address"]);*/
+                                $(".QACANumber span").html(data.data["AccountNumber"]);
+                                // $(".QLastPaidAmount span").html(data.data["AmountPayable"]);
+                                $(".QABillMonth span").html(data.data["BillMonth"]);
+                                $(".QABillConsumed span").html(data.data["UnitsConsumed"]);
+                                $(".QATBillConsumed span").html(data.data["TotalBillAmount"]);
+                                $(".QAMinimumAmount span").html(data.data["AmountPayable"]);
+                                $('.BillQuickPay').hide();
+                                $('.BillQuickPayDetailBody').hide();
+                                $('.AdvanceQuickPay').show();
+                                $('.AdvanceQuickPayDetailBody').show();
+                                console.log(data.data["AccountNumber"]);
+                            }
+                        }
+                    }
+                   
+                },
+                error: function (xhr, textStatus, errorThrown, data) {
+                    console.log("ed" + errorThrown);
+
+                }
+            });
+        } else {
+            $('.ca-number-help').html("Please Enter Valid CA Number and click Quick Pay");
+            $('.ca-number-help').attr("class", "help-text ca-number-help field-validation-error");
+            $('#CAnumber').addClass("validate invalid")
+        }
+    }
+    $('.i-cross').click(function (e) {
+        $('.ca-number-help').removeClass("field-validation-error");
+        $('.ca-number-help').html("Please enter your 9 digit consumer account number");
+        $('#CAnumber').val('');
+        $('.qproceed').removeAttr("disabled");
+        $("#billDetailsContent").hide();
+        $('.i-cross').hide();
+        $('#CAnumber').removeClass("validate valid invalid");
+        $('#lblCAnumber').removeClass("active");
+
+
+    });
+
+    $(document).ready(function () {
+        $('.i-cross').hide();
+
+    });
+    function showCrossIcon() {
+        if ($('#CAnumber').val().length == 0) {
+            $('.i-cross').click();
+            $('#iconholderid').hide();
+            $('.i-cross').hide();
+            $('#CAnumber').removeClass("validate valid invalid");
+            $('#lblCAnumber').removeClass("active");
+            $('.ca-number-help').removeClass("field-validation-error");
+            $('.ca-number-help').html("Please enter your 9 digit consumer account number");
+            var response = grecaptcha.getResponse(recaptcha);
+
+
+            if (response.length != 0) {
+                window.location.href = "http://" + $(location).attr('host') + '/payment/online-payments';
+            }
+        }
+        else {
+            $('#iconholderid').show();
+            $('.i-cross').show();
+
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    var recaptcha;
+    var onloadCallback = function () {         
+        recaptcha = grecaptcha.render('recaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>

@@ -1,0 +1,51 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);   
+    string sectionClass = "";
+}
+
+@if (model != null && model.HasChildren)
+{
+
+    foreach (Item item in model.GetChildren())
+    {
+        Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaLink"];
+        var btnUrl = linkField.GetFriendlyUrl();
+
+        if (!String.IsNullOrEmpty(@Html.Sitecore().Field("Class", item).ToString()))
+        {
+            sectionClass = item.Fields["Class"].ToString();
+        }
+        <div class="init-map-dot-holder @sectionClass">
+            <div class="map-tooltip-wrapper disabled">
+                <div class="map-tooltip-holder show">
+                    <div class="map-tooltop-content map-tooltip-text">
+                        <p class="full h4 fm-asb tx-000">@Html.Sitecore().Field("MediaTitle", item)</p>
+                        <p class="full fs-15">@Html.Sitecore().Field("MediaDescription", item)</p>
+
+                        <a class="know-more-link" target="_blank" href="@btnUrl">Know More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+}

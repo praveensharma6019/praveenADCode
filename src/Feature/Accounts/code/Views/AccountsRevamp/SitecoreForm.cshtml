@@ -1,0 +1,280 @@
+﻿@using Sitecore.Feature.Accounts.SessionHelper
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+<style>
+    .hiddenclass {
+        display: none;
+    }
+
+    .radio-label input[type=radio] {
+        margin-right: 5px !important;
+        position: relative !important;
+        top: 2px !important;
+        opacity: inherit !important;
+    }
+
+    .starColor {
+        color: #fc0 !important;
+    }
+</style>
+<div id="modalFormSuccess" class="modal modal-alert modal-toast custom-toast-success">
+    <header class="modal-header">
+        <h4>
+            <a class="toast-close">
+                <i class="i-tick"></i>
+            </a>
+            Submitted Successfully
+        </h4>
+        <a class="modal-close" id="modalFormSuccessCloseIcon">
+            <i class="i-cross"> </i>
+        </a>
+    </header>
+    <div class="modal-content">
+        <p id="modalFormSuccessContent">Your request submitted successfully. we will get back to you soon.</p>
+    </div>
+</div>
+
+@if (contextItem != null)
+{
+    <div class="col s12 l8 offset-l1 section-container">
+        <header class="help-support section-header">
+            <h2>@Html.Raw(contextItem["Title"])</h2>
+            <p>@Html.Raw(contextItem["Body"])</p>
+        </header>
+
+        <div class="card brand-gradient outlined section-inner-wrapper card-with-form">
+            @if (UserSession.UserSessionContext != null)
+            {
+                @Html.Sitecore().Placeholder("switch-account-content")
+            }
+            <div class="ownership-transfer" id="formDiv">
+                @Html.Sitecore().Placeholder("page-contentbox")
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var isSuccess = GetParameterValues('IsSuccess');
+        function GetParameterValues(param) {
+            var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < url.length; i++) {
+                var urlparam = url[i].split('=');
+                if (urlparam[0] == param) {
+                    return urlparam[1];
+                }
+            }
+        }
+        if (isSuccess == 1) {
+            viewSuccessModalMessage();
+        }
+
+        function viewSuccessModalMessage() {
+            window.setTimeout(function () {
+                var elem = document.getElementById('modalFormSuccess');
+                var instance = M.Modal.init(elem, { dismissible: false });
+                instance.open();
+                if ($('#modalFormSuccessContent').html().indexOf('</a>') > 0) {
+                    window.setTimeout(function () {
+                        instance.close();
+                    }, 9000);
+                } else {
+                    $('#modalFormSuccessCloseIcon').hide();
+                    window.setTimeout(function () {
+                        instance.close();
+                    }, 4000);
+                }
+            }, 1500);
+            var uri = window.location.href.toString();
+            if (uri.indexOf("?") > 0) {
+                var clean_uri = uri.substring(0, uri.indexOf("?"));
+                window.history.replaceState({}, document.title, clean_uri);
+            }
+        }
+
+        //removing active class from label once page loads.
+        $("#formDiv label").removeClass("active");
+
+        //making all input/textarea fields empty once page loads.
+        $("#formDiv .sitecore-form-field input").val("");
+        $("#formDiv .sitecore-form-field textarea").val("");
+
+        //checking if input field is empty
+        $('#formDiv input').focusout(function () {
+            if ($(this).val() != "") {
+                $(this).closest('.sitecore-form-field').find('label').addClass("active");
+            } else {
+                $(this).closest('.sitecore-form-field').find('label').removeClass("active");
+            }
+        })
+
+        //checking if textarea field is empty
+        $('#formDiv textarea').focusout(function () {
+            if ($(this).val() != "") {
+                $(this).closest('.sitecore-form-field').find('label').addClass("active");
+            } else {
+                $(this).closest('.sitecore-form-field').find('label').removeClass("active");
+            }
+        })
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.MobileQuery').attr('oninput', 'javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);')
+        $('.MobileQuery').attr('maxlength', '10')
+
+        $('.SubmitYourQuery').click(function () {
+            var isvalid = true;
+            if ($('.CityQuery').val() == '') {
+                $('.CityQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('City is required');
+                isvalid = false;
+            } else {
+                $('.CityQuery').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+            if ($('.MobileQuery').val() == '' || $('.MobileQuery').val().trim() == '') {
+                $('.MobileQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Mobile is required');
+                isvalid = false;
+            } else {
+                var regrex = /^[6789]\d{9}$/;
+                if (!regrex.test($('.MobileQuery').val())) {
+                    $('.MobileQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please enter a 10 digit valid mobile number');
+                    isvalid = false;
+                } else {
+                    $('.MobileQuery').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+                }
+            }
+            if ($('.EmailQuery').val() == '' || $('.EmailQuery').val().trim() == '') {
+                $('.EmailQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Email is required');
+                isvalid = false;
+            } else {
+                var regrex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                if (!regrex.test($('.EmailQuery').val())) {
+                    $('.EmailQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please enter Valid Email');
+                    isvalid = false;
+                } else {
+                    $('.EmailQuery').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+                }
+            }
+            if ($('.firstName').val() == '' || $('.firstName').val().trim() == '') {
+                $('.firstName').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Name is required');
+                isvalid = false;
+            } else {
+                $('.firstName').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+            if ($('select.QueryCategory option:selected').val() == 'Select Category') {
+                $('.QueryCategory').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please Select Category');
+                isvalid = false;
+            } else {
+                $('.QueryCategory').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if ($('select.ConsumerArea option:selected').val() == 'Select Area') {
+                $('.ConsumerArea').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please Select Area');
+                isvalid = false;
+            } else {
+                $('.ConsumerArea').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+            if ($('.AskQuestion').val() == '' || $('.AskQuestion').val().trim() == '') {
+                $('.AskQuestion').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Ask Question is required');
+                isvalid = false;
+            } else {
+                $('.AskQuestion').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+            if (!(grecaptcha && grecaptcha.getResponse().length !== 0)) {
+                $('.captcha-div').find('span.field-validation-valid').addClass('field-validation-error').html('Please confirm you are not a robot.');
+                isvalid = false;
+            } else {
+                $('.captcha-div').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+
+            if (isvalid) {
+                $('.loader-wrap').show();     
+            }
+            else {
+              
+            }
+            return isvalid;
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.PhoneField').attr('oninput', 'javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);')
+        $('.PhoneField').attr('maxlength', '10')
+
+        $('.TheftButton').click(function () {
+            dataLayer.push({
+                //'event': "submit_query_form_interaction",
+                //'eventCategory': "Help & Support",
+                //'eventAction': "Submit Query Form Interaction",
+                //'eventLabel': "TheftReport|Submit",
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+
+        var isvalid = true;
+
+        if ($('.NameField').val() == '' || $('.NameField').val().trim() == '') {
+            $('.NameField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Name is required');
+            isvalid = false;
+        } else {
+            $('.NameField').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+        }
+        if ($('.PhoneField').val() == '' || $('.PhoneField').val().trim() == '') {
+            $('.PhoneField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Mobile Number is required.');
+            isvalid = false;
+        } else {
+            var regrex = /^[6789]\d{9}$/;
+            if (!regrex.test($('.PhoneField').val())) {
+                $('.PhoneField').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please enter a 10 digit valid mobile number');
+                isvalid = false;
+            } else {
+                $('.PhoneField').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+        }
+        if ($('select.AreaOfTheft option:selected').val() == 'Select') {
+            $('.AreaOfTheft').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please Select Area Of Theft');
+            isvalid = false;
+        } else {
+            $('.AreaOfTheft').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+        }
+        if ($('.EmailQuery').val() == '') {
+            $('.EmailQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Email is required');
+            isvalid = false;
+        } else {
+            var regrex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+            if (!regrex.test($('.EmailQuery').val())) {
+                $('.EmailQuery').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Please enter Valid Email');
+                isvalid = false;
+            } else {
+                $('.EmailQuery').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+            }
+        }
+        if ($('.ReportTheft').val() == '' || $('.ReportTheft').val().trim() == '') {
+            $('.ReportTheft').closest('.sitecore-form-field').addClass('sf-invalid').find('span.field-validation-valid').addClass('field-validation-error').html('Report Theft is required');
+            isvalid = false;
+        } else {
+            $('.ReportTheft').closest('.sitecore-form-field').removeClass('sf-invalid').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+        }
+        if (!(grecaptcha && grecaptcha.getResponse().length !== 0)) {
+            $('.captcha-div').find('span.field-validation-valid').addClass('field-validation-error').html('Please confirm you are not a robot.');
+            isvalid = false;
+        } else {
+            $('.captcha-div').find('span.field-validation-valid').removeClass('field-validation-error').html('');
+        }
+
+        if (isvalid) {
+            $('.loader-wrap').show();
+           
+
+        } 
+        return isvalid;
+    });
+    });
+</script>

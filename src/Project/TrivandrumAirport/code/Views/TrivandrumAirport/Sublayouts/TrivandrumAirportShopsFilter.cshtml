@@ -1,0 +1,126 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var tab = parent.Children;
+
+    var journeytype = Sitecore.Context.Database.GetItem("{98A939A1-0EAD-40DD-BBA6-93EE3A6ADF8F}");
+    var terminal = Sitecore.Context.Database.GetItem("{A275AA25-A553-4600-B8D8-F5D5D3CB607E}");
+    var Category = Sitecore.Context.Database.GetItem("{0D0B5C8D-2AB5-43F9-B0B9-34ECAA0C4A1F}");
+	
+    var i = 0;
+    var j = 0;
+    var divID = "";
+    var k = 0;
+}
+
+
+<section class="bg-cream section" id="first-section">
+<div class="container-fluid">
+
+
+<div class="box-filter">
+				<div class="row">
+				<div class="col-lg-3 col-md-6">
+					<div class="form-group">
+					<label for="">Choose journey type</label>
+					<select class="form-control" id="journeytypeDDL">
+					 @foreach (var element in journeytype.GetChildren().ToList())
+                    {
+                         <option>@Html.Sitecore().Field("Title", element)</option>
+						 }						
+					</select>
+				  </div>
+				</div>
+				<div class="col-lg-3 col-md-6">
+					<div class="form-group">
+					<label for="">Choose terminal</label>
+					<select class="form-control" id="terminalDDL">
+					 @foreach (var element in terminal.GetChildren().ToList())
+                    {
+                         <option>@Html.Sitecore().Field("Title", element)</option>
+						 }	
+					</select>
+				  </div>
+				</div>
+				
+				<div class="col-lg-3 col-md-6">
+					<div class="form-group">
+					<label for="">Choose Category</label>
+					<select class="form-control" id="CategoryDDL">
+					 @foreach (var element in Category.GetChildren().ToList())
+                    {
+                         <option>@Html.Sitecore().Field("Title", element)</option>
+						 }	
+					</select>
+				  </div>
+				</div>
+				<div class="col-lg-3 col-md-6">
+					<div class="pt-lg-4 text-lg-left text-right">
+						<button class="btn btn-green applyfilter" type="button">Apply</button>
+						<button type="button" class="btn btn-link clrfilter">Clear filters</button>
+					</div>
+				</div>
+				<div class="col-lg-12">
+				<div class=" text-left pt-2"><span class="filter-results float-lg-right fitertext"></span></div>
+				</div>
+			</div>
+			</div>
+			
+			
+<div class="filters__section">
+   
+    <div class="filters-content">
+        <div class="row grid">
+            @foreach (var child in tab.ToList())
+            {
+                var replacestr = child.Fields["JourneyType"].ToString();				
+				var  classTer = child.Fields["Terminal"].ToString(); 
+				var  classCategory = child.Fields["Category"].ToString();  
+
+				if (replacestr == "All")
+				{
+				replacestr = "Arrival Departure";
+				}
+				
+				if (classTer == "All Terminal")
+				{
+				classTer = "AllTerminal";
+				}
+				
+				
+				if (classCategory == "All Categories")
+				{
+				classCategory = "AllCategories";
+				}
+				
+				
+                <div class="col-lg-4 col-md-6 my-3 @replacestr @classCategory @classTer">
+                    
+                    <div class="shop_tiles">
+                        <div class="bg-images">@Html.Sitecore().ImageField("Image", child)</div>
+						<div class="shop_tiles-content">
+                        <h4> @Html.Sitecore().Field("Title", child)</h4>
+                        @Html.Sitecore().Field("Body", child)</div>
+                    </div>
+                    
+                </div>
+            }
+
+
+
+
+
+
+
+
+
+        </div>
+    </div>
+</div>
+</div></section>

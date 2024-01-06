@@ -1,0 +1,54 @@
+@using Sitecore.Feature.Blogs
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var ulclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "ulclass").FirstOrDefault().Value;
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "divclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(divclass))
+    {
+        divclass = "box-block p-4 w-100 h-100";
+    }
+    var i = 0;
+    var sortedItem = elements.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+}
+
+<div class="@divclass">
+    <h3 class="section-heading">@Html.Sitecore().Field("Title", elements)</h3>
+    <ul class="@ulclass">
+        @foreach (var item in sortedItem)
+        {
+            string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+			  Sitecore.Data.Fields.LinkField imageLink = item.Fields["LinkUrl"];
+            var imageLinkUrl = imageLink.GetFriendlyUrl();
+            if (string.IsNullOrEmpty(imageLinkUrl))
+            {
+                <li>
+                    <p><a href="@linkUrl" >@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span></p>
+                </li>
+            }
+            else
+            {
+                <li>
+                    <p><a href="@imageLinkUrl" target="_blank">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span></p>
+                </li>
+            }
+            if (i == 3)
+            {
+                break;
+            }
+            i++;
+        }
+    </ul>
+    @{
+
+        string parentUrl = Sitecore.Links.LinkManager.GetItemUrl(elements);
+    }
+    <p class="text-right"><a href="@parentUrl">Read more</a></p>
+</div>

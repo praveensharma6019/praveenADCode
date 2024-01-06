@@ -1,0 +1,35 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+}
+<section class="section bg-white accoladess" style="display:none;">
+    <div class="container">
+        <div class="large-12 columns">
+            <div class="owl-carousel owl-theme txt-center" id="accolades">
+                @foreach (var img in elements.ToList())
+                {
+                    var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                    var style = img.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                    <div class="item">
+                        <div class="item-img">
+                            <img src="@style" class="img-fluid">
+                        </div>
+                        <h4>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, img)</h4>
+                        <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Description, img)</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+

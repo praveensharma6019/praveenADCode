@@ -1,0 +1,66 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<ul class="topMenu d-lg-none d-block">
+
+
+    @foreach (var item in model.GetChildren().ToList())
+    {
+        var subItemModel = Sitecore.Context.Database.GetItem(item.ID);
+        var childCount = subItemModel.GetChildren().Count();
+        var cssClass = "";
+        if (childCount > 0)
+        {
+            cssClass = "nav-item dropdown";
+        }
+        else
+        {
+            cssClass = "nav-item";
+        }
+
+        <li class="@cssClass">
+
+            @Html.Sitecore().BeginField("Link", item, new { haschildren = true, @class = "nav-link" })
+            @Html.Sitecore().Field("NavigationTitle", item)
+            @Html.Sitecore().EndField()
+
+
+            @if (subItemModel != null)
+            {
+                <div class="dropdown-menu megamenu">
+                    <ul>
+                        @foreach (var subItem in subItemModel.GetChildren().ToList())
+                        {
+							var subItemChildColl = Sitecore.Context.Database.GetItem(subItem.ID);
+							var subItemCount = subItemChildColl.GetChildren().Count();						
+							
+							 
+							 <li class="dropdown-item">
+							 <h3 class="@subItemCount inner2child">@Html.Sitecore().BeginField("Link", subItem, new { haschildren = true, @class = "dropdown-item" })
+									@Html.Sitecore().Field("NavigationTitle", subItem)
+									@Html.Sitecore().EndField()</h3></li>
+								if(subItemCount > 0)
+								{								
+									 foreach (var subItem1 in subItemChildColl.GetChildren().ToList())
+									{   	 
+									<li class="dropdown-item inner3child">@Html.Sitecore().BeginField("Link", subItem1, new { haschildren = true, @class = "dropdown-item" })
+									@Html.Sitecore().Field("NavigationTitle", subItem1)
+									@Html.Sitecore().EndField()</li> 
+									}	
+								}
+							
+						}	
+                    </ul>
+                </div>
+            }
+        </li>
+
+    }
+</ul>

@@ -1,0 +1,114 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model RenderingModel
+@{
+
+
+    var models = Sitecore.Context.Database.Items.GetItem("{CA766E58-43FF-4388-8DAE-F30CADEB80D1}");
+    
+
+    var newfooter = Sitecore.Context.Database.Items.GetItem("{50282C99-F582-4E17-BF61-68F3B8A727E2}");
+	Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)newfooter.Fields["BackgroundImage"]);
+    string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+    var i = 1;
+    var j = 1;
+}
+
+
+
+<div class="pb-4 text-center">
+    <ul class="ft-social d-block text-center mb-4">
+        @if (newfooter != null)
+        {
+            if (newfooter.GetChildren() != null)
+            {
+                foreach (Item item in newfooter.GetChildren())
+                {
+                    Sitecore.Data.Fields.LinkField itemslinkvalues = item.Fields["Link"];
+                    var itemslinks = itemslinkvalues.GetFriendlyUrl();
+                    var icons = item.Fields["Icon"];
+                    <li><a href="@itemslinks" target="_blank"><i class="@icons"> </i></a></li>
+
+                }
+            }
+        }
+    </ul>
+    <img src="@url" class="img-fluid" alt="" loading=lazy>
+    <div class="d-block text-center mt-4 ft-sitemap"><a href="#" class="btn btn-primary">SiteMap</a></div>
+</div>
+<div class="toggle_ftmenu d-none">
+    <div class="row">
+        @foreach (var item in models.GetChildren().ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkvalues = item.Fields["Link"];
+            var linkUrls = linkvalues.GetFriendlyUrl();
+            if (i == 1)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="ft-submenu">
+                        <h5><a href="@linkUrls">@item.Fields["NavigationTitle"]</a></h5>
+                        <ul class="ft-business">
+                      @foreach (var items in item.GetChildren().ToList())
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                                var linkUrl = linkvalue.GetFriendlyUrl();
+                                if (j > 5)
+
+                                {
+                                    <li class="d-none"><a href="@linkUrl">@items.Fields["NavigationTitle"]</a></li>
+                                }
+                                else
+                                {
+                                    <li><a href="@linkUrl">@items.Fields["NavigationTitle"]</a></li>
+                                }
+                                j++;
+                            }
+                        </ul>
+                        <p class="viewall">+ View All</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-lg-4 col-md-6">
+                    <h5><a href="@linkUrls">@item.Fields["NavigationTitle"]</a></h5>
+                    @if (item.HasChildren)
+                    {
+                        <ul>
+                            @foreach (var items in item.GetChildren().ToList())
+                            {
+                                Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                                var linkUrl = linkvalue.GetFriendlyUrl();
+                                <li><a href="@linkUrl">@items.Fields["NavigationTitle"]</a></li>
+                            }
+                        </ul>
+                    }
+                </div>
+            }
+            if (i == 2)
+            {
+                break;
+            }
+            i++;
+        }
+
+        <div class="col-lg-4 col-md-6">
+            <div>
+                @foreach (var item in models.GetChildren().ToList())
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                    var linkUrl = linkvalue.GetFriendlyUrl();
+                    if (!item.HasChildren)
+                    {
+
+                        <h5><a href="@linkUrl">@item.Fields["NavigationTitle"]</a></h5>
+
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,28 @@
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+}
+
+<section class="section">
+    <div class="container">
+        <h3 class="text-center sectionHeading">Food and Beverages</h3>
+        <div class="large-12 columns">
+            <div class="owl-carousel owl-theme" id="foodbeverage-carousel">
+                @foreach (var img in elements.ToList())
+                {
+                    var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                    var style = img.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                    <div class="item">
+                        <img src="@style" class="img-fluid">
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

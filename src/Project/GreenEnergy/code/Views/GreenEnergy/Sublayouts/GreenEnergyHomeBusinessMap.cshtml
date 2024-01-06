@@ -1,0 +1,691 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@using Sitecore.GreenEnergy.Website.Models;
+@model RenderingModel
+
+@{
+
+   
+  
+    var allSolarPlant = Sitecore.Context.Database.GetItem("{1AF749F1-0FD2-46BF-B641-1EB60EA81E22}");
+	
+	// var filterparent = allSolarPlant.Children.Where(x => x.Fields["IsVisible"].Value == "1" && x => x.Fields["PlantStatus"].Value == "Commissioned").Sum(x => Convert.ToInt32(x.Fields["WattOperate"].Value);
+ //var latestById = allSolarPlant.Children.GroupBy(x => x.Fields["PlantStatus"].Value).Select(x => x.Sum(y =>long.Parse(y.Fields["WattOperate"].Value)));
+ 
+   List<GreenEnergyContactModel> result = allSolarPlant.Children.GroupBy(x => x.Fields["PlantStatus"].Value).Select(x => new GreenEnergyContactModel
+    {
+        Name = x.Sum(y => long.Parse(y.Fields["WattOperate"].Value)).ToString(),
+        Message = x.First().Fields["PlantStatus"].Value.ToString(),
+    }).ToList();
+	
+	var stateLocation="Punjab";
+}
+
+<section class="py-5 d-lg-none d-block">
+                <div class="container">
+<h2 class="mb-3 border-l pl-3 txt-lg">Businesses</h2>
+<p class="mb-3 pl-3">Browse through our projects harnessing the power of sun and the strength of wind to light up millions of households across the nation</p>
+<div class="row">
+                <div class="col-md-6 mb-3"><a href="/solar-power" class="mr-2 btn btn-gradient w-100 text-center">Solar Power</a></div>
+                <div class="col-md-6 mb-3"><a href="/windpower" class="btn btn-gradient mr-2 w-100 text-center">Wind Power</a></div>
+                <div class="col-md-6 mb-3"><a href="/hybridpower" class="btn btn-gradient mr-2 w-100 text-center">Hybrid Power</a></div>
+                <div class="col-md-6 mb-3"><a href="/solar-park" class="btn btn-gradient mr-2 w-100 text-center">Solar Parks</a></div>
+</div>
+</div>
+</section>
+
+<section class="map-section position-relative d-none d-lg-block ">
+<div class="map-above-content">
+<div class="container">
+<div class="row">
+<div class="col-md-6">
+<div class="mb-2">
+<h2 class="mb-1 border-l pl-4">Businesses</h2>
+@*<p class="txt-xs pl-4">Our wider presence all over India</p>*@
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-lg-4 map-box-main">
+<div class="row">
+<div class="col-lg-6 mt-2"><h2 class="selectState mb-2"></h2></div>
+<div class="col-lg-6 text-right mt-2"><a onclick="filterMap('allplants')" class="btn mb-2 resetMap">X</a></div>
+<div class="col-sm-12 map-box bg-light-b allplants d-none mb-2 py-2 d-block">
+<h3>Solar Power</h3>
+<div class="row">
+<div class="col-sm-6">
+<p>@result[0].Name MW<span>In operation</span></p>
+</div>
+<div class="col-sm-6">
+<p>@result[1].Name MW<span>Under/Near Construction</span></p>
+</div>
+</div>
+</div>
+
+@{
+//get distinct location of solar
+ var allSolarPlantLocation=allSolarPlant.Children.Select(x => x.Fields["Location"].Value).Distinct().ToList();
+}
+
+	
+@foreach (var SolarProjectLocation in allSolarPlantLocation)
+{
+    var locationWithoutSpace = SolarProjectLocation.Replace(" ", "-");
+	stateLocation = locationWithoutSpace;
+
+    <div class="col-sm-12 map-box mb-2 py-2 bg-light-b d-none @locationWithoutSpace">
+        <h3>Solar Power</h3>
+
+        <!--calculate sum according to location-->
+        @{
+            List<GreenEnergyContactModel>
+            result1 = allSolarPlant.Children.Where(x => x.Fields["Location"].Value == SolarProjectLocation).GroupBy(x => x.Fields["PlantStatus"].Value).Select(x => new GreenEnergyContactModel
+            {
+                Name = x.Sum(y => long.Parse(y.Fields["WattOperate"].Value)).ToString(),
+                Message = x.First().Fields["PlantStatus"].Value.ToString(),
+            }).ToList();
+        }
+            <div class="row">
+		  @foreach(var r in result1)
+			{
+				try
+				{
+				if(result1.Count>=2)
+				{
+					if(r.Message.ToString()=="Commissioned")
+						{
+               <div class="col-sm-6">
+					
+					 <p>@r.Name MW<span>In operation</span></p>
+					
+				</div>
+						}
+						
+						if(r.Message.ToString()=="Non-Commissioned")
+					{
+				 <div class="col-sm-6">
+					
+                    <p>@r.Name MW<span>Under/Near Construction</span></p>
+					
+					</div>	
+					
+					}
+					
+				
+				}
+				else
+				{
+				 <div class="col-sm-6">
+				@if(r.Message.ToString()=="Commissioned")
+				{
+              
+					
+					 <p>@r.Name MW<span>In operation</span></p>
+					
+			
+				}
+				else
+				{
+				
+					
+					 <p class="d-none">0 MW<span>In operation</span></p>
+					
+			
+				}
+						</div> <div class="col-sm-6">
+				@if(r.Message.ToString()=="Non-Commissioned")
+				{
+			
+					
+                    <p>@r.Name MW<span>Under/Near Construction</span></p>
+					
+					
+					
+				}
+				else
+				{					
+                    <p class="d-none">0 MW<span>Under/Near Construction</span></p>
+					
+					
+					
+				}
+				</div>
+				}
+               	}
+				catch (Exception ex)
+				{
+				<p>ex</p>
+				}
+			}					
+            </div>
+			
+<p class="text-right homemapfilter "><a href="/solar-power" class="SolarfilterReadMore d-none">Read More</a></p>	
+			
+
+    </div>
+}
+
+@{
+
+   //Wind Plant 
+  
+    var allWindPlant = Sitecore.Context.Database.GetItem("{4972ECE9-8C3E-401B-94B8-48C7063BA261}");
+	
+	
+   List<GreenEnergyContactModel> resultwind = allWindPlant.Children.GroupBy(x => x.Fields["PlantStatus"].Value).Select(x => new GreenEnergyContactModel
+    {
+        Name = x.Sum(y => long.Parse(y.Fields["WattOperate"].Value)).ToString(),
+        Message = x.First().Fields["PlantStatus"].Value.ToString(),
+    }).ToList();
+	
+	
+}
+
+
+<div class="col-sm-12 map-box allplants d-none mb-2 py-2 bg-light-g d-block">
+<h3>Wind Power</h3>
+<div class="row">
+ @foreach(var r in resultwind)
+			{
+				try
+				{
+				
+				if(r.Message.ToString()=="Commissioned")
+				{
+               <div class="col-sm-6">
+					
+					 <p>@r.Name MW<span>In operation</span></p>
+					
+				</div>
+				}
+				
+				
+				if(r.Message.ToString()=="Non-Commissioned")
+				{
+				 <div class="col-sm-6">
+					
+                    <p>@r.Name MW<span>Under Construction</span></p>
+					
+					
+					</div>
+				}
+			
+				
+               	}
+				catch (Exception ex)
+				{
+				<p>ex</p>
+				}
+			}
+
+</div>
+</div>
+@{
+//get distinct location of Wind Plant
+ var allWindPlantLocation=allWindPlant.Children.Select(x => x.Fields["Location"].Value).Distinct().ToList();
+}
+
+
+@foreach (var WindProjectLocation in allWindPlantLocation)
+{
+    var locationWithoutSpace = WindProjectLocation.Replace(" ", "-");
+	stateLocation = locationWithoutSpace;
+    <div class="col-sm-12 map-box mb-2 py-2 bg-light-g  d-none @locationWithoutSpace">
+        <h3>Wind Power</h3>
+
+        <!--calculate sum according to location-->
+        @{
+            List<GreenEnergyContactModel>
+            result1 = allWindPlant.Children.Where(x => x.Fields["Location"].Value == WindProjectLocation).GroupBy(x => x.Fields["PlantStatus"].Value).Select(x => new GreenEnergyContactModel
+            {
+                Name = x.Sum(y => long.Parse(y.Fields["WattOperate"].Value)).ToString(),
+                Message = x.First().Fields["PlantStatus"].Value.ToString(),
+            }).ToList();
+        }
+            <div class="row">
+		  @foreach(var r in result1)
+			{
+				try
+				{
+				
+				if(result1.Count >= 2)
+				{
+					    if(r.Message.ToString()=="Commissioned")
+						{
+                            <div class="col-sm-6">					
+					            <p>@r.Name MW<span>In operation</span></p>
+					        </div>
+						}
+
+						if(r.Message.ToString()=="Non-Commissioned")
+					    {
+				         <div class="col-sm-6">
+					        <p>@r.Name MW<span>Under Construction</span></p>
+					     </div>
+					    }
+				}
+				else
+				{
+				 
+                    if(r.Message.ToString()=="Commissioned")
+                    {
+                
+                        <div class="col-sm-6">
+                        <p>@r.Name MW<span>In operation</span></p>
+                        </div>
+                    
+                    }
+                    @* else
+                    {
+                    
+                        <div class="col-sm-6">
+                        <p class="d-none">0 MW<span>In operation</span></p>
+                        </div>
+                    
+                    } *@
+                    
+				 
+                    if(r.Message.ToString()=="Non-Commissioned")
+                    {
+                    
+                        <div class="col-sm-6">
+                        <p>@r.Name MW<span>Under Construction</span></p>
+                        
+                        </div>
+                        
+                    }
+                    @* else
+                    {
+                    
+                        <div class="col-sm-6">
+                        <p class="d-none">0 MW<span>Under Construction</span></p>
+                        
+                        </div>
+                        
+                    } *@
+				
+				}
+               	}
+				catch (Exception ex)
+				{
+				<p>ex</p>
+				}
+			}					
+            </div>
+			
+			
+<p class="text-right homemapfilter "><a  href="/windpower" class=" WindfilterReadMore d-none">Read More</a></p>	
+
+
+    </div>
+}
+
+@{
+
+   //Hybrid Plant 
+  
+    var allHybridPlant = Sitecore.Context.Database.GetItem("{8780065B-268A-46E9-B1CD-01A482E62923}");
+	
+	
+   List<GreenEnergyContactModel> resultHybrid = allHybridPlant.Children.GroupBy(x => x.Fields["PlantStatus"].Value).Select(x => new GreenEnergyContactModel
+    {
+        Name = x.Sum(y => long.Parse(y.Fields["WattOperate"].Value)).ToString(),
+        Message = x.First().Fields["PlantStatus"].Value.ToString(),
+    }).ToList();
+	
+	
+}
+
+<div class="col-sm-12 map-box allplants bg-light-b d-none mb-2 py-2 d-block">
+<h3>Hybrid Power</h3>
+<div class="row">
+ @foreach(var r in resultHybrid)
+			{
+				try
+				{
+				 
+                    if(r.Message.ToString()=="Commissioned")
+                    {          
+                        <div class="col-sm-6">    
+                        <p>@r.Name MW<span>In operation</span></p>		
+                        </div>		
+                    }				
+				
+				
+				if(r.Message.ToString()=="Non-Commissioned")
+				{
+				 <div class="col-sm-6">					
+                    <p>@r.Name MW<span>Under Construction</span></p>
+				 </div>
+				}
+			
+				
+               	}
+				catch (Exception ex)
+				{
+				<p>ex</p>
+				}
+			}
+</div>
+</div>
+
+@{
+//get distinct location of Hybrid Plant
+ var allHybridPlantLocation=allHybridPlant.Children.Select(x => x.Fields["Location"].Value).Distinct().ToList();
+}
+
+
+@foreach (var HybridProjectLocation in allHybridPlantLocation)
+{
+    var locationWithoutSpace = HybridProjectLocation.Replace(" ", "-");
+	stateLocation = locationWithoutSpace;
+    <div class="col-sm-12 map-box mb-2 py-2 bg-light-b d-none @locationWithoutSpace">
+        <h3>Hybrid Power</h3>
+
+        <!--calculate sum according to location-->
+        @{
+            List<GreenEnergyContactModel>
+            result1 = allHybridPlant.Children.Where(x => x.Fields["Location"].Value == HybridProjectLocation).GroupBy(x => x.Fields["PlantStatus"].Value).Select(x => new GreenEnergyContactModel
+            {
+                Name = x.Sum(y => long.Parse(y.Fields["WattOperate"].Value)).ToString(),
+                Message = x.First().Fields["PlantStatus"].Value.ToString(),
+            }).ToList();
+        }
+            <div class="row">
+		  @foreach(var r in result1)
+			{
+				try
+				{
+				if(resultHybrid.Count>=2)
+				{
+					if(r.Message.ToString()=="Commissioned")
+						{
+               <div class="col-sm-6">
+					
+					 <p>@r.Name MW<span>In operation</span></p>
+					
+				</div>
+						}
+						if(r.Message.ToString()=="Non-Commissioned")
+					{
+				 <div class="col-sm-6">
+					
+                    <p>@r.Name MW<span>Under Construction</span></p>
+					
+					
+					</div>
+					}
+						
+				
+				}
+				else
+				{
+				 
+				if(r.Message.ToString()=="Commissioned")
+				{
+              
+					<div class="col-sm-6">
+					 <p>@r.Name MW<span>In operation</span></p>
+					</div>
+				
+				}
+				else
+				{
+				 
+					<div class="col-sm-6 d-none">
+					 <p class="d-none">0 MW<span>In operation</span></p>
+					</div>
+				
+				}
+								 
+				if(r.Message.ToString()=="Non-Commissioned")
+				{
+				
+					<div class="col-sm-6">
+                    <p>@r.Name MW<span>Under Construction</span></p>
+					</div>
+					
+					
+				}
+				else
+				{
+				
+					<div class="col-sm-6 d-none">
+                    <p class="d-none">0 MW<span>Under Construction</span></p>
+					</div>
+					
+					
+				}				
+				}
+               	}
+				catch (Exception ex)
+				{
+				<p>ex</p>
+				}
+			}					
+            </div>
+			
+	<p class="text-right homemapfilter "><a  href="/hybridpower" class="HybirdfilterReadMore d-none">Read More</a></p>
+    </div>
+}
+
+</div>
+</div>
+@*<div class="col-md-4 ml-auto">
+<div class="map-acc">
+<p class="mb-3">Browse our presence</p>
+<div id="map-accordion" class="panel-group">
+<div class="form-group bg-gradient">
+<select class="form-control bg-gradient">
+<option value="solarproject" />Solar Projects
+
+<option value="windproject" />Wind Project
+
+<option value="solar&amp;windproject" />Solar &amp; Wind Project
+
+</select>
+</div>
+<p class="text-right"><a href="/solar-power">Explore more<em class="fa fa-angle-right ml-1"></em></a></p>
+</div>
+</div>
+<!--/MAP Dropdown-->
+</div>
+*@
+</div>
+</div>
+</div>
+<div class="map">
+<div class="bg-images"><img alt="" src="-/media/71F560D756C9424F84EE8C8D4CE4140A.ashx" class="img-fluid w-100 h-100" loading=lazy/>
+</div>
+<ul class="map-markers solarproject map-dots" id="solarproject">
+    <li onclick="filterMap('Maharashtra')" class="map-marker map-marker-Kilaj ports-terminal">
+    <a onclick="filterMap('Maharashtra')">Maharastra</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Maharastra<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    <li onclick="filterMap('Punjab')" class="map-marker map-marker-Punjab ports-terminal">
+    <a onclick="filterMap('Punjab')">Punjab</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Punjab<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    
+<li onclick="filterMap('Odisha')" class="map-marker map-marker-Odisha ports-terminal">
+    <a onclick="filterMap('Odisha')">Odisha</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Odisha<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+
+	<li onclick="filterMap('Gujarat')" class="map-marker map-marker-guj ports-terminal">
+    <a onclick="filterMap('Gujarat')">Gujarat</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Gujarat<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+	
+<li onclick="filterMap('Rajasthan')" class="map-marker map-marker-raj ports-terminal">
+    <a onclick="filterMap('Rajasthan')">Rajasthan</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Rajasthan<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+	<li onclick="filterMap('Madhya-Pradesh')" class="map-marker map-marker-madhya ports-terminal">
+    <a onclick="filterMap('Madhya-Pradesh')">Madhya Pradesh</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Madhya Pradesh<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    <li onclick="filterMap('Karnataka')" class="map-marker map-marker-Karnataka ports-terminal">
+    <a onclick="filterMap('Karnataka')">Karnataka</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Karnataka<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    <li onclick="filterMap('Tamil-Nadu')" class="map-marker map-marker-Tamil-Nadu ports-terminal">
+    <a onclick="filterMap('Tamil-Nadu')">Tamil Nadu</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Tamil Nadu<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    <li onclick="filterMap('Andhra-Pradesh')" class="map-marker map-marker-AP ports-terminal">
+    <a onclick="filterMap('Andhra-Pradesh')">AP</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>AP<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    <li onclick="filterMap('Telangana')" class="map-marker map-marker-Telangana ports-terminal">
+    <a onclick="filterMap('Telangana')">Telangana</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Telangana<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    <li onclick="filterMap('Chhattisgarh')" class="map-marker map-marker-Chattisgarh ports-terminal">
+    <a onclick="filterMap('Chhattisgarh')">Chattisgarh</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>Chattisgarh<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+    <li onclick="filterMap('Uttar-Pradesh')" class="map-marker map-marker-UP ports-terminal">
+    <a onclick="filterMap('Uttar-Pradesh')">UP</a>
+    <div class="map-marker-info">
+    <div class="map-marker-info-inner animate-bounce-in">
+    <header>
+    <h2>UP<span class="d-block"></span></h2>
+    </header>
+    <main>
+    <p class="mb-2">20 MW<span class="d-block">Commissioned</span></p>
+    <p>Module: Polycrystaline</p>
+    <p>Inverter : String</p>
+    </main>
+    </div>
+    </div>
+    </li>
+</ul>
+<ul class="map-markers windproject map-dots" id="windproject"></ul>
+    <ul class="map-markers solar&amp;windproject map-dots" id="solar&amp;windproject"></ul>
+        </div>
+    	    </section>

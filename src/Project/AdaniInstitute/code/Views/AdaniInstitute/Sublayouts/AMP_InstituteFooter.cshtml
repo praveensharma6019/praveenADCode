@@ -1,0 +1,75 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+
+@{
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var Footers = Sitecore.Context.Database.Items.GetItem("{738665C9-A7AE-4BA9-9848-6B19FC3857E4}");
+    var i = 1;
+    
+
+
+}
+
+
+<h4>Adani Institute of Digital Technology Management</h4>
+		<p class="address_text"> (A Constituent of Jeevanjyoti Education and Research Foundation) </p>
+		<p class="address_text">Plot No. 225, Opp. Maharaj Hotel Lane, <span>Sarkhej - Gandhinagar Highway, PO: Jamiyatpura, </span>Gandhinagar - 382423, Gujarat.</p>
+		<p class="address_text">Contact No: <a href="tel:6358975111">+91 63589 75111</a></p>
+		<p class="address_text">Email : <a href="mailto:admissions@aidtm.ac.in">admissions@aidtm.ac.in</a></p>
+		<p class="address_text">(Formerly known as "Oakbrook Business School")</p>
+		<p class="address_text"><a href="https://goo.gl/maps/JFZ92Ekydn97hYtq5" target="_blank"><amp-img alt="Adani Institute" src="https://mangaluru.adaniairports.com/-/media/8CC0CF7002C4426896F034C7E552CED5.ashx" width="20" height="20"></amp-img> Find Us On Google Maps</a></p>
+		<p class="sitemap-btn" on="tap:AMP.setState({visible: !visible})" role="sitemap" tabindex="0"><a href="#sitemap-block">Sitemap <span class="fa fa-angle-right"></span></a></p>
+
+<div class="toggle_submenu" id="sitemap-block" [class]="visible ? 'show' : 'hide'" class="hide">
+    @foreach (var item in element.GetChildren().ToList())
+    {
+        Sitecore.Data.Fields.LinkField linkvalues = item.Fields["Link"];
+        var linkUrls = linkvalues.GetFriendlyUrl();
+        if (i == 1)
+        {
+            <div class="ft-submenu">
+                <h5><a href="@linkUrls">@item.Fields["NavigationTitle"]</a></h5>
+            </div>
+        }
+        else
+        {
+            <div class="ft-submenu">
+                <h5><a href="@linkUrls">@item.Fields["NavigationTitle"]</a></h5>
+
+                <ul class="ft-business">
+                    @foreach (var items in item.GetChildren().ToList())
+                    {
+                        if (item.HasChildren)
+                        {
+                            Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+                            <li><a href="@linkUrl">@items.Fields["NavigationTitle"]</a></li>
+                        }
+                    }
+                </ul>
+
+            </div>
+            if (i == 2)
+            {
+                break;
+            }
+
+        }
+        i++;
+    }
+    <div class="ft-submenu">
+        @foreach (var item in element.GetChildren().ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+            var linkUrl = linkvalue.GetFriendlyUrl();
+            if (!item.HasChildren)
+            {
+                <h5><a href="@linkUrl">@item.Fields["NavigationTitle"]</a></h5>
+            }
+        }
+    </div>
+</div>

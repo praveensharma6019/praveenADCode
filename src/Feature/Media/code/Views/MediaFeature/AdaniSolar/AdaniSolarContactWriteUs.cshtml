@@ -1,0 +1,144 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Items
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var dataItem = "{2C5263DE-8C73-417F-BD2C-B0C17CAB4DE4}";
+    var ddrItem = Sitecore.Context.Data.Database.GetItem(dataItem);
+    var groupWebsite = "{625CF88E-D302-4575-B8A5-CE1C86C0B9F1}";
+    var groupWebsiteItem = Sitecore.Context.Data.Database.GetItem(groupWebsite);
+    var ProjectListItemId = "{F570A58B-AB0F-4638-8270-F780FDCEF9C0}";
+    var ProjectListItem = Sitecore.Context.Data.Database.GetItem(ProjectListItemId);
+    var contrycodeId = "{D82BFF95-088F-49E3-8871-5B3957AB4522}";
+    var contrycodeItem = Sitecore.Context.Data.Database.GetItem(contrycodeId);
+}
+@if (elements != null)
+{
+    var elementList = ddrItem.Axes.GetDescendants();
+    //var countryItemList = contrycodeItem.Axes.GetDescendants();
+    var countryItemList = contrycodeItem.Axes.GetDescendants();
+    var groupWebsiteList = groupWebsiteItem.Children;
+    var ProjectNameList = ProjectListItem.GetChildren();
+    List<SelectListItem> CategoryList = new List<SelectListItem>();
+    List<SelectListItem> CountryList = new List<SelectListItem>();
+    List<SelectListItem> ProjectList = new List<SelectListItem>();
+    if (elementList != null)
+    {
+        foreach (var item in elementList)
+        {
+            CategoryList.Add(new SelectListItem { Text = item.Fields["Text"].ToString(), Value = item.Fields["Value"].ToString() });
+        }
+        foreach (var item in countryItemList)
+        {
+            CountryList.Add(new SelectListItem { Text = item.Fields["Text"].ToString(), Value = item.Fields["Value"].ToString() });
+        }
+        foreach (Item item in ProjectNameList)
+        {
+            ProjectList.Add(new SelectListItem { Text = item.Fields["Text"].ToString(), Value = item.Fields["Value"].ToString() });
+        }
+
+
+    }
+
+    <section class="bg-gray py-5">
+        <div class="container">
+            <h4 class="heading pl-4 mb-4">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h4>
+            <div class="contact-form">
+                <form class="px-4 py-4 bg-white">
+                    <input type="hidden" id="cFormType" value="Contact-Us">
+                    <input type="hidden" id="PageInfo" value="/Contact-Us">
+                    <input type="hidden" id="utm_source" value="">
+                    <input type="hidden" id="emailMessage" value="{2034F197-DBBF-41E8-828C-AEF93D68FA59}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="cname" placeholder="Name">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <input type="email" class="form-control" id="cmailid" placeholder="Email">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                @Html.DropDownList("typeofmessage", CategoryList, htmlAttributes: new { @class = "form-control", id = "cmessageType" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                @Html.DropDownList("typeofproject", ProjectList, htmlAttributes: new { @class = "form-control", id = "cprojectType" })
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <select name="Select Region" class="form-control" id="region">
+                                    @foreach (var item in groupWebsiteList.ToList())
+                                    {
+                                        if (item.HasChildren)
+                                        {
+                                            <optgroup label="@item.Fields["Text"].ToString()">
+                                                @foreach (var inner in item.Children.InnerChildren.ToList())
+                                                {
+                                                    <option value="@inner.Fields["Value"].ToString()">@inner.Fields["Text"].ToString()</option>
+                                                }
+                                            </optgroup>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Fields["Value"].ToString()">@item.Fields["Text"].ToString()</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <select name="State" class="form-control" id="State">
+                                    <option value="Default">Select State</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="ccontactno" placeholder="Contact Number" onKeyUp="$(this).val($(this).val().replace(/[^\d]/ig, ''))">
+                                <div class="input-group-append">
+                                    @Html.DropDownList("country", CountryList, htmlAttributes: new { @class = "btn btn-outline-secondary dropdown-toggle", id = "countrycode" })
+                                    @*<select name="Select country" class="form-control" id="countrycode"></select>*@
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-group">
+                                <textarea class="form-control" rows="3" id="cmessage" placeholder="Message"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div id="recaptcha2"></div>
+                        </div>
+                        <div class="col-md-12 mb-3 text-right">
+                            <p>
+                                <button type="submit" id="btnContactUsSubmit" class="btn btn-primary">Submit</button>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+}

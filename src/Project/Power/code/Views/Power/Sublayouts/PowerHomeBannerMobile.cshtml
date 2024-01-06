@@ -1,0 +1,44 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+   var NavigateUrl="";
+   var NavigateUrls="";
+}
+
+	
+	<div class="owl-carousel owl-theme homeslider 123" data-click-state="0">
+        @foreach (var item in elements.Children.ToList())
+        {
+		        Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaVideoLink"];
+				NavigateUrl = linkField.Url;
+				Sitecore.Data.Fields.LinkField linkFields = item.Fields["MediaLink"];
+            NavigateUrls = linkFields.GetFriendlyUrl();
+<div class="item @NavigateUrl" data-videosrc="@NavigateUrl">
+     @if(!String.IsNullOrEmpty(Html.Sitecore().Field("MediaTitle", item).ToString()))
+                {
+                <a href="@NavigateUrls" target="_blank">
+                    @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "image-fluid")
+                </a>
+                }
+				 @if(String.IsNullOrEmpty(Html.Sitecore().Field("MediaTitle", item).ToString()))
+				 {
+                @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "image-fluid")
+				}
+	@if(String.IsNullOrEmpty(Html.Sitecore().Field("MediaLink" , item).ToString()) && !String.IsNullOrEmpty(Html.Sitecore().Field("MediaDescription" , item).ToString()))
+				{
+					<div class="slider-content">
+						<div>
+							<div class="container">
+								@Html.Sitecore().Field("MediaDescription", item)
+							</div>
+						</div>
+					</div>
+				}
+</div>
+           
+        }
+		  </div>
+	

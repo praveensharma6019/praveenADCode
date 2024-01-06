@@ -1,0 +1,58 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var tab = parent.GetChildren().ToList();
+    string pagename = Path.GetFileName(Request.Url.AbsolutePath);
+
+    var ExtraItems = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "ExtraItems").FirstOrDefault().Value;
+    var elements2 = Sitecore.Context.Database.GetItem(ExtraItems);
+    var items2 = elements2.GetChildren().OrderByDescending(x => x[Sitecore.FieldIDs.Updated]).ToList(); ;
+    var i = 0;
+    var list = tab.Concat(items2);
+	 var Dynamicclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Dynamicclass1").FirstOrDefault().Value;
+	 
+   
+}
+<section class="bg-cream section-bottom @Dynamicclass content-header">
+
+    <div class="container-fluid">
+	<h2>Other Services</h2>
+        <div class="owl-carousel service-carousel">
+            @foreach (var child in list.ToList())
+            {
+                if (!child.DisplayName.Contains(pagename))
+                {
+					if (@child["Title"]!="")
+					{
+					
+                    string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(child);
+                    <div class="item">
+                        <ul class="services-blocks">
+
+                            <li class="text-center pl-0">
+                                <span class="d-block position-relative"><a href="@linkUrl">@Html.Sitecore().ImageField("Icon", child, 0, 0, "mx-auto mb-3")</a></span>
+                                <div class="d-block">
+                                    <h3 style="min-height: 40px;"><a href="@linkUrl">@Html.Sitecore().Field("Title", child)</a></h3>
+                                    <p class="d-none"> @Html.Sitecore().Field("Summary", child)</p>
+                                    <div class="d-none"><a href="@linkUrl">Find Out More <i class="fa fa-angle-right"></i></a></div>
+                                </div>
+
+
+                              
+
+
+                            </li>
+                        </ul>
+                    </div>
+					}
+                }
+            }
+        </div>
+    </div>
+</section>

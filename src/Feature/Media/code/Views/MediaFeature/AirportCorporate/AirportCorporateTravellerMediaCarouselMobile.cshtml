@@ -1,0 +1,43 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var url = "";
+    var NavigateUrls = "";
+}
+
+
+<div class="owl-carousel owl-theme homeslider d-md-none d-block" data-click-state="0">
+    @foreach (var item in elements.GetChildren().ToList())
+    {
+        Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaVideoLink"];
+        url = linkField.Url;
+        Sitecore.Data.Fields.LinkField linkFields = item.Fields["MediaLink"];
+        NavigateUrls = linkFields.GetFriendlyUrl();
+        <div class="item @url" data-videosrc="@url">
+
+            <video class="d-block w-100" autoplay muted>
+                <source src="@url" type="video/mp4 ">
+            </video>
+            @if (!String.IsNullOrEmpty(Html.Sitecore().Field("MediaLink", item).ToString()))
+            {
+                <a href="@NavigateUrls">
+                    @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "image-fluid")
+                </a>
+            }
+            @if (String.IsNullOrEmpty(Html.Sitecore().Field("MediaLink", item).ToString()))
+            {
+                @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "image-fluid")
+            }
+            @if (String.IsNullOrEmpty(Html.Sitecore().Field("MediaVideoLink", item).ToString()) && !String.IsNullOrEmpty(Html.Sitecore().Field("MediaDescription", item).ToString()))
+            {
+                <div class="banner-content">
+                    @Html.Sitecore().Field("MediaDescription", item)
+                </div>
+            }
+        </div>
+    }
+</div>
+

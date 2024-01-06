@@ -1,0 +1,58 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var ContentPath = Sitecore.Context.Item.Paths.ContentPath.Replace("/AdaniSolar/", "");
+    var path = ContentPath.Replace("/AdaniSolar/", "");
+    string[] pathArr = path.Split('/');
+    var navPath = "/";
+    var bdClass = string.Empty;
+}
+@if (elements != null)
+{
+    if (!elements.FieldHasValue(Templates.HasMedia.Fields.Title) && !elements.FieldHasValue(Templates.HasMedia.Fields.Title))
+    {
+        bdClass = "breadcrumb-product-banner";
+    }
+
+    <section class="breadcrumb py-5 @bdClass">
+        <div class="bg-image">
+            @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasMediaImage.Fields.Image, elements)
+        </div>
+        <div class="breadcrumb-product-sub">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <ul>
+                            @for (int i = 0; i < pathArr.Count() - 1; i++)
+                            {
+                                navPath = navPath + pathArr[i];
+                                <li><a href="@navPath">@pathArr[i].Replace("-"," ")</a></li>
+                                navPath = navPath + "/";
+                            }
+                        </ul>
+                        @if (elements.FieldHasValue(Templates.HasMedia.Fields.Title))
+                        {
+                            <h1>@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, elements)</h1>
+                        }
+                        @if (elements.FieldHasValue(Templates.HasMedia.Fields.Description))
+                        {
+                            <p>@Html.Sitecore().Field(Templates.HasMedia.Fields.Description, elements)</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--/breadcrumb-->
+}

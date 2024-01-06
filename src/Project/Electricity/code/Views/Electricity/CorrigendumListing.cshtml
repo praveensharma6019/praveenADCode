@@ -1,0 +1,86 @@
+﻿@model List<Sitecore.Electricity.Website.Model.CorrigendumModel>
+@using Sitecore.Electricity.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var corrigendumcreate = Sitecore.Context.Database.GetItem(Templates.Tender.CorrigendumTenderCreate);
+    var corrigendumUpdate = Sitecore.Context.Database.GetItem(Templates.Tender.CorrigendumTenderUpdate);
+    var TenderListURL = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderListing);
+}
+
+
+<div class="pageContent">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "Electricity", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <div class="col-12 p-0 pb-3">
+            <h2>@Html.Sitecore().Dictionary("Electricity/Tender/Corrigendum List Text", "Corrigendum List")</h2>
+        </div>
+        <!-- Section -->
+        <div class="pb-3">
+            <div class="row">
+
+                <div class="col-12 p-0 pb-3">
+                    <div class="float-right">
+                        <a href="@corrigendumcreate.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Create Corrigendum Text", "Create Corrigendum")</a>
+                    </div>
+                </div>
+                <div class="table-responsive tableOuter">
+                    <table class="table table-borderless table-white table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th scope="col">
+                                    @Html.DisplayName("Corrigendum Date")
+
+                                </th>
+                                <th scope="col">
+                                    @Html.DisplayName("Corrigendum Title")
+                                </th>
+                                <th scope="col">
+                                    @Html.DisplayName("Ref. No / Tender No")
+                                </th>
+                                <th scope="col">@Html.Sitecore().Dictionary("Electricity/Tender/Corrigendum Update Text", "Update")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @item.FormatedDate.ToString("dd/MM/yy", System.Globalization.CultureInfo.InvariantCulture)
+                                    </td>
+                                    <td>
+                                        @*@Convert.ToString(string.Format("{0:dd-MM-yyyy}", item.Date))*@
+                                        @Html.DisplayFor(modelItem => item.Title)
+                                        @*@Html.TextBoxFor(x => x.Adv_Date, "{0:dd-MM-yyyy hh:mm:ss}")*@
+                                    </td>
+                                    <td>
+                                        @foreach (var data in item.NITPRNo)
+                                        {
+                                            @Html.DisplayFor(x => data.NITPRNo) <br />
+                                        }
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-default btn-sm">
+                                            <a href="@corrigendumUpdate.Url()?id=@item.Id" class="txt-orange txt-underline" title="Update">@Html.Sitecore().Dictionary("Electricity/Tender/Corrigendum Update Text", "Update")</a>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="card-footer">
+                        <a href="@TenderListURL.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Back To List Text", "Back To Tender List")</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

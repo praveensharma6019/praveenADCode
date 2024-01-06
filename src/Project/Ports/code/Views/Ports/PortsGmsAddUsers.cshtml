@@ -1,0 +1,267 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@model Sitecore.Ports.Website.Models.PortsGMSAddUsers
+@using Sitecore.Ports.Website.Models
+@{
+    /**/
+
+
+    var Department = Sitecore.Context.Database.GetItem("{39DA8970-3944-4F15-9A7D-7E9157ACB4F2}");
+    var Role = Sitecore.Context.Database.GetItem("{1B5C8C51-E533-449F-A06B-F96F58011CE7}");
+    var Title = Sitecore.Context.Database.GetItem("{76273070-C57B-4589-9C56-E8941677865A}");
+    var Company = Sitecore.Context.Database.GetItem("{1B5C8C51-E533-449F-A06B-F96F58011CE7}");
+
+    var BusinessGroup = Sitecore.Context.Database.GetItem("{7F330547-8B54-4343-93C0-D06F25394B81}");
+    var SiteHead = Sitecore.Context.Database.GetItem("{3C86DA42-7730-4AE8-9A9E-C72734D1990E}");
+    var HO = Sitecore.Context.Database.GetItem("{FCB0B564-E638-473D-9086-2514778FE099}");
+    var Team = Sitecore.Context.Database.GetItem("{48992B38-A3CE-4DEB-9131-35EEB86ED1FC}");
+
+    var item = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceAdminDashbord);
+    var Homelink = item.Url();
+
+    var item1 = Sitecore.Context.Database.GetItem(PortsGMSTemplates.Grievance.GrievanceManageUser);
+    var link = item1.Url();
+}
+}
+<section class="breadcrumb-sub-layout bg-white  pt-5 pb-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul class="breadcrumb-sublayout-ul">
+                    <li><a href="@Homelink">Home</a></li>
+                    <li>Add User</li>
+                </ul>
+            </div>
+            <div class="col-lg-6 text-right">
+                <p class="user_logout"><a href="/Grievance/Logout"><span class="fa fa-sign-out mr-2"></span>Logout</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="pb-5 bg-white">
+    <div class="container">
+        @if (Session["SuccessMsg"] != null)
+        {
+            <div class="alert-success mb-4 p-2">@Session["SuccessMsg"]</div>
+            Session["SuccessMsg"] = null;
+        }
+        @if (Session["ErrorMsg"] != null)
+        {
+            <div class="alert-danger mb-4 p-2">@Session["ErrorMsg"]</div>
+            Session["ErrorMsg"] = null;
+        }
+        <div class="form_panel bg-l-gray p-4 box-shadow">
+            <h3 class="heading mb-4 pl-3">Add new user</h3>
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-add-users", id = "form-add-users" }))
+            {
+                <div class="row">
+                    <div class="col-lg-3 col-6 col-sm-4">
+                        <div class="form-group">
+                            <select name="Title" required class="form-control" id="Title">
+                                @foreach (var element in Title.GetChildren().ToList())
+                                {
+                                    var childCount = element.GetChildren().Count();
+                                    if (childCount != 0)
+                                    {
+                                        <option></option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@Html.Sitecore().Field("Title", element)">@Html.Sitecore().Field("Title", element)</option>
+
+                                    }
+
+                                }
+
+
+                            </select>
+                            @Html.ValidationMessageFor(x => x.Title, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+
+                            @Html.TextBoxFor(x => x.first_name, new { @class = "form-control", id = "FirstName", placeholder = "First Name" ,autocomplete = "off" })
+                            @Html.ValidationMessageFor(x => x.first_name, "", new { @class = "required" }, "p")
+
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            @Html.TextBoxFor(x => x.middle_name, new { @class = "form-control", id = "MiddleName", placeholder = "Middle Name", autocomplete = "off" })
+                            @Html.ValidationMessageFor(x => x.middle_name, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 d-none">
+                        <div class="form-group">
+                            <label>Location<span class="">*</span></label>
+                            @Html.TextBoxFor(x => x.Location, new { @class = "form-control", id = "Location", placeholder = "Location", autocomplete = "off" })
+                            @Html.ValidationMessageFor(x => x.Location, "", "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="form-group">
+                            @Html.TextBoxFor(x => x.last_name, new { @class = "form-control", id = "LastName", required = "required", placeholder = "Last Name", autocomplete = "off" })
+                            @Html.ValidationMessageFor(x => x.last_name, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>User Type<span class="required">*</span></label>
+                            <select name="User_Type" class="form-control" id="User_Type">
+                                <option value="level0">Level0</option>
+                                <option value="level1">Level1</option>
+                                <option value="level2">Level2</option>
+                                <option value="level3">Level3</option>
+                                @*<option value="sustainability">Sustainability Cell</option>*@
+
+                            </select>
+                            @Html.ValidationMessageFor(x => x.User_Type, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Email<span class="required">*</span></label>
+                            @Html.TextBoxFor(x => x.Email, new { @class = "form-control", id = "Email", required = "required", autocomplete = "off" ,placeholder = "Email",@onfocusout = "validateEmailIdCorporate(event,this)" })
+                            @Html.ValidationMessageFor(x => x.Email, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Mobile<span class="required">*</span></label>
+                            @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control", id = "Mobile", autocomplete = "off", required = "required", placeholder = "Mobile" })
+                            @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Business Group<span class="required">*</span></label>
+                            <select name="BusinessGroup" required class="form-control" id="BusinessGroup">
+                                <option>--Select--</option>
+                                @foreach (var element in BusinessGroup.GetChildren().ToList())
+                                {
+                                    var childCount = element.GetChildren().Count();
+                                    if (childCount != 0)
+                                    {
+                                        @*<option></option>*@
+                                    }
+                                    else
+                                    {
+                                       
+                                        <option value="@Html.Sitecore().Field("Value", element)">@Html.Sitecore().Field("Value", element)</option>
+
+                                    }
+
+                                }
+
+
+
+                            </select>
+
+                            @Html.ValidationMessageFor(x => x.BusinessGroup, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Site Head</label>
+                            <select name="SiteHead" class="form-control" id="SiteHead">
+                                <option>--Select--</option>
+                            </select>
+
+                            @Html.ValidationMessageFor(x => x.SiteHead, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                   <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Team</label>
+                            <select name="Team" class="form-control" id="Team">
+                                <option>--Select--</option>
+                                @foreach (var element in Team.GetChildren().ToList())
+                                {
+                                    var childCount = element.GetChildren().Count();
+                                    if (childCount != 0)
+                                    {
+                                        @*<option></option>*@
+                                    }
+                                    else
+                                    {
+
+                                        <option value="@Html.Sitecore().Field("Value", element)">@Html.Sitecore().Field("Value", element)</option>
+
+                                    }
+
+                                }
+
+
+                            </select>
+
+                            @Html.ValidationMessageFor(x => x.Team, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Type of stakeholder</label>
+                            <select name="HO" required class="form-control" id="HO">
+                                <option>--Select--</option>
+                                @foreach (var element in HO.GetChildren().ToList())
+                                {
+                                    var childCount = element.GetChildren().Count();
+                                    if (childCount != 0)
+                                    {
+                                        @*<option></option>*@
+                                    }
+                                    else
+                                    {
+
+                                        <option value="@Html.Sitecore().Field("Value", element)">@Html.Sitecore().Field("Value", element)</option>
+
+                                    }
+
+                                }
+
+                            </select>
+
+                            @Html.ValidationMessageFor(x => x.HO, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label>Status<span class="required">*</span></label>
+                            <select name="Status" class="form-control" id="Status">
+                                <option value="true">Active</option>
+                                <option value="false">InActive</option>
+                            </select>
+                            @Html.ValidationMessageFor(x => x.Status, "", new { @class = "required" }, "p")
+                        </div>
+						<input type="hidden" name="AddUsersGcaptcha" class="g-AddUsersGcaptchares-res" />
+                    </div>
+                </div>
+
+                <div class="col-lg-12 mt-3 text-right">
+                    <!-- <button type="submit" class="btn btn-gradient">Save</button> -->
+					 <button class="btn btn-gradient" type="button" id="AddUsersBtn" data-sitekey="6lfwlk8maaaaadm4uhicqr0kxnzkwc_3twnpdlem"
+                            data-callback='onsubmit' data-action='submit'>
+                        <span>Save</span>
+                    </button>
+                    <a href="@link" class="btn btn-dark">Close</a>
+                </div>
+            }
+        </div>
+    </div>
+</section>

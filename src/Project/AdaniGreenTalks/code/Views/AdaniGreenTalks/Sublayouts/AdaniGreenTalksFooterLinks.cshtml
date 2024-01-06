@@ -1,0 +1,60 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Foundation.SitecoreExtensions.Extensions.ItemExtensions.getItem(datasource);
+    string btnUrl = "#";
+    string target = string.Empty;
+}
+
+@if (model != null)
+{
+    if (model.HasChildren)
+    {
+        <div class="col-md-9 f-nav">
+            <ul>
+                @foreach (Item parent in model.GetChildren())
+                {
+
+                    <li class="f-nav-column">
+                        <a>@Html.Sitecore().Field(Constant.Text, parent)</a>
+                        @if (parent.HasChildren)
+                        {
+                            <ul>
+                                @foreach (Item child in parent.GetChildren())
+                                {
+                                    Sitecore.Data.Fields.LinkField linkField = child.Fields[Constant.Link];
+                                    if (linkField != null)
+                                    {
+                                        btnUrl = linkField.GetFriendlyUrl();
+                                        target = linkField.Target;
+                                    }
+                                    <li><a href="@btnUrl" target="@target">@Html.Sitecore().Field(Constant.ShortTitle, child)</a></li>
+                                }
+                            </ul>
+                        }
+                    </li>
+
+                }
+                <li class="f-nav-column show-on-mob">
+                    <a>Sustainable Development Goals</a>
+                    <ul>
+                        <li>@Html.Sitecore().Placeholder("Sustain-Goals")</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    }
+
+}

@@ -1,0 +1,53 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using Sitecore.Data.Items
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+      var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+	  var NavigateUrl="";
+	  var NavigateUrls="";
+}
+
+<div class="owl-carousel owl-theme homeslider" data-click-state="0">
+        @foreach (var item in elements.Children.ToList())
+        {
+		        Sitecore.Data.Fields.LinkField linkField = item.Fields[Templates.HasMediaVideo.Fields.VideoLink];
+         NavigateUrl = linkField.Url;
+		 Sitecore.Data.Fields.LinkField linkFields = item.Fields["MediaVideoLink"];
+            NavigateUrls = linkFields.GetFriendlyUrl();
+			 Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaThumbnail"]);
+
+                string imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+<div class="item @NavigateUrl" data-videosrc="@NavigateUrl">
+    @if(!String.IsNullOrEmpty(Html.Sitecore().Field("MediaTitle", item).ToString()))
+                {
+                <a href="@NavigateUrls" target="_blank">
+                    <img src="@imgurl" alt="Adani" class="image-fluid" loading="lazy">
+                </a>
+                }
+				 @if(String.IsNullOrEmpty(Html.Sitecore().Field("MediaTitle", item).ToString()))
+				 {
+                 <img src="@imgurl" alt="Adani" class="image-fluid" loading="lazy">
+				}
+	@if(String.IsNullOrEmpty(Html.Sitecore().Field("MediaLink" , item).ToString()) && !String.IsNullOrEmpty(Html.Sitecore().Field("MediaDescription" , item).ToString()))
+				{
+					<div class="slider-content">
+						<div>
+							<div class="container">
+								@Html.Sitecore().Field("MediaDescription", item)
+							</div>
+						</div>
+					</div>
+				}
+</div>
+           
+        }
+		  </div>

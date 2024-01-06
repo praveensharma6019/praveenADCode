@@ -1,0 +1,96 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+    if (Model?.NavItems == null)
+    {
+        return;
+    }
+
+    var isSocialMenu = Model.NavItems.All(i => !string.IsNullOrWhiteSpace(i.Item[Templates.LinkMenuItem.Fields.Icon]));
+}
+@*<ul class="@(isSocialMenu ? "social-links" : "download-links") float-right">
+           @foreach (var item in Model.NavItems)
+           {
+                  var liclass = item.IsActive ? "active " : "";
+                  if (item.Item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+                  {
+                         liclass += "divider-left";
+                  }
+
+
+
+                  <li class="@liclass">
+                               <a href="@item.Url" target="@item.Target" title="@item.Item[Templates.Navigable.Fields.NavigationTitle]" class="@(isSocialMenu ? "btn btn-social-icon btn-" + @item.Item[Templates.LinkMenuItem.Fields.Icon] : "")">
+                                      @if (!string.IsNullOrWhiteSpace(item.Item[Templates.LinkMenuItem.Fields.Icon]))
+                                      {
+                                             <span class="fa fa-@item.Item[Templates.LinkMenuItem.Fields.Icon]"></span>
+                                      }
+                                      else
+                                      {
+                                             if (item.Item[Templates.LinkMenuItem.Fields.Image] != null)
+                                             {
+                                                    @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, item.Item,20,67)
+                                             }
+                                             else
+                                             {
+                                                    @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                                             }
+
+                                      }
+
+                               </a>
+
+                         </li>
+
+           }
+    </ul>*@
+
+<div class="collapse navbar-collapse" id="mainMenu">
+    <ul class="navbar-nav ml-auto primaryMenu">
+        @foreach (var item in Model.NavItems)
+        {
+            var liclass = item.IsActive ? "active " : "";
+            if (item.Item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+            {
+                liclass += "divider-left";
+            }
+
+            var hasChildren = item.Children != null && item.Children.NavItems.Any() && item.ShowChildren;
+            var cssClass = "";
+            var heading = item.Item.Fields[Templates.Navigable.Fields.NavigationTitle].Value;
+            if (hasChildren || heading == "New User")
+            {
+                cssClass += " dropdown";
+            }
+
+            <li class="nav-item @cssClass">
+                <a href="@item.Url" class="nav-link dropdown-toggle" id="@heading">
+                    @Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)
+                </a>
+                @if (hasChildren)
+                {
+                    <div class="dropdown-menu box-inner-shadow" aria-labelledby="dropdown05">
+                        @foreach (var subitem in item.Children.NavItems)
+                        {
+                            <a class="dropdown-item" href="@subitem.Url">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</a>
+                        }
+                    </div>
+                }
+                @if (heading == "New User")
+                {
+                    @*<div class="dropdown-menu desktop-none" aria-labelledby="dropdown01">
+                            <a class="dropdown-item" href="">Apply for connection</a>
+                            <a class="dropdown-item" href="">Check Location map</a>
+                            <a class="dropdown-item" href="">Track Request Status</a>
+                            <a class="dropdown-item" href="">Explore Payment Options</a>
+                        </div>*@
+                    <div class="dropdown-menu mobile-none p-0" aria-labelledby="@heading">
+                        @Html.Sitecore().Placeholder("new-user-dropdown")
+                    </div>
+                }
+            </li>
+        }
+    </ul>
+</div>

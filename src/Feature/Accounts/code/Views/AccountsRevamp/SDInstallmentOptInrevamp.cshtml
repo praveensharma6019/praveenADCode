@@ -1,0 +1,364 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.SDEMIProcess
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    double outputval1 = 0;
+    var ToastModal = Session.GetAndRemove("SDInstalmentUpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessageRevamp;
+    if (ToastModal != null)
+    {
+        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageViewRevamp, ToastModal);
+    }
+}
+
+@if (contextItem != null)
+{
+    <div class="col s12 l8 offset-l1 QuickBillPaySection">
+        <header class="section-header">
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+            <p>@Html.Raw(contextItem["Body"])</p>
+        </header>
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmSDOptRegistration" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div class="section-container">
+                @if (!Model.IsvalidatOTP)
+                {
+                    <div class="submit-new-request" id="OnlinePaymentForm">
+                        <div class="card brand-gradient section-inner-wrapper outlined card-with-form">
+                            <h2>@Html.Sitecore().Dictionary("/Payments/OnlinePayment/Security Deposit Instalments", "Opt-In for Security Deposit Instalments:")</h2>
+
+                            @if (!Model.IsvalidatAccount)
+                            {
+                                if (UserSession.UserSessionContext != null)
+                                {
+                                    @Html.Sitecore().Placeholder("switch-account-content")
+                                }
+                                if (UserSession.UserSessionContext != null)
+                                {
+
+
+                                    if (Model.Result != "")
+                                    {
+                                        @Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")
+                                    }
+                                }
+                                else
+                                {
+
+                                    <div class="single-line-field">
+                                        <div class="input-field custom">
+                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @autocomplete = "off", @type = "number", @maxlength = "9", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                            <label id="lblCAnumber" for="CAnumber">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "CA Number")</label>
+
+                                            @Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")
+                                            <span class="field-validation-error" id="lblerrorCAnumber" style="display:none"></span>
+                                        </div>
+                                        <p class="help-text ca-number-help">Please enter your 9 digit consumer account number</p>
+                                    </div>
+                                    <div class="input-field custom">
+                                        <div class="captcha_box">
+                                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                <div class="row captcha_box" style="padding-left:10px;">
+                                                    <div class="col-lg-12">
+                                                        <div class="g-recaptcha" id="SDInstallmentrecaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                        <span class="field-validation-error" id="Captchaerror"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button type="submit" class="waves-effect waves-light btn btnsubmitcheck" name="ValidateCA" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Validate Account Button text", "Submit")">
+                                            @Html.Sitecore().Dictionary("/SDOpt/Register/Validate Account Button text", "Submit")
+                                        </button>
+                                    </div>
+                                }
+                            }
+                            else if (Model.IsvalidatAccount && !Model.IsOTPSend)
+                            {
+                                if (UserSession.UserSessionContext != null)
+                                {
+                                    @Html.Sitecore().Placeholder("switch-account-content")
+                                }
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                    <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                </div>
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                    <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                </div>
+                                <p class="help-text ca-number-help">OTP will be sent to your registered mobile number</p>
+                                <div class="btn-group">
+                                    <a class="btn-flat" href="/my-account/sd-installment-opt">Cancel</a>
+                                    <button type="submit" class="waves-effect waves-light btn" name="SendOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Proceed", "Proceed")">@Html.Sitecore().Dictionary("/SDOpt/Register/Proceed", "Proceed")</button>
+
+                                </div>
+                            }
+                            else if (Model.IsvalidatAccount && Model.IsOTPSend)
+                            {
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                    <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                </div>
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                    <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                </div>
+                                <div class="input-field custom">
+                                    @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber", @autocomplete = "off", @type = "number", @maxlength = "5", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                    <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/OTPNumber", "Enter OTP")</label>
+                                    <span class="field-validation-error" id="OTPNumbererror"></span>
+                                    @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block mb-3", id = "ValidationOTPNumber" }, "p")
+                                </div>
+                                <div class="input-field custom">
+                                    <div class="captcha_box">
+                                        <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                            <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                            <div class="row captcha_box" style="padding-left:10px;">
+                                                <div class="col-lg-12">
+                                                    <div class="g-recaptcha" id="SDInstallmentrecaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                    @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                    <span class="field-validation-error" id="CaptchaerrorOTP"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="btn-group">
+                                    <a class="btn-flat" href="/my-account/sd-installment-opt">Cancel</a>
+                                    <button type="submit" class="waves-effect waves-light btn" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/ValidateOTP", "Validate")">@Html.Sitecore().Dictionary("/SDOpt/Register/ValidateOTP", "Validate")</button>
+
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="submit-new-request" id="OnlinePaymentForm">
+                        <div class="card brand-gradient section-inner-wrapper outlined card-with-form">
+                            <h2>@Html.Sitecore().Dictionary("/Payments/OnlinePayment/Security Deposit Instalments", "Opt-In for Security Deposit Instalments:")</h2>
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/Contract Account number", "Contract Account number")</label>
+                            </div>
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                            </div>
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control reset-control", id = "ConsumerName", @readonly = "readonly" })
+                                <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/ConsumerName", "Consumer Name")</label>
+                            </div>
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.SecurityDepositAmount, new { @class = "form-control reset-control", id = "SecurityDepositAmount", @readonly = "readonly" })
+                                <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/Security Deposit Demand", "Security Deposit Demand Rs.")</label>
+                            </div>
+                            <div class="input-field custom">
+                                @Html.DropDownListFor(x => x.SelectedNumberOfInstalments, new SelectList(Model.NumberOfInstalmentsSelectList, "Value", "Text", Model.SelectedNumberOfInstalments), "Select", new { @class = "form-control", id = "ddlSelectedNumberOfInstalments", required = "required" })
+                                <label for="">@Html.Sitecore().Dictionary("/SDOpt/Register/Number of instalments", "Number of instalments")</label>
+                            </div>
+                            @Html.ValidationMessageFor(x => x.SelectedNumberOfInstalments, "", new { @class = "help-block" }, "p")
+
+                            <div class="form-field">
+                                <div class="checkbox-field">
+                                    <label>
+                                        <input id="termsCb" name="termsCb" type="checkbox" class="filled-in">
+                                        <span>I agree to the </span> <a class="modal-trigger" href="#TermandCondition">@Html.Sitecore().Dictionary("/SDOpt/Register/TermsCondition", "Terms & Conditions")</a>
+                                        @*<span>@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/TermsCondition", "I agree to the terms & conditions").</span>*@
+                                    </label>
+                                    <p class="help-text ca-checkcheckbox-help field-validation-error" id="docErrorMessage" style="display:none;">
+                                        Please select terms and condition
+                                    </p>
+                                </div>
+                            </div>
+
+                            @*<div class="form-group">
+                                    <input type="checkbox" name="termsCb" class="" id="termsCb">
+                                    <label class="" for="termsCb">I agree to the <a href="#TermsAndConditionsModal" data-toggle="modal" data-target="#TermsAndConditionsModal">Terms and Conditions</a></label>
+                                    <p class="txt-orange" id="docErrorMessage"></p>
+                                </div>*@
+
+                            <div class="btn-group">
+                                <button type="submit" class="waves-effect waves-light btn" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")">
+                                    @Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+
+            </div>
+            <div class="section-container">
+                @Html.Raw(contextItem["Summary"])
+            </div>
+
+        }
+    </div>
+    <div id="TermandCondition" class="modal">
+        <div class="modal-header">
+            <h4>Terms & Conditions</h4>
+            <aside><i class="i-cross modal-close waves-effect"></i></aside>
+        </div>
+        <div class="modal-content">
+            <ul>
+                <li>
+                    Once you opt for Security deposit instalments, your upcoming bill amount payable will include your Instalment amount and the current bill for the month. These are interest free instalments as per MERC (Electricity Supply Code and Standards of Performance of Distribution Licensees including Power Quality Regulations, 2021).
+                </li>
+                <li>This is a voluntary payment option, and it cannot be altered once opted.</li>
+                
+            </ul>
+            @*<div class="modal-message">
+                    <h5>
+                        Note:
+                    </h5>
+                    <p>As per RBI guidelines, starting 01 Aug 2009, customers paying by credit card would need to authenticate the transaction with an additional PIN which can be generated through the issuing bank's website or during the payment transaction. </p>
+                </div>*@
+
+        </div>
+    </div>
+
+    <div id="MERCRegulationsModal" class="modal">
+        <div class="modal-header">
+            <h4>Maharashtra Electricity Regulatory commission ( Electricity supply code and standard of performance of Distribution licensee including power quality) Regulation 2021:</h4>
+            <aside><i class="i-cross modal-close waves-effect"></i></aside>
+        </div>
+        <div class="modal-content">
+            <ul>
+                <li>As per the Maharashtra Electricity Regulatory Commission (Electricity Supply Code and Standards of Performance of Distribution Licensees including Power Quality) Regulations, 2021 clause 13.1 & 13.2 (mentioned below), AEML can collect Security Deposit (SD) from Consumer as a Security against electricity bills raised every month to Customers.</li>
+                <li>Subject to the provision of sub-sections (5) of section 47 of the Act, the distribution Licensee may require any person to whom supply of electricity has been sanctioned to deposit a security in accordance with the provisions of clause of sub-section (1) of Section 47 of the Act.</li>
+                <li>The amount of the Security Deposit shall be twice the average of billing of billing cycle period for determining the average billing, the average of the billing to the consumer for the last twelve (12) months or in case supply has been provided for a shorter period, the average of the billing of such shorter period, shall be considered.</li>
+                <li>Provided that for Consumers having quarterly billing cycle, amount of the security shall be 1.5 times the average of the billing cycle period.</li>
+            </ul>
+
+        </div>
+    </div>
+
+    <div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                    <button type="button" class="close" data-dismiss="modal">X</button>
+                </div>
+                <div class="modal-body">
+                    @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                    {
+                        <div class="form-group row">
+                            <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                            @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                                {
+                                    <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                                }*@
+                        </div>
+                        Session["Message"] = null;
+                        Session["AlertMessage"] = null;
+                    }
+                </div>
+                <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+            </div>
+
+        </div>
+    </div>
+}
+
+
+
+<script type="text/javascript">
+    var SDInstallmentrecaptcha;
+    var onloadCallback = function () {
+        SDInstallmentrecaptcha = grecaptcha.render('SDInstallmentrecaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+
+<script>
+    $("#frmSDOptRegistration").submit(function (event) {
+        debugger;
+        var buttonName = $(document.activeElement).attr('name');
+        var isvalid = true;
+        if (buttonName === "Submit") {
+            if (!$('input[name="termsCb"]').is(':checked')) {
+                $("#docErrorMessage").addClass('field-validation-error').html("Please confirm terms and conditions by checking the check boxes.").show();
+                isvalid = false;
+            } else {
+                $("#docErrorMessage").removeClass('field-validation-error').html("").hide();
+            }
+        }
+
+        if (buttonName === "ValidateOTP") {
+            if ($('#OTPNumber').val() == "") {
+                $("#OTPNumbererror").show().html('Please enter valid OTP Number.');
+                isvalid = false;
+            }
+            else {
+                $("#OTPNumbererror").hide().html('');
+            }
+            var captcharesponse = grecaptcha.getResponse(SDInstallmentrecaptcha);
+            if (!captcharesponse) {
+                $('#CaptchaerrorOTP').html('Please validate captcha to continue');
+                if ($('#OTPNumber').val() != "") {
+                    $('#ValidationOTPNumber').html('');
+                    $("#OTPNumber").removeClass('invalid');
+                }
+                isvalid = false;
+            }
+            else {
+                $('#CaptchaerrorOTP').html('');
+                $('#ValidationOTPNumber').html('');
+                $("#OTPNumber").removeClass('invalid');
+                isvalid = true;
+            }
+        }
+
+        if (isvalid) {
+            $('.loader-wrap').show();
+            return isvalid;
+        } else {
+            return isvalid;
+        }
+    });
+
+    $('.btnsubmitcheck').click(function () {
+        debugger;
+        var valid = true;
+        if ($('#AccountNo').val() == "") {
+            $("#lblerrorCAnumber").show().html('Please enter valid Account Number.');
+            valid = false;
+        }
+        else {
+            $("#lblerrorCAnumber").hide().html('');
+        }
+        var captcharesponse = grecaptcha.getResponse(SDInstallmentrecaptcha);
+        if (!captcharesponse) {
+            $('#Captchaerror').html('Please validate captcha to continue');
+            valid = false;
+        }
+        else {
+            $('#Captchaerror').html('');
+            return true;
+        }
+        if (!valid)
+            return false;
+        else
+            return true;
+
+
+    });
+</script>
+
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

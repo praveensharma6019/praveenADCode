@@ -1,0 +1,202 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.SubmitMeterReading
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var index = 0;
+    var index2 = 0;
+    var index3 = 0;
+    var attachIndex = 0;
+}
+
+<div class="col s12 l8 offset-l1">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    <div class="section-wrapper custom_accrdion rounded">
+        <div class="accordion">
+            <ul class="collapsible collapsible-accordion">
+                <li class="active">
+                    <div class="collapsible-header hide center">
+                        <a href="javascript:void(0)">Submit New Reading</a>
+                    </div>
+                    <div class="collapsible-body">
+                        <h2>Submit New Reading</h2>
+                        <div class="card brand-gradient outlined section-inner-wrapper card-with-form border-none-mobile">
+                            @Html.Sitecore().Placeholder("switch-account-content")
+                            @if (Model.IsSubmitted && Model.Result != null)
+                            {
+                                <div class="message-footer">
+                                    <div class="message warning warning-info">
+                                        <i class="i-info"></i>
+                                        <label>
+                                            Meter Reading Noted!
+                                            <br />
+                                            <p>@Model.Result.Replace("_", " ")</p>
+                                        </label>
+                                    </div>
+                                    <p>For any further queries please write to us at <a href="mailto:helpdesk.mumbaielectricity@adani.com">helpdesk.mumbaielectricity@adani.com</a></p>
+                                </div>
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(Model.Result))
+                                {
+                                    <h2>
+                                        @Model.Result.Replace("_", " ")
+                                    </h2>
+                                }
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreatecorrigendum", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.HiddenFor(x => x.CANumber);
+                                    @Html.HiddenFor(x => x.Source);
+                                    <form action="/submit-meter-reading" class="form-signin" id="frmMeterSubmit" method="post">
+                                        <div class="row">
+                                            @if (Model.MeterList != null)
+                                            {
+                                                <div class="input-field custom">
+                                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", @type = "number", id = "MobileNumber", maxlength = 10, @autocomplete = "off" })
+                                                    <label>Mobile Number</label>
+                                                    @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "error" })
+                                                </div>
+                                                foreach (var meterdetail in Model.MeterList)
+                                                {
+                                                    @Html.HiddenFor(x => x.MeterList[index].MeterNumber);
+                                                    <div class="input-field custom">
+                                                        <input id="MeterList_0__MeterNumber" name="MeterList[0].MeterNumber" type="hidden" value="7947291">
+                                                        @Html.TextBoxFor(x => x.MeterList[index].MeterNumber, new { @readonly = "readonly" })
+                                                        <label class="mb-3">Meter Number</label>
+                                                    </div>
+                                                    <div class="input-field custom">
+                                                        @Html.TextBoxFor(x => x.MeterList[index].MeterReading, new { @class = "form-control reset-control", @type = "number", id = "MeterReading", @autocomplete = "off"})
+                                                        <label class="d-block">Meter Reading</label>
+                                                    </div>
+                                                    <div class="input-field custom">
+                                                        <div class="position-relative calendarInput">
+                                                            @Html.TextBoxFor(x => x.MeterList[index].MeterReadingDate, new { @class = "form-control reset-control datepicker docs-date dateCal", id = "MeterReadingDate" })
+                                                            @Html.ValidationMessageFor(x => x.MeterList[index].MeterReadingDate, "", new { @class = "error" })
+                                                        </div>
+                                                        <label class="active">Meter Reading Date</label>
+                                                    </div>
+                                                    <div class="input-field custom">
+
+                                                        @Html.TextBoxFor(x => x.MeterList[index].File, "", new { @type = "file", @multiple = "multiple", @onchange = "Validate(this);", @accept = ".jpg,.jpeg,.png" })
+                                                        <label class="active">
+                                                            Meter Photo
+                                                        </label>
+
+                                                        @Html.HiddenFor(x => x.MeterList[index].SMRD)
+                                                    </div>
+                                                    <div class="input-field custom">
+                                                        @if (HttpContext.Current.Session["MeterReadingObj"] != null)
+                                                        {
+                                                            if (Model.MeterAttachments[attachIndex].FileCT != null)
+                                                            {
+                                                                <label class="active">
+                                                                    uploaded Photo :<b>
+                                                                        @Html.ActionLink("Click Here", "DownloadFile", new { id = Model.MeterAttachments[attachIndex].Id }, new { @class = "txt-orange" })
+                                                                    </b>
+                                                                </label>
+                                                                attachIndex = attachIndex + 1;
+                                                            }
+                                                        }
+                                                    </div>
+                                                    index = index + 1;
+                                                }
+                                            }
+                                            @if (Model.MeterAttachments != null)
+                                            {
+                                                foreach (var meterAttachments in Model.MeterAttachments)
+                                                {
+                                                    <div style="display:none">
+                                                        @Html.HiddenFor(x => x.MeterAttachments[index2].Id);
+
+                                                        @Html.DisplayTextFor(x => x.MeterAttachments[index2].Id)
+                                                        @Html.DisplayTextFor(x => x.MeterAttachments[index2].FileName)
+                                                        @Html.DisplayTextFor(x => x.MeterAttachments[index2].FileCT)
+                                                        @Html.DisplayTextFor(x => x.MeterAttachments[index2].FileByte)
+                                                    </div>
+                                                    index2 = index2 + 1;
+                                                }
+
+                                            }
+                                        </div>
+
+                                        @if (Model.CANumber != null && Model.MeterList != null)
+                                        {
+                                            <div class="h-right btn-group">
+                                                <button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("/Accounts/Register/Button/Submit", "Submit")</button>
+                                            </div>
+                                        }
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="section-wrapper custom_accrdion single-item">
+        <div class="accordion">
+            <ul class="collapsible collapsible-accordion">
+                <li class="active">
+                    <div class="collapsible-header" tabindex="0">
+                        How to submit meter reading?
+                    </div>
+                    <div class="collapsible-body" style="display:block;">
+                        <div class="steps-content">
+                            <div class="card outlined">
+                                <ul>
+                                    <li>
+                                        <h6>Step 1</h6>
+                                        <h5>Enter Account Number</h5>
+                                        <p>Your 9-digit account no. can be found at the left side of the first page of your bill.</p>
+                                    </li>
+                                    <li>
+                                        <h6>Step 2</h6>
+                                        <h5>Enter Meter Number</h5>
+                                        <p>Your 7-digit meter no. can be found at the centre of the first page of your bill.</p>
+                                    </li>
+                                    <li>
+                                        <h6>Step 3</h6>
+                                        <h5>Enter Meter Reading</h5>
+                                        <p>Enter the reading (kWh) in the space provided.</p>
+                                    </li>
+                                    <li>
+                                        <h6>Step 4</h6>
+                                        <h5>Upload Meter Image</h5>
+                                        <ul>
+                                            <li>Please ensure that meter reading is clearly visible.</li>
+                                            <li>Place your phone vertically in front of the meter approximately 1 foot away.</li>
+                                            <li>Click a photo where you can see the reading in 'kWh'.</li>
+                                            <li>Upload photo in JPEG or PDF format only.</li>
+                                            <li>Please ensure that meter reading is clearly visible in the uploaded image.</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function Validate(obj) {
+        var ext = $(obj).val().split('.').pop().toLowerCase();
+        // if($.inArray(ext, ['jpg','jpeg','png','pdf','doc','docx','xls','xlsx]) == -1) {
+        // alert('invalid extension!');
+        // }
+        if ($.inArray(ext, ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx']) == -1) {
+            alert('File extension not supported!');
+            $(obj).val("");
+            return false;
+        }
+    }
+</script>

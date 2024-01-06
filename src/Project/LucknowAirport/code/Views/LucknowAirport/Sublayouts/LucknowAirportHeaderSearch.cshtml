@@ -1,0 +1,118 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+
+
+
+
+}
+
+
+<form class="search-container__form">
+    <div class="wrapper">
+        <label for="text"><i class="fa fa-search"></i></label><input type="text" id="SearchBox"><input type="button" onclick="Search()" value="X" id="SearchBtn">
+    </div>
+</form>
+<div class="search-container__results"> 
+    <p>Popular Searches</p> 
+     <ul id="SearchResult"> 
+         <li><a href="/ccsia-lucknow-airport/passanger-guide">Passenger Guide</a></li> 
+        <li><a href="/ccsia-lucknow-airport/shop-and-dine/lounge">Place to Relax</a></li>
+        <li><a href="/ccsia-lucknow-airport/transport">Cab Services</a></li> 
+         <li><a href="/shop-and-dine/outlets">Duty Free & Shopping</a></li> 
+        <li><a href="/ccsia-lucknow-airport/services/lost-and-found">Lost and Found</a></li> 
+         <ul> 
+ </div>
+<script src="/scripts/LucknowAirport/jquery.min.js"></script>
+<script>
+
+    $('#SearchBox').keypress(function (event) {
+       // event.preventDefault();
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            window.location.href ="/ccsia-lucknow-airport/search-result?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+        }
+
+    });
+
+ function SearchRedirect()
+ {
+ window.location.href ="/ccsia-lucknow-airport/search-result?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+
+ }
+
+    function Search() {
+      //  $('#SearchBtn').submit();
+
+        var itemId = $('#SearchBox').val();
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/LucknowAirport/GetSearchResult",
+            context: this,
+            success: function (objects) {
+                // alert("s1");
+                console.log(objects);
+                $('#SearchResult').html('');
+                var html = "";
+
+                for (var i = 0; i < objects.length; i++) {
+                    var value = objects[i]["Value"];
+                    if (value.indexOf("New Local Datasource Folder") > 0) {
+
+                    }
+                    else {
+                        if (value.indexOf("ccsia-lucknow-airport/Home") > 0)
+                            value = value.replace("/ccsia-lucknow-airport/Home/", "");
+
+							if(!value.startsWith("/"))
+									value = "/" + value;
+
+                        html = html + " <li><a href='" + value + "'>" + objects[i]["Key"] + "</a></li>";}
+                }
+                $('#SearchResult').html(html);
+                return false;
+
+            }
+        });
+
+    }
+
+
+    //$('#SearchBtn').on('submit', function (e) {
+    //    alert("1");
+    //    e.preventDefault();
+    //    //  e.stopPropagation(); // only neccessary if something above is listening to the (default-)event too
+
+    //    var itemId = $('#SearchBox').val();
+    //    $.ajax({
+    //        method: "POST",
+    //        data: { itemId: itemId },
+    //        url: "/api/LucknowAirport/GetSearchResult",
+    //        context: this,
+    //        success: function (objects) {
+    //            // alert("s1");
+    //            console.log(objects);
+    //            $('#SearchResult').html('');
+    //            var html = "";
+
+    //            for (var i = 0; i < objects.length; i++) {
+    //                html = html + " <li><a href='" + objects[i]["Value"] + "'>" + objects[i]["Key"] + "</a></li>";
+
+    //            }
+    //            $('#SearchResult').html(html);
+    //            return false;
+    //            //$("#City").html(""); // clear before appending new list
+    //            //$.each(cities, function (i, city) {
+    //            //    $("#City").append(
+    //            //        $('<option></option>').val(city.CityId).html(city.CityName));
+    //            //});
+    //        }
+    //    });
+    //});
+</script>

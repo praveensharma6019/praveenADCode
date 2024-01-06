@@ -1,0 +1,30 @@
+﻿@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+}
+<section class="bg-gray pb-5 pt-3" data-aos="fade-up">
+    <div class="container">
+         <h2 class="border-l txt-lg mb-3">Our Group Websites</h2>
+        <div class="owl-carousel owl-theme" id="other-ventures">
+            @foreach (var img in elements.ToList())
+            {
+                var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                var style = img.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                Sitecore.Data.Fields.LinkField Linkfild = img.Item.Fields["MediaLink"];
+                <div class="item">
+                    
+                    <a href="@Linkfild.GetFriendlyUrl()">
+                        <img src="@style" loading="lazy">
+                    </a>
+					<p class="txt-xs text-center"><a href="@Linkfild.GetFriendlyUrl()" target="_blank">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, img)</a></p>
+                
+                </div>
+            }
+        </div>
+    </div>
+</section>

@@ -1,0 +1,206 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var SocialMenu = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["Social-Menu"];
+
+    var SocialMenuitem = Sitecore.Context.Database.GetItem(SocialMenu);
+
+    var SocialMenudata = SocialMenuitem.Children;
+   
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Fields.LinkField linkfield = model.Fields[Templates.Navigable.Fields.Link];
+    var i = 1;
+    var j = 1;
+}
+
+<div class="container">
+    <div class="row footerPanel2">
+
+
+        @foreach (var item in model.GetChildren().ToList())
+        {
+		   Sitecore.Data.Fields.LinkField linkvalues = item.Fields["Link"];
+           var linkUrls = linkvalues.GetFriendlyUrl();
+            if (i == 1)
+            {
+			
+                   <div class="col-md-3 ft-submenu col-6 d-md-block d-none">
+                   <h5><a href="@linkUrls">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+
+                    @if (item.HasChildren)
+                    {
+                        <ul class="ft-business">
+                            @foreach (var items in item.GetChildren().ToList())
+                            {
+							Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+                                if (j > 5)
+
+                                {
+                            <li class="d-none"><a href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items)</a></li>
+                                }
+                                else
+                                {
+                                <li><a href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items)</a></li>
+                                }
+                                j++;
+                            }
+							
+                        </ul>
+                        if (j > 5)
+                        {
+                        <p class="viewall">+ View All</p>
+                        }
+                    }
+
+                </div>
+            }
+
+
+
+            else
+            {
+                <div class="col-md-3 col-6 d-md-block d-none">
+                   <h5><a href="@linkUrls">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+                    @if (item.HasChildren)
+                    {
+                        <ul>
+                            @foreach (var items in item.GetChildren().ToList())
+                            {
+							  Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+                                <li><a href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, items)</a></li>
+                            }
+                        </ul>
+                    }
+                </div>
+            }
+            if (i == 2)
+            {
+                break;
+            }
+            i++;
+        }
+
+
+        <div class="col-md-2 col-6 d-md-block d-none">
+            <div>
+                @foreach (var item in model.GetChildren().ToList())
+                {
+				  Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                  var linkUrl = linkvalue.GetFriendlyUrl();
+                    if (!item.HasChildren)
+                    {
+                   
+
+                        <h5><a href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+
+
+
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="row border-left ft-logo">
+                <div class="col-sm-12 mb-3 text-center">
+
+                    <ul class="ft-social">
+                        @foreach (var item in SocialMenudata.ToList())
+                        {
+                            Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+                            <li><a href="@linkUrl" target="_blank"><i class="@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.Icon,item)"> </i></a></li>
+
+                        }
+                    </ul>
+                </div>
+
+                
+				<div class="col-sm-12 text-center">
+					<ul class="terms-link d-md-none">
+						<li class="d-inline-block"><a href="/privacy-policy" class="txt-blue">Privacy Policy</a></li>
+						<li class="d-inline-block"><a href="/disclaimer" class="txt-blue">Legal Disclaimer</a></li>
+						<li class="d-inline-block"><a href="/terms-and-conditions" class="txt-blue">Terms &amp; Conditions</a></li>
+					</ul>
+				</div>
+				
+				
+				
+                <div class="col-sm-12">
+                    <img src= "-/media/E3EBE9FF065D46098172C8BA7C112421.ashx" class="img-fluid" loading="lazy"/>
+                </div>
+                	
+					<div class="col-sm-12 d-md-none mb-3">
+						<p class="sitemap-link bg-gradient d-block p-2">Sitemap<i class="fa fa-angle-down"></i></p>
+					</div>
+						
+						
+						
+						
+						
+						
+						<div class="col-sm-12 d-none ft-mobilemenu">
+						<div class="row">
+						 @foreach (var item in model.GetChildren().ToList())
+                          {
+						    Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+						  
+							<div class="col-sm-6 col-6">
+								<h5 class="text-center"><a href="@linkUrl">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item)</a></h5>
+							</div>
+							}
+					
+
+
+
+
+
+
+
+
+					<div class="col-sm-6 col-6">
+							<h5 class="text-center"><a href="/downloads">Downloads</a></h5>
+						</div>
+						<div class="col-sm-6 col-6">
+							<h5 class="text-center"><a href="/commercials">Commercials</a></h5>
+						</div>
+						<div class="col-sm-6 col-6">
+							<h5 class="text-center"><a href="https://careers.adani.com" target="_blank" >Careers</a></h5>
+						</div>
+						
+							
+							
+						
+						</div>
+					</div>
+
+
+
+
+            </div>
+        </div>
+
+    </div>
+		<div class="row footerPanel2">
+                <div class="col-md-3 ft-submenu col-6 d-md-block d-none">
+                    <h5><a href="/downloads">Downloads</a></h5>
+				</div>
+				<div class="col-md-3 col-6 d-md-block d-none">
+                    <h5><a href="/commercials">Commercials</a></h5>
+				</div>
+				<div class="col-md-3 col-6 d-md-block d-none">
+                    <h5><a href="https://careers.adani.com"  target="_blank">Careers</a></h5>
+				</div>
+				
+				 </div>
+				 <div class="row footerPanel2">
+				 <div class="col-md-3 col-6 d-md-block d-none">
+                    <h5><a href="/-/media/Project/Adani/Responsible Vulnerability Disclosure Program_080620233">RVDP</a></h5>
+				</div>
+				 </div>
+</div>

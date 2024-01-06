@@ -1,0 +1,92 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    int i = 1;
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants().Where(x => x.TemplateID == Templates.KeyPersonMessage.ID);
+
+    <section class="half-bg">
+        <div class="container">
+            <div class="row">
+                @foreach (var item in itemList.Where(x=>x.Fields[Templates.AboutUSNavigation.Fields.IsMessage].IsChecked()))
+                {
+                    if (item.FieldHasValue(Templates.KeyPersonMessage.Fields.Name) && item.FieldHasValue(Templates.KeyPersonMessage.Fields.Designation))
+                    {
+                        <div class="col-lg-12 my-5">
+                            <a href="@item.Url()">
+                                <div class="bg-vgradient p-4 chairman-box row no-gutters">
+                                    <div class="col-md-8 mb-3">
+                                        <h3 class="mb-5">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, item)</h3>
+                                        <h4>@Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, item)</h4>
+                                        <p class="mb-4 mt-2 readmore">Read more</p>
+                                        <p class=" txt-white">@Html.Sitecore().Field(Templates.KeyPersonMessage.Fields.Name, item)</p><span>@Html.Sitecore().Field(Templates.KeyPersonMessage.Fields.Designation, item)</span>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.KeyPersonMessage.Fields.Thumbnail, item, 0, 0, cssClass: "img-fluid")
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    @*<section class="half-bg py-4  z-index position-relative">
+        <div class="container">
+            <div class="row">
+                @foreach (var item in itemList)
+                {
+                    if (item.FieldHasValue(Templates.KeyPersonMessage.Fields.Name) && item.FieldHasValue(Templates.KeyPersonMessage.Fields.Designation))
+                    {
+                        var divClass = string.Empty;
+                        if (i != 1)
+                        {
+                            divClass = "h-100";
+                        }
+                        else
+                        {
+                            divClass = "";
+                        }
+                        <div class="col-lg-6 my-3">
+                            <div class="bg-gradient chairman-box @divClass boxzoom">
+                                <a href="@item.Url()">
+                                    <div class="row @divClass">
+                                        <div class="col-lg-7">
+                                            <div class="p-4">
+                                                <h3 class="mb-3 txt-lg">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, item)</h3>
+                                                <h4 class="">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, item)</h4>
+                                                <p class="mb-4 mt-2">Read more</p>
+                                                <p class="signature">@Html.Sitecore().Field(Templates.KeyPersonMessage.Fields.Name, item)<span>@Html.Sitecore().Field(Templates.KeyPersonMessage.Fields.Designation, item)</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-5">
+                                            <div class="position-relative h-100">
+                                                @Html.Sitecore().ImageFieldWithoutSize2(Templates.KeyPersonMessage.Fields.Thumbnail, item, 0, 0, cssClass: "img-fluid")
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    i++;
+                }
+            </div>
+        </div>
+    </section>*@
+}

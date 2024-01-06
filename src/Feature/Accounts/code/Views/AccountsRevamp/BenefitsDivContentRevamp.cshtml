@@ -1,0 +1,38 @@
+﻿@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Item;
+    if (datasource != null)
+    {
+        element = Sitecore.Context.Database.GetItem(datasource);
+    }
+
+}
+
+@if (element != null)
+{
+    <div class="benifits-new">
+
+        @if (element.Children != null)
+        {
+            foreach (Sitecore.Data.Items.Item data in element.Children)
+            {
+                <h5>@data.Fields["Heading"]</h5>
+                Sitecore.Data.Fields.MultilistField multiselectField = data.Fields["BenefitsLiText"];
+                Sitecore.Data.Items.Item[] items = multiselectField != null ? multiselectField.GetItems() : null;
+                <ul>
+                    @if (items != null && items.Length > 0)
+                    {
+                        for (int i = 0; i < items.Length; i++)
+                        {
+                            Sitecore.Data.Items.Item benefitItem = items[i];
+                            <li><i class="i-tick"></i><p> @benefitItem.Fields["ShortDescription"] </p></li>
+                        }
+
+                    }
+                </ul>
+            }
+        }
+
+
+    </div>
+}

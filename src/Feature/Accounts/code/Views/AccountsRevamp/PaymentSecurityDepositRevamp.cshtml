@@ -1,0 +1,156 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Accounts.Models.ViewPayBill
+@{
+    double outputval1 = 0;
+}
+<div class="col s12 l8 offset-l1  section-wrapper">
+    <header class="section-header">
+        <h1>@Sitecore.Context.Item.Fields["Title"]</h1>
+        <p>
+            @Sitecore.Context.Item.Fields["Summary"]
+        </p>
+    </header>
+    <div class="card brand-gradient outlined section-inner-wrapper border-none-mobile">
+        @Html.Sitecore().Placeholder("switch-account-content")
+
+
+        <div class="bill-detail-header">
+            <div class="bill-detail-content">
+                @*<h4>@Model.SecurityDeposit</h4>
+                    <p><span> @Model.SecurityDepositAmountType</span></p>*@
+
+
+
+                @if (Model.SecurityDeposit != "0")
+                {
+                    <h4>₹@Model.SecurityDeposit</h4>
+                    <p>
+                        @Html.RadioButtonFor(m => m.SecurityDepositAmountType, "Actual", new { required = "required" })
+                        <label for="" style="color:black" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit", "Security Deposit (Rs.)")</label>
+                    </p>
+
+                }
+                else
+                {
+                    <h4>₹@String.Format("{0}.00", Model.SecurityDeposit)</h4>
+                    <p>
+                        @Html.RadioButtonFor(m => m.SecurityDepositAmountType, "Actual", new { required = "required" })
+                        <label for="" style="color:black" class="col-form-label">@Model.SecurityDepositMsg</label>
+                    </p>
+                }
+
+
+                @*<h4>
+                        ₹@String.Format("{0}.00", Model.SecurityDeposit)
+                    </h4>*@
+
+                @*@if (!(Convert.ToInt64(Math.Floor(Convert.ToDouble(Model.SecurityDeposit))) == 0))
+                    {
+                        <h4>
+                            @Html.TextBoxFor(x => x.SecurityDepositPartial, new { @class = "form-control", id = "securityDepositPartial" })
+                            @Html.ValidationMessageFor(x => x.SecurityDepositPartial, "", new { @class = "help-block" }, "p")
+                        </h4>
+                        <p>
+                            @Html.RadioButtonFor(m => m.SecurityDepositAmountType, "Partial", new { required = "required" })
+                            <label style="color:black" for="" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit Partial", "Security Deposit Partial(Rs.)")</label>
+                        </p>
+
+                    }*@
+            </div>
+            @if (!(Convert.ToInt64(Math.Floor(Convert.ToDouble(Model.SecurityDeposit))) == 0))
+            {
+                <div class="bill-detail-cta">
+                    <button class="waves-effect waves-light btn btn-continue PayNowSecurity" onclick="FetchQuickPay()">Pay</button>
+                </div>
+            }
+        </div>
+
+        <div class="bill-detail-body">
+            <h4>Account Details</h4>
+            <ul>
+
+                <li>
+                    <label> @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Address", "Address")</label>
+                    <span>@Model.Address</span>
+                </li>
+                <li>
+                    <label> @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Book Number", "Book Number")</label>
+                    <span>@Model.BookNumber</span>
+                </li>
+                <li>
+                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Cycle Number New", "Cycle Number")</label>
+                    <span>@Model.CycleNumber</span>
+                </li>
+                <li>
+                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Zone", "Zone")</label>
+                    <span>@Model.Zone</span>
+                </li>
+
+                <li>
+                    <label> @Html.Sitecore().Dictionary("/Accounts/Pay Bill/Meter Number", "Meter Number")</label>
+                    <span>@Model.MeterNumber</span>
+                </li>
+                <li>
+                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Tariff Slab", "Tariff Slab")</label>
+                    <span>@Model.TariffSlab</span>
+                </li>
+                <li>
+                    <label>@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit", "Security Deposit")</label>
+                    <span>@Model.SecurityDeposit</span>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+<script src="/scripts/ElectricityNew/aes.js"></script>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script type="text/javascript">
+
+        $('#securityDepositPartial').on('keyup', function () {
+            $('.PayNowSecurity').removeAttr("disabled");
+        });
+
+    function FetchQuickPay() {
+        var accountNumber = @Model.AccountNumber;
+        var SecurityDeposit =@Convert.ToInt64(Math.Floor(Convert.ToDouble(Model.SecurityDeposit))) ;
+        if ((parseInt(SecurityDeposit)) < parseInt($('#securityDepositPartial').val()))
+        {
+            alert("Amount cannot be greater than the actual security deposit ");
+            $('.PayNowSecurity').attr("disabled", "disabled");
+        }
+        else
+        {
+
+            $('.loader-wrap').show();
+            @*$.ajax({
+                url: apiSettings + "/AccountsRevamp/PayBillRevamp",
+                type: 'GET',
+               // data: { AccountNumber: '@Model.AccountNumber', SecurityDeposit: parseInt($('#securityDepositPartial').val()) },
+                data: { AccountNumber: '@Model.AccountNumber', SecurityDeposit: SecurityDeposit },
+                dataType: 'text',
+                success: function (data) {
+                    //$("#meterInfo").html();
+                    //$("#meterNumber").html();
+                    console.log("sucess");*@
+                    window.location.href = "http://" + $(location).attr('host') + '/Payment/pay-your-bill?ca_number=' + getEncriptedKey(accountNumber) + '&SecurityDeposit=' + getEncriptedKey(SecurityDeposit);
+            //        if (data == "success") {
+            //            console.log("sucess");
+            //        }
+            //    },
+            //    error: function (xhr, textStatus, errorThrown) {
+            //        console.log('Error in Operation--' + errorThrown);
+            //    }
+            //});
+            $('.loader-wrap').hide();
+        }
+    }
+   
+</script>

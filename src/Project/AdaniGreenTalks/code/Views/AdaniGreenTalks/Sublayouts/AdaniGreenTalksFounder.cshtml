@@ -1,0 +1,66 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var imgurl = "#";
+    var altText = "";
+}
+
+
+<div class=" row justify-content-center">
+    <div class="heading text-center pt-5">
+        <h1 class="headingfirsttalk">@Html.Sitecore().Field("MediaTitle", model)</h1>
+    </div>
+</div>
+<div class="d-flex justify-content-center ml-md-5 ">
+    <div class="row my-5  w-100 justify-content-center">
+        <div class="col-lg-3 col-12 py-4 py-lg-0 text-right">
+            <div class="row w-100  mx-lg-4">
+
+                @foreach (Item item in model.GetChildren())
+                {
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                    if (imgField != null && imgField.MediaItem != null)
+                    {
+                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                        altText = imgField.Alt;
+                    }
+                    else
+                    {
+                        imgurl = "#";
+                        altText = "";
+                    }
+                    <div class="col-lg-12 col-md-5 col-7">
+                        <img class=" dharviborderfounder text-right" src="@imgurl">
+                    </div>
+                    <div class="col-lg-12 col-md-5 col-4">
+                        <h1 class="text-lg-right text-left">@Html.Sitecore().Field("MediaTitle", item)</h1>
+                        <h6 class="text-lg-right text-left">@Html.Sitecore().Field("MediaDescription", item)</h6>
+                    </div>
+                }
+
+
+
+            </div>
+        </div>
+        <div class=" col-lg-6 col-12 pt-2 my-2 m-0 text-left">
+            <h1 class="solHead d-lg-flex d-md-none d-none">@Html.Sitecore().Field("SubTitle", model)</h1>
+            <h3 class="text-left pt-lg-3 mx-lg-0 mx-lg-3">
+                @Html.Sitecore().Field("MediaDescription", model)
+            </h3>
+        </div>
+    </div>
+</div>

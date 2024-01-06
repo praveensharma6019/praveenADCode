@@ -1,0 +1,51 @@
+﻿
+@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+    var ContentPath = Sitecore.Context.Item.Paths.ContentPath.Replace("/GreenEnergy/", "");
+    var path = ContentPath.Replace("/Wilmar/", "");
+    string[] pathArr = path.Split('/');
+    var navPath = "/";
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "breadcrumb-sub-layout bg-gray py-5";
+    }
+    var i = 0;
+    var pageName = "";
+}
+<section class="breadcrumb py-5">
+
+
+    <div class="bg-image">
+        @Html.Sitecore().ImageField("MediaThumbnail", elements, 0, 0, "image-fluid")
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul>
+                    @for (i = 0; i < pathArr.Count() - 1; i++)
+                    {
+                        navPath = navPath + pathArr[i];
+                        pageName = pathArr[i].Replace("-", " ").Substring(0, 1).ToUpper() + "" + pathArr[i].Replace("-", " ").Substring(1).ToLower();
+
+                        <li><a href="@navPath">@pageName</a></li>
+                        navPath = navPath + "/";
+                    }
+                </ul>
+                <h1>@pathArr[pathArr.Count() - 1].Replace("-", " ")</h1>
+                @Html.Sitecore().Field("MediaDescription", elements)
+            </div>
+        </div>
+    </div>
+</section>
+
+

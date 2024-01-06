@@ -1,0 +1,1764 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Feature.Accounts
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Feature.Accounts.Models
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.CGRFComplaintFileRegistrationModel
+@{
+    var complaintPortalHomePage = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalAdminHomePageRevamp)).Url();
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+<section class="py-5" style="margin-top: -2rem;">
+    <div class="container">
+        <!-- <h3 class="txt-orange txt-md mb-3">Important Covid 19 Update</h3> -->
+        @using (Html.BeginForm("Logout", "Accounts", FormMethod.Post))
+        {
+            <div class="row">
+                <div class="col-sm-8 pb-3 text-left">
+                    <p><span><b>Welcome, </b></span><b class="txt-orange">@Html.DisplayTextFor(x => x.LoginName) <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                </div>
+                <div class="col-sm-4 pb-3">
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit">
+                            @Html.Sitecore().Dictionary("/ComplaintRegistration/Logout", "Logout")
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        }
+
+        @{
+            var role = UserSession.AEMLComplaintUserSessionContext.AdminRole.ToString().ToLower();
+        }
+        <div class="panel">
+            @if (role == "secretary")
+            {
+
+                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationAdmin", @class = "form-signin", @enctype = "multipart/form-data" }))
+                {
+                    @Html.AddUniqueFormId()
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    @Html.HiddenFor(x => x.LoginName)
+                    @Html.HiddenFor(x => x.ComplaintId)
+
+                    if (string.IsNullOrEmpty(Model.AccountNumber) || string.IsNullOrEmpty(Model.ConsumerName))
+                    {
+                        <div>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Consumer Account Number</b></label>
+                                        @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control", required = "required" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Number from Helpdesk</b></label>
+                                        @Html.TextBoxFor(x => x.ComplaintFromPreviousLevel, new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(x => x.ComplaintFromPreviousLevel, "", new { @class = "help-block" }, "p")
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for=""><b>Date of Complaint</b></label>
+                                        @Html.TextBoxFor(x => x.ComplaintFromPreviousLevelAppliedDate, new { @class = "form-control reset-control", id = "datetimepickerComplaintFromPreviousLevelAppliedDate" })
+                                        @Html.ValidationMessageFor(x => x.ComplaintFromPreviousLevelAppliedDate, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                    <div class="form-group">
+                                        <label for=""><b>Reason for approaching CGRF</b></label>
+                                        @Html.DropDownListFor(x => x.ReasonToApply, new SelectList(Model.ReasonToApplySelectList, "Value", "Text", Model.ReasonToApply), "Select", new { @class = "form-control", id = "ddlReasonToApply" })
+                                        @Html.ValidationMessageFor(x => x.ReasonToApply, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                    @if (Model.ReasonToApply == "Unredressed within resolution period")
+                                    {
+                                        <div class="form-group" id="divReasonToApplySubType">
+                                            <label for=""><b>Unredressed within resolution period</b></label>
+                                            @Html.DropDownListFor(x => x.ReasonToApplySubType, new SelectList(Model.ReasonToApplySubSelectList, "Value", "Text", Model.ReasonToApplySubType), "Select", new { @class = "form-control", id = "ddlReasonToApplySubType" })
+                                            @Html.ValidationMessageFor(x => x.ReasonToApplySubType, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    }
+                                    @if (Model.ReasonToApplySubType == "Others type complaint : 15 Days")
+                                    {
+                                        <div class="form-group" id="divReasonToApplySubTypeOtherText">
+                                            <label for=""><b>Unredressed within resolution period specify other type</b></label>
+                                            @Html.TextBoxFor(x => x.ReasonToApplyOtherText, new { @class = "form-control" })
+                                            @Html.ValidationMessageFor(x => x.ReasonToApplyOtherText, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="form-group py-2 text-right mb-0">
+                                        <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="GetUserDetails" id="GetUserDetails" value="Get Details" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @Html.HiddenFor(x => x.ComplaintFromPreviousLevel)
+                        @Html.HiddenFor(x => x.ReasonToApply)
+                        @Html.HiddenFor(x => x.ReasonToApplySubType)
+                        @Html.HiddenFor(x => x.ReasonToApplyOtherText)
+                        @Html.HiddenFor(x => x.ComplaintFromPreviousLevelAppliedDate)
+                        <div>
+                            <div class="row">
+                                <div class="col-lg-6 mb-3">
+                                    <h3 class="txt-orange txt-md mb-3">Complaint Registration Form</h3>
+                                    <p class="">Please fill in required details below</p>
+                                </div>
+                                <div class="col-lg-6 text-lg-right text-left mt-3 mt-lg-0">
+                                    <button type="button" class="btn btn-primary txt-sm" data-toggle="modal" data-target="#generalguideline">COMPLAINT HANDLING INFORMATION / GUIDELINES & CGRF ADDRESS</button>
+                                    <a href="#generalguideline" class="btn btn-primary d-none" target="_blank" style="color: #fff;" data-toggle="modal" data-target="#generalguideline"><b>GENERAL GUIDELINES</b></a>
+                                </div>
+                            </div>
+
+                            <fieldset class="px-3">
+                                <legend class="txt-orange">Consumer details</legend>
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Consumer Account Numberr</b></label>
+                                            @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Name</b></label>
+                                            @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Address</b></label>
+                                            @Html.TextAreaFor(x => x.Address, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>City</b></label>
+                                            @Html.TextBoxFor(x => x.City, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Pincode</b></label>
+                                            @Html.TextBoxFor(x => x.Pincode, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Email</b></label>
+                                            @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Mobile</b></label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Consumer Category</b></label>
+                                            @*@Html.DropDownListFor(x => x.SelectedConsumerCategory, new SelectList(Model.ConsumerCategorySelectList, "Value", "Text", Model.SelectedConsumerCategory), "Select", new { @class = "form-control", id = "ddlConsumerCategory", required = "required" })*@
+                                            @Html.TextBoxFor(x => x.SelectedConsumerCategory, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Division</b></label>
+                                            @Html.TextBoxFor(x => x.DivisionName, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Zone</b></label>
+                                            @*@Html.DropDownListFor(m => m.SelectedConsumerZone, Model.ConsumerZoneSelectList.Select(x => new SelectListItem() { Value = x.Text, Text = x.Text, Group = x.Group, Selected = (x.Value == Model.SelectedConsumerZone) }).ToList(), "Select", new { @class = "form-control", id = "ddlConsumerCategory", required = "required" })*@
+                                            @Html.TextBoxFor(x => x.SelectedConsumerZone, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <hr />
+                            <fieldset class="px-3">
+                                <legend class="txt-orange">Previous Complaint details</legend>
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Complaint Registration Numberr</b></label>
+                                            @Html.TextBoxFor(x => x.ComplaintFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Complaint Date</b></label>
+                                            @Html.TextBoxFor(x => x.ComplaintFromPreviousLevelAppliedDate, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Reason for approaching CGRF</b></label>
+                                            @Html.TextAreaFor(x => x.ReasonToApply, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <hr />
+                            <fieldset class="px-3">
+                                <legend class="txt-orange">Complaint details</legend>
+                                <div class="row">
+                                    @if (!string.IsNullOrEmpty(Model.CGRFCaseNumber))
+                                    {
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Complaint Case Number</b></label>
+                                                @Html.TextBoxFor(x => x.CGRFCaseNumber, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ComplaintId))
+                                    {
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Complaint Registration Number</b></label>
+                                                @Html.TextBoxFor(x => x.ComplaintRegistrationNumber, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Complaint Status</b></label>
+                                                @Html.TextBoxFor(x => x.ComplaintStatusDescription, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Complaint Category</b></label>
+                                            @Html.DropDownListFor(x => x.SelectedComplaintCategory, new SelectList(Model.ComplaintCategorySelectList, "Value", "Text", Model.SelectedComplaintCategory), "Select", new { @class = "form-control", id = "ddlComplaintCategory", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.SelectedComplaintCategory, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.SelectedComplaintCategory) && Model.SelectedComplaintCategory.ToLower().Contains("other"))
+                                    {
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Specify Category</b></label>
+                                                @Html.TextBoxFor(x => x.OtherCategoryText, new { @class = "form-control", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.OtherCategoryText, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <label class="btn btn-secondary">
+                                                <a class="txt-orange" href="/cgrf/forms/Schedule-A-and-Undertaking.docx">
+                                                    <b style="color:white;">Download Schedule A Form</b>
+                                                    <i class="fa fa-download mr-2"></i>
+                                                </a>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Updoad Schedule A Document including Undertaking Form</b></label>
+                                            @if (Model.IsDocumentUploaded)
+                                            {
+                                                <br />
+                                                <a class="txt-orange" href="@Url.Action("DownloadComplaintFile", new { id = Model.ComplaintId })">
+                                                    <i class="fa fa-download mr-2"></i>@Model.DocumentName
+                                                </a>
+                                                <input type="file" accept=".doc,.docx,.pdf" id="fileComplaintDocScheduleA" name="fileComplaintDocScheduleA" class="help-block w-100" />
+                                                <span class="txt-small" style="font-size:12px;">(Upload file in word or PDF formats only, max file size 5 MB)</span>
+                                            }
+                                            else
+                                            {
+                                                <input type="file" accept=".doc,.docx,.pdf" id="fileComplaintDocScheduleA" name="fileComplaintDocScheduleA" class="help-block w-100" required />
+                                                <span class="txt-small" style="font-size:12px;">(Upload file in word or PDF formats only, max file size 5 MB)</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "RD"))
+                                    {
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Schedule A Resubmitted Document</b></label>
+                                                <br />
+                                                @{
+                                                    var RD = Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "RD").FirstOrDefault();
+                                                }
+                                                <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new {id= RD.DocumentId,  complaintId = Model.ComplaintId})">
+                                                    <i class="fa fa-download mr-2"></i>@RD.DocumentName
+                                                </a>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Count > 0)
+                                            {
+                                                <label for=""><b>Upload Supporting Documents</b></label>
+                                                foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "SD"))
+                                                {
+                                                    <br />
+                                                    <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                        <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                                    </a>
+                                                }
+                                                <input type="file" accept=".jpg,.jpeg,.pdf" multiple id="fileComplaintSupportingDocs" name="fileComplaintSupportingDocs" class="help-block w-100" />
+                                                <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats with file size 5 MB max, only 5 files allowed)</span>
+                                            }
+                                            else
+                                            {
+                                                <label for=""><b>Upload Supporting Documents</b></label>
+                                                <input type="file" accept=".jpg,.jpeg,.pdf" multiple id="fileComplaintSupportingDocs" name="fileComplaintSupportingDocs" class="help-block w-100" />
+                                                <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats with file size 5 MB max, only 5 files allowed)</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <label for=""><b>Complaint Description</b></label>
+                                            @Html.TextAreaFor(x => x.ComplaintDescription, new { @class = "form-control", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.ComplaintDescription, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <label for=""><b>Admin Remarks</b></label>
+                                            @Html.TextAreaFor(x => x.AdminRemarks, new { @class = "form-control", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.AdminRemarks, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (System.Convert.ToInt64(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Approved && System.Convert.ToInt64(Model.ComplaintStatus) != (int)ComplaintPortalService.ComplaintStatus.Resubmit)
+                                {
+
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Tentative Hearing Date</b></label>
+                                                @Html.TextAreaFor(x => x.TantetiveHearingDate, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                }
+                            </fieldset>
+                            <hr />
+                            <fieldset class="px-3">
+                                @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "ND"))
+                                {
+
+                                    <legend class="txt-orange">Nodal Reply</legend>
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Uploaded Document</b></label>
+                                                @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "ND"))
+                                                {
+                                                    <br />
+                                                    <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                        <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            </fieldset>
+                            @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "JD"))
+                            {
+                                <hr />
+                                <fieldset class="px-3">
+                                    <legend class="txt-orange">Rejoinder</legend>
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Uploaded Document</b></label>
+                                                @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "JD"))
+                                                {
+                                                    <br />
+                                                    <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                        <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            }
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group py-2 text-right mb-0">
+                                        @if (System.Convert.ToInt32(Model.ComplaintStatus) == (int)ComplaintPortalService.ComplaintStatus.Saved || string.IsNullOrEmpty(Model.ComplaintId))
+                                        {
+                                            <input type="submit" class="btn btn-secondary mb-2 mb-md-0" name="SaveAsDraft" id="SaveAsDraft" value="Save as Draft" />
+                                            <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="SubmitApplication" id="SubmitApplication" value="Submit Application" />
+                                        }
+                                        else if (System.Convert.ToInt32(Model.ComplaintStatus) == (int)ComplaintPortalService.ComplaintStatus.Submitted)
+                                        {
+                                            <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ApproveApplication" id="ApproveApplication" value="Approve Application" />
+                                            <input type="submit" class="btn btn-secondary mb-2 mb-md-0" name="ReSubmitApplication" id="ReSubmitApplication" value="Ask to Resubmit" />
+                                        }
+                                        @if (!string.IsNullOrEmpty(Model.ComplaintStatus))
+                                        {
+                                            <input type="submit" class="btn btn-secondary mb-2 mb-md-0" name="UpdateDetails" id="UpdateDetails" value="Update Application" />
+                                        }
+                                        @if (System.Convert.ToInt32(Model.ComplaintStatus) < (int)ComplaintPortalService.ComplaintStatus.Rejoinder)
+                                        {
+                                            <input type="submit" class="btn btn-secondary mb-2 mb-md-0" name="CloseComplaint" id="CloseComplaint" value="Close Complaint" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                if (System.Convert.ToInt32(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Rejoinder)
+                {
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Manual Hearings</legend>
+                        @if (Model.ComplaintHearings != null && Model.ComplaintHearings.Count() > 0)
+                        {
+                            int totalHearings = Model.ComplaintHearings.Where(c => c.MOMFileName != null).Count();
+                            int count = 1;
+                            foreach (var hearingDate in Model.ComplaintHearings.Where(c => c.MOMFileName != null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @hearingDate.DateOfHearing
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8 col-md-8">
+                                        <div class="form-group">
+                                            <label for=""><b>Minutes of the meeting</b></label>
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintMOM", new { id = hearingDate.Id, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@hearingDate.MOMFileName
+                                            </a>
+                                        </div>
+                                        @if (count++ == totalHearings && Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Rejoinder).ToString())
+                                        {
+                                            using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                            {
+                                                @Html.AddUniqueFormId()
+                                                @Html.AntiForgeryToken()
+                                                @Html.ValidationSummary(true)
+                                                @Html.HiddenFor(x => x.ComplaintId)
+                                                <div class="form-group">
+                                                    <label for=""><b>Reupload MOM</b></label>
+                                                    <input type="file" accept=".jpg,.jpeg,.pdf" id="fileComplaintHearingMOMReupload" name="fileComplaintHearingMOMReupload" class="help-block w-100" required />
+                                                    <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                                    <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="HearingMOMReUpdload" id="HearingMOMReUpdload" value="Repload MOM" />
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            if (Model.ComplaintHearings.Any(c => c.MOMFileName == null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @Model.ComplaintHearings.FirstOrDefault(c => c.MOMFileName == null).DateOfHearing
+                                        </div>
+                                    </div>
+                                    @if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Rejoinder).ToString())
+                                    {
+                                        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.AddUniqueFormId()
+                                            @Html.AntiForgeryToken()
+                                            @Html.ValidationSummary(true)
+                                            @Html.HiddenFor(x => x.ComplaintId)
+                                            <div class="col-lg-6 col-md-6">
+                                                <div class="form-group">
+                                                    <label for=""><b>Minutes of the meeting</b></label>
+                                                    <input type="file" accept=".jpg,.jpeg,.pdf" id="fileComplaintHearingMOM" name="fileComplaintHearingMOM" class="help-block w-100" required />
+                                                    <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                                    <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="HearingMOMUpdload" id="HearingMOMUpdload" value="Upload MOM" />
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+                                </div>
+                            }
+                            else if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Rejoinder).ToString())
+                            {
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    @Html.HiddenFor(x => x.ComplaintId)
+                                    <div class="row mb-3">
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Date of Hearing</b></label>
+                                                @Html.TextBoxFor(x => x.ComplaintHearingSelectedDate, new { @class = "form-control reset-control", id = "datetimepickerComplaintHearingDate", required = "required" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12">
+                                            <div class="form-group">
+                                                <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ScheduleHearing" id="ScheduleHearing" value="Schedule Hearing" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationRejoinder", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    @Html.HiddenFor(x => x.ComplaintId)
+                                    <div class="form-group">
+                                        <label for=""><b>Upload Final Document</b></label>
+                                        <input type="file" accept=".jpg,.jpeg,.pdf" id="fileComplainClosingDoc" name="fileComplainClosingDoc" class="help-block w-100" required />
+                                        <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                    </div>
+                                    <div class="form-group py-2 text-right mb-0">
+                                        <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="CloseComplaint" id="CloseComplaint" value="Close Complaint" />
+                                    </div>
+                                }
+                            }
+                        }
+                        else if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Rejoinder).ToString())
+                        {
+                            using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationRejoinder", @class = "form-signin", @enctype = "multipart/form-data" }))
+                            {
+                                @Html.AddUniqueFormId()
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                                @Html.HiddenFor(x => x.ComplaintId)
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @Html.TextBoxFor(x => x.ComplaintHearingSelectedDate, new { @class = "form-control reset-control", id = "datetimepickerComplaintHearingDate", required = "required" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ScheduleHearing" id="ScheduleHearing" value="Schedule Hearing" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="row mb-3">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>No Hearing</b></label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+                }
+                if (System.Convert.ToInt32(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Closed)
+                {
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Closing Documents</legend>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12">
+                                <div class="form-group">
+                                    @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "CD" && d.IsReviewDocument != true).Count() > 0)
+                                    {
+                                        <label for=""><b>Uploaded Document</b></label>
+                                        foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "CD" && d.IsReviewDocument != true))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    }
+                                    @if (Model.IsReviewRequestRaised != true)
+                                    {
+                                        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationRejoinder", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.AddUniqueFormId()
+                                            @Html.AntiForgeryToken()
+                                            @Html.ValidationSummary(true)
+                                            @Html.HiddenFor(x => x.ComplaintId)
+                                            <div class="form-group">
+                                                <label for=""><b>Select Final Document</b></label>
+                                                <input type="file" multiple accept=".jpg,.jpeg,.pdf" id="fileComplainClosingDoc" name="fileComplainClosingDoc" class="help-block w-100" required />
+                                                <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                            </div>
+                                            <div class="form-group py-2 text-right mb-0">
+                                                <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ClosingDocUpdload" id="ClosingDocUpdload" value="Reupload Final document" />
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                }
+                if (System.Convert.ToInt32(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Review || Model.IsReviewRequestRaised)
+                {
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Order Request Request</legend>
+                        <div class="form-group row">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsAppliedWithin30days", "Whether Review Application is applied within 30 days from Date of Order?")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsAppliedWithin30Days)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsAppealPreferred", "Whether any Appeal/Representation has been preferred?")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsAppealPreferred)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsErrorApparent", "Apparent error in record")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsErrorApparent)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsImportantMatterDiscovery", "Discovery of new and important matter or evidence which, after the exercise of due diligence, was not within his knowledge or could not be produced by him at the time when the order was passed")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsImportantMatterDiscovery)
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "OD"))
+                        {
+
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Uploaded Document</b></label>
+                                        @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "OD"))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <div class="row mb-3">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>No Document</b></label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Review Manual Hearings</legend>
+                        @if (Model.ComplaintHearingsOrderReviewRequest != null && Model.ComplaintHearingsOrderReviewRequest.Count() > 0)
+                        {
+                            int totalHearings = Model.ComplaintHearingsOrderReviewRequest.Where(c => c.MOMFileName != null).Count();
+                            int count = 1;
+                            foreach (var hearingDate in Model.ComplaintHearingsOrderReviewRequest.Where(c => c.MOMFileName != null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-4 col-md-4">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @hearingDate.DateOfHearing
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-8 col-md-8">
+                                        <div class="form-group">
+                                            <label for=""><b>Minutes of the meeting</b></label>
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintMOM", new { id = hearingDate.Id, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@hearingDate.MOMFileName
+                                            </a>
+                                        </div>
+                                        @if (count++ == totalHearings && System.Convert.ToInt32(Model.ComplaintStatus) != (int)ComplaintPortalService.ComplaintStatus.Closed)
+                                        {
+                                            using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                            {
+                                                @Html.AddUniqueFormId()
+                                                @Html.AntiForgeryToken()
+                                                @Html.ValidationSummary(true)
+                                                @Html.HiddenFor(x => x.ComplaintId)
+                                                <div class="form-group">
+                                                    <label for=""><b>Reupload MOM</b></label>
+                                                    <input type="file" accept=".jpg,.jpeg,.pdf" id="fileComplaintHearingMOMReupload" name="fileComplaintHearingMOMReupload" class="help-block w-100" required />
+                                                    <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                                    <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="HearingMOMReUpdload" id="HearingMOMReUpdload" value="Repload MOM" />
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            if (Model.ComplaintHearingsOrderReviewRequest.Any(c => c.MOMFileName == null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @Model.ComplaintHearingsOrderReviewRequest.FirstOrDefault(c => c.MOMFileName == null).DateOfHearing
+                                        </div>
+                                    </div>
+                                    @if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Review).ToString())
+                                    {
+                                        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.AddUniqueFormId()
+                                            @Html.AntiForgeryToken()
+                                            @Html.ValidationSummary(true)
+                                            @Html.HiddenFor(x => x.ComplaintId)
+                                            <div class="col-lg-6 col-md-6">
+                                                <div class="form-group">
+                                                    <label for=""><b>Minutes of the meeting</b></label>
+                                                    <input type="file" accept=".jpg,.jpeg,.pdf" id="fileComplaintHearingMOM" name="fileComplaintHearingMOM" class="help-block w-100" required />
+                                                    <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                                    <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="HearingMOMUpdload" id="HearingMOMUpdload" value="Upload MOM" />
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            else if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Review).ToString())
+                            {
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    @Html.HiddenFor(x => x.ComplaintId)
+                                    <div class="row mb-3">
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="form-group">
+                                                <label for=""><b>Date of Hearing</b></label>
+                                                @Html.TextBoxFor(x => x.ComplaintHearingSelectedDate, new { @class = "form-control reset-control", id = "datetimepickerComplaintHearingDate", required = "required" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12 col-md-12">
+                                            <div class="form-group">
+                                                <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ScheduleHearing" id="ScheduleHearing" value="Schedule Hearing" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationRejoinder", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    @Html.HiddenFor(x => x.ComplaintId)
+                                    <div class="form-group">
+                                        <label for=""><b>Upload Final Document</b></label>
+                                        <input type="file" accept=".jpg,.jpeg,.pdf" id="fileComplainClosingDoc" name="fileComplainClosingDoc" class="help-block w-100" required />
+                                        <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                    </div>
+                                    <div class="form-group py-2 text-right mb-0">
+                                        <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="CloseComplaint" id="CloseComplaint" value="Close Complaint" />
+                                    </div>
+                                }
+                            }
+                        }
+                        else if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Review).ToString())
+                        {
+                            using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationRejoinder", @class = "form-signin", @enctype = "multipart/form-data" }))
+                            {
+                                @Html.AddUniqueFormId()
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                                @Html.HiddenFor(x => x.ComplaintId)
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @Html.TextBoxFor(x => x.ComplaintHearingSelectedDate, new { @class = "form-control reset-control", id = "datetimepickerComplaintHearingDate", required = "required" })
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ScheduleHearing" id="ScheduleHearing" value="Schedule Hearing" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="row mb-3">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>No Hearing</b></label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+                }
+                if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Closed).ToString() && Model.IsReviewRequestRaised == true)
+                {
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Review Closing Documents</legend>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12">
+                                <div class="form-group">
+                                    @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "CD" && d.IsReviewDocument == true).Count() > 0)
+                                    {
+                                        <label for=""><b>Uploaded Document</b></label>
+                                        foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "CD" && d.IsReviewDocument == true))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    }
+                                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationRejoinder", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                    {
+                                        @Html.AddUniqueFormId()
+                                        @Html.AntiForgeryToken()
+                                        @Html.ValidationSummary(true)
+                                        @Html.HiddenFor(x => x.ComplaintId)
+                                        <div class="form-group">
+                                            <label for=""><b>Select Final Document</b></label>
+                                            <input type="file" multiple accept=".jpg,.jpeg,.pdf" id="fileComplainClosingDoc" name="fileComplainClosingDoc" class="help-block w-100" required />
+                                            <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                        </div>
+                                        <div class="form-group py-2 text-right mb-0">
+                                            <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="ClosingDocUpdload" id="ClosingDocUpdload" value="Reupload Final document" />
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                }
+                if (!string.IsNullOrEmpty(Model.ComplaintStatus))
+                {
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group py-2 text-right mb-0">
+                                <button type="button" class="btn btn-link txt-sm" data-toggle="modal" data-target="#complaintHistory">Complaint History</button>
+                                <button type="button" class="btn btn-link txt-sm" data-toggle="modal" data-target="#ForwardDetails">Forward</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else if (role == "nodaladmin")
+            {
+                <div>
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <h3 class="txt-orange txt-md mb-3">Complaint Registration Form</h3>
+                            <p class="">Please fill in required details below</p>
+                        </div>
+                        <div class="col-lg-6 text-lg-right text-left mt-3 mt-lg-0">
+                            <button type="button" class="btn btn-primary txt-sm" data-toggle="modal" data-target="#generalguideline">COMPLAINT HANDLING INFORMATION/GUIDELINES</button>
+                            <a href="#generalguideline" class="btn btn-primary d-none" target="_blank" style="color: #fff;" data-toggle="modal" data-target="#generalguideline"><b>GENERAL GUIDELINES</b></a>
+                        </div>
+                    </div>
+
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Consumer details</legend>
+                        <div class="row mb-3">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Consumer Account Numberr</b></label>
+                                    @Html.TextBoxFor(x => x.AccountNumber, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Name</b></label>
+                                    @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Address</b></label>
+                                    @Html.TextAreaFor(x => x.Address, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>City</b></label>
+                                    @Html.TextBoxFor(x => x.City, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Pincode</b></label>
+                                    @Html.TextBoxFor(x => x.Pincode, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Email</b></label>
+                                    @Html.TextBoxFor(x => x.EmailId, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Mobile</b></label>
+                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Consumer Category</b></label>
+                                    @*@Html.DropDownListFor(x => x.SelectedConsumerCategory, new SelectList(Model.ConsumerCategorySelectList, "Value", "Text", Model.SelectedConsumerCategory), "Select", new { @class = "form-control", id = "ddlConsumerCategory", required = "required" })*@
+                                    @Html.TextBoxFor(x => x.SelectedConsumerCategory, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Zone</b></label>
+                                    @*@Html.DropDownListFor(m => m.SelectedConsumerZone, Model.ConsumerZoneSelectList.Select(x => new SelectListItem() { Value = x.Text, Text = x.Text, Group = x.Group, Selected = (x.Value == Model.SelectedConsumerZone) }).ToList(), "Select", new { @class = "form-control", id = "ddlConsumerCategory", required = "required" })*@
+                                    @Html.TextBoxFor(x => x.SelectedConsumerZone, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Previous Complaint details</legend>
+                        <div class="row mb-3">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Registration Numberr</b></label>
+                                    @Html.TextBoxFor(x => x.ComplaintFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Description</b></label>
+                                    @Html.TextAreaFor(x => x.ComplaintDescriptionFromPreviousLevel, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Reason for approaching CGRF</b></label>
+                                    @Html.TextAreaFor(x => x.ReasonToApply, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Complaint details</legend>
+                        <div class="row">
+                            @if (!string.IsNullOrEmpty(Model.CGRFCaseNumber))
+                            {
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Complaint Case Number</b></label>
+                                        @Html.TextBoxFor(x => x.CGRFCaseNumber, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Registration Number</b></label>
+                                    @Html.TextBoxFor(x => x.ComplaintRegistrationNumber, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Status</b></label>
+                                    @Html.TextBoxFor(x => x.ComplaintStatusDescription, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Category</b></label>
+                                    @Html.DropDownListFor(x => x.SelectedComplaintCategory, new SelectList(Model.ComplaintCategorySelectList, "Value", "Text", Model.SelectedComplaintCategory), "Select", new { @class = "form-control", id = "ddlComplaintCategory", required = "required", @readonly = "readonly" })
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.SelectedComplaintCategory) && Model.SelectedComplaintCategory.ToLower().Contains("other"))
+                            {
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Specify Category</b></label>
+                                        @Html.TextBoxFor(x => x.OtherCategoryText, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label class="btn btn-secondary">
+                                        <b>Download Schedule A Form</b>
+                                        <a class="txt-orange" href="/cgrf/forms/Schedule-A-and-Undertaking.docx">
+                                            <i class="fa fa-download mr-2"></i>
+                                        </a>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    <label for=""><b>Schedule A Document including Undertaking Form</b></label>
+                                    @if (Model.IsDocumentUploaded)
+                                    {
+                                        <br />
+                                        <a class="txt-orange" href="@Url.Action("DownloadComplaintFile", new { id = Model.ComplaintId })">
+                                            <i class="fa fa-download mr-2"></i>@Model.DocumentName
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                            @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "RD"))
+                            {
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Schedule A Resubmitted Document</b></label>
+                                        <br />
+                                        @{
+                                            var RD = Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "RD").FirstOrDefault();
+                                        }
+                                        <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new {id= RD.DocumentId,  complaintId = Model.ComplaintId})">
+                                            <i class="fa fa-download mr-2"></i>@RD.DocumentName
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                    @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Count > 0)
+                                    {
+                                        <label for=""><b>Upload Supporting Documents</b></label>
+                                        foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "SD"))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12">
+                                <div class="form-group">
+                                    <label for=""><b>Complaint Description</b></label>
+                                    @Html.TextAreaFor(x => x.ComplaintDescription, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12">
+                                <div class="form-group">
+                                    <label for=""><b>Admin Remarks</b></label>
+                                    @Html.TextAreaFor(x => x.AdminRemarks, new { @class = "form-control", required = "required", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+                        @if (System.Convert.ToInt64(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Approved && System.Convert.ToInt64(Model.ComplaintStatus) != (int)ComplaintPortalService.ComplaintStatus.Resubmit)
+                        {
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Tentative Hearing Date</b></label>
+                                        @Html.TextAreaFor(x => x.TantetiveHearingDate, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+                    <hr />
+                    <fieldset class="px-3">
+                        @if (Model.ComplaintStatus.ToString() == ((int)ComplaintPortalService.ComplaintStatus.Approved).ToString())
+                        {
+                            <legend class="txt-orange">Nodal Reply</legend>
+                            using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                            {
+                                @Html.AddUniqueFormId()
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                                @Html.HiddenFor(x => x.ComplaintId)
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Upload Document</b></label>
+                                            <input type="file" multiple accept=".jpg,.pdf" id="fileComplaintDocNodelAdmin" name="fileComplaintDocNodelAdmin" class="help-block w-100" required />
+                                            <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 col-md-12">
+                                        <div class="form-group">
+                                            <label for=""><b>Remarks</b></label>
+                                            @Html.TextAreaFor(x => x.AdminRemarks, new { @class = "form-control", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.AdminRemarks, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-group py-2 text-right mb-0">
+                                            <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="NodelReply" id="NodelReply" value="Submit" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+                        @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "ND"))
+                        {
+                            <legend class="txt-orange">Nodal Reply</legend>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Uploaded Document</b></label>
+                                        @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "ND"))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+                    @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "JD"))
+                    {
+                        <hr />
+                        <fieldset class="px-3">
+                            <legend class="txt-orange">Rejoinder</legend>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Uploaded Document</b></label>
+                                        @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "JD"))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }
+
+                </div>
+                if (System.Convert.ToInt32(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Rejoinder)
+                {
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Manual Hearings</legend>
+                        @if (Model.ComplaintHearings != null && Model.ComplaintHearings.Count() > 0)
+                        {
+                            foreach (var hearingDate in Model.ComplaintHearings.Where(c => c.MOMFileName != null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @hearingDate.DateOfHearing
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Minutes of the meeting</b></label>
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintMOM", new { id = hearingDate.Id, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@hearingDate.MOMFileName
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            if (Model.ComplaintHearings.Any(c => c.MOMFileName == null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @Model.ComplaintHearings.FirstOrDefault(c => c.MOMFileName == null).DateOfHearing
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </fieldset>
+                }
+                if (System.Convert.ToInt32(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Closed)
+                {
+                    if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "CD" && d.IsReviewDocument != true))
+                    {
+                        <hr />
+                        <fieldset class="px-3">
+                            <legend class="txt-orange">Closing Documents</legend>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Uploaded Document</b></label>
+                                        @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "CD" && d.IsReviewDocument != true))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                                @if (!Model.IsReviewRequestRaised)
+                                {
+                                    <div class="col-lg-12 text-lg-right text-left mt-3 mt-lg-0">
+                                        <button type="button" class="btn btn-primary txt-sm" data-toggle="modal" data-target="#orderreviewrequest">ORDER REVIEW REQUEST</button>
+                                    </div>
+                                }
+                            </div>
+                        </fieldset>
+                    }
+                }
+                if (System.Convert.ToInt32(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Review || Model.IsReviewRequestRaised)
+                {
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Order Request Request</legend>
+                        <div class="form-group row">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsAppliedWithin30days", "Whether Review Application is applied within 30 days from Date of Order?")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsAppliedWithin30Days)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsAppealPreferred", "Whether any Appeal/Representation has been preferred?")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsAppealPreferred)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsErrorApparent", "Apparent error in record")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsErrorApparent)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label for="" class="col-lg-8 col-form-label">
+                                @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsImportantMatterDiscovery", "Discovery of new and important matter or evidence which, after the exercise of due diligence, was not within his knowledge or could not be produced by him at the time when the order was passed")
+                            </label>
+                            <div class="col-lg-4">
+                                <div class="form-check form-check-inline">
+                                    @Html.DisplayFor(m => m.IsImportantMatterDiscovery)
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "OD"))
+                        {
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Uploaded Document</b></label>
+                                        @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "OD"))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId=Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <div class="row mb-3">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>No Document</b></label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+                }
+                if (System.Convert.ToInt32(Model.ComplaintStatus) >= (int)ComplaintPortalService.ComplaintStatus.Review || Model.IsReviewRequestRaised)
+                {
+                    <hr />
+                    <fieldset class="px-3">
+                        <legend class="txt-orange">Review Manual Hearings</legend>
+                        @if (Model.ComplaintHearingsOrderReviewRequest != null && Model.ComplaintHearingsOrderReviewRequest.Count() > 0)
+                        {
+                            foreach (var hearingDate in Model.ComplaintHearingsOrderReviewRequest.Where(c => c.MOMFileName != null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @hearingDate.DateOfHearing
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Minutes of the meeting</b></label>
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintMOM", new { id = hearingDate.Id, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@hearingDate.MOMFileName
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            if (Model.ComplaintHearingsOrderReviewRequest.Any(c => c.MOMFileName == null))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                            <label for=""><b>Date of Hearing</b></label>
+                                            @Model.ComplaintHearingsOrderReviewRequest.FirstOrDefault(c => c.MOMFileName == null).DateOfHearing
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="row mb-3">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>No Hearing</b></label>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </fieldset>
+                }
+                if (Model.ComplaintStatus == ((int)ComplaintPortalService.ComplaintStatus.Closed).ToString() && Model.IsReviewRequestRaised == true)
+                {
+                    if (Model.ComplaintSupportingDocuments != null && Model.ComplaintSupportingDocuments.Any(d => d.DocumentType == "CD" && d.IsReviewDocument == true))
+                    {
+                        <hr />
+                        <fieldset class="px-3">
+                            <legend class="txt-orange">Review Closing Documents</legend>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label for=""><b>Final Document</b></label>
+                                        @foreach (var d in Model.ComplaintSupportingDocuments.Where(d => d.DocumentType == "CD" && d.IsReviewDocument == true))
+                                        {
+                                            <br />
+                                            <a class="txt-orange" href="@Url.Action("DownloadComplaintSupportingDocumentFile", new { id = d.DocumentId, complaintId = Model.ComplaintId })">
+                                                <i class="fa fa-download mr-2"></i>@d.DocumentName
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 text-lg-right text-left mt-3 mt-lg-0">
+                                    <button type="button" class="btn btn-primary txt-sm" data-toggle="modal" data-target="#orderreviewrequest">ORDER REVIEW REQUEST</button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    }
+                }
+                if (!string.IsNullOrEmpty(Model.ComplaintStatus))
+                {
+                    <hr />
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group py-2 text-right mb-0">
+                                <button type="button" class="btn btn-link txt-sm" data-toggle="modal" data-target="#complaintHistory">Complaint History</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <div class="text-right"><a href="@complaintPortalHomePage" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;Go back</a></div>
+    </div>
+</section>
+
+<!-- Modal -->
+<div id="loader-wrapper" style="display:none">
+    <div id="loader"></div>
+    <div class="loader-content" style="text-align:center;"><p><b>Your request is being processed. Please do not press the “Back” or “Refresh” button.</b></p></div>
+    <div class="loader-section section-left"></div>
+    <div class="loader-section section-right"></div>
+</div>
+
+<div class="modal fade modal-popup" id="generalguideline" tabindex="-1" role="dialog" aria-labelledby="generalguideline" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>Complaint Handling Information / Guidelines & CGRF Details</h5>
+                <div class="modal-popup__content">
+                    <div class="panel">
+                        <p class="txt-orange"><b>Complaint Handling thro’ Consumer Grievance Redressal Forum (CGRF):</b></p>
+                        <p>Consumer may approach CGRF in the event of complaint non-admission / unsatisfactorily resolved / closure without consumer’s consent / directly / non-redressal after complaint resolution period is over by company’s complaint resolution handling system (ICRS) / Helpdesk.</p>
+                        <p>Consumer needs to make numbering on each page to be treated as grievance and submit as one document.( This will consist Schedule A / undertaking form and other supporting documents).</p>
+                        <hr />
+                        <p class="mb-3">
+                            This CGRF (Consumer Grievance Redressal Forum) is web-enabled system, which the consumers can access anywhere anytime.
+                            The Web enabled CGRF module works as a consumer-friendly complaint registration and tracking system that functions over the Internet. Consumers can register their grievances and can then
+                            track progress  of it’s redressal in a structured manner.
+                        </p>
+                        <p><b>Complaint Resolution Period</b></p>
+                        <br />
+                        <p>
+                            <b>
+                                (i) for Complaint Types: New Connection/No Supply / Disconnection-Reconnection
+                            </b>
+                        </p>
+                        <p>
+                            Expected Redressal Time >= 15 working days (from case No generation date within CGRF working Hours)
+                        </p>
+                        <p>
+                            <b>
+                                (ii) for Complaint Types : Billing / Others
+                            </b>
+                        </p>
+                        <p> Expected Redressal Time: >= 60 working days (from case No generation date within CGRF working Hours)</p>
+                        <p>
+                            <b>
+                                (iii) Address of Consumer Grievance Redressal Forum (CGRF)
+                            </b>
+                        </p>
+                        <p> Adani Electricity Mumbai Ltd., Devidas Lane, Off.S.V.P.Road, Near Devidas Lane Telephone Exchange,Borivali (West), Mumbai 400103.</p>
+                        <p>
+                            <b>
+                                (iii) Address of Consumer Grievance Redressal Forum (CGRF)
+                            </b>
+                        </p>
+                        <p><b>Email ID : </b><a href="mailto:consumerforum.mumbaielectricity@adani.com">consumerforum.mumbaielectricity@adani.com</a></p>
+                        <p><b>Website : </b><a href="https://cgrf.adanielectricity.com/" target="_blank">cgrf.adanielectricity.com</a></p>
+                        <p><b>Phone no : </b><a href="tel:022 50745004">022 50745004</a></p>
+                    </div>
+                    <div class="panel">
+                        <p class="txt-orange">
+                            <b>
+                                Complaint Handling thro’ Electricity Ombudsman (EO)
+                            </b>
+                        </p>
+                        <p>
+                            ( For Non Redressal / Non Admission / Unsatisfactorily redressed Complaints at CGRF):
+                        </p>
+                        <hr />
+                        <p><b>60 days from the date of the Order of the Forum</b></p>
+                        <br />
+                        <p>The address & contacts of the Office of the Electricity Ombudsman are as below:</p>
+                        <hr />
+                        <p>
+                            <b>Electricity Ombudsman office address:</b>
+                        </p>
+                        <p>606, Keshva Building, 6th Floor, Bandra Kurla Complex,(BKC), Bandra (East), Mumbai – 400 051, Maharashtra State</p>
+                        <p>
+                            <b>Email ID : </b><a href="mailto:electricityombudsmanmumbai@gmail.com">electricityombudsmanmumbai@gmail.com</a> 
+                        </p>
+                        <p><b>Phone no :</b><a href="tel:022 49691092">022 49691092</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade modal-popup" id="complaintHistory" tabindex="-1" role="dialog" aria-labelledby="complaintHistory" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>Complaint History</h5>
+                <div class="modal-popup__content">
+                    <p class="mb-3 txt-orange">
+                        Your complaint details are as below:.
+                    </p>
+                    <div class="panel">
+                        @if (Model.ComplaintHistoryRecords != null && Model.ComplaintHistoryRecords.Count() > 0)
+                        {
+                            <div class="scroll_table">
+                                <table class="table table-striped border text-center bg-white">
+                                    <thead>
+                                        <tr>
+                                            <th>S.N.</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                            <th>Admin Remarks</th>
+                                            <th>Status</th>
+                                            <th>Action By</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="CONApps">
+                                        @{
+                                            var count = 1;
+                                            foreach (var app in Model.ComplaintHistoryRecords)
+                                            {
+                                                DateTime createdDate = DateTime.Parse(app.CreatedDate.ToString());
+                                                var createdDate1 = createdDate.ToString("dd.MM.yyyy");
+
+                                                int value = System.Convert.ToInt32(app.Status);
+                                                var complaintStatus = (ComplaintPortalService.ComplaintStatus)value;
+
+                                                <tr>
+                                                    <td>@count</td>
+                                                    <td>@createdDate1</td>
+                                                    <td>@app.Description</td>
+                                                    @if (string.IsNullOrEmpty(app.AdminRemarks))
+                                                    {
+                                                        <td>-</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>@app.AdminRemarks</td>
+                                                    }
+                                                    @if (complaintStatus == 0)
+                                                    {
+                                                        <td>-</td>
+                                                    }
+                                                    else
+                                                    {
+                                                        <td>@complaintStatus.ToString()</td>
+                                                    }
+                                                    <td>@app.CreatedBy</td>
+                                                </tr>
+                                                count++;
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <p>No record found.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="confirmation_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close reset" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                <p class="confirmation_modal_message"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary confirmation_modalbtnYesNO" value="1">Proceed</button>
+                <button type="button" class="btn btn-primary confirmation_modalbtnYesNO" value="0">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade modal-popup" id="ForwardDetails" tabindex="-1" role="dialog" aria-labelledby="ForwardDetails" aria-hidden="true">
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistrationRejoinder", @class = "form-signin", @enctype = "multipart/form-data" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(x => x.ComplaintId)
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="txt-orange">Forward Complaint to specified email address:</h4>
+                    <button type="button" class="close reset" data-dismiss="modal">X</button>
+                </div>
+                <div class="modal-body">
+                    <p class="confirmation_modal_message"></p>
+                    <div class="modal-popup_content">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <p>Enter email address:</p>
+                                @Html.TextBoxFor(x => x.ForwardDetailsEmailTo, new { @class = "form-control", required = "required" })
+                                @Html.ValidationMessageFor(x => x.ForwardDetailsEmailTo, "", new { @class = "help-block" }, "p")
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" value="Forward" id="ForwardDetails" name="ForwardDetails" class="btn btn-primary ">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+
+        </div>
+    }
+</div>
+
+<div class="modal fade modal-popup" id="orderreviewrequest" tabindex="-1" role="dialog" aria-labelledby="orderreviewrequest" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>ORDER REVIEW REQUEST</h5>
+                <div class="modal-popup__content">
+                    <p class="mb-3">
+                        Please provide answer to below queries and proceed further:
+                    </p>
+                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                    {
+                        @Html.AddUniqueFormId()
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true)
+                        @Html.HiddenFor(x => x.ComplaintId)
+                        <div class="panel">
+                            <div class="form-group row mb-0 border-bottom">
+                                <label for="" class="col-lg-8 col-form-label">
+                                    @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsAppliedWithin30days", "Whether Review Application is applied within 30 days from Date of Order?")<span class="required">*</span>
+                                </label>
+                                <div class="col-lg-4">
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsAppliedWithin30Days, "Yes", new { id = "IsAppliedWithin30DaysYes", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsAppliedWithin30DaysYes">Yes</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsAppliedWithin30Days, "No", new { id = "IsAppliedWithin30DaysNo", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsAppliedWithin30DaysNo">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-0 border-bottom py-3">
+                                <label for="" class="col-lg-8 col-form-label">
+                                    @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsAppealPreferred", "Whether any Appeal/Representation has been preferred?")<span class="required">*</span>
+                                </label>
+                                <div class="col-lg-4">
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsAppealPreferred, "Yes", new { id = "IsAppealPreferredYes", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsAppealPreferredYes">Yes</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsAppealPreferred, "No", new { id = "IsAppealPreferredNo", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsAppealPreferredNo">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-0 border-bottom  py-3">
+                                <label for="" class="col-lg-8 col-form-label">
+                                    @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsErrorApparent", "Apparent error in record")<span class="required">*</span>
+                                </label>
+                                <div class="col-lg-4">
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsErrorApparent, "Yes", new { id = "IsErrorApparentYes", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsErrorApparentYes">Yes</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsErrorApparent, "No", new { id = "IsErrorApparentNo", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsErrorApparentNo">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row mb-0 border-bottom py-3">
+                                <label for="" class="col-lg-8 col-form-label">
+                                    @Html.Sitecore().Dictionary("/CGRFComplaintPortal/OrderReviewRequestQueries/IsImportantMatterDiscovery", "Discovery of new and important matter or evidence which, after the exercise of due diligence, was not within his knowledge or could not be produced by him at the time when the order was passed")<span class="required">*</span>
+                                </label>
+                                <div class="col-lg-4">
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsImportantMatterDiscovery, "Yes", new { id = "IsImportantMatterDiscoveryYes", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsImportantMatterDiscoveryYes">Yes</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        @Html.RadioButtonFor(model => model.IsImportantMatterDiscovery, "No", new { id = "IsImportantMatterDiscoveryNo", @class = "form-check-input rbIsSolarInstalled", required = "required" })
+                                        <label class="form-check-label" for="IsImportantMatterDiscoveryNo">No</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group pt-3">
+                                <label for="" class="mb-2"><b>Upload Documents</b></label>
+                                <input type="file" multiple accept=".jpg,.pdf" id="fileComplaintOrderReviewRequest" name="fileComplaintOrderReviewRequest" class="help-block w-100" required />
+                                <span class="txt-small" style="font-size:12px;">(Upload file in jpg or PDF formats only, max file size 5 MB)</span>
+                            </div>
+
+                            <div class="text-right">
+                                <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="OrderReviewRequest" id="OrderReviewRequest" value="Submit" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

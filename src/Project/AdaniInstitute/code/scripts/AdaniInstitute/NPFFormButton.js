@@ -1,0 +1,1 @@
+let npfW7d34587fb3d27c89ebf959851c192c8e = new NpfWidgetsInit({ "widgetId":"7d34587fb3d27c89ebf959851c192c8e", "baseurl":"widgets.in5.nopaperforms.com", "formTitle":"Feedback Form", "titleColor":"#FF0033", "backgroundColor":"#ddd", "iframeHeight":"500px", "buttonbgColor":"#ff0000", "buttonTextColor":"#FFF", });

@@ -1,0 +1,56 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+}
+@if (elements != null)
+{
+    var itemList = elements.Axes.GetDescendants().ToList().Take(4).Where(x => x.TemplateID == Templates.SolarPageTypeNews.ID).OrderByDescending(y => y.Fields[Templates.SolarPageTypeNews.Fields.Date].Value);
+
+
+    <h3 class="section-heading">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, elements)</h3>
+    <ul class="ul-news-section">
+        @if (itemList != null)
+        {
+            foreach (var item in itemList)
+            {
+                var lst = item.Axes.GetDescendants().Where(x => x.TemplateID == new Sitecore.Data.ID("{390333C8-751B-4332-84A3-6360B969A19F}")).FirstOrDefault();
+
+                LinkField URL = lst.Fields["Link"];
+                var url = string.Empty;
+                if (URL.TargetItem != null)
+                {
+                    var innerChield = URL.TargetItem;
+                    var fitstChiled = innerChield.Children.ToList().FirstOrDefault();
+                    var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(fitstChiled);
+                    url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+                }
+
+                var dt = Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Date, item).ToString();
+                DateTime date = DateTime.Parse(dt);
+                var formatedDate = date.ToString("MMM dd, yyyy");
+                Sitecore.Data.Fields.LinkField linkvalue = item.Fields["LinkUrl"];
+                var linkUrl = linkvalue.GetFriendlyUrl();
+                <li>
+                    <p>
+                        <a href="@url" target="_blank">@Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Title, item)</a><span>
+                            @formatedDate @Html.Sitecore().Field(Templates.SolarPageTypeNews.Fields.Author, item)
+                        </span>
+                    </p>
+                </li>
+            }
+        }
+    </ul>
+
+    <p class="text-right"><a href="@elements.Url()">Read more</a></p>
+}

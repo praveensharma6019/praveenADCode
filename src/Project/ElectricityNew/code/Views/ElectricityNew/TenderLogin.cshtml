@@ -1,0 +1,108 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.ElectricityNew.Website.Model.Login
+
+<div class="pageContent">
+    <div class="container">
+        <!-- Section -->
+
+        <div class="row">
+            <div class="col l6 s12 offset-l3 section-container">
+
+                <div>
+                    <h1>Login</h1>
+                    <div class="card-with-form login-wrap section-wrapper" id="LoginFormField">
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.ValidationSummary(true)
+                            <div class="input-field custom">
+                                @Html.TextBoxFor(x => x.LoginName, new
+                                {
+                                    @class = "validate",
+                                    @autocomplete = "off",
+                                    id = "LoginUserName"@*, required = "required"*@,
+title = "LoginName"
+})
+                                <label class="active" for="LoginUserName">@Html.Sitecore().Dictionary("/Accounts/Login/Enter User Name", "Enter User Name")</label>
+                                @Html.ValidationMessageFor(x => x.LoginName, "", new { @class = "help-block" }, "p")
+                            </div>
+
+
+                            <div class="input-field custom input-has-icon">
+                                @Html.PasswordFor(x => x.Password, new
+                                {
+                                    @class = "validate",
+                                    id = "LoginPassword",
+                                    @autocomplete = "off"@*, required = "required"*@,
+title = "Passwords"
+})
+                                <label class="active" for="LoginPassword">@Html.Sitecore().Dictionary("/Accounts/Login/Password", "Enter Password")</label>
+                                @Html.ValidationMessageFor(x => x.Password, "", new { @class = "help-block" }, "p")
+                                <div class="input-icon">
+                                    <span class="icon-holder waves-effect waves-light show-pass">
+                                        <i class="vi-show-password"></i>
+                                        <i class="vi-hide-password"></i>
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <div class="input-field custom col-sm-7 col-md-7">
+                                <div id="recaptcha"></div>
+                                <span class="field-validation-error" id="Captchaerror"></span>
+                            </div>
+                            <div class="h-right btn-group">
+
+                               @* <a href="javascript:void(0)" onclick="showDetailsValidation()" class="waves-effect btn btn-continue login-btn full">@Html.Sitecore().Dictionary("Electricity/Tender/Login", "Login")</a>*@
+
+                               <button type="submit" onclick="showDetailsValidation()" class="waves-effect btn btn-continue login-btn full">@Html.Sitecore().Dictionary("Electricity/Tender/Login", "Login")</button>
+                                @*<button type="button" class="btn btn-secondary">@Html.Sitecore().Dictionary("Electricity/Tender/Cancel", "Cancel")</button>*@
+                            </div>
+
+                            
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /Section -->
+    </div>
+</div>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script type="text/javascript">
+
+     
+    function showDetailsValidation() {
+        var response = grecaptcha.getResponse(recaptcha);
+
+
+        if (response.length == 0) {
+            event.preventDefault();
+            $("#Captchaerror").html("Please validate captcha to continue");
+
+            return false;
+        }
+        else {
+            $("#Captchaerror").html("");
+            ShowDetailsOnlinePayment();
+        }
+    }
+   
+    
+   
+</script>
+<script type="text/javascript">
+    var recaptcha;
+    var onloadCallback = function () {
+        recaptcha = grecaptcha.render('recaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>
+

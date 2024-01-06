@@ -1,0 +1,77 @@
+﻿@using Sitecore.AdaniHousing.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+<div class="primary-menu">
+    <div class="container">
+        <nav class="nav d-flex justify-content-between" id="navbar">
+            <div class="collapse_toggle" data-toggle="collapse" data-target="#navbar" aria-controls="navbar">
+                <span></span>
+                <span></span>
+            </div>
+            @if (element != null)
+            {
+            <ul>
+                @if (element.HasChildren)
+                {
+                    foreach (Item item in element.GetChildren())
+                    {
+                        if (item.HasChildren)
+                        {
+                            LinkField lf = item.Fields["LinkUrl"];
+                            if (lf.LinkType == "external")
+                            {
+                                <li class="dropdown">
+                                    <a class="" target="_blank" href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a>
+                                    <ul class="sub-menu">
+                                        @foreach (Item subItem in item.GetChildren())
+                                        {
+                                            LinkField sublf = subItem.Fields["LinkUrl"];
+                                            <li><a href="@Helper.LinkUrl(subItem.Fields["LinkUrl"])">@subItem.Fields["Title"]</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="dropdown">
+                                    <a class="" href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a>
+                                    <ul class="sub-menu">
+                                        @foreach (Item subItem in item.GetChildren())
+                                        {
+                                            LinkField sublf = subItem.Fields["LinkUrl"];
+                                            <li><a href="@Helper.LinkUrl(subItem.Fields["LinkUrl"])">@subItem.Fields["Title"]</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            LinkField lf = item.Fields["LinkUrl"];
+                            if (lf.LinkType == "external")
+                            {
+                                <li><a target="_blank" class="" href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a></li>
+                            }
+                            else
+                            {
+                                <li><a class="" href="@Helper.LinkUrl(item.Fields["LinkUrl"])">@item.Fields["Title"]</a></li>
+                            }
+
+                        }
+                    }
+                }
+                @*<li><a class="" target="_blank" href="https://www.adanihousing.in"><span class=""></span> Adani Housing</a></li>*@
+            </ul>
+            }
+            
+            @Html.Sitecore().Placeholder("Header-Top-Menu-Mobile")
+        </nav>
+    </div>
+</div>

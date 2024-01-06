@@ -1,0 +1,122 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model Sitecore.AGELPortal.Website.Models.PortalRegistrationModel
+
+@{
+    var usertype = Session["AGELPortalUserType"]?.ToString();
+    var username = Session["AGELPortalUserName"]?.ToString();
+    Layout = null;
+    var mobile1 = Model?.mobile;
+
+    Uri myUri = new Uri(Request.Url.AbsoluteUri);
+    var mobile = HttpUtility.ParseQueryString(myUri.Query).Get("mobile");
+    if (mobile == null)
+    {
+        mobile = mobile1;
+    }
+    var usermode = Session["AGELPortalUserViewMode"]?.ToString();
+}
+
+
+<div class="container">
+    @*<div class="breadcrumbs">
+        @if (usertype == "superadmin" && usermode == "admin")
+        {
+            <a href="/AGELPortal/Home/dashboard"><img src="/images/AGELPortal/logo.svg" alt="adani Renewables" /></a>
+        }
+        else
+        {
+            <a href="/AGELPortal/Home"><img src="/images/AGELPortal/logo.svg" alt="adani Renewables" /></a>
+        }
+        <a href="/AGELPortal/Home/My_Profile" class="breadcrumb">My Profile</a>
+    </div>*@
+    <div class="row">
+        <div class="col s12 l3">
+            <!--Category nav-->
+            <div class="side-nav hide-on-med-and-down">
+                <ul class="collapsible expandable z-depth-0">
+                    <li class="active">
+                        <!-- <div class="collapsible-header brand-gradient-left brand-gradient-thin outlined"> -->
+                            <!-- <a href="#"><i class="i-cross-c"></i>Category</a> -->
+                        <!-- </div> -->
+                        <div class="collapsible-body">
+                            <div class="submenu">
+                                <a href="/AGELPortal/Home/My_Profile" id="my-profile" class="active">My Profile</a>
+                                <!-- <a href="/AGELPortal/Home/change_mobile" class="active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined">Change Mobile</a> -->
+                                <a href="/AGELPortal/Home/My_Profile_Change_Password">Change Password</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!--Cn-->
+        </div>
+        <div class="col s12 l8 offset-l1">
+            <section class="section-wrapper">
+                <div class="section-header">
+                    <h1>My Profile</h1>
+                    @if (Session["addUserSuccess"] != null)
+                    {
+                        <div id="toast-success" class="modal modal-alert modal-toast custom-toast-success" style="display: block;">
+                            <header class="modal-header">
+                                <h4>
+                                    <a class="toast-close">
+                                        <i class="i-tick"></i>
+                                    </a>
+                                    @Session["addUserSuccess"]
+                                </h4>
+                                <a class="modal-close">
+                                    <i class="i-cross"> </i>
+                                </a>
+                            </header>
+                        </div>
+                        Session["addUserSuccess"] = null;
+                    }
+
+                    <p>
+                        Find below the information we have about you. Incase there is change in any of your profile
+                        details, just retype and click on save.
+                    </p>
+                </div>
+                <div class="full-width-cta-wrp section-container">
+                    <a href="/AGELPortal/Home/My_Profile" class="waves-effect waves-light btn btn-000 outlined full">My Personal Information</a>
+                </div>
+                <div class="section-header">
+                    <h4>Change Mobile Number</h4>
+                </div>
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "registration_form", name = "registration_form", @class = "registration_form" }))
+                {
+                    <div class="card brand-gradient section-inner-wrapper outlined card-with-form login-wrap section-container">
+                        <div class="input-field custom input-has-icon">
+                            <input value="@mobile" id="mobile" name="mobile" type="text" class="validate">
+				 <input type="hidden"  id="hdn_name" name="hdn_name" value="@username" />
+                            <label class="active" for="first_name2">Mobile Number</label>
+                        </div>
+                        <div class="otp-wrapper">
+                            <label>Enter OTP</label>
+                            <p> We have sent you an OTP on your mobile number. Please enter to verify</p>
+                        </div>
+                        <div class="input-field custom">
+                            <input value="" id="OTP" name="OTP" type="password" class="validate">
+                            <label class="active" for="enter_otp">Enter OTP</label>
+                            @Html.ValidationMessageFor(model => model.UserValidation, "", new { @class = "help-block text-danger" }, "p")
+                        </div>
+                        <div class="h-right btn-group">
+                            <a href="javascript:;"  class ="btn-flat"id="portal-register" onclick="AGELSendOtpForValidation(event,this);">Resend</a>
+                            <button type="submit" class="waves-effect waves-light btn">Verify</button>
+                        </div>
+                        <div id="Otperror" class="input-field custom" style="display:none">
+                            <p>Somthing went wrong please try again</p>
+                        </div>
+                        <div id="OtpSuccess" class="input-field custom" style="display:none">
+                            <p>Again sent OTP on your mobile number</p>
+                        </div>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+</div>

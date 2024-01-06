@@ -1,0 +1,75 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var contextItem = Sitecore.Context.Item;
+    var YearItem = contextItem.GetChildren().OrderByDescending(x => x.Fields["Text"].Value);
+}
+
+<section class="py-5 bg-gray">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 ml-auto">
+                <div class="form-group">
+
+                    <select class="form-control btn-gradient" id="btn-mrelease">
+                        @if (YearItem != null)
+                        {
+                            <option value="all">ALL</option>
+                            foreach (Item item in YearItem)
+                            {
+                                <option value="@item.Fields["Text"].ToString().Replace(" ","-" )">@item.Fields["Text"]</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        @if (YearItem != null)
+        {
+        <div id="media-r-parent">
+            @foreach (Item item in YearItem)
+            {
+                <div id="@item.Fields["Text"]" class="row media-r @item.Fields["Text"] all">
+                    <div class="col-md-12 mt-3">
+                        <div class="media-date">
+                            <p>@item.Fields["Text"]</p>
+                        </div>
+                    </div>
+                    @foreach (Item news in item.GetChildren().OrderByDescending(x => x.Fields["Date"].Value))
+                    {
+                        LinkField link = (LinkField)news.Fields["LinkUrl"]; 
+                        var imageLinkUrl = link.GetFriendlyUrl();
+                        <div class="col-md-12">
+                            <div class="media-release-box">
+                                @if (String.IsNullOrEmpty(imageLinkUrl))
+                                {
+                                    <h3><a href="@link" target="_blank">@Html.Sitecore().Field("Title", news)</a></h3>                                    
+                                }
+                                else
+                                {
+                                    <h3><a href="@imageLinkUrl" target="_blank">@Html.Sitecore().Field("Title", news)</a></h3>                                    
+                                }
+                                
+                                @if (!String.IsNullOrEmpty(Html.Sitecore().Field("Author", news).ToString()))
+                                {
+                                    <p><span>@Html.Sitecore().Field("Date", news, new { format = "MMM dd yyyy" })  | @Html.Sitecore().Field("Author", news)</span></p>
+
+                                }
+                                else
+                                {
+                                    <p><span>@Html.Sitecore().Field("Date", news, new { format = "MMM dd yyyy" })</span></p>
+                                }
+                            </div>
+                        </div>
+                    }
+                 </div>
+            }          
+        </div>
+        }
+
+        <div class="col-md-12">
+            <p class="text-center arrow m-loadMore">Explore more<i class="fa fa-chevron-down ml-2"></i></p>
+        </div>
+    </div>
+</section>

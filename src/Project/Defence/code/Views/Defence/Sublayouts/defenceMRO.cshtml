@@ -1,0 +1,200 @@
+﻿@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Mvc.Presentation
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+    MultilistField Select = elements.Fields["TabSelect"];
+    var selecttab = Select.GetItems();
+
+    Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)elements.Fields["__Thumbnail"]);
+    var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+
+    //MultilistField SelectItem = elements.Fields["TabSelect"];
+    //var selectitem = Select.GetItems();
+
+    var tabcount = 1;
+    var itemcnt = 1;
+    var incrementitem = 1;
+    var incrementitem2 = 1;
+}
+<section class="uas d-block position-relative">
+    <div class="container">
+        <p class="py-4">
+            @Html.Sitecore().Field("Description", elements)
+        </p>
+        <div class="plane-types position-relative pt-5">
+            <div class="row">
+                <div class="container">
+                    <nav>
+                        <div class="nav nav-tabs uas-nav-tabs" id="nav-tab" role="tablist">
+                            @foreach (var tab in selecttab)
+                            {
+                                if (tabcount == 1)
+                                {
+                                    <button class="nav-link active" id="nav-home-tab @tabcount" data-toggle="tab" data-target="#nav-home @tabcount"
+                                            type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+                                        @Html.Sitecore().Field("TabTitle", tab)
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="nav-link" id="nav-profile-tab @tabcount" data-toggle="tab" data-target="#nav-profile @tabcount" type="button"
+                                            role="tab" aria-controls="nav-profile" aria-selected="false">
+                                        @Html.Sitecore().Field("TabTitle", tab)
+                                    </button>
+                                }
+                                tabcount++;
+                            }
+                            
+                        </div>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="tab-content mt-5 pt-5" id="nav-tabContent">
+                @foreach (var tab in selecttab)
+                {
+                    if (itemcnt == 1)
+                    {
+                        <div class="tab-pane fade show active" id="nav-home @itemcnt" role="tabpanel" aria-labelledby="nav-home-tab">
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    @foreach (var element in tab.GetChildren().ToList())
+                                    {
+                                        Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+                                        if (incrementitem % 2 != 0)
+                                        {
+                                            <div class="col-lg-6 plane-tab-space">
+                                                <div class="plane-img">
+                                                    @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                                    {
+                                                        var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                                        <img src=@imgurl class="img-fluid">
+                                                    }
+                                                    else
+                                                    {
+                                                        <img src=@thumbimg class="img-fluid">
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 plane-tab-space">
+                                                <div class="plane-desc">
+                                                    <h2>@Html.Sitecore().Field("Title", element)</h2>
+                                                    <h5>@Html.Sitecore().Field("SubTitle", element)</h5>
+                                                    <ul class="plane-desc-ul">
+                                                        @Html.Sitecore().Field("mainContent", element)
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                        }
+                                        else
+                                        {
+                                            <div class="col-lg-6 plane-tab-space">
+                                                <div class="plane-desc">
+                                                    <h2>@Html.Sitecore().Field("Title", element)</h2>
+                                                    <h5>@Html.Sitecore().Field("SubTitle", element)</h5>
+                                                    <ul class="plane-desc-ul">
+                                                        @Html.Sitecore().Field("mainContent", element)
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 plane-tab-space">
+                                                <div class="plane-img">
+                                                    @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                                    {
+                                                        var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                                        <img src=@imgurl class="img-fluid">
+                                                    }
+                                                    else
+                                                    {
+                                                        <img src=@thumbimg class="img-fluid">
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                        incrementitem++;
+
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tab-pane fade" id="nav-profile @itemcnt" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <div class="col-lg-12">
+                                <div class="row">
+                                    @foreach (var element in tab.GetChildren().ToList())
+                                    {
+                                        Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+                                        if (incrementitem2 % 2 != 0)
+                                        {
+                                        <div class="col-lg-6 plane-tab-space">
+                                            <div class="plane-img">
+                                                @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                                {
+                                                    var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                                    <img src=@imgurl class="img-fluid">
+                                                }
+                                                else
+                                                {
+                                                    <img src=@thumbimg class="img-fluid">
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 plane-tab-space">
+                                            <div class="plane-desc">
+                                                <h2>@Html.Sitecore().Field("Title", element)</h2>
+                                                <h5>@Html.Sitecore().Field("SubTitle", element)</h5>
+                                                <ul class="plane-desc-ul">
+                                                    @Html.Sitecore().Field("mainContent", element)
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        }
+                                        else
+                                        {
+                                        <div class="col-lg-6 plane-tab-space">
+                                            <div class="plane-desc">
+                                                <h2>@Html.Sitecore().Field("Title", element)</h2>
+                                                <h5>@Html.Sitecore().Field("SubTitle", element)</h5>
+                                                <ul class="plane-desc-ul">
+                                                    @Html.Sitecore().Field("mainContent", element)
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 plane-tab-space">
+                                            <div class="plane-img">
+                                                @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                                {
+                                                    var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                                    <img src=@imgurl class="img-fluid">
+                                                }
+                                                else
+                                                {
+                                                    <img src=@thumbimg class="img-fluid">
+                                                }
+                                            </div>
+                                        </div>
+                                        }
+                                        incrementitem2++;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                    itemcnt++;
+
+                }
+                </div>
+        </div>
+    </div>
+</section>
+

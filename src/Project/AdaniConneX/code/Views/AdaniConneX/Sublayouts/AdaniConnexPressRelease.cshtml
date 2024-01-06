@@ -1,0 +1,60 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Fields.LinkField linkField = model.Fields["LinkUrl"];
+    var NewsUrl = linkField.GetFriendlyUrl();
+
+
+}
+
+@if (model != null)
+{
+																	var request = HttpContext.Current.Request;
+
+                                                                    //request.Url.Scheme gives output as https/http
+                                                                    //while request.Url.Authority give us Domain name
+                                                                    var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                                                                    var webUrl = baseUrl + NewsUrl;
+    <div class="section-holder">
+        <div class="content-wrapper">
+            <!-- Breadcrumb | START -->
+            @Html.Sitecore().Placeholder("press-release-breadcrumb")
+            <!-- Breadcrumb | END -->
+
+            <div class="full">
+                <p class="full h1 fm-asb tx-000">@Html.Sitecore().Field("Title",model)</p>
+            </div>
+
+            <div class="release-post-info">
+                @Html.Sitecore().Field("Author",model) | @Html.Sitecore().Field("Date", model, new { format = "MMM dd, yyyy" }) | Share:
+                
+
+		<a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl"><i class="i-email i-14"></i></a>
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url=@webUrl" target="_blank"><i class="i-linkdin i-20"></i></a>
+                <!-- <ul>
+        <li></li>
+    </ul> -->
+            </div>
+
+            @Html.Sitecore().Field("Body",model)
+
+        </div>
+    </div>
+
+}
+

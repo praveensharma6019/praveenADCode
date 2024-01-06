@@ -1,0 +1,45 @@
+﻿@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Resources.Media
+@using Sitecore.MundraHospital.Website
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Links
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    Item item = Sitecore.Context.Item;
+    MultilistField SpclList = item.Fields["Specialties"];
+    ImageField imageField;
+    string url;
+    string itemUrl;
+}
+
+<section class="image-grid-section">
+    <ul class="image-grid-slider">
+        @if (SpclList != null)
+        {
+            Item[] items = SpclList.GetItems();
+            if (items != null)
+            {
+                foreach (Item member in items)
+                {
+                    imageField = member.Fields["Thumbnail"];
+                    url = MediaManager.GetMediaUrl(imageField.MediaItem);
+                    itemUrl = LinkManager.GetItemUrl(member);
+                    <li>
+                        <a href="@itemUrl">
+                            <div class="image-grid" style="background-image: url(@url);">
+                            </div>
+                            <div class="grid-title">
+                                <h3>@member.Fields["Title"]</h3>
+                                <!-- <a href="">Read More <span><i class="fas fa-chevron-right"></i></span></a> -->
+                            </div>
+                        </a>
+                    </li>
+                }
+            }
+        }
+        
+    </ul>
+</section>

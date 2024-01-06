@@ -1,0 +1,234 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@model Sitecore.ElectricityNew.Website.Model.TenderStatus
+@using Sitecore.ElectricityNew.Website.Model;
+@{
+    var Id = new Guid();
+    var currentDate = DateTime.Now;
+
+    var CorrigendumTender = Sitecore.Context.Database.GetItem(Templates.Tender.TenderCorrigendum);
+}
+
+@if (Model.CorrigendumTender.Count > 0)
+{
+
+<section class="corporate-main-banner section-container">
+    <div class="inner">
+        <figure>
+            <picture>
+                <source media="(min-width:992px)" srcset="-/media/8693F40A7CC2485F82B83EC9C05E7C3D.ashx">
+                <img alt="" class="banner-image" src="-/media/20AC3F0692BF465DBE5679E054A99947.ashx" />
+            </picture>
+        </figure>
+        <div class="content">
+            <div class="container">
+                <div class="inner">
+                    <h1>Corrigendum Listing</h1>
+                    <p>Stay updated with the changes in tenders</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+    <div class="container section-container">
+        <div class="row">
+            <div class="col s12 tenders-detail">
+                <div class="tenders-detail">
+                    <div class="tender-header">
+                        <div class="tender-main-header">
+                            <h2>Corrigendum Listing</h2>
+                            <div class="header-links  ">
+                                <a href="/tenderlogin" class="link-btn">Login</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="customer_detail_wrapper customer_detail_list hide-on-med-and-down">
+                    <table class="customer_detail_list-details" id="TenderCorrigendumListing">
+                        <thead>
+                            <tr>
+                                <th width="20%">Corrigendum Date</th>
+                                <th width="35%">Corrigendum Title</th>
+                                <th width="30%">NIT No./PR No.</th>
+                                <th width="15%">Documents</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CorrigendumTender.OrderByDescending(x => x.Date))
+                            {
+                                <tr>
+
+                                    <td>
+                                        <div class="table-cell">
+                                            <label>
+                                                @item.Date.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="table-cell">
+                                            <label>
+                                                @item.Title
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="table-cell">
+                                            <label>
+                                                @foreach (var nitNo in item.NITPRNo)
+                                                {
+                                                    @nitNo.NITPRNo <br />
+                                                }
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="table-cell">
+                                            <label>
+                                                @foreach (var docItem in item.TenderDocument)
+                                                {
+                                                    <a href="@docItem.DocumentPath" target="_blank">Click Here</a>
+                                                    <br />
+                                                }
+
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+        <div class="pagination hide-on-med-and-down" id="desktopPagination"></div>
+
+
+
+        @{
+            var count = 0;
+            int paginationCount = 1;
+        }
+
+        <div class="mob-listing-cards hide-on-med-and-up section-wrapper " id="TenderListingPaginationDiv">
+            <input type="hidden" id="paginationTableDiv" value="TenderListingPaginationDiv" />
+            <input type="hidden" id="paginationDataSelector" value="#TenderListingDiv>div" />
+            <input type="hidden" id="paginationNumberElementSelector" value="#tenderListingPaginationNumber" />
+            <input type="hidden" id="paginationScrollToElementSelector" value="#TenderListingPaginationDiv" />
+            <input type="hidden" id="paginationPageSize" value="10" />
+            <div id="TenderListingDiv">
+
+                @foreach (var item in Model.CorrigendumTender.OrderByDescending(x => x.Date))
+                {
+                    string divstyle = "none";
+                    if (paginationCount == 1)
+                    {
+                        divstyle = "block";
+                    }
+                    else
+                    {
+                        divstyle = "none";
+                    }
+                    <div class="mob-listing" data-id="@paginationCount" style="display:@divstyle">
+
+                        <ul>
+
+                            <li>
+
+                                <label>Corrigendum Date</label>
+
+                                <span> @item.Date.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>Corrigendum Title</label>
+
+                                <span>@item.Title</span>
+
+                            </li>
+
+                            <li>
+
+                                <label>NIT No./PR No.</label>
+
+                                <span>
+                                    @foreach (var nitNo in item.NITPRNo)
+                                    {
+                                        @nitNo.NITPRNo <br />
+                                    }
+
+                                </span>
+
+                            </li>
+
+                            <li>
+
+                                <label>NIT No./PR No.</label>
+
+                                <span>
+                                    @foreach (var docItem in item.TenderDocument)
+                                    {
+                                        <a href="@docItem.DocumentPath" target="_blank">Click Here</a>
+                                        <br />
+                                    }
+
+                                </span>
+
+                            </li>
+
+
+
+                        </ul>
+
+                    </div>
+
+                    count++;
+                    if (count / (paginationCount * 10) == 1)
+                    {
+                        paginationCount = paginationCount + 1;
+                    }
+                }
+            </div>
+
+            <ul class="pagination hide-on-med-and-up" id="tenderListingPaginationNumber"></ul>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/Accounts/ElectricityRevampCustomPagination.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#TenderCorrigendumListing').DataTable({
+                lengthChange: false,
+                pageLength: 10,
+                searching: false,
+                autoWidth: false,
+                ordering: false,
+                info: false,
+                language: {
+                    paginate: {
+                        next: '<i class="i-arrow-r"></i>',
+                        previous: '<i class="i-arrow-l"></i>'
+                    }
+                },
+                bPaginate: true,
+                "fnDrawCallback": function (oSettings) {
+                    $(".corporate-main-banner")[0].scrollIntoView(true);
+                }
+            });
+
+            $('#TenderCorrigendumListing_paginate').appendTo('#desktopPagination');
+
+            DrawPaginationNumber(1, '#TenderListingPaginationDiv');
+        })
+    </script>
+}

@@ -1,0 +1,171 @@
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model  Sitecore.Feature.Accounts.Models.ViewPayBill
+
+
+<div class="col s12">
+
+
+    <div class="payment-progress-module section-container" id="dvContents">
+        @if (Model != null && !string.IsNullOrEmpty(Model.TransactionId))
+        {
+
+            <div class="card outlined section-inner-wrapper payment-fail">
+                <div class="row">
+                    <div class="col l8 s12">
+                        <aside>
+                            <i class="i-cross-c"></i>
+                            <div class="payment-progress-content">
+                                <h3 class="text-center-mob" @*id="paymentfailure"
+                                    data-gaevent="bill_payment_failure"
+                                    data-gaeventCategory="Bill Payment"
+                                    data-gaeventAction="Bill Payment Failure"
+                                    data-gaeventLabel="@Model.TransactionId"*@>
+                                    @Sitecore.Context.Item.Fields["Title"]
+                                </h3>
+                                <p class="text-center-mob">
+                                    @*Your payment of <strong>?@String.Format("{0:0.00}", Model.AmountPayable) </strong> is Failed.
+                                        Please retry.*@
+                                    @Html.Raw(string.Format(Sitecore.Context.Item.Fields["Summary"].Value, Model.AmountPayable.TrimStart('0')))
+                                </p>
+                                <p class="text-center-mob"><span>@Model.TransactionDate</span></p>
+                                <div class="pay-fail-cta-group">
+                                    <a href="@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Redirect URL/View and Pay Bill", "/My-Account/view-pay-bill")">
+                                        <button class="waves-effect waves-light btn btn-continue modal-trigger"
+                                                data-gaevent="bill_payment_retry"
+                                                data-gaeventCategory="Bill Payment"
+                                                data-gaeventAction="Bill Payment Retry"
+                                                data-gaeventLabel="NA">
+                                            @Html.Sitecore().Dictionary("/Accounts/My Account/Payment/Retry Payment", "Retry Payment")
+                                        </button>
+                                    </a>
+                                </div>
+                                <hr>
+                                <ul>
+                                    <li><span> @Html.Sitecore().Dictionary("/Accounts/My Account/Payment/CA Number", "CA Number")</span> @Model.AccountNumber</li>
+                                    <li><span> @Html.Sitecore().Dictionary("/Accounts/My Account/Payment/Bill Number", "Bill Number")</span> @Model.TransactionId</li>
+                                </ul>
+                                <hr>
+
+                                <hr class="visible-phone">
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card outlined section-inner-wrapper payment-fail">
+                <div class="row">
+                    <div class="col l8 s12">
+                        <aside>
+                            <i class="i-cross-c"></i>
+                            <div class="payment-progress-content">
+                                <h3 class="text-center-mob">@Sitecore.Context.Item.Fields["Title"]</h3>
+                                <p class="text-center-mob">
+                                    There is some technically difficulty. Please contact customer care for more information.
+                                </p>
+
+                                <div class="pay-fail-cta-group">
+                                    <a href="@Html.Sitecore().Dictionary("/Accounts/My Account/Left Panel/Redirect URL/View and Pay Bill", "/My-Account/view-pay-bill") ">
+                                        <button class="waves-effect waves-light btn btn-continue"
+                                                data-gaevent="bill_payment_retry"
+                                                data-gaeventCategory="Bill Payment"
+                                                data-gaeventAction="Bill Payment Retry"
+                                                data-gaeventLabel="NA">
+
+                                            @Html.Sitecore().Dictionary("/Accounts/My Account/Payment/Retry Payment", "Retry Payment")
+                                        </button>
+                                    </a>
+                                </div>
+                                <hr>
+
+                                <hr class="visible-phone">
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js"></script>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+<script type="text/javascript">
+    function PrintDiv() {
+        var HTML_Width = $(".payment-progress-module").width();
+
+        var HTML_Height = $(".payment-progress-module").height();
+
+        var top_left_margin = 15;
+
+        var PDF_Width = HTML_Width + (top_left_margin * 2);
+
+        var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+
+        var canvas_image_width = HTML_Width;
+
+        var canvas_image_height = HTML_Height;
+
+        var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+
+        html2canvas($(".payment-progress-module")[0], { allowTaint: true }).then(function (canvas) {
+
+            canvas.getContext('2d');
+
+            var imgData = canvas.toDataURL("http://127.0.0.1:8002/assets/images/loyalty-card.png", 1.0);
+
+            document.querySelectorAll('.collapsible-header.hide').forEach(elem => elem.classList.remove('hide'));
+
+
+
+            var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+
+            pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+
+            for (var i = 1; i <= totalPDFPages; i++) {
+
+                pdf.addPage(PDF_Width, PDF_Height);
+
+                pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+
+            }
+
+            pdf.save("HTML-Document.pdf");
+
+        });
+    }
+</script>
+<script type="text/javascript">
+    $("document").ready(function () {
+        if ($('#login_status').val() == 'Guest User') {
+            dataLayer.push({
+             'event': "bill_payment_failure",
+            'eventCategory': "Bill Payment",
+            'eventAction': "Bill Payment Failure",
+            'eventLabel': "@Model.AccountNumber",
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': "@Model.AccountNumber",
+            'page_type': $('head title').text()
+            });
+        }
+        else {
+            dataLayer.push({
+            'event': "bill_payment_failure",
+            'eventCategory': "Bill Payment",
+            'eventAction': "Bill Payment Failure",
+            'eventLabel': "@Model.AccountNumber",
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+            });
+        }
+    })
+</script>

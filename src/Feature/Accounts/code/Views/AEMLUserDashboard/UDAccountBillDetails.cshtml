@@ -1,0 +1,183 @@
+﻿@using System.Globalization
+@using Sitecore.Foundation.Dictionary.Extensions
+@{
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+
+    var billinghDetailsPrimary = SapPiService.Services.RequestHandler.FetchBilling(Elemodel.primaryAccountNumber);
+    var accountDetailsPrimary = SapPiService.Services.RequestHandler.FetchDetail(Elemodel.primaryAccountNumber);
+    string mob = SapPiService.Services.RequestHandler.GetMobileNumber(Elemodel.primaryAccountNumber);
+
+    var primaryNameFormat = accountDetailsPrimary.Name.ToLower().Replace("_", " ");
+    TextInfo info1 = CultureInfo.CurrentCulture.TextInfo;
+    primaryNameFormat = info1.ToTitleCase(primaryNameFormat);
+
+    string date1 = string.Empty;
+    if (billinghDetailsPrimary.DateDue == "0000-00-00")
+    {
+        date1 = "0000-00-00";
+    }
+    else
+    {
+        CultureInfo culture = new CultureInfo("es-ES");
+        String myDate = billinghDetailsPrimary.DateDue;
+        DateTime date = DateTime.Parse(myDate, culture);
+        date1 = date.ToString("dd MMM yyyy");
+    }
+
+    Sitecore.Data.Items.Item myCurrentBillItem = Sitecore.Context.Database.GetItem("{32F3D1BD-0069-4BA3-9BBC-4D0CFB2B4842}");
+    var myCurrentBillUrl = myCurrentBillItem != null ? Sitecore.Links.LinkManager.GetItemUrl(myCurrentBillItem) : "#";
+
+    Sitecore.Data.Items.Item myQuickBillPaymentItem = Sitecore.Context.Database.GetItem("{9DECDD43-F5E5-4DDE-9765-6A9796E430AF}");
+    var myQuickBillPaymentUrl = myQuickBillPaymentItem != null ? Sitecore.Links.LinkManager.GetItemUrl(myQuickBillPaymentItem) : "#";
+
+    Sitecore.Data.Items.Item myprofileItem = Sitecore.Context.Database.GetItem("{4CCE4AD2-91C3-400D-977A-923D77E78ECD}");
+    var myprofileUrl = myprofileItem != null ? Sitecore.Links.LinkManager.GetItemUrl(myprofileItem) : "#";
+
+}
+<input type="hidden" value="@myCurrentBillUrl" id="myCurrentBillUrl" />
+<input type="hidden" value="@myQuickBillPaymentUrl" id="myQuickBillPaymentUrl" />
+<input type="hidden" value="@billinghDetailsPrimary.AccountNumber" id="UDAcccountNumber" />
+<div class="col l4 s12">
+    <div class="dashboard-card">
+        <h2>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Account Details", "Account Details")</h2>
+        <div class="card">
+            <header>
+                <h2>@primaryNameFormat</h2>
+                <aside>
+                    @*Meter Status is Managed by Ajax call on Consumption Trend Component*@
+                    <span id="UDMeterStatus"></span>
+                </aside>
+            </header>
+            <div class="card-detail">
+                <ul>
+                    <li>
+                        <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/CA Number", "CA Number")</label>
+                        <p>@billinghDetailsPrimary.AccountNumber</p>
+                    </li>
+                    <li>
+                        <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Meter Number", "Meter Number")</label>
+                        <p>@string.Join(",", billinghDetailsPrimary.MeterNumbers)</p>
+                    </li>
+                    <li>
+                        <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Tariff Category", "Tariff Category")</label>
+                        <p>@billinghDetailsPrimary.TariffSlab</p>
+                    </li>
+                    <li>
+                        <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Registered Mobile", "Registered Mobile")</label>
+                        <p>@mob</p>
+                    </li>
+                    <li>
+                        <a onclick="dataLayer.push({
+                                'event': 'user_dashbaord_view_details',
+                                'eventCategory': 'AEML User Dashboard',
+                                'eventAction': 'user_dashbaord_view_details',
+                                'eventLabel': 'Account Details',
+                                'business_user_id': $('#BusinessUserId').val(),
+                                'ca_number': $('#GACANumber').val(),
+                                'year_month': '@billinghDetailsPrimary.BillMonth',
+                                'login_status': $('#login_status').val()
+                            });" href="@myprofileUrl">@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/View Details", "View Details")</a>
+                        </li>
+
+                    </ul>
+                    <script>
+
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col l4 s12">
+        <div class="dashboard-card">
+            <h2>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Bill Details", "Bill Details")</h2>
+            <div class="card">
+                <header class="blue-bg">
+                    <div class="bill-detail-content">
+                        <h4>₹@billinghDetailsPrimary.AmountPayable</h4>
+                        @if (billinghDetailsPrimary.AmountPayable > 0)
+                        {
+                            if (DateTime.ParseExact(billinghDetailsPrimary.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) > DateTime.Now.AddDays(-4))
+                            {
+                                <span style="color:red"> @Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Due on", "Due on") @date1 </span>
+                            }
+                            else
+                            {
+                                <span style="color:red">  @Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Due on", "Due on") @date1</span>
+                            }
+                            <input type="hidden" id="UDBillDueDate" value="@date1" />
+                            <script type="text/javascript">
+                            $(document).ready(function () {
+                                dataLayer.push({
+                                    'event': 'user_dashboard_view',
+                                    'eventCategory': 'AEML User Dashboard',
+                                    'eventAction': 'user_dashboard_view',
+                                    'eventLabel': 'Bill Due',
+                                    'business_user_id': $('#BusinessUserId').val(),
+                                    'login_status': $('#login_status').val(),
+                                    'ca_number': $('#GACANumber').val(),
+                                    'total_bill_amount': $('#UDAmountPayable').html(),
+                                    'due_date': $('#UDBillDueDate').val()
+                                });
+                            });
+                            </script>
+
+                        }
+                        else
+                        {
+                            <span>
+                                @Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/No Bill Due", "No Bill Due")
+                            </span>
+                            <script type="text/javascript">
+                                $(document).ready(function () {
+                                    dataLayer.push({
+                                        'event': 'user_dashboard_view',
+                                        'eventCategory': 'AEML User Dashboard',
+                                        'eventAction': 'user_dashboard_view',
+                                        'eventLabel': 'Bill Not due',
+                                        'business_user_id': $('#BusinessUserId').val(),
+                                        'login_status': $('#login_status').val(),
+                                        'ca_number': $('#GACANumber').val(),
+                                        'total_bill_amount': '',
+                                        'due_date': ''
+                                    });
+                                });
+                            </script>
+                        }
+                    </div>
+                    <div class="bill-detail-cta">
+                        @if (billinghDetailsPrimary.AmountPayable > 0)
+                        {
+                            <a href="javascript:void(0)" onclick="UDFetchQuickPay(@billinghDetailsPrimary.AccountNumber)" id="UDPayBilllogin" class="waves-effect waves-light btn btn-continue">@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Pay Bill", "Pay Bill")</a>
+                        }
+                        else
+                        {
+                            <a href="javascript:void(0)" onclick="UDFetchQuickPay(@billinghDetailsPrimary.AccountNumber)" id="UDPayAdvancelogin" class="waves-effect waves-light btn btn-continue">@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Pay Advance", "Pay Advance")</a>
+                        }
+                    </div>
+                </header>
+                <div class="card-detail">
+                    <ul>
+                        <li>
+                            <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Bill Month", "Bill Month")</label>
+                            <p id="UDBillMonth">@billinghDetailsPrimary.BillMonth</p>
+                        </li>
+                        <li>
+                            <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Units Consumed", "Units Consumed")</label>
+                            <p>@billinghDetailsPrimary.UnitsConsumed</p>
+                        </li>
+                        <li>
+                            <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Total Bill Amount", "Total Bill Amount")</label>
+                            <p>₹@billinghDetailsPrimary.TotalBillAmount</p>
+                        </li>
+                        <li>
+                            <label>@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Min Payable", "Min. Payable")</label>
+                            <p id="UDAmountPayable">₹@billinghDetailsPrimary.AmountPayable</p>
+                        </li>
+                        <li id="downloadLatestBillDetails">
+                            <a href="#">@Html.Sitecore().Dictionary("/UserDashboard/UDAccountBillDetails/Download Bill", "Download Bill")</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>

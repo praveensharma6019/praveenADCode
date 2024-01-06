@@ -1,0 +1,69 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.QAMeterReading
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmQAMeterReading" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    <div class="pageContent">
+
+        <div class="container">
+            <div class="panel">
+                <div class="row">
+                    <div class="col-12">
+                        @{
+                            var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                            if (info != null)
+                            {
+                                Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="float-right pb-2 pb-md-0 powerLogo"><img src="-/media/03B9A515CD5D43B38462E1C5698E1690.ashx?h=16&thn=1&w=16" alt="Know Power"></div>
+                <div class="float-left">
+                    <h5 class="pb-1"><span class="txt-orange">@Html.Sitecore().Dictionary("/MyAccounts/Guest Meter Reading/caption1", "When is your meter being read?")</span></h5>
+                    <br>
+                    <p>@Html.Sitecore().Dictionary("/MyAccounts/Guest Meter Reading/caption2", "Just enter your account number here and get to know when your meter is being read")</p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="pt-md-3 mt-3">
+
+                    <div class="row pb-2">
+                        <div class="form-group col-md-4 col-lg-3">
+                            <label>@Html.Sitecore().Dictionary("/MyAccounts/Guest Meter Reading/Your Account No", "Your Account No.")&nbsp;<span class="required">*</span></label>
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "accountNo" })
+                            @Html.ValidationMessageFor(x => x.AccountNo, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+
+                    <div class="row pb-2">
+                        <div class="form-group col-lg-3">
+                            <label>@Html.Sitecore().Dictionary("/MyAccounts/Guest Meter Reading/Captcha", "Captcha")</label>
+                            <div>
+                                @*@Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)*@
+                                <div class="g-recaptcha" id="recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                <p class="help-block field-validation-error" id="validationRecaptcha" style="display:none"><span class="">@Html.Sitecore().Dictionary("/MyAccounts/Guest Meter Reading/Recaptcha Validation", "Please complete CAPTCHA.")</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-lg-3">
+                            <button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("/MyAccounts/Guest Meter Reading/Button Submit", "Submit")</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="text-right"><a href="/Quickaccess" class="goBack"><i class="fas fa-arrow-left txt-orange"></i>&nbsp;&nbsp;@Html.Sitecore().Dictionary("/MyAccounts/Guest Meter Reading/Quick Access", "Go back to Quick Access")</a></div>
+        </div>
+        <!-- /Page Content -->
+    </div>
+}
+    <script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

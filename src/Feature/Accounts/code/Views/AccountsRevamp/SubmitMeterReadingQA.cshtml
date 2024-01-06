@@ -1,0 +1,68 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Feature.Accounts
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Sitecore.Data.Items.Item datasourceItem = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Items.Item contactUsItem = Sitecore.Context.Item;
+    string divClass = "circle-icon-small";
+}
+
+@if (contactUsItem != null && datasourceItem != null)
+{
+    Sitecore.Data.Fields.MultilistField multiselectField = datasourceItem.Fields[Templates.SubmitMeterReadingQA.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+
+    <div class="col s12 l8 offset-l1">
+        <div class="section-wrapper">
+            <header class="section-header">
+                <h2>@Html.Raw(contactUsItem["Title"])</h2>
+                <p>@Html.Raw(contactUsItem["Body"])</p>
+            </header>
+            <div class="submit-meter-module">
+                <ul>
+                    @foreach (var item in items)
+                    {
+                        string iconImgClass = "";
+                        var title = item.Fields["Title"].Value;
+                        var description = item.Fields["Body"].Value;
+                        string classIcon = item.Fields["CssIconClass"].Value;
+                        // string LinkUrl = item.Fields["LinkUrl"].Value;
+                        Sitecore.Data.Fields.LinkField parentlinkfld = item.Fields["LinkUrl"];
+                        var LinkUrl = parentlinkfld != null && !string.IsNullOrEmpty(parentlinkfld.GetFriendlyUrl()) ? parentlinkfld.GetFriendlyUrl() : "";
+                        <li>
+                            @if (LinkUrl != null && !String.IsNullOrEmpty(LinkUrl))
+                            {
+                                <i class="@classIcon"></i>
+                                <aside>
+                                    <h5>
+                                        @title - <a href="@LinkUrl" target="_blank"
+                                                    data-gaevent="'chat_now_cta_click"
+                                                    data-gaeventCategory="CTA Click"
+                                                    data-gaeventAction="Chat Now CTA Click"
+                                                    data-gaeventLabel="NA"> Click Here</a>
+                                </h5>
+                                <p> @Html.Raw(description)</p>
+                            </aside>
+                        }
+                        else
+                        {
+                            <i class="@classIcon"></i>
+                            <aside>
+                                <h5>@title</h5>
+                                <p> @Html.Raw(description)</p>
+                            </aside>
+                        }
+
+
+
+                        </li>
+
+                    }
+                </ul>
+            </div>
+        </div>
+
+        @Html.Sitecore().Placeholder("GeneralContent")
+    </div>
+}

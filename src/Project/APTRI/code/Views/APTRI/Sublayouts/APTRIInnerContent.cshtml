@@ -1,0 +1,108 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item element = Sitecore.Context.Database.GetItem(datasource);
+
+    var i = 0;
+    var j = 0;
+
+}
+<section class="pb-5">
+    <div class="container">
+        @if (element != null)
+        {
+            <h2 class="border-l txt-lg mb-3 pl-3">@Html.Sitecore().Field("Title", element)</h2>
+            <h5 class="mb-3 pl-3">@Html.Sitecore().Field("Summary", element)</h5>
+            if (element.HasChildren)
+            {
+                <ul class="nav nav-tabs" id="address-tab" role="tablist">
+                    @foreach (Item item in element.GetChildren())
+                    {
+                        <li class="nav-item">
+                            @if (i == 0)
+                            {
+                                <a class="nav-link active" data-toggle="tab" role="tab" aria-selected="true" href="#m_@i">@Html.Sitecore().Field("Title", item)</a>
+                            }
+                            else
+                            {
+                                <a class="nav-link" data-toggle="tab" role="tab" aria-selected="true" href="#m_@i">@Html.Sitecore().Field("Title", item)</a>
+                            }
+
+                        </li>
+                        i++;
+                    }
+                </ul>
+            }
+        }
+
+
+
+        <div class="tab-content" id="address-tab-container">
+            @foreach (Item item in element.GetChildren())
+            {
+                Sitecore.Data.Fields.ImageField imgField = item.Fields["Image"];
+                
+
+                if (j == 0)
+                {
+                    <div class="tab-pane fade active show" id="m_@j" role="tabpanel" aria-labelledby="home-tab">
+                        <div class="tab-pane container active bg-white" id="m_@j">
+                            
+                            @if (imgField?.MediaItem != null)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-6 ">
+                                        <h5 class="mb-3">@Html.Sitecore().Field("Summary", item)</h5>
+                                        @Html.Sitecore().Field("Body", item)
+                                    </div>
+                                    <div class="col-lg-6">
+                                        @Html.Sitecore().Field("Image", item, new { @class = "img-fluid" })
+                                    </div>
+                                </div>
+                            }
+                            else
+                              {
+                                <div class="col-lg-12">
+                                   <h5 class="mb-3">@Html.Sitecore().Field("Summary", item)</h5>
+                                   @Html.Sitecore().Field("Body", item)
+                                </div>
+                              }
+
+                         </div>
+                     </div>
+                }
+                else
+                {
+                    <div class="tab-pane fade show" id="m_@j" role="tabpanel" aria-labelledby="home-tab">
+                        @if (imgField?.MediaItem != null)
+                        {
+                            <div class="row">
+                                <div class="col-lg-6 ">
+                                    <h5 class="mb-3">@Html.Sitecore().Field("Summary", item)</h5>
+                                    @Html.Sitecore().Field("Body", item)
+                                </div>
+                                <div class="col-lg-6">
+                                    @Html.Sitecore().Field("Image",item, new { @class = "img-fluid" })
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-lg-12">
+                                <h5 class="mb-3">@Html.Sitecore().Field("Summary", item)</h5>
+                                @Html.Sitecore().Field("Body", item)
+                            </div>
+                        }
+                    </div>
+                }
+                j++;
+            }
+        </div>
+    </div>
+</section>

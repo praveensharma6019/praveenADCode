@@ -1,0 +1,325 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@using Sitecore.Data.Fields;
+@using Sitecore.Data.Items
+@model IEnumerable<Sitecore.AhmedabadAirport.Website.Models.AhmedabadFlight>
+
+
+@{
+    var i = 1;
+    var today = DateTime.Today;
+    var tomorrow = today.AddDays(1);
+    var yesterday = today.AddDays(-1);
+    var ArrivalCount = 1;
+    var DepartureCount = 1;
+    Sitecore.Data.Database web = Sitecore.Configuration.Factory.GetDatabase("web");
+    Sitecore.Data.Items.Item Airline = web.GetItem("{E9F5C848-4094-477D-B7AE-6773764B38B0}");
+    Sitecore.Data.Items.Item Origin = web.GetItem("{4314A997-836E-4BE2-BFD3-79B40520B865}");
+}
+
+<section class="f-search__content bg-white">
+    <div class="container-fluid">
+        <div class="f-search__content-form">
+            <div class="row">
+                <div class="col-lg-9">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#arrival">Arrival</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#departure">Departure</a>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="col-lg-3 text-right d-none">
+                    <div class="f-search__content-form__status">
+                        <p>Last Updated</p>
+                        <p>21.44 <span><a href="#">update</a></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab panes -->
+            <div class="tab-content p-0">
+                <div class="tab-pane p-0 active" id="arrival">
+                    <div class="row mt-4">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="OriginArrival" name="OriginArrival" required="required">
+                                    <option value="All" selected   hidden>Origin</option>
+									
+									@foreach (Item items in Origin.GetChildren())
+									{
+										foreach(var item in ViewBag.OriginArrival)
+										{
+											string ItemValue= @item.ToString();
+											string SubItemValue = @Html.Sitecore().Field("CodeValue", items).ToString();
+											bool result=ItemValue.Equals(SubItemValue);
+											<option value="@item" class="d-none">@ItemValue</option>
+											if(ItemValue.Equals(SubItemValue))
+											{
+												<option value='@Html.Sitecore().Field("CodeValue", items)'> @Html.Sitecore().Field("RemarkDescription", items)</option>
+												break;
+											}
+										}
+									}
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="AirlineArrival" name="AirlineArrival" required="required">
+                                    <option value="All" selected   hidden>Airline</option>
+                                    @foreach (Item items in Airline.GetChildren())
+									{
+										foreach(var item in ViewBag.AirlineArrival)
+										{
+											string ItemValue= @item.ToString();
+											string SubItemValue = @Html.Sitecore().Field("CodeValue", items).ToString();
+											bool result=ItemValue.Equals(SubItemValue);
+											<option value="@item" class="d-none">@ItemValue</option>
+											if(ItemValue.Equals(SubItemValue))
+											{
+												<option value='@Html.Sitecore().Field("CodeValue", items)'> @Html.Sitecore().Field("RemarkDescription", items)</option>
+												break;
+											}
+										}
+									}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="DateArrival" name="DateArrives" required="required">
+                                    <option value="All" selected   hidden>Date</option>
+                                    <option value="@today.ToShortDateString()">@today.ToShortDateString()</option>
+                                    <option value="@tomorrow.ToShortDateString()">@tomorrow.ToShortDateString()</option>
+                                </select>
+                            </div>
+                        </div>
+						<div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="FlightType" name="FlightType" required="required">
+                                    <option value="All" selected   hidden>Flight Type</option>
+                                    <option value="Domestic">Domestic</option>
+                                    <option value="International">International</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <div class="input-group flight_search ">
+                                    <input type="text" id="txtSearch" placeholder="Flights Airlines" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <div class="input-group flight_search ">
+                                    <input type="submit" class="btn btn-green" value="Search" id="btnSearch" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="f-search__results table-responsive">
+                        <table class="table table-hover mb-0 flight_details">
+                            <!--Table head-->
+                            <thead>
+                                <tr>
+                                    <th class="th-lg" style="width: 10%;min-width: 40px;">Sr. No.</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 100px;">Flight</th>
+                                    <th class="th-lg" style="width: 25%;min-width: 200px;">Origin/Destination</th>
+                                    <th class="th-lg" style="width: 18%;min-width: 140px;">Date</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 180px;">Scheduled Time</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 140px;">Estimated Time</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 140px;">Status</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 140px;">Terminal</th>
+                                </tr>
+                            </thead>
+                            <!--Table head-->
+                            <!--Table body-->
+                            <tbody id="arrival2">
+                                @foreach (var item in Model)
+                                {
+                                    if (item.Flightkind == "Arrival")
+                                    {
+                                        <tr>
+                                            <td>@ArrivalCount</td>
+                                            <td>@item.Airline @item.FlightNumber</td>
+											
+											@foreach (Item items in Origin.GetChildren())
+											{
+												string ItemValue= item.ArrivingFrom.ToString();
+												string SubItemValue = Html.Sitecore().Field("CodeValue", items).ToString();
+												bool result=ItemValue.Equals(SubItemValue);
+												if(ItemValue.Equals(SubItemValue))
+												{
+													<td>@Html.Sitecore().Field("RemarkDescription", items)</td>
+													break;
+												}
+											}
+                                            <td>@item.ScheduledTime.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.Scheduled</td>
+                                            <td>@item.EstimationTime</td>
+                                            <td>@item.Status</td>
+                                            <td>@item.terminal</td>
+                                        </tr>
+                                        ArrivalCount++;
+                                    }
+
+
+                                }
+
+
+
+                            </tbody>
+                            <!--Table body-->
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane p-0 fade" id="departure">
+                    <div class="row mt-4">
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="OriginDeparture" name="OriginDeparture" required="required">
+                                <option value="All" selected   hidden>Origin</option>
+								@foreach (Item items in Origin.GetChildren())
+								{
+									foreach(var item in ViewBag.OriginDeparture)
+									{
+									
+										string ItemValue= @item.ToString();
+										string SubItemValue = @Html.Sitecore().Field("CodeValue", items).ToString();
+										bool result=ItemValue.Equals(SubItemValue);
+										<option value="@item" class="d-none">@ItemValue</option>
+										if(ItemValue.Equals(SubItemValue))
+										{
+											<option value='@Html.Sitecore().Field("CodeValue", items)'> @Html.Sitecore().Field("RemarkDescription", items)</option>
+											break;
+										}
+									}
+								}
+								</select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="AirlineDeparture" name="AirlineDeparture" required="required">
+                                    <option value="All" selected   hidden>Airline</option>
+									@foreach (Item items in Airline.GetChildren())
+									{
+										foreach(var item in ViewBag.AirlineDeparture)
+										{
+											string ItemValue= @item.ToString();
+											string SubItemValue = @Html.Sitecore().Field("CodeValue", items).ToString();
+											bool result=ItemValue.Equals(SubItemValue);
+											<option value="@item" class="d-none">@ItemValue</option>
+											if(ItemValue.Equals(SubItemValue))
+											{
+												<option value='@Html.Sitecore().Field("CodeValue", items)'> @Html.Sitecore().Field("RemarkDescription", items)</option>
+												break;
+											}
+										}
+									}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="DateDeparture" name="DateDepart" required="required">
+                                    <option value="All" selected   hidden>Date</option>
+                                    <option value="@today.ToShortDateString()">@today.ToShortDateString()</option>
+                                    <option value="@tomorrow.ToShortDateString()">@tomorrow.ToShortDateString()</option>
+                                </select>
+                            </div>
+                        </div>
+						<div class="col-lg-2">
+                            <div class="form-group">
+                                <select class="form-control" id="FlightTypes" name="FlightTypes" required="required">
+                                    <option value="All" selected   hidden>Flight Type</option>
+                                    <option value="Domestic">Domestic</option>
+                                    <option value="International">International</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <div class="input-group flight_search">
+                                    <input type="text" id="txtSearches" placeholder="Flights Airlines" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <div class="input-group flight_search">
+                                    <input type="submit" value="Search" class="btn btn-green" id="btnSearchDeparture" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="f-search__results table-responsive">
+                        <table class="table table-hover mb-0 flight_details">
+                            <!--Table head-->
+                            <thead>
+                                <tr>
+                                    <th class="th-lg" style="width: 10%;min-width: 40px;">Sr. No.</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 100px;">Flight</th>
+                                    <th class="th-lg" style="width: 25%;min-width: 200px;">Origin/Destination</th>
+                                    <th class="th-lg" style="width: 18%;min-width: 140px;">Date</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 180px;">Scheduled Time</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 140px;">Estimated Time</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 140px;">Status</th>
+                                    <th class="th-lg" style="width: 15%;min-width: 140px;">Terminal</th>
+                                </tr>
+                            </thead>
+                            <!--Table head-->
+                            <!--Table body-->
+                            <tbody id="departure2">
+                                @foreach (var item in Model)
+                                {
+                                    if (item.Flightkind == "Departure")
+                                    {
+                                        <tr>
+                                            <td>@DepartureCount</td>
+                                            <td>@item.Airline @item.FlightNumber</td>
+											@foreach (Item items in Origin.GetChildren())
+											{
+												string ItemValue= item.ArrivingFrom.ToString();
+												string SubItemValue = Html.Sitecore().Field("CodeValue", items).ToString();
+												bool result=ItemValue.Equals(SubItemValue);
+												if(ItemValue.Equals(SubItemValue))
+												{
+													<td>@Html.Sitecore().Field("RemarkDescription", items)</td>
+													break;
+												}
+											}
+                                            <td>@item.ScheduledTime.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.Scheduled</td>
+                                            <td>@item.EstimationTime</td>
+                                            <td>@item.Status</td>
+                                            <td>@item.terminal</td>
+                                        </tr>
+                                        DepartureCount++;
+
+                                    }
+                                }
+
+
+
+                            </tbody>
+                            <!--Table body-->
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

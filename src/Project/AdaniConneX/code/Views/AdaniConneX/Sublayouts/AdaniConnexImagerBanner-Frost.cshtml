@@ -1,0 +1,67 @@
+﻿@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string url = "";
+string thumburl = "";
+string altText = "";
+string thumbaltText = "";
+}
+<div class="full">
+<div class="hero-section fsl_banner">
+   @if (model != null)
+   {
+			
+      Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaImage"]);
+      Sitecore.Data.Fields.ImageField thumbimgField = ((Sitecore.Data.Fields.ImageField)model.Fields["MediaThumbnail"]);
+      if ((imgField != null && imgField.MediaItem != null) || (thumbimgField != null && thumbimgField.MediaItem != null))
+      {
+         url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+         altText = imgField.Alt;
+         thumburl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbimgField.MediaItem);
+         thumbaltText = thumbimgField.Alt;   
+      }
+	    <div class="only_mobile">
+		    <h3 class="text_gradient">@Html.Sitecore().Field("MediaTitle", model)</h3>
+		    <h1 class="full hero-heading fm-am">@Html.Sitecore().Field("MediaDescription", model)</h1>
+	    </div>
+	
+	    <figure>
+          <img src="@url" alt="@altText" class="desktop-img"/>
+       </figure>
+   
+       <div class="hero-content-wrapper">
+          @Html.Sitecore().Placeholder("press-release-breadcrumb")
+          <div class="full">
+             <div class="hero-content">
+                @if (model != null)
+                {
+                    Sitecore.Data.Fields.LinkField linkField = model.Fields["ButtonLink"];
+                    var btnUrl = linkField.GetFriendlyUrl();
+                    string btnTitle = model.Fields["ButtonTitle"].ToString();
+                    <h3 class="text_gradient">@Html.Sitecore().Field("SubTitle", model)</h3>
+                    <h1 class="full hero-heading fm-am" id="banner">@Html.Sitecore().Field("MediaTitle", model)</h1>
+                        <p class="full hero-desc-align fm-am">@Html.Sitecore().Field("MediaDescription", model)</p>
+                        if (!String.IsNullOrEmpty(btnTitle))
+                        {
+                            <div class="dr_btn_group">
+                               @if (btnUrl != null)
+                               {
+                                    <a href="@btnUrl" class="btn dr_inverse_btn">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                               }
+                               else
+                               {
+                                    <a href="#" class="btn dr_inverse_btn">@Html.Sitecore().Field("ButtonTitle", model)</a>
+                               }
+                            </div>
+                        }
+                 }
+             </div>
+          </div>
+       </div>
+      }
+</div>
+</div>
+

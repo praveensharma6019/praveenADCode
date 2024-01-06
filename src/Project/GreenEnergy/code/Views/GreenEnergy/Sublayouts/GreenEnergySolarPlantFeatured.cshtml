@@ -1,0 +1,53 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+   
+    var filterparent = parent.Children.Where(x => x.Fields["IsVisible"].Value == "1" && x.Fields["IsFeatured"].Value == "1");
+    
+}
+
+
+<section  class="mb-5">
+	<div class="container">
+		<h2 class="pl-4 border-l mb-4">Featured</h2>
+		<div class="owl-carousel plant-carousel">
+	
+ @foreach (var projectList in filterparent)
+                        {
+	<div class="item">
+				<div class="row no-gutters">
+					<div class="col-lg-8">
+						<div class="plant-placeholder">  @Html.Sitecore().ImageField("Image", projectList, 0, 0, "img-fluid")</div>
+						<div class="plant-category"><p>Featured</p></div>
+					</div>
+					<div class="col-lg-4">
+						<div class="plant-desc bg-gradient h-100 p-4">
+							<h3 class="mb-3">@Html.Sitecore().Field("PlantName", projectList) @Html.Sitecore().Field("Location", projectList)</h3>
+							<ul>
+								<li><span><img src="-/media/ED6E38684ECB40A3BE5FDDC707B6F202.ashx"></span>@Html.Sitecore().Field("WattOperate", projectList) MW</li>
+								<li><span><img src="-/media/0475F3E2EFEA459FA97541A69B66F6DE.ashx"></span>@Html.Sitecore().Field("PlantStatus", projectList)</li>
+							</ul>
+							  @{
+
+        string TargetUrl = Sitecore.Links.LinkManager.GetItemUrl(projectList);
+
+
+								}
+							<p class="mb-3"><a href="@TargetUrl" class="btn btn-white">Explore more</a></p>
+						</div>
+					</div>
+				</div>
+			</div><!--1st item-->
+}
+
+
+			
+		</div>
+	</div>
+</section><!--/Section-->

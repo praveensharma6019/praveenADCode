@@ -1,0 +1,144 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{
+                /**/
+
+                var hidediv = "style=display:none";
+                if (!string.IsNullOrEmpty(Model.IsExistingCustomer) && Model.IsExistingCustomer.ToLower() == "no")
+                {
+                    Model.CANumber = string.Empty;
+                }
+}
+
+<div class="bg-orange p-4 mb-4">
+    <div class="row mb-3">
+        <div class="col-lg-6">
+            <h3>Welcome, <span>Valued Customer</span></h3>
+        </div>
+        <div class="col-lg-6">
+            <ul class="search_sidebar">
+                <li>
+                    <p class="user_logout"><a href="/api/AEMLNewConnection/Logout">Logout</a></p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6 mb-2">
+            <div class="row">
+                <div class="col-lg-5">
+                    <label for="exampleInputEmail1" class="eng">Application Type*</label>
+                    <label for="exampleInputEmail1" class="mar">अर्जाचा प्रकार*</label>
+                </div>
+                <div class="col-lg-7">
+                    <div class="form-group">
+                        @Html.DropDownListFor(m => m.ApplicationType, new SelectList(Model.ApplicationtypeList, "Value", "Text", Model.ApplicationType), "Select", new { @class = "form-control", id = "ddlApplicationType" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-2" @((!string.IsNullOrEmpty(Model.ApplicationType) && Model.ApplicationType == "1") ? "" : @hidediv)>
+            <div class="row">
+                <div class="col-lg-5">
+                    <label for="" class="eng">Application Subtype*</label>
+                    <label for="" class="mar">अर्जाचा  उप  प्रकार*</label>
+                </div>
+                <div class="col-lg-7" @((!string.IsNullOrEmpty(Model.ApplicationType) && Model.ApplicationType == "1") ? "" : @hidediv)>
+                    <div class="form-group">
+                        @Html.DropDownListFor(m => m.ApplicationSubType, new SelectList(Model.ApplicationsubtypeList, "Value", "Text"), "Select", new
+      {
+          @class = "form-control",
+          required = "required",
+          id = "ddlsubtype"
+      })
+                        @Html.ValidationMessageFor(x => x.ApplicationSubType, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-2 mb-lg-0" @((!string.IsNullOrEmpty(Model.ApplicationType) && ((Model.ApplicationType == "1" && !string.IsNullOrEmpty(Model.ApplicationSubType) && Model.ApplicationSubType == "1"))) ? "" : @hidediv)>
+            <div class="row mb-2">
+                <div class="col-lg-8">
+                    <label class="eng">Were you a Adani Electricity Customer?</label>
+                    <label class="mar">अदानी इलेक्ट्रिसिटी चे ग्राहक आहात का?</label>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.IsExistingCustomer, "Yes", new
+                {
+                id = "IsExistingCustomerYes"@*, required = "required"*@,
+@class = "form-check-input rbIsExistingCustomer"
+})
+                        <label class="form-check-label eng" for="IsExistingCustomerYes">Yes</label>
+                        <label class="form-check-label mar" for="IsExistingCustomerYes">हो</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.IsExistingCustomer, "No", new
+                {
+                id = "IsExistingCustomerNo"@*, required = "required"*@,
+@class = "form-check-input rbIsExistingCustomer"
+})
+                        <label class="form-check-label eng" for="IsExistingCustomerNo">No</label>
+                        <label class="form-check-label mar" for="IsExistingCustomerNo">नाही</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (Model.IsExistingCustomer == "Yes" && !string.IsNullOrEmpty(Model.ApplicationSubType) && Model.ApplicationSubType == "1")
+        {
+            <div class="col-lg-6 mb-2 mb-lg-0">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <label for="exampleInputEmail1" class="eng">CA number*</label>
+                        <label for="exampleInputEmail1" class="mar">कृपया आपला ग्राहक क्रमांक प्रविष्ट करा. *</label>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="form-group">
+                            @Html.TextBoxFor(x => x.CANumber, new
+                        {
+                        @class = "form-control txt-caps",
+
+                        })
+                            @Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "text-white help-block" }, "p")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    @if (Model.ApplicationSubType == "2")
+    {
+        <div class="row">
+            <div class="col-lg-3 col-md-6 jointName">
+                <div class="form-group">
+                    <label for=""><b>Start Date<span class="required">*</span></b></label>
+                    @Html.TextBoxFor(x => x.TempStartDate, new
+               {
+                   @class = "form-control txt-caps",
+                   required = "required",
+                   type="date"
+               })
+                    @Html.ValidationMessageFor(x => x.TempStartDate, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 jointName">
+                <div class="form-group">
+                    <label for=""><b>End Date<span class="required">*</span></b></label>
+                    @Html.TextBoxFor(x => x.TempEndDate, new
+               {
+                   @class = "form-control txt-caps",
+                   required = "required",
+                   type="date"
+               })
+                    @Html.ValidationMessageFor(x => x.TempEndDate, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+

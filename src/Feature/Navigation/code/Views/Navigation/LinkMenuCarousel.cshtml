@@ -1,0 +1,60 @@
+﻿@using Sitecore.Feature.Navigation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Navigation.Models.NavigationItems
+
+@{
+	if (Model?.NavItems == null)
+	{
+		return;
+	}
+}
+
+<!-- Services -->
+<div class="section bg-white">
+	<div class="container">
+		<!-- Set up your HTML -->
+        <div class="servicesList owl-carousel" id="serviceCarousels">
+            @foreach (var item in Model.NavItems)
+            {                
+                var liclass = item.IsActive ? "active " : "";
+                if (item.Item.Fields[Templates.LinkMenuItem.Fields.DividerBefore].IsChecked())
+                {
+                    liclass += "divider-left";
+                }
+
+                var hasChildren = item.Children != null && item.Children.NavItems.Any() && item.ShowChildren;
+                var cssClass = "";
+                if (hasChildren)
+                {
+                    cssClass += " dropdown";
+                }               
+                <div class="slideItem">
+                    <a href="@item.Url" class="serviceTile">
+                        <div class="serviceIcon"> @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, item.Item, 75, 92)</div>
+                        <div class="serviceDetails">
+                            <h4 class="serviceName">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, item.Item)</h4>
+                            <div class="serviceBrief">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, item.Item)</div>
+                        </div>
+                    </a>
+
+                    @if (hasChildren)
+                    {
+                        foreach (var subitem in item.Children.NavItems)
+                        {
+                            <a href="@subitem.Url" class="serviceTile">
+                                <div class="serviceIcon">@Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, subitem.Item, 75, 92)</div>
+                                <div class="serviceDetails">
+                                    <h4 class="serviceName">@Html.Sitecore().Field(Templates.Navigable.Fields.NavigationTitle, subitem.Item)</h4>
+                                    <div class="serviceBrief">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, subitem.Item)</div>
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+            }
+        </div>
+
+		@Html.Sitecore().Placeholder("linkmenu-services")
+	</div>
+</div>
+<!-- /Services -->

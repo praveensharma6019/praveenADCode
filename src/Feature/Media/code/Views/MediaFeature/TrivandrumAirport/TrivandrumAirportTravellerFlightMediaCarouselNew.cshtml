@@ -1,0 +1,60 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var homeItem = Sitecore.Context.Site;
+    var current = Sitecore.Context.Item;
+    List<Sitecore.Data.Items.Item> breadcrumbs1 = new List<Sitecore.Data.Items.Item>();
+
+
+
+    while (current != null)
+    {
+        if (current.Fields["Title"] != null)
+        {
+            breadcrumbs1.Add(current);
+
+            if (current.Fields["Title"].Value == "Trivandrum Airport" || current.Fields["Title"].Value == "")
+            {
+                break;
+            }
+        }
+        current = current.Parent;
+    }
+
+    breadcrumbs1.Reverse();
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+}
+
+<section class="inner-herobanner">
+ @foreach (var item in model.GetChildren().ToList())
+                    {
+                        Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BannerImage"]);
+                        string BannerImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+
+                        Sitecore.Data.Fields.ImageField MobileImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["MobileImage"]);
+                        string MobileImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MobileImageField.MediaItem);
+
+                        Sitecore.Data.Fields.LinkField linkfld = item.Fields["ExploreLink"];
+                        var url = linkfld.GetFriendlyUrl();
+						
+							<div class=""> @if (!string.IsNullOrEmpty(BannerImageUrl))
+						 {
+		<img  alt="@BannerImageField.Alt" src="@BannerImageUrl">
+		}
+	</div>
+						   
+	   break;
+                    }
+</section>

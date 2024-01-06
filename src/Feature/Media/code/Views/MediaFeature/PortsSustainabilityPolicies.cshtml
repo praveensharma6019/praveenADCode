@@ -1,0 +1,42 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var title = elements.Fields["Text"].Value;
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "divclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(divclass))
+    {
+        divclass = "bg-gray";
+    }
+}
+
+
+<section class="@divclass">
+    <div class="container">
+        <h3 class="heading pl-4">@title</h3>
+        <div class="row">
+            @foreach (var item in elements.Children.ToList())
+            {
+                Sitecore.Data.Fields.LinkField linkfield = item.Fields["MediaLink"];
+                var url = linkfield.GetFriendlyUrl();
+                <div class="col-lg-3 col-md-6 my-4">
+                    <ul class="ul-policy h-100 py-4"><li><span><a href="@url">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, item)</a></span></li></ul>
+                </div>
+            }
+
+              
+            </div>
+     
+    </div>
+</section>

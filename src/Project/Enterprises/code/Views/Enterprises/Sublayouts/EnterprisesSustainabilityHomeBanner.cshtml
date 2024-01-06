@@ -1,0 +1,85 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);	
+	var DeskVideoSrc = ""; 	
+	var MobVideoSrc = ""; 
+}
+
+<div class="bg-banner bg-banner-home">
+    <div id="carouselExampleIndicators" class="carousel slide home-carousel-slide" data-ride="carousel">
+        <ol class="carousel-indicators">
+            @foreach (var child in element.GetChildren().ToList())
+            {
+                <li data-target="#carouselExampleIndicators" data-slide-to="@child.ID.ToShortID()" class="@(child.ID == element.Children.First().ID ? "active" : "")"></li>
+            }
+        </ol>
+        <div class="carousel-inner	">
+            @foreach (var child in element.Children.ToList())
+            {
+                Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                Sitecore.Data.Fields.ImageField ThumbnailImageField = ((Sitecore.Data.Fields.ImageField)child.Fields["ThumbnailImage"]);
+                Sitecore.Data.Fields.CheckboxField isVideoLink = child.Fields["isVideoLink"];
+				
+                var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                var thumbnailUrl = ThumbnailImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ThumbnailImageField.MediaItem);
+				
+				
+				
+				Sitecore.Data.Fields.LinkField DeskVideoUrl = ((Sitecore.Data.Fields.LinkField)child.Fields["VideoLink"]);
+				if (DeskVideoUrl != null )
+				{
+					DeskVideoSrc = DeskVideoUrl.GetFriendlyUrl();
+				}
+			    Sitecore.Data.Fields.LinkField MobileVideoUrl = ((Sitecore.Data.Fields.LinkField)child.Fields["MobileVideoLink"]);
+				if (MobileVideoUrl != null )
+				{
+					MobVideoSrc = MobileVideoUrl.GetFriendlyUrl();
+				}
+				
+                var deskVideoSrc = child["DeskVideoSrc"];
+                var mobVideoSrc = child["MobVideoSrc"];
+
+                <div class="carousel-item @(child.ID == element.Children.First().ID ? "active" : "")">
+                    @if (isVideoLink.Checked)
+                    {
+                        <video class="desk-video videoBanner" src="@DeskVideoSrc" loop="" muted="" autoplay="" playsinline=""></video>
+			            <video class="mob-video videoBanner" src="@MobVideoSrc" loop="" muted="" autoplay="" playsinline=""></video>
+                    }
+                    else
+                    {
+                        <img class="desk-img h-100" src="@imgurl" alt="@child.ID.ToShortID()">
+                        <img class="mob-img" src="@thumbnailUrl" alt="@child.ID.ToShortID()">
+                    }
+
+                    <!-- <div class="slider-content content-header"> -->
+                        <!-- <h3 class="PageBannerTitle"> -->
+                            <!-- <span>@Html.Sitecore().Field("Title", child)</span> -->
+                        <!-- </h3> -->
+                        <!-- <p>@Html.Sitecore().Field("Description", child)</p> -->
+                        
+                    <!-- </div> -->
+                </div>
+            }
+        </div>
+        <a class="carousel-control-prev home-prev-button" href="#carouselExampleIndicators" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next home-next-button" href="#carouselExampleIndicators" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+</div>
+
+
+
+
+

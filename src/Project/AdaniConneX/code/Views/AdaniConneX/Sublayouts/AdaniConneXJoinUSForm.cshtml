@@ -1,0 +1,136 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var sendEmail = "false";
+    Sitecore.Data.ID pageContextID = Sitecore.Data.ID.Parse(@Sitecore.Context.Item.ID);
+    Sitecore.Data.Items.Item pageContext = Sitecore.Context.Database.GetItem(pageContextID);
+    Sitecore.Data.Fields.MultilistField multiselectField = pageContext?.Fields["{1326C5B4-F98B-4D72-8645-8315499FB1D3}"];
+    if (multiselectField != null)
+    {
+        Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+        if (items.Length > 0)
+        {
+            foreach (var item in items)
+            {
+                if (item.DisplayName == "JoinUSForm")
+                {
+
+                    sendEmail = "true";
+                }
+            }
+        }
+
+    }
+}
+<div class="popup-box" id="uploadCvPopup">
+    <div class="backdrop" id="uploadCvPopupClose"></div>
+    <div class="popup-content">
+        <span class="close-modal" onclick="closeModal()">
+            <i class="i-close i-20"></i>
+        </span>
+        <form id="JoinUSFormTag">
+            <div class="full" id="getInTouch">
+                <p class="h2 fm-asb tx-000 ac">Ready To Join Us?</p>
+                <div class="contact-inputs">
+                    <div class="input-wrapper floating">
+                        <input class="input anim"
+                               id="getname"
+                               name="getname"
+                               data-has-validation="enable"
+                               data-input-required="required" />
+                        <label for="getname" class="label anim">Full Name*</label>
+                    </div>
+                </div>
+                <div class="grid-wrapper grid-layout-2 contact-inputs">
+                    <div class="grid">
+                        <div class="input-wrapper floating">
+                            <input id="getemail"
+                                   name="getemail"
+                                   class="input anim"
+                                   data-has-validation="enable"
+                                   data-input-required="required"
+                                   data-input-regex='^(([^<>()[\]\\.,;:\s@@"]+(\.[^<>()[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$' />
+                            <label for="getemail" class="label anim">Email*</label>
+                        </div>
+                    </div>
+                    <div class="grid">
+                        <div class="input-wrapper floating">
+                            <input id="getmobile"
+                                   name="getmobile"
+                                   class="input anim"
+                                   inputmode="numeric"
+                                   maxlength="10"
+                                   data-has-validation="enable"
+                                   data-input-required="required"
+                                   data-input-regex="^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[789]\d{9}$" />
+                            <label for="getmobile" class="label anim">Contact Number*</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-inputs cvUploadCon">
+                    <div class="input-wrapper floating">
+                        <input type="file"
+                               id="cvfile"
+                               name="cv_file"
+                               class="input anim"
+                               data-has-validation="enable"
+                               data-input-required="required"
+                               accept="application/pdf,application/msword,.docx">
+
+                        <input type="input"
+                               id="cvfileInput"
+                               class="input anim"
+                               data-has-validation="enable"
+                               data-input-required="required">
+
+                        <label for="getemail" class="label anim">Upload CV*</label>
+
+                        <img src="/-/media/project/adaniconnex/career/Form/right_sign.png" class="right_sign">
+
+                    </div>
+
+                    <img src="/-/media/project/adaniconnex/career/Form/upload.png" class="removeCvFile dr_upload_proxy" title="remove CV">
+                    <p class="uploadCvFileSize">File Size: Max 5 MB (Accepted file formats - .pdf, .doc, .docx)</p>
+                </div>
+
+
+                <div class="contact-inputs dr_py_2">
+                    <div class="chckbx-wrpr">
+                        <input type="checkbox" name="rememberCheckBox" id="rememberCheckBox">
+                        <label for="rememberCheckBox">By checking this box, you agree to the existing <a href="/privacy-policy">privacy policy</a> of Adani Group websites.</label>
+                    </div>
+                </div>
+
+                <div class="contact-inputs">
+                    <div id="JoinUsrecaptcha" class="captcha">
+                    </div>
+                </div>
+
+                <div class="contact-inputs">
+                    <div class="input-wrapper floating">
+                        <p id="git-error" class="error-message anim error"></p>
+                    </div>
+                </div>
+
+                <div class="contact-inputs ac">
+                    <input type="hidden" id="sendEmailJoinUs" name="sendEmailJoinUs" value="@sendEmail" />
+                    <input type="hidden" id="getFormType" name="getFormType" value="JoinUsform" />
+                    <input type="button" id="JoinUsform" class="btn small" value="Submit" />
+                </div>
+                <img src="/-/media/project/adaniconnex/career/Form/uploadCvPopup_img.png" class="uploadCvPopup_img">
+            </div>
+        </form>
+    </div>
+</div>

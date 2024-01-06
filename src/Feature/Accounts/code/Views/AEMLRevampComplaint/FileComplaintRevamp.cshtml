@@ -1,0 +1,449 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Feature.Accounts
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts.SessionHelper
+@model Sitecore.Feature.Accounts.Models.ComplaintFileRegistrationModel
+
+@if (Session["SuccessfulRegisterComplaint"] != null && Session["SuccessfulRegisterComplaint"].ToString() == "1")
+{
+
+    Session["SuccessfulRegisterComplaint"] = null;
+    <script type="text/javascript">
+            $(document).ready(function () {
+                //debugger;
+                dataLayer.push({
+                    'event': "register_new_compaint_submit",
+                    'eventCategory': "Help & Support",
+                    'eventAction': "'Register New Complaint Submit",
+                    'eventLabel': "@Model.SelectedComplaintCategory | @Model.SelectedComplaintSubCategory",
+                    'business_user_id': $('#BusinessUserId').val(),
+                    'login_status': $('#login_status').val(),
+                    'ca_number': $('#GACANumber').val(),
+                    'page_type': $('head title').text()
+                });
+            });
+    </script>
+
+}
+
+@{
+    var info = Session.GetAndRemove("UpdateRegisterComplaintMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+    if (info != null)
+    {
+        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageRegisterComplaintRevamp, info);
+    }
+}
+
+@if (Model.IsRegistered)
+{
+    using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(x => x.LoginName)
+        @Html.HiddenFor(x => x.ComplaintId)
+        @Html.HiddenFor(m => m.AccountNumber)
+        @Html.HiddenFor(m => m.Address)
+        @Html.HiddenFor(m => m.EmailId)
+        @Html.HiddenFor(m => m.MobileNumber)
+        @Html.HiddenFor(m => m.ConsumerName)
+        @Html.HiddenFor(m => m.IsRegistered)
+
+        <div id="modal-feedback" class="modal modal-feedback">
+            <header class="modal-header">
+                <a href="javascript:void(0)" class="modal-close" onclick="ResetPage();">
+                    <i class="i-cross"></i>
+                </a>
+                <h4>Please share your feedback!</h4>
+                <p>Your opinion will help us improve our services</p>
+            </header>
+            <div class="modal-content">
+                <div class="feedback-form card-with-form">
+                    <div class="feedback-q">
+                        @{string question1 = "1. Rate your experience of registering the query/concern?";
+                        }
+                        <p>@question1</p>
+                        <div class="rating-wrapper">
+                            <div class="star-rating">
+                                @foreach (var r in Model.ConcernRating)
+                                {
+                                    @Html.RadioButtonFor(m => m.ConcernAddressed, r.RatingValue, new { @class = r.RatingClass + " ConcernAddressed", @id = r.RatingName + "-ConcernAddressed" })
+                                    <label class="star" for="@String.Concat(r.RatingName, "-ConcernAddressed")"></label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feedback-q">
+                        @{string question2 = "2. How would you rate your overall experience of using the portal?";}
+                        <p>@question2</p>
+                        <div class="rating-wrapper">
+                            <div class="star-rating">
+                                @foreach (var r in Model.Rating)
+                                {
+                                    @Html.RadioButtonFor(m => m.OverallExperience, r.RatingValue, new { @class = r.RatingClass + " OverallExperience", @id = r.RatingName + "-OverallExperience" })
+                                    <label class="star" for="@String.Concat(r.RatingName, "-OverallExperience")"></label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="feedback-q">
+                        <p>Remarks (if any)</p>
+                        <div class="input-field custom">
+                            @Html.TextAreaFor(M => M.FeedbackRemarks, new { @class = "materialize-textarea", @rows = "2", })
+                            <label for="FeedbackRemarks">Type here..</label>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" data-gaevent="skip_feedback"
+                                data-gaeventCategory="Service Feedback"
+                                data-gaeventAction="Skip Feedback"
+                                data-gaeventLabel="@Model.SelectedComplaintCategory | @Model.SelectedComplaintSubCategory"
+                                class="waves-effect modal-close btn-flat" id="SubmitFeedbackCancel" name="SubmitFeedbackCancel" value="Cancel">
+                            Skip
+                        </button>
+                        <button type="submit" data-gaevent="feedback_submit"
+                                data-gaeventCategory="Service Feedback"
+                                data-gaeventAction="Feedback Submit"
+                                data-gaeventLabel="@question1 |@Model.ConcernAddressed |@question2 |@Model.OverallExperience"
+                                class="waves-effect modal-close btn" id="SubmitFeedback" name="SubmitFeedback" value="Submit">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            $(document).ready(function (e) {
+                window.setTimeout(function () {
+                    $('#RCcloseIcon').attr('onClick', 'OpenFeedBackForm();');
+                }, 1600);
+            })
+
+            function OpenFeedBackForm() {
+                var elem = document.getElementById('modal-feedback');
+                var instance = M.Modal.init(elem, { dismissible: false });
+                instance.open();
+            }
+        </script>
+    }
+}
+else
+{
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+            window.setTimeout(function () {
+                $('#RCcloseIcon').attr('onClick', 'ResetPage();');
+            }, 1600);
+        })
+    </script>
+}
+<div class="collapsible-header center">
+    <a href="javascript:void(0)"
+       data-gaevent="register_complaint"
+       data-gaeventCategory="Help & Support"
+       data-gaeventAction="Register Complaint"
+       data-gaeventLabel="Register New Complaint">Register New Complaint</a>
+</div>
+<div class="collapsible-body">
+    <h2>Register New Complaint</h2>
+    <div class="card brand-gradient outlined section-inner-wrapper card-with-form ">
+        <div class="message-footer">
+            <div class="ownership-transfer">
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmComplaintRegistration", @class = "form-signin", @enctype = "multipart/form-data" }))
+                {
+                    @Html.AddUniqueFormId();
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true);
+                    @Html.HiddenFor(x => x.LoginName);
+                    @Html.HiddenFor(x => x.ComplaintId);
+                    @Html.HiddenFor(m => m.AccountNumber);
+                    @Html.HiddenFor(m => m.Address);
+                    @Html.HiddenFor(m => m.EmailId);
+                    @Html.HiddenFor(m => m.MobileNumber);
+                    @Html.HiddenFor(m => m.ConsumerName);
+
+                    @Html.Sitecore().Placeholder("switch-account-content")
+
+                    if (!string.IsNullOrEmpty(Model.ComplaintId) && !string.IsNullOrEmpty(Model.ComplaintRegistrationNumber))
+                    {
+                        <div class="input-field custom">
+                            <div class="select-wrapper">
+                                @Html.TextBoxFor(x => x.ComplaintRegistrationNumber, new { @class = "form-control", @readonly = "readonly" })
+                                <label for="">Complaint Registration Number</label>
+                            </div>
+                        </div>
+                        <div class="input-field custom">
+                            <div class="select-wrapper">
+                                @Html.TextBoxFor(x => x.ComplaintStatusDescription, new { @class = "form-control", @readonly = "readonly" })
+                                <lable for="">Complaint Status</lable>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="input-field custom">
+                        @Html.DropDownListFor(x => x.SelectedComplaintCategory, new SelectList(Model.ComplaintCategorySelectList, "Value", "Text", Model.SelectedComplaintCategory), "Select", new
+                        {
+                            @class = "form-control",
+                            id = "ddlComplaintCategory"@*, required = "required"*@})
+                        @*@Html.ValidationMessageFor(x => x.SelectedComplaintCategory, "", new { @class = "help-block" }, "p")*@
+                        <label for="">Complaint Category</label>
+                        <p id="catError"></p>
+                    </div>
+
+                    if (Model.SelectedComplaintCategory == "3" || Model.SelectedComplaintCategory == "4" || Model.SelectedComplaintCategory == "5" || Model.SelectedComplaintCategory == "6")
+                    {
+
+                        <div class="input-field custom">
+                            @if (Model.ComplaintSubCategorySelectList.Count == 0 || Model.ComplaintSubCategorySelectList.Count == 1)
+                            {
+                                @Html.DropDownListFor(x => x.SelectedComplaintSubCategory, new SelectList(Model.ComplaintSubCategorySelectList, "Value", "Text", Model.SelectedComplaintSubCategory), new
+                      {
+                          @class = "form-control",
+                          id = "ddlComplaintSubCategory"@*, required = "required"*@
+})
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(x => x.SelectedComplaintSubCategory, new SelectList(Model.ComplaintSubCategorySelectList, "Value", "Text", Model.SelectedComplaintSubCategory), new
+                          {
+                              @class = "form-control",
+                              id = "ddlComplaintSubCategory"@*, required = "required"*@})
+
+                            }
+                            @*@Html.ValidationMessageFor(x => x.SelectedComplaintSubCategory, "", new { @class = "help-block" }, "p")*@
+                            <label for="">Complaint Sub-Category</label>
+                            <p id="subCatError"></p>
+                        </div>
+                    }
+                    else
+                    {
+
+
+
+                        <div class="input-field custom">
+                            @if (Model.ComplaintSubCategorySelectList.Count == 0 || Model.ComplaintSubCategorySelectList.Count == 1)
+                            {
+                                @Html.DropDownListFor(x => x.SelectedComplaintSubCategory, new SelectList(Model.ComplaintSubCategorySelectList, "Value", "Text", Model.SelectedComplaintSubCategory), "Select", new
+                            {
+                                @class = "form-control",
+                                id = "ddlComplaintSubCategory"@*, required = "required"*@
+})
+                            }
+                            else
+                            {
+                                @Html.DropDownListFor(x => x.SelectedComplaintSubCategory, new SelectList(Model.ComplaintSubCategorySelectList, "Value", "Text", Model.SelectedComplaintSubCategory), "Select", new
+                           {
+                               @class = "form-control",
+                               id = "ddlComplaintSubCategory"@*, required = "required"*@
+})
+                            }
+
+                            @*@Html.ValidationMessageFor(x => x.SelectedComplaintSubCategory, "", new { @class = "help-block" }, "p")*@
+                            <label for="">Complaint Sub-Category</label>
+                            <p id="subCatError"></p>
+                        </div>
+
+                    }
+
+                    if (Model.SelectedComplaintCategory == "2" && (Model.SelectedComplaintSubCategory == "4" || Model.SelectedComplaintSubCategory == "5"))
+                    {
+                        <div class="file-upload-wrp">
+                            <div class="file-title">
+                                Transaction Receipt
+                                <span>*</span>
+                            </div>
+                            <h6></h6>
+                            <div class="file-field">
+                                <div class="file-select">
+                                    <label class="file-label" for="fileComplaintSupportingDocs">
+                                        <i class="i-attach i-20 with-label">Upload / Drag & Drop</i>
+                                    </label>
+                                    <input type="file" id="fileTransactionReceipt" onchange="ValidateFile(this);" name="fileTransactionReceipt" class="input-file" />
+                                    @Html.ValidationMessageFor(model => model.TransactionReceipt, "", new { @class = "" })
+                                </div>
+                                <div class="file-path-wrapper select-message">
+                                    <i class="i-attach i-20"></i>
+                                    <input class="file-path validate" type="text">
+                                    <i class="remove-upload i-cross-c i-24"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="file-upload-wrp">
+                            <div class="file-title">
+                                Bank Account Statement
+                                <span>*</span>
+                            </div>
+                            <div class="file-field">
+                                <div class="file-select">
+                                    <label class="file-label" for="fileComplaintSupportingDocs">
+                                        <i class="i-attach i-20 with-label">Upload / Drag & Drop</i>
+                                    </label>
+                                    <input type="file" id="fileBankAccountStatement" onchange="ValidateFile(this);" name="fileBankAccountStatement" class="input-file" />
+                                    @Html.ValidationMessageFor(model => model.BankAccountStatement, "", new { @class = "" })
+                                </div>
+                                <div class="file-path-wrapper select-message">
+                                    <i class="i-attach i-20"></i>
+                                    <input class="file-path validate" type="text">
+                                    <i class="remove-upload i-cross-c i-24"></i>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="input-field custom input-has-icon">
+                        <textarea class="form-control complaintDescription" cols="20" id="ComplaintDescription" maxlength="120" name="ComplaintDescription" rows="2" onKeyPress="showCrossIcon()" onKeyUp="showCrossIcon()"></textarea>
+                        <label for="ComplaintDescription">Enter Description</label>
+                        <div class="input-icon">
+                            <span style="display:none" class="icon-holder waves-effect waves-light"><i id="crossicon" class="i-cross"> </i></span>
+                        </div>
+                        @Html.ValidationMessageFor(x => x.ComplaintDescription, "", new { @class = "help-block" }, "p")
+                        <p style="color:red" id="descriptionErrorMessage"></p>
+                    </div>
+
+                    <div class="section-wrapper">
+                        <label>
+                            <input type="checkbox" name="termsCb" class="filled-in" id="termsCb">
+                            <span>
+                                I agree to receive notifications, alerts, and complaint status on my registered Mobile no. and Email ID.
+                            </span>
+                        </label>
+                    </div>
+                    <div class="input-field custom">
+                        <div class="captcha_box" id="FileComplaintCaptcha">
+                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                <div class="row captcha_box" style="padding-left:10px;">
+                                    <div class="col-lg-12">
+                                        <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="@Html.Sitecore().Dictionary("/Common/CaptchaKey", "6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf")"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        <p class="field-validation-error" id="Captchaerror" style="display:none"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="field-validation-error" id="docErrorMessage"></p>
+                    <div class="h-right btn-group">
+                        <button type="button" id="btnReset" onclick="ResetPage()" class="waves-effect btn-flat login-btn"
+                                data-gaevent="register_new_complaint_cancel"
+                                data-gaeventCategory="Help & Support"
+                                data-gaeventAction="Register New Complaint Cancel"
+                                data-gaeventLabel="NA">
+                            Cancel
+                        </button>
+                        <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="SubmitApplication" id="SubmitApplication" value="Submit"
+                               @*data-gaevent="register_new_compaint_submit"
+                               data-gaeventCategory="Help & Support"
+                               data-gaeventAction="Register New Complaint Submit"
+                               data-gaeventLabel="@Model.SelectedComplaintCategory | @Model.SelectedComplaintSubCategory"*@>
+                       
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal-wrapper-custom">
+    <div id="FileUpload" class="modal modal-alert">
+        <h4>
+        </h4>
+        <div class="modal-content">
+            <p class="modal_message">
+                Is this your First Complaint for the subject matter?
+            </p>
+        </div>
+        <button type="button" class="waves-effect waves-light btn modal-close">OK</button>
+    </div>
+</div>
+<script type="text/javascript" src="~/Scripts/Accounts/ComplaintPortalRevamp.js"></script>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script type="text/javascript">
+    var FileComplaintCaptcha;
+    var onloadCallback = function () {
+        FileComplaintCaptcha = grecaptcha.render('FileComplaintCaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+
+    function showCrossIcon() {
+        if ($('#ComplaintDescription').val().length == 0) {
+            $('.icon-holder').hide();
+            $('#crossicon').click();
+        }
+        else {
+            $('.icon-holder').show();
+
+        }
+    }
+
+    $('#crossicon').click(function (e) {
+        $('#ComplaintDescription').val('');
+        $('.icon-holder').hide();
+    });
+
+    function ResetPage() {
+        $('#ComplaintDescription').val("");
+        $('select#ddlComplaintCategory').val("Select").change();
+        $('select#ddlComplaintSubCategory').val("Select").change();
+    };
+    $('input').click(function () {
+        dataLayer.push({
+            'event': $(this).attr('data-gaevent'),
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+    $('.custom').click(function () {
+        dataLayer.push({
+            'event': 'register_complaint_form_interaction',
+            'eventCategory': 'Help & Support',
+            'eventAction': 'Register Complaint Form Interaction',
+            'eventLabel': '@Model.SelectedComplaintCategory|Submit',
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+
+        $('.i-cross').click(function () {
+        dataLayer.push({
+            'event': 'feedback_popup_close',
+            'eventCategory': 'Service Feedback',
+            'eventAction': 'Feedback Popup Close',
+            'eventLabel': '@Model.SelectedComplaintCategory | @Model.SelectedComplaintSubCategory',
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+
+
+
+</script>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script type="text/javascript">
+    var recaptchaEditMainContent;
+    var onloadCallback = function () {
+        recaptchaEditMainContent = grecaptcha.render('recaptchaEditMainContent', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+</script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>
+

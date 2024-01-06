@@ -1,0 +1,85 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Links
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var vidlist = Sitecore.Context.Database.GetItem(datasource);
+
+    var parameters = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.FirstOrDefault();
+    var Links = Sitecore.Context.Database.GetItem("{" + parameters.Value + "}");
+    var i = 0;
+}
+
+@foreach (var vid in vidlist.Children.ToList())
+{
+    <div class="videoThumb">
+        <a href="#" data-toggle="modal" data-target="#video_@i">
+            @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Thumbnail, vid)
+        </a>
+        @Html.Sitecore().ImageField(Templates.HasMedia.Fields.Description, vid)
+
+    </div>
+
+    <div class="modal video" id="video_@i" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <button type="button" class="close" data-dismiss="modal" onclick="CloseModal('@i')">×</button>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    @{
+                        Sitecore.Data.Fields.LinkField linkField = @vid.Fields[Templates.HasMediaVideo.Fields.VideoLink];
+                        var NavigateUrl = linkField.Url;
+                    }
+                    <iframe width="100%" height="350" src="@NavigateUrl" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    i++;
+}
+@if (Links != null)
+{
+    var models = Sitecore.Context.Database.GetItem(Links.ID);
+
+    <ul class="py-2 mediaList">
+        @foreach (var nav in models.Children.ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkField = nav.Fields["{FE71C30E-F07D-4052-8594-C3028CD76E1F}"];
+            var NavigateUrl = linkField.Url;
+            <li><i class="fas fa-arrow-right"></i>&nbsp;&nbsp;&nbsp;<a href="@NavigateUrl">@nav.Name</a></li>
+        }
+    </ul>
+    <div class="clearfix"></div>
+    <div class="btnWrapper" style="margin-top:2%;"><a href="/Media-Centre" class="btn btnBordered">View all</a></div>
+}
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script>
+
+        function stopVideo(id) {
+                var src = $j('iframe.' + id).attr('src');
+            $j('iframe.' + id).attr('src', '');
+            $j('iframe.' + id).attr('src', src);
+
+            }*@
+@*$(document).ready(function () {
+        function getId(url) {
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+
+            if (match && match[2].length == 11) {
+                return match[2];
+            } else {
+                return 'error';
+            }
+        }
+        videoId = getId('@Model.Item.LinkFieldUrl(Templates.HasMediaVideo.Fields.VideoLink)');
+    });*@
+</script>

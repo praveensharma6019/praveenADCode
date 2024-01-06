@@ -1,0 +1,249 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var TBLogo = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "TBLogo").FirstOrDefault().Value;
+  var menu = Sitecore.Context.Database.GetItem("{4C293077-216F-45D7-9903-438E7FB8F3D4}");
+	  var activeClass ="active";
+	  
+	  
+	var modelBusinessMenu = Sitecore.Context.Database.GetItem("{0E6D81E7-3242-41D9-B5DA-30D6CBBAC837}");
+	var imgurls = Helper.ImageUrl("Image", modelBusinessMenu);
+	
+	var elementCallInfo = Sitecore.Context.Database.GetItem("{D9311710-49DA-4574-AD58-58CCF6C9ADDD}");
+}
+
+
+<div class="navPanel">
+<div class="header--top_bar">
+
+
+@if (elementCallInfo != null )
+{
+    var imgURL = Helper.ImageUrl("Image", elementCallInfo);
+<div class="contact_info d-none">
+   <!-- <img src="@imgURL" alt="Call" /> -->
+   
+    
+        @for(int i = 0; i < elementCallInfo.GetChildren().Count; i++)
+        {
+            @elementCallInfo.GetChildren()[i]["Title"] @Html.Raw(elementCallInfo.GetChildren()[i]["Text"])
+        }
+    
+
+</div>
+}
+
+	<div class="top_bar_nav">
+		<a href="#businesses">
+            <img src="@imgurls" alt="Business" /> @Html.Sitecore().Field("Text", modelBusinessMenu)
+        </a>
+		<div class="business_dropdown">
+					@foreach (Item item in modelBusinessMenu.GetChildren().ToList())
+						{
+							var subItemModel = Sitecore.Context.Database.GetItem(item.ID);
+							var childCount = subItemModel.GetChildren().Count();
+							
+							
+							
+							if (childCount > 0)
+							{
+								foreach (Item subItem in subItemModel.GetChildren().ToList())
+								{
+									var url = Helper.LinkUrl(subItem.Fields["LinkUrl"]);
+									var imgurl = Helper.ImageUrl("LinkImage", subItem);
+									if (!string.IsNullOrWhiteSpace(imgurl))
+									{
+									
+									 if(url != "")
+									 {
+										 <a href="@url" class="@Html.Sitecore().Field("Class", subItem)" target="_blank">
+												<i><img src="@imgurl" alt="@Html.Sitecore().Field("Title", subItem)"> </i>
+												<label>@Html.Sitecore().Field("Title", subItem)</label>
+											</a>
+									 }
+									 else
+									 {
+										 <a href="@url" class="@Html.Sitecore().Field("Class", subItem)">
+												<i><img src="@imgurl" alt="@Html.Sitecore().Field("Title", subItem)"> </i>
+												<label>@Html.Sitecore().Field("Title", subItem)</label>
+											</a>
+									 }
+										
+
+									}
+
+								}
+							}
+						}
+			</div>
+		
+				
+	</div>       
+</div>
+
+
+
+
+
+	<div class="container-fluid navtopbar">
+	 <nav class="navbar navbar-expand-lg navbar-light">
+      <a class="navbar-brand" href="/">	  
+	   <img src="-/media/94927995448048758A3737F54EE1CBC2.ashx" alt="Adani Airports">
+	   <img src="-/media/5AE77F2C8B3544F9B2FFDC114347CFCB.ashx" alt="Adani Airports">
+	  </a>
+      <div class="navbar-collapse collapse" id="mainMenu" style="">
+		<span class="nav-close"></span>
+        <ul class="navbar-nav mx-auto primaryMenu">
+		@foreach (var element in menu.GetChildren().ToList())
+		{
+		var childCount = element.GetChildren().Count();
+		if(childCount != 0)
+		{
+		<li class="@childCount nav-item dropdown @activeClass">
+			@Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+															 @Html.Sitecore().Field("NavigationTitle", element)
+                                                        
+                                                        @Html.Sitecore().EndField()
+														
+			 
+		
+		
+			<span class="fa fa-angle-down"></span>
+		<div class="dropdown-menu megamenu">
+			<ul>
+					@foreach (var subMenu in element.GetChildren().ToList())
+														{
+															
+															<li class="dropdown-item">
+															@Html.Sitecore().BeginField("Link", subMenu, new { haschildren = true, @class = "dropdown-item" })
+
+															 @Html.Sitecore().Field("NavigationTitle", subMenu) 
+                                                        
+                                                        @Html.Sitecore().EndField()
+															</li>
+														}														
+															
+			</ul>
+			
+            </div>
+          </li>
+		}
+		else{
+		<li class="@childCount nav-item">
+			@Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+															 @Html.Sitecore().Field("NavigationTitle", element)
+                                                        
+                                                        @Html.Sitecore().EndField()
+														  </li>
+														
+		}
+		activeClass = "";
+		}
+		
+		
+        </ul>
+		
+		<div class="nav_cta d-none">
+			<ul>
+			<li><a href="/services"><img src="-/media/21836FD4235E4031A4A085975913D4E3.ashx"><span>Check-out Services</span></a></li>
+			<li><a href="/Contactus?na=Suspicious"><img src="-/media/0941E1DE111C4693B24329DBDA9CB9D6.ashx"><span>Report Suspicion</span></a></li>
+			</ul>
+		</div>
+      </div>
+	   <div class="dropdown ml-auto website_dropdown">
+  <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Select Airport<span class="fa fa-caret-down ml-3"></span>
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+     <a class="dropdown-item" href="https://www.adani.com/svpia-ahmedabad-airport" target="_blank">ahmedabad</a>
+     <a class="dropdown-item" href="https://www.adani.com/ccsia-lucknow-airport" target="_blank">lucknow</a>
+	 <a class="dropdown-item" href="https://www.adani.com/mangaluru-airport" target="_blank">mangaluru</a>
+	 <a class="dropdown-item" href="https://csmia.adaniairports.com" target="_blank">mumbai</a>
+	 
+	<a class="dropdown-item" href="https://www.adani.com/lgbia-guwahati-airport" target="_blank">guwahati</a>
+	<a class="dropdown-item" href="https://www.adani.com/jaipur-airport" target="_blank">jaipur</a>
+	<a class="dropdown-item" href="https://www.adani.com/thiruvananthapuram-airport" target="_blank">Thiruvananthapuram</a>
+  </div>
+</div>
+	 
+	   <ul class="primarymenu">
+		<li class="user-login d-none"><a href="#" class="nav-link"><svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="19.5" viewBox="0 0 17.5 19.5"><defs></defs><g transform="translate(-3.25 -2.25)"><path class="a" d="M20,21V19a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2"/><circle class="a" cx="4" cy="4" r="4" transform="translate(8 3)"/></g></svg></a></li>
+		<li class="toggle_nav"><button class="navbar-toggler d-block" id="nav-button" type="button" data-toggle="collapse" data-target="#mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+		<span></span>
+		<span></span>
+		<span></span>
+      </button></li>
+	  </ul>
+    </nav>
+	</div>
+	</div>
+	
+	
+	<script src="/scripts/MangaloreAirport/jquery.min.js"></script>
+<script>
+
+    $('#SearchBox').keypress(function (event) {
+       // event.preventDefault();
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            window.location.href ="/searchresult?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+        }
+
+    });
+
+ function SearchRedirect()
+ {
+ window.location.href ="/searchresult?key=" +  $('#SearchBox').val();
+            event.preventDefault();
+
+ }
+
+    function Search() {
+      //  $('#SearchBtn').submit();
+
+        var itemId = $('#SearchBox').val();
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/MangaloreAirport/GetSearchResult",
+            context: this,
+            success: function (objects) {
+                // alert("s1");
+                console.log(objects);
+                $('#SearchResult').html('');
+                var html = "";
+
+                for (var i = 0; i < objects.length; i++) {
+                    var value = objects[i]["Value"];
+                    if (value.indexOf("New Local Datasource Folder") > 0) {
+
+                    }
+                    else {
+                        if (value.indexOf("MangaloreAirport/Home") > 0)
+                            value = "/" + value.replace("/MangaloreAirport/Home/", "");
+
+                        html = html + " <li><a href='" + value + "'>" + objects[i]["Key"] + "</a></li>";}
+                }
+                $('#SearchResult').html(html);
+                return false;
+
+            }
+        });
+
+    }
+
+
+</script>
+

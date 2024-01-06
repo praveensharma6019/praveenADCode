@@ -1,0 +1,137 @@
+﻿@using System;
+@using System.Web;
+@using Sitecore.Foundation.Dictionary.Repositories;
+@using Sitecore.AGELPortal.Website.Models;
+@using System.ComponentModel.DataAnnotations;
+@using System.Web.Mvc;
+@using Sitecore.Data;
+@using Sitecore.AGELPortal.Website;
+@model PortalAddContentModel
+
+@{
+    var usertype = Session["AGELPortalUserType"]?.ToString();
+}
+
+<div class="container">
+
+            <div class="breadcrumbs">
+                <a href="/AGELPortal/Home" class="breadcrumb">Home</a>
+
+                @*@if (usertype == "superadmin")
+                {
+                    <a href="/dashboard" class="breadcrumb">Home</a>
+                }
+                else
+                {
+                    <a href="/" class="breadcrumb">Home</a>
+                }*@
+                <a href="/AGELPortal/Home/Document_List" class="breadcrumb">Documents</a>
+
+            </div>
+
+            
+                <div class="row">
+                    <div class="col s12 l3">
+                        <!--Category nav-->
+                        <div class="side-nav hide-on-med-and-down">
+                            <ul class="collapsible expandable z-depth-0">
+                                <li class="active">
+                                    <div class="collapsible-header brand-gradient-left brand-gradient-thin outlined">
+                                        <a href="#"><i class="i-cross-c"></i>Category</a>
+
+                                    </div>
+                                    <div class="collapsible-body">
+                                        <div class="submenu">
+
+                                            <style>
+                                                .tabs .indicator {
+                                                    display: none;
+                                                }
+                                            </style>
+
+                                            @{int count = 0; }
+
+                                            <ul class="tabs" style="height: auto;overflow:inherit;white-space: initial;border:none;">
+                                                @foreach (var category in Model.documentCategories)
+                                                {
+                                                    var activClass = count == 0 ? "active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined" : "";
+                                                    var ContentCount = Model.GetCount(category.Id, "document");
+                                                    if (ContentCount > 0)
+                                                    {
+                                                        <li class="tab" id="tab" style="display:block; text-align:left;">
+
+                                                            <a href="#document-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))" class="@activClass" style="display:flex; align-items:center;">
+                                                                @category.name
+                                                            </a>
+
+                                                        </li>
+                                                        count++;
+                                                    }
+                                                }
+                                            </ul>
+
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <!--Cn-->
+                    </div>
+                    <div class="col s12 l8 offset-l1">
+
+                        <header class="section-header">
+                            <h1>Documents</h1>
+                        </header>
+                        <div class="carousel_wrapper">
+                            <div class="row">
+                                @foreach (var category in Model.documentCategories)
+                                {
+                                    var ContentCount = Model.GetCount(category.Id, "document");
+                                    if (ContentCount > 0)
+                                    {
+
+                              
+
+                                    foreach (var documents in Model.documents)
+                                    {
+                                        if (documents.category_id == category.Id)
+                                        {
+
+                                   
+                                        <div class="card col s12 m4" id="document-@(category.Id.ToString().Replace("{", "").Replace("-", "").Replace("}", ""))">
+										 <a href="/AGELPortal/Home/DocumentDetail?documenturl=@documents.Id" @*class="card-link"*@>
+                                            <div class="card-image">
+
+                                                <iframe sandbox="allow-same-origin" class="doc-thumb" src="\images\AGELPortal\upload_images\@documents.DocVideoImage_Name" frameborder="0" style="overflow: hidden;"
+                                                        scrolling="no" marginheight="0" marginwidth="0" role="document" aria-label="@documents.DocVideoImage_Name" title="@documents.title" height="298px" width="100%"></iframe>
+
+                                            </div>
+                                            <div class="card-content">
+                                                <h4>@documents.title</h4>
+                                                <p>@documents.DocVideoCnt</p>
+                                            </div>
+											</a>
+                                        </div>
+                                    
+                                        }
+                                    }
+                               
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+           
+
+
+       
+</div>
+@*<script>
+
+    $('#tab1 a').click(function (e) {
+        e.preventDefault();
+        $("#tab1 a").removeClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+        $(this).addClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+    });
+</script>*@

@@ -1,0 +1,1337 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.ElectricityNew.Website.Model.Tender
+
+
+<section class="corporate-main-banner section-container">
+    <div class="inner">
+        <figure>
+            <picture>
+                <source media="(min-width:992px)" srcset="-/media/8693F40A7CC2485F82B83EC9C05E7C3D.ashx" alt="Tender Details">
+                <img alt="Open Tenders" class="banner-image" src="-/media/20AC3F0692BF465DBE5679E054A99947.ashx" />
+            </picture>
+        </figure>
+        <div class="content">
+            <div class="container">
+                <div class="inner">
+                    <h1>Tenders Details</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="container tenders-detail">
+    <div class="row">
+        <div class="col s12">
+            @if (!string.IsNullOrEmpty(ViewBag.Message))
+            {
+
+                <input id="message" type="hidden" value="@ViewBag.Message" />
+
+
+                if (ViewBag.MessageBoxTitle == "Thank You")
+                {
+                    <div id="tenderDetailstabone" class="modal modal-alert modal-success">
+                        <header class="modal-header">
+                            <h4><i class="i-tick"></i>@ViewBag.MessageBoxTitle</h4>
+                            <span class="icon-holder waves-effect waves-light modal-close close"><i class="i-cross hide-notification"></i></span>
+                        </header>
+
+                        <div class="modal-content">
+                            @if (!string.IsNullOrEmpty(ViewBag.Message))
+                            {
+                                <p>@ViewBag.Message</p>
+
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div id="tenderDetailstabone" class="modal modal-alert modal-toast custom-toast-error">
+                        <header class="modal-header">
+                            <h4>
+                                <a class="toast-close">
+                                    <i class="i-cross"></i>
+                                </a>
+                                Error
+                            </h4>
+                            <a class="modal-close" id="closeIcon">
+                                <i class="i-cross"> </i>
+                            </a>
+                        </header>
+                        <div class="modal-content">
+                            <p id="ToastAlertContent">@ViewBag.Message</p>
+                        </div>
+                    </div>
+                }
+            }
+
+            <div class="tender-header">
+                <div class="tender-main-header">
+                    <div>
+                        <h2>Tender Details</h2>
+                        <p>Proceed here for tender submission</p>
+                    </div>
+
+                    <div class="header-links hide-on-small-only">
+                        @*<a href="/tenderlogin" class="link-btn">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</a>*@
+
+                        <a href="javascript:void(0)" class="link-btn" onclick="document.getElementById('formLogout').submit();">
+                            @Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")
+                        </a>
+                        <a href="/TenderChangePassword" class="link-btn"> @Html.Sitecore().Dictionary("Electricity/Tender/Change Password Label", "Change Password")</a>
+                    </div>
+                    <form action="@Url.Action("Logout","ElectricityNew")" id="formLogout" method="post" style="display:none">
+                        @Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")
+                    </form>
+
+                </div>
+            </div>
+            <section class="section-container">
+                <div class="section-header hide-on-small-only">
+                    <h4>Existing Tender Details</h4>
+                </div>
+                @if (Model != null)
+                {
+                    <div class="card outlined brand-gradient card-section">
+                        <div class="header-text">
+                            <ul>
+                                <li>
+                                    <label>Name</label>
+                                    <p>@Model.UserName</p>
+                                </li>
+                                <li>
+                                    <label>Company Name</label>
+                                    @Model.CompanyName
+                                </li>
+                                <li>
+                                    <label>Emain ID </label>
+                                    @Model.Email
+                                </li>
+                                <li>
+                                    <label>Mobile Number</label>
+                                    @Model.Mobile
+                                </li>
+                                <li>
+                                    <label>Tender ID</label>
+                                    @Model.NITNo
+
+                                </li>
+                                <li>
+                                    <label>Tender Name</label>
+                                    @Model.TenderName
+                                </li>
+                                <li>
+                                    <label>Document Upload Status:</label>
+                                    @Model.DocumentStatus
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="download">
+
+                        @if (Model.tenderdocument != null && Model.tenderdocument.Count > 0)
+                        {
+                            <ul>
+                                @foreach (var item in Model.tenderdocument)
+                                {
+                                    <li>
+                                        Download:  <a href="@item.DocumentPath" target="_blank" download="" class="txt-orange">@item.FileName</a>
+                                    </li>
+
+                                }
+                            </ul>
+                        }
+                    </div>
+
+                }
+
+
+                <div class="step-progress-bar stepper-wrapper">
+                    <h5>Submit your request in 3 simple steps</h5>
+                    <div class="row">
+                        <div class="col s12 m8">
+                            <div class="section-wrapper">
+                                <ul class="stepper-header" id="stepper-holder" data-stepper-content-wrapper="stepperContent" data-stepper-content-holder="stepper-content-body">
+                                    <li class="complete stepper-action active-step" data-content-target="content1">
+                                        1. Tender Fee and EMD
+                                        <span></span>
+                                    </li>
+                                    <li class="stepper-action" data-content-target="content2">
+                                        2. Upload Envelope
+                                        <span></span>
+                                    </li>
+                                    <li class="stepper-action" data-content-target="content3">
+                                        3. View Envelope
+                                        <span></span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stepper-content" id="stepperContent">
+                    <div class="active stepper-content-body" id="content1">
+                        <div class="new-connection-form">
+                            <div class="step-1-form section-wrapper">
+                                <div class="card outlined card-with-form">
+                                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmTenderFeeandEMD", @class = "form-TenderFeeandEMD", @enctype = "multipart/form-data" }))
+                                    {
+                                        @Html.AddUniqueFormId()
+                                        @Html.HiddenFor(model => model.TenderIdDB)
+                                        <div class="card-header">
+                                            <h6>Enter Details</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="steps-content">
+                                                <ul>
+                                                    <li>
+                                                        <h5>Identity Document</h5>
+                                                        <ul>
+                                                            <li>First fill in the Bidder/Customer details and then Tender Fee & EMD details and then upload the Scanned copy.</li>
+                                                            <li>File format supported for scan copy are Jpeg & PDF only. Max file upload size is 1 MB per file.</li>
+                                                            <li>File name should not contain any Special Characters. Only Space, Dash, Hyphen & Underscore is allowed.</li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="form-field">
+                                                <h6>Bidder/Customer details</h6>
+                                                <div class="row form-with-column-6">
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            <input value="For offical work only" disabled="disabled" id="txtForoffical" type="text" class="validate valid">
+
+                                                            @* @Html.TextBoxFor(x => x.CustomerCode, new { @class = "validate valid", disabled = "disabled", id = "first_name2", type = "text", @autocomplete = "off", @readonly = "readonly", @placeholder = "For official work only" })*@
+                                                            <label class="active" for="first_name2">Customer Code</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+                                                            <input value="For offical work only" disabled="disabled" id="txtForoffical2" type="text" class="validate valid">
+
+                                                            @*  @Html.TextBoxFor(x => x.VendorCode, new { @class = "form-control reset-control", @autocomplete = "off", @readonly = "readonly", @placeholder = "For official work only" })*@
+                                                            <label class="active" for="first_name2">Vendor Code</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            @Html.TextBoxFor(x => x.UserName, new { @disabled = "disabled", @id = "UserName", @type = "text", @class = "validate valid", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                                            <label class="active" for="first_name2">Name</label>
+                                                            @Html.ValidationMessageFor(x => x.UserName, "", new { @class = "help-block" }, "p")
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+                                                            @Html.TextBoxFor(x => x.CompanyName, new { @disabled = "disabled", @id = "CompanyName", @type = "text", @class = "validate valid", @autocomplete = "off", @readonly = "readonly", required = "required" })
+                                                            <label class="active" for="first_name2">Company Name</label>
+                                                            @Html.ValidationMessageFor(x => x.CompanyName, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+                                                            @Html.TextBoxFor(x => x.PANNumber, new { @id = "PANNumber", @type = "text", @class = "validate valid", @autocomplete = "off" })
+                                                            <label class="active" for="first_name2">PAN Number</label>
+                                                            @Html.ValidationMessageFor(x => x.PANNumber, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        @if (Model.IsPANUploaded)
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload / Drag &amp; Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.PANDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+                                                                    </div>
+
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <a class="txt-orange" href="@Url.Action("DownloadFile","ElectricityNew", new { id="pan" })">
+                                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload / Drag &amp; Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.PANDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+
+                                                                        @*<input type="file" class="input-file">*@
+                                                                    </div>
+
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        }
+                                                        @Html.ValidationMessageFor(x => x.PANDocument, "", new { @class = "help-block mb-2" }, "p")
+
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+                                                            @Html.TextBoxFor(x => x.GSTNumber, new { @id = "GSTNumber", @type = "text", @class = "validate valid", @autocomplete = "off" })
+                                                            <label class="active" for="first_name2">GST Number</label>
+                                                            @Html.ValidationMessageFor(x => x.GSTNumber, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        @if (Model.IsGSTUploaded)
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload / Drag &amp; Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.GSTDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+
+                                                                        @*<input type="file" class="input-file">*@
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <a class="txt-orange" href="@Url.Action("DownloadFile","ElectricityNew", new { id = "gst" })">
+                                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload / Drag &amp; Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.GSTDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+
+                                                                        @*<input type="file" class="input-file">*@
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        @Html.ValidationMessageFor(x => x.GSTDocument, "", new { @class = "help-block mb-2" }, "p")
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+                                                            @Html.TextBoxFor(x => x.Mobile, new { @disabled = "disabled", @id = "Mobile", @type = "text", @class = "validate valid", @autocomplete = "off", @readonly = "readonly" })
+                                                            <label class="active" for="first_name2">Mobile</label>
+                                                            @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            @Html.TextBoxFor(x => x.Email, new { @disabled = "disabled", @id = "Email", @type = "text", @class = "validate valid", @autocomplete = "off", @readonly = "readonly" })
+                                                            <label class="active" for="first_name2">Email ID</label>
+                                                            @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            @Html.TextBoxFor(x => x.NITNo, new { @disabled = "disabled", @id = "NITNo", @type = "text", @class = "validate valid", @autocomplete = "off", @readonly = "readonly" })
+                                                            <label class="active" for="first_name2">Tender Number</label>
+                                                            @Html.ValidationMessageFor(x => x.NITNo, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+                                                            @Html.TextBoxFor(x => x.TenderName, new { @disabled = "disabled", @id = "TenderName", @type = "text", @class = "validate valid", @autocomplete = "off", @readonly = "readonly" })
+                                                            <label for="TenderName">Tender Description</label>
+                                                            @Html.ValidationMessageFor(x => x.TenderName, "", new { @class = "help-block" }, "p")
+
+                                                            @*<input value="System study of Battery Energy Storage System in AEML Network " disabled="disabled" id="first_name2" type="text" class="validate valid">*@
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-field">
+                                                <h6>Bank details</h6>
+                                                <div class="row">
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+                                                            @Html.TextBoxFor(x => x.TenderFeeBankRef, new { @id = "TenderFeeBankRef", @type = "text", @class = "validate valid", @autocomplete = "off" })
+                                                            <label class="active" for="first_name2">Tender Fee (Bank Ref)</label>
+                                                            @Html.ValidationMessageFor(x => x.TenderFeeBankRef, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+                                                            @Html.TextBoxFor(x => x.EMDBankRef, new { @id = "EMDBankRef", @type = "text", @class = "validate valid", @autocomplete = "off" })
+                                                            <label class="active" for="first_name2">EMD (Bank Ref)</label>
+                                                            @Html.ValidationMessageFor(x => x.EMDBankRef, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        @if (Model.IsTenderFeeRefUploaded)
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.TenderFeeBankRefDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <a class="txt-orange" href="@Url.Action("DownloadFile","ElectricityNew", new { id = "tenderfee" })">
+                                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.TenderFeeBankRefDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        }
+
+                                                        @Html.ValidationMessageFor(x => x.TenderFeeBankRefDocument, "", new { @class = "help-block mb-2" }, "p")
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        @if (Model.IsEMDRefUploaded)
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.EMDBankRefDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+
+
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <a class="txt-orange" href="@Url.Action("DownloadFile","ElectricityNew", new { id = "emd" })">
+                                                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                                            </a>
+
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="file-upload-wrp">
+                                                                <div class="file-field">
+                                                                    <div class="btn000 file-select">
+                                                                        <label class="file-label" for="empList">
+                                                                            <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                        </label>
+                                                                        @Html.TextBoxFor(x => x.EMDBankRefDocument, new { @type = "file", @class = "input-file", @autocomplete = "off" })
+
+
+                                                                    </div>
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        <input class="file-path validate" type="text">
+                                                                        <i class="remove-upload i-cross-c i-24"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+
+                                                        @Html.ValidationMessageFor(x => x.EMDBankRefDocument, "", new { @class = "help-block mb-2" }, "p")
+                                                    </div>
+
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+                                                            @Html.DropDownListFor(model => model.TenderFeeModeOfPayment, new List<SelectListItem>
+                                     {
+                                     new SelectListItem{ Text="Cheque", Value = "Cheque" },
+                                     new SelectListItem{ Text="DD", Value = "DD" },
+                                     new SelectListItem{ Text="Online Transfer", Value = "Online Transfer" },
+                                     new SelectListItem{ Text="BG", Value = "BG" },
+                                     }, Html.Sitecore().Dictionary("Electricity/Tender/Select Mode of payment Label", "--Select--"), new { @class = "form-control reset-control" })
+
+                                                            <label>Select Payment Mode</label>
+                                                            @Html.ValidationMessageFor(model => model.TenderFeeModeOfPayment, "", new { @class = "help-block" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+                                                            @Html.DropDownListFor(model => model.EMDModeOfPayment, new List<SelectListItem>
+                                     {
+                                     new SelectListItem{ Text="Cheque", Value = "Cheque" },
+                                     new SelectListItem{ Text="DD", Value = "DD" },
+                                     new SelectListItem{ Text="Online Transfer", Value = "Online Transfer" },
+                                     new SelectListItem{ Text="BG", Value = "BG" },
+                                     }, Html.Sitecore().Dictionary("Electricity/Tender/Select Mode of payment Label", "--Select--"), new { @class = "form-control reset-control validate valid" })
+
+                                                            <label>Select Payment Mode</label>
+                                                            @Html.ValidationMessageFor(model => model.EMDModeOfPayment, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            @Html.TextBoxFor(x => x.TenderFeeAmount, new { @class = "validate valid", @type = "text", @autocomplete = "off", @id = "TenderFeeAmount" })
+                                                            <label class="active" for="first_name2">Amount</label>
+                                                            @Html.ValidationMessageFor(x => x.TenderFeeAmount, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            @Html.TextBoxFor(x => x.EMDAmount, new { @class = "validate valid", @type = "text", @autocomplete = "off", @id = "EMDAmount" })
+                                                            <label class="active" for="first_name2">Amount</label>
+                                                            @Html.ValidationMessageFor(x => x.EMDAmount, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            @Html.TextBoxFor(x => x.TenderFeeBankBranch, new { @class = "validate valid", @type = "text", @autocomplete = "off", @id = "TenderFeeBankBranch" })
+                                                            <label class="active" for="first_name2">Bank Branch</label>
+                                                            @Html.ValidationMessageFor(x => x.TenderFeeBankBranch, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+
+                                                            @Html.TextBoxFor(x => x.EMDBankBranch, new { @class = "validate valid", @type = "text", @autocomplete = "off", @id = "EMDBankBranch" })
+                                                            <label class="active" for="first_name2">Bank Branch</label>
+                                                            @Html.ValidationMessageFor(x => x.EMDBankBranch, "", new { @class = "help-block" }, "p")
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom input-has-icon">
+                                                            @Html.TextBoxFor(x => x.TenderFeeDateOfPayment, new { @class = "TenderFeeDateOfPayment", @type = "text", @autocomplete = "off" })
+                                                            <label for="departure">Date of Fee Payment</label>
+                                                            @Html.ValidationMessageFor(x => x.TenderFeeDateOfPayment, "", new { @class = "help-block" }, "p")
+                                                            <div class="input-icon TenderFeeDateOfPayment">
+                                                                <i class="vi-calender"></i>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom input-has-icon">
+                                                            @Html.TextBoxFor(x => x.EMDDateOfPayment, new { @class = "EMDDateOfPayment", id = "EMDDateOfPayment", @type = "text", @autocomplete = "off" })
+                                                            <label for="departure">Date of Fee Payment</label>
+                                                            @Html.ValidationMessageFor(x => x.EMDDateOfPayment, "", new { @class = "help-block" }, "p")
+                                                            <div class="input-icon EMDDateOfPayment">
+                                                                <i class="vi-calender"></i>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @if (Model.IsTenderFeePaid)
+                                            {
+                                                <div class="btn-group">
+                                                    <input type="submit" class="btn btn-primary" name="tenderFeeandEMDUpdate" value="Update" id="btntenderFeeandEMDUpdate" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="btn-group">
+                                                    <input type="submit" class="btn btn-primary" name="tenderFeeandEMD" value="Submit" id="btntenderFeeandEMD" />
+                                                </div>
+                                            }
+                                        </div>
+                                        @*<div class="btn-group">
+                                                <button class="waves-effect waves-light btn btn-continue next-step" onclick="goToStepNo('stepper-holder', 2);">Submit</button>
+                                            </div>*@
+
+
+
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="stepper-content-body hide" id="content2">
+                        <div class="new-connection-form">
+                            <div class="step-2-form section-wrapper">
+                                <div class="card outlined card-with-form">
+                                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmuserupload", @class = "form-signin", @enctype = "multipart/form-data" }))
+                                    {
+                                        @Html.AddUniqueFormId()
+                                        @Html.HiddenFor(x => x.TenderId)
+
+                                        <div class="card-header">
+                                            <h6>Enter Details</h6>
+                                        </div>
+                                        <div class="card-body">
+
+                                            <div class="steps-content">
+                                                <ul>
+                                                    <li>
+                                                        <h5>Note for Bidder/Customer</h5>
+                                                        <ul>
+                                                            <li>File format supported are Doc, PDF, Xlsx, DWG & Jpeg only. Win Zip, Win Rar or 7Zip are not allowed.</li>
+                                                            <li>File name should not contain any Special Character. Only Space, Dash, Hyphen, Underscore is allowed.</li>
+                                                            <li>Max file upload size is 2MB per file.</li>
+                                                            <li>Files should be uploaded in sequence of Envelope I, II & III.</li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="form-field">
+                                                <h6>Envelope-I</h6>
+                                                <div class="row form-with-col-6">
+
+
+
+
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp">
+
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope11, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope11" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp">
+
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope12, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope12" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp">
+
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope13, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope13" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp">
+
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope14, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope14" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp">
+
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope15, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope15" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <h6>Envelope- II</h6>
+                                                <div class="row form-with-col-6">
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+
+                                                            @Html.DropDownList("Business", new List<SelectListItem>
+                                                                                               {
+                                                                                                  new SelectListItem{ Text="--Select--", Value = "" ,Selected = true},
+                                                                                                  new SelectListItem{ Text="Generation", Value = "1" },
+                                                                                                  new SelectListItem{ Text="Transmission", Value = "2" },
+                                                                                                  new SelectListItem{ Text="Distribution", Value = "3" }},
+                                                     new { @onchange = "onEnv3Business(this.value)", @class = "form-control w-auto d-inline-block" })
+
+                                                            <label>Business</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="input-field custom">
+                                                            @Html.DropDownList("Category", new List<SelectListItem>
+                                                                                                 {
+                                                                                                    new SelectListItem{ Text="--Select--", Value = "" ,Selected = true},
+                                                                                                     new SelectListItem{ Text="Supply", Value = "1" },
+                                                                                                     new SelectListItem{ Text="Service", Value = "2" },
+                                                                                                     new SelectListItem{ Text="Supply & Service", Value = "3" }},
+                                                       new { @onchange = "onEnv3Category(this.value)", @class = "form-control w-auto d-inline-block" })
+                                                            <label>Supply</label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divQualificationRequirementDocuments">
+                                                            <div class="file-title">
+                                                                Qualification Requirement Documents
+                                                                <span class="env2docsMan" id="ManQualificationRequirementDocuments">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope21, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope31" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divTechnicalSpecificationScopeofWork">
+                                                            <div class="file-title">
+                                                                Technical Specification / Scope of Work
+                                                                <span class="env2docsMan" id="ManTechnicalSpecificationScopeofWork">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope22, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope32" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divTypeTestReports">
+                                                            <div class="file-title">
+                                                                Type Test Reports
+                                                                <span class="env2docsMan" id="ManTypeTestReports">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope23, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope33" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divDrawingsandGeneralArrangement">
+                                                            <div class="file-title">
+                                                                Drawings and General Arrangement
+                                                                <span class="env2docsMan" id="ManDrawingsandGeneralArrangement">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope24, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope34" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divDeliverySchedule">
+                                                            <div class="file-title">
+                                                                Delivery Schedule
+                                                                <span class="env2docsMan" id="ManDeliverySchedule">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope25, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope35" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divDeviationsSheet">
+                                                            <div class="file-title">
+                                                                Deviations Sheet
+                                                                <span class="env2docsMan" id="ManDeviationsSheet">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope26, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope26" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divDulyStampedandSignTenderdocuments">
+                                                            <div class="file-title">
+                                                                Duly Stamped and Sign Tender documents
+                                                                <span class="env2docsMan" id="ManDulyStampedandSignTenderdocuments">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope27, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope37" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp env3docs" id="divOtherDocuments">
+                                                            <div class="file-title">
+                                                                Other Documents
+                                                                <span class="env2docsMan" id="ManOtherDocuments">*</span>
+                                                            </div>
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope28, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope38" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <h6>Envelope- III</h6>
+                                                <div class="row form-with-col-6">
+
+
+
+                                                    <div class="col s12 m6">
+
+                                                        <div class="file-upload-wrp">
+
+                                                            <div class="file-field">
+
+                                                                <div class="btn000 file-select">
+
+                                                                    <label class="file-label" for="empList">
+                                                                        <i class="i-attach i-20 with-label">Upload Scanned Copy / Drag & Drop</i>
+                                                                    </label>
+                                                                    @Html.TextBoxFor(x => x.Envelope3, new { @type = "file", @onchange = "Validate(this)", @accept = ".jpg,.jpeg,.png,.dwg,.doc,.docx,.xls,.xlsx", @class = "input-file", @autocomplete = "off", id = "Envelope3" })
+
+
+                                                                </div>
+                                                                <div class="file-path-wrapper select-message">
+                                                                    <i class="i-attach i-20"></i>
+                                                                    <input class="file-path validate" type="text">
+                                                                    <i class="remove-upload i-cross-c i-24"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+
+                                                </div>
+
+                                            </div>
+                                            <div class="row">
+                                                <div class="col s12">
+                                                    <div class="btn-group">
+                                                        <input type="submit" class="btn btn-primary" name="uploadDoc" value="Submit" id="btnuploadDoc" />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stepper-content-body hide" id="content3">
+                        <div class="new-connection-form">
+                            <div class="step-3-form section-wrapper">
+                                <div class="card outlined card-with-form">
+                                    <div class="card-header">
+                                        <h6>Enter Detail</h6>
+
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="steps-content">
+                                            <ul>
+                                                <li>
+                                                    <h5>Note for Bidder/Customer</h5>
+                                                    <ul>
+                                                        <li>File format supported are Doc, Xlsx, DWG & Jpeg only. Win Zip, Win Rar or 7Zip are not allowed.</li>
+                                                        <li>File name should not contain any Special Character. Only Space, Dash, Hyphen, Underscore is allowed.</li>
+                                                        <li>Max file upload size is 2MB per file.</li>
+                                                        <li>Files should be uploaded in sequence of Envelope I, II & III.</li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="form-field">
+
+                                            @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "1"))
+                                            {
+                                                var envelope1data = Model.userUpladdocument.Where(x => x.EnvelopeType == "1").ToList();
+                                                <h6>Envelope-I</h6>
+                                                <div class="row">
+                                                    @foreach (var item in envelope1data)
+                                                    {
+                                                        <div class="col s12 m6">
+                                                            <div class="file-upload-wrp show">
+                                                                <div class="file-field">
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        @{
+                                                                            var myFilePath = item.DocumentPath;
+                                                                            string ext = Path.GetExtension(myFilePath);
+                                                                        }
+                                                                        @if (ext.ToLower() == ".pdf")
+                                                                        {
+                                                                            <a class="file-path" href="@item.DocumentPath" target="_blank">@item.FileName</a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a class="file-path" href="@item.DocumentPath" download="">@item.FileName</a>
+                                                                        }
+                                                                        <a class="float-right" href="@Url.Action("TenderDetailDocumentDelete","ElectricityNew")?id=@item.Id"><i class="remove-upload i-cross-c i-24"></i></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <h6>Envelope-I</h6>
+                                                <div class="row">
+                                                    <div class="col s12 m6">
+                                                        <label class="control-label pb-3">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                                    </div>
+                                                </div>
+
+                                            }
+
+                                            @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "2"))
+                                            {
+
+                                                var envelope2data = Model.userUpladdocument.Where(x => x.EnvelopeType == "2").ToList();
+                                                var business = "";
+                                                var category = "";
+                                                switch (Model.Business)
+                                                {
+                                                    case "1":
+                                                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 1", "Generation");
+                                                        break;
+                                                    case "2":
+                                                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 2", "Transmission");
+                                                        break;
+                                                    case "3":
+                                                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business 3", "Distribution");
+                                                        break;
+                                                    default:
+                                                        business = @Html.Sitecore().Dictionary("Electricity/Tender/Business", "");
+                                                        break;
+                                                }
+                                                switch (Model.Category)
+                                                {
+                                                    case "1":
+                                                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category 1", "Supply");
+                                                        break;
+                                                    case "2":
+                                                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category 2", "Services");
+                                                        break;
+                                                    case "3":
+                                                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category 3", "Supply & Services");
+                                                        break;
+                                                    default:
+                                                        category = @Html.Sitecore().Dictionary("Electricity/Tender/category", "");
+                                                        break;
+                                                }
+                                                <h6>Envelope-II</h6>
+
+                                                <div class="row">
+                                                    <div class="col s12 m6">
+                                                        <div class="file-title">Business : @business</div>
+                                                    </div>
+                                                    <div class="col s12 m6">
+                                                        <div class="file-title">Category : @category</div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    @foreach (var item in envelope2data)
+                                                    {
+                                                        var myFilePath = item.DocumentPath;
+                                                        string ext = Path.GetExtension(myFilePath);
+                                                        string Doctype = "";
+                                                        switch (item.DocType)
+                                                        {
+                                                            case "1":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype1", "Qualification Requirement Documents");
+                                                                break;
+                                                            case "2":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype2", "Technical Specification / Scope of Work ");
+                                                                break;
+                                                            case "3":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype3", "Type Test Reports");
+                                                                break;
+                                                            case "4":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype4", "Drawings and General Arrangement");
+                                                                break;
+                                                            case "5":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype5", "Delivery Schedule");
+                                                                break;
+                                                            case "6":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype6", "Deviations Sheet (If any)");
+                                                                break;
+                                                            case "7":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype7", "Duly Stamped and Sign Tender documents");
+                                                                break;
+                                                            case "8":
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype8", "Other Documents");
+                                                                break;
+                                                            default:
+                                                                Doctype = @Html.Sitecore().Dictionary("Electricity/Tender/Env3 Doctype", "");
+                                                                break;
+                                                        }
+
+                                                        if (ext.ToLower() == ".pdf")
+                                                        {
+                                                            <div class="col s12 m6">
+                                                                <div class="file-title">
+                                                                    @Doctype
+                                                                </div>
+                                                                <div class="file-upload-wrp show">
+                                                                    <div class="file-field">
+                                                                        <div class="file-path-wrapper select-message">
+                                                                            <i class="i-attach i-20"></i>
+                                                                            <a class="file-path" href="@item.DocumentPath" target="_blank" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                                            <a class="btn-download__remove" href="@Url.Action("TenderDetailDocumentDelete","ElectricityNew")?id=@item.Id"><i class="remove-upload i-cross-c i-24"></i></a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col s12 m6">
+                                                                <div class="file-title">
+                                                                    @Doctype
+                                                                </div>
+                                                                <div class="file-upload-wrp show">
+                                                                    <div class="file-field">
+                                                                        <div class="file-path-wrapper select-message">
+                                                                            <i class="i-attach i-20"></i>
+                                                                            <a class="file-path" href="@item.DocumentPath" download="" class="txt-orange showless"><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                                            <a class="btn-download__remove" href="@Url.Action("TenderDetailDocumentDelete","ElectricityNew")?id=@item.Id"><i class="remove-upload i-cross-c i-24"></i></a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        }
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <h6>Envelope-II</h6>
+                                                <div class="row">
+                                                    <div class="col s12 m6">
+                                                        <label class="control-label pb-3">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                            @if (Model.userUpladdocument != null && Model.userUpladdocument.Count > 0 && Model.userUpladdocument.Any(x => x.EnvelopeType == "3"))
+                                            {
+
+                                                var envelope3data = Model.userUpladdocument.Where(x => x.EnvelopeType == "3").OrderBy(u => u.DocType).ToList();
+
+                                                <h6>Envelope-III</h6>
+
+                                                <div class="row">
+                                                    @foreach (var item in envelope3data)
+                                                    {
+                                                        <div class="col s12 m6">
+                                                            <div class="file-upload-wrp show">
+                                                                <div class="file-field">
+                                                                    <div class="file-path-wrapper select-message">
+                                                                        <i class="i-attach i-20"></i>
+                                                                        @{
+                                                                            var myFilePath3 = item.DocumentPath;
+                                                                            string ext3 = Path.GetExtension(myFilePath3);
+                                                                        }
+                                                                        @if (ext3.ToLower() == ".pdf")
+                                                                        {
+                                                                            <a class="file-path" href="@item.DocumentPath" target="_blank" class="txt-orange "><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <a class="file-path" href="@item.DocumentPath" download="" class="txt-orange "><span class="fa fa-download mr-2"></span>@item.FileName</a>
+                                                                        }
+                                                                        <a class="float-right" href="@Url.Action("TenderDetailDocumentDelete","ElectricityNew")?id=@item.Id"><i class="remove-upload i-cross-c i-24"></i></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <h6>Envelope-III</h6>
+                                                <div class="row">
+                                                    <div class="col s12 m6">
+                                                        <label class="control-label pb-3">@Html.Sitecore().Dictionary("Electricity/Tender/Not Uploaded Text", "Not Uploaded")</label>
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (Model.IsTenderFeePaid)
+                                            {
+                                                <h6>Tender Fee and EMD documents are uploaded in section 1</h6>
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+        </div>
+    </div>
+</div>
+<!-- /Section -->
+
+
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+
+</div>
+<script src="/scripts/electricitynew/TenderRevamp.js"></script>
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>

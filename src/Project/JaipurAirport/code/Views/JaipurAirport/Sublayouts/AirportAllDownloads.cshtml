@@ -1,0 +1,65 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<section class="pb-5 bg-gray">
+    <div class="container" style="padding-right: 0px; padding-left: 0px;">
+        <div id="accordion" class="accordion investor-faq">
+            @foreach (Item allDownloadItem in parent.GetChildren())
+            {
+                <div class="card mb-0">
+                    <div class="card-header collapsed" data-toggle="collapse" href="#@allDownloadItem.Name">
+                        <a class="card-title">
+                            @allDownloadItem.DisplayName
+                        </a>
+                    </div>
+                    <div id="@allDownloadItem.Name" class="card-body collapse" data-parent="#accordion">
+                        <div class="p-4">
+                            @foreach (Item child in allDownloadItem.GetChildren())
+                            {
+                                LinkField URL = child.Fields["Link"];
+                                if (URL.TargetItem != null)
+                                {
+                                    var item = URL.TargetItem;
+
+                                    <div class="container mt-4">
+                                        <h2 class="heading pl-4 mb-4">@child.Name</h2>
+                                        <div class="row">
+                                            @foreach (Item docs in item.GetChildren())
+                                            {
+                                                var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+                                                var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+
+                                                <div class="col-md-4 mb-4">
+                                                    <a href="@url" target="_blank">
+                                                        <div class="tariff-block bg-white border p-3">
+                                                            <p>@docs.DisplayName</p>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

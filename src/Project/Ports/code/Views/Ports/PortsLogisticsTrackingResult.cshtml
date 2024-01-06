@@ -1,0 +1,98 @@
+﻿@using Sitecore.Data.Items
+@using Sitecore.Foundation.Dictionary.Repositories
+@model Sitecore.Ports.Website.Models.PortsLogisticsResult
+@if (Model != null)
+{
+    <div class="caption pt-lg-5 pt-4" style="border-top: 1px solid #ccc !important;" id="tracking-results">
+    </div>
+	<div class="table-responsive pb-5">
+    <table class="table table-bordered border-primary bg-white custom-table-striped" style="min-width:1100px;">
+        <thead>
+            <tr style=" background-color: #007ea8; color:#ffff;">
+		
+		<th scope="col" style="vertical-align: top;border: 1px solid #bbb;">Container No.</th>
+		<th scope="col" style="vertical-align: top;border: 1px solid #bbb;">Origin</th>
+		<th scope="col" style="vertical-align: top;border: 1px solid #bbb;">Destination</th>
+		<th scope="col" style="vertical-align: top;border: 1px solid #bbb;">Current Status</th>
+                <th scope="col" style="vertical-align: top;border: 1px solid #bbb;">Last Updated</th>
+		<th scope="col" style="vertical-align: top;border: 1px solid #bbb;">Current Location</th>
+		@*<th scope="col" style="vertical-align: top;border: 1px solid #bbb;">City</th>*@
+
+		<th scope="col" style="vertical-align: top;border: 1px solid #bbb;">Train/Vehicle No.</th>
+                
+             
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.LogsticsResultList != null && Model.LogsticsResultList.Count>0)
+            {
+                foreach (var item in Model.LogsticsResultList)
+                {
+                    <tr>
+                        @if (item != null)
+                        {
+                            if (!string.IsNullOrEmpty(item.cont_no))
+                            {
+				<td>@item.cont_no</td>                               
+ 				
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+                            <td>@item.origin</td>
+			    <td>@item.destination</td>
+			    <td>@item.current_status.Replace("Road - Intransit","In Transit - Road").Replace("Rail - Intransit","In Transit - Rail")</td>
+			    if (!string.IsNullOrEmpty(item.last_updated_time))
+                            {
+                                <td>@item.last_updated_time</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+                            
+                            if (!string.IsNullOrEmpty(item.current_location))
+                            {
+                                <td>@item.current_location</td>
+                            }
+							else
+                            {
+                                <td>-</td>
+                            }
+							@*if (!string.IsNullOrEmpty(item.city))
+                            {
+                                <td>@item.city</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }*@
+			
+							if (!string.IsNullOrEmpty(item.train_no_vehicle_no))
+                            {
+                                <td>@item.train_no_vehicle_no</td>
+                            }
+                            else
+                            {
+                                <td>-</td>
+                            }
+                        }
+						
+                    </tr>
+                }
+            }
+            else
+            {
+                @DictionaryPhraseRepository.Current.Get("/PortsLogisticContainerTracking/NoRecodrdFound", "No Record Found ...");
+            }
+        </tbody>
+    </table>
+	</div>
+}
+else
+{
+    <div class="caption mb-3 ">
+        <h3 class="border-l txt-lg mb-3">@ViewBag.ErrorMessage </h3><br />
+    </div>
+}

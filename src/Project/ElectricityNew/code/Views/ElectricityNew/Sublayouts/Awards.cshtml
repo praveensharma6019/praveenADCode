@@ -1,0 +1,100 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+
+@if (datasource != null)
+{
+    <div class="row">
+        <div class="col s12 section-container">
+            <header class="section-header-main">
+                <h2>Awards</h2>
+            </header>
+            <div class="discover">
+                <ul class="tabs">
+                    <li class="tab">
+                        <a href="#all" class="active"><h4>All</h4></a>
+                    </li>
+                    @foreach (Sitecore.Data.Items.Item itemheader in parent.GetChildren())
+                    {
+                        <li class="tab">
+                            <a href="#@itemheader.Name"><h4>@itemheader.Name</h4></a>
+                        </li>
+                    }
+                </ul>
+                <div id="all">
+                    <div class="section-wrapper">
+                        <div class="awards">
+                            <ul>
+                                @foreach (Sitecore.Data.Items.Item itemAll in parent.GetChildren())
+                                {
+                                    if (itemAll.HasChildren)
+                                    {
+                                        foreach (Sitecore.Data.Items.Item innerItem in itemAll.GetChildren())
+                                        {
+                                            Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)innerItem.Fields["Image"]);
+                                            string imageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+                                            <li>
+                                                <figure> <a class="modal-trigger" href="#@innerItem.ID"><img class="banner-image" src="@imageUrl"></a></figure>
+                                                <aside>
+                                                    <div id="@innerItem.ID" class="modal modal-alert modal-toast-awards">
+                                                        <header class="modal-header">
+                                                            <a href="javascript:void(0)" class="modal-close">
+                                                                <i class="i-cross hide-toast"></i>
+                                                            </a>
+                                                        </header>
+                                                        <img class="banner-image" src="@imageUrl">
+                                                    </div>
+                                                    <h3>@Html.Raw(innerItem["Title"])</h3>
+                                                    <p>@Html.Raw(innerItem["Body"])</p>
+                                                </aside>
+                                            </li>
+                                        }
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                @foreach (Sitecore.Data.Items.Item itemYear in parent.GetChildren())
+                {
+                    <div id="@itemYear.Name">
+                        <div class="section-wrapper">
+                            <div class="awards">
+                                <ul>
+                                    @if (itemYear.HasChildren)
+                                    {
+                                        foreach (Sitecore.Data.Items.Item innerItem in itemYear.GetChildren())
+                                        {
+                                            Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)innerItem.Fields["Image"]);
+                                            string imageUrl = ImageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem) : string.Empty;
+                                            <li>
+                                                <figure> <a class="modal-trigger" href="#@innerItem.ID"><img class="banner-image" src="@imageUrl"></a></figure>
+                                                <aside>
+                                                    <div id="@innerItem.ID" class="modal modal-alert modal-toast-awards">
+                                                        <header class="modal-header">
+                                                            <a href="javascript:void(0)" class="modal-close">
+                                                                <i class="i-cross hide-toast"></i>
+                                                            </a>
+                                                        </header>
+                                                        <img class="banner-image" src="@imageUrl">
+                                                    </div>
+                                                    <h3>@Html.Raw(innerItem["Title"])</h3>
+                                                    <p>@Html.Raw(innerItem["Body"])</p>
+                                                </aside>
+                                            </li>
+                                        }
+                                    }
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

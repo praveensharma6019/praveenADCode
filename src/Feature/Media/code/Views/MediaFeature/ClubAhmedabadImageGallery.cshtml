@@ -1,0 +1,88 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    //  var elements = MediaSelectorElementsRepository.GetMediaFolder(Model.Item);
+    int? carouselHeight = null;
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+
+
+}
+<section class="py-5 bg-white">
+    <div class="container">
+        <h2 class="sectionheading font-weight-bold txt-blue headingcenter">Image Gallery</h2>
+        <div class="row">
+
+            @foreach (var childelement in elements.Children.ToList())
+            {
+
+                if (childelement.Children.Count > 0)
+                {
+                    foreach (var subchild in childelement.Children.ToList())
+                    {
+                        <div class="col-sm-4">
+                            <div class="gallery-item my-3 txt-center">
+                                @{
+                                    //var style = "background-image: ";
+                                    var field = subchild.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                                    var style = subchild.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                                    var fixedHeight = Model.Rendering.IsFixedHeight();
+                                    if (fixedHeight && carouselHeight.HasValue)
+                                    {
+                                        style += "; height:" + carouselHeight + "px;";
+                                    }
+                                }
+                                <img src="@style" class="img-fluid" alt="" data-toggle="modal" data-target="#@subchild.DisplayName.ToString().Replace(" ", "")">
+                                <p class="txt-black">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, subchild)</p>
+                </div>
+                            </div>
+                    }
+                }
+            }
+
+        </div>
+    </div>
+</section>
+
+
+@foreach (var childelement in elements.Children.ToList())
+{
+    foreach (var subchild in childelement.Children.ToList())
+    {
+       
+        <!-- The Modal -->
+        <div class="modal video media-video" id="@subchild.DisplayName.ToString().Replace(" ", "")">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div class="owl-carousel-block">
+                            <div class="js-owl-carousel-synced-slides owl-carousel owl-theme">
+
+                                @foreach (var subsubchild in subchild.Children.ToList())
+                                {
+
+                                <div class="item">
+                                    @Html.Sitecore().ImageField(Templates.HasMediaImage.Fields.Image, subsubchild, 0, 0, "img-fluid")
+                                </div>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 1st Modal -->
+    }
+}

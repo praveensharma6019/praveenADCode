@@ -1,0 +1,86 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item element = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+    var j = 0;
+
+}
+<section class="py-5 bg-gray">
+    <div class="container">
+        @if (element != null)
+        {
+            if (element.HasChildren)
+            {
+                <div class="row">
+                    <div class="col-md-3 ml-auto">
+                        <div class="form-group">
+
+                            <select class="form-control btn-gradient" id="btn-mrelease">
+                                <option value="all">ALL</option>
+                                @foreach (Item item in element.GetChildren())
+                                 
+                                {
+                                    <option value="m-@i">@Html.Sitecore().Field("Title", item)</option>
+                                    i++;
+
+                                }
+
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="media-r-parent">
+                    @foreach (Item item in element.GetChildren())
+                    {
+                        <div id="m-@j" class="row media-r m-@j all">
+                            <div class="col-md-12 mt-3">
+                                <div class="media-date">
+                                    <p>@Html.Sitecore().Field("Title", item)</p>
+                                </div>
+                            </div>
+                            <div class="row w-100">
+                                @foreach (Item child in item.GetChildren())
+                                {
+                                    var url = Sitecore.Links.LinkManager.GetItemUrl(child);
+
+                                   
+                                <div class="col-lg-4 my-3">
+                                    
+                                    <div class="sub-section">
+                                        <a href="@url">
+                                            <div class="bg-images">
+                                                @Html.Sitecore().Field("Image", child)
+                                            </div>
+                                            <div class="sub-section__content">
+                                                <div>
+                                                    <p>@Html.Sitecore().Field("Title", child)</p>
+                                                    <p><span>@Html.Sitecore().Field("Date", child, new { format = "MMM dd yyyy" })</span></p>
+                                                </div>
+                                            </div>
+                                        </a>  
+                                    </div>
+                                   
+                                </div>
+                                    
+
+                                }
+                            </div>
+                        </div> 
+                            j++;
+                      }
+                </div>
+               
+            }
+
+        }
+
+    </div>
+</section>

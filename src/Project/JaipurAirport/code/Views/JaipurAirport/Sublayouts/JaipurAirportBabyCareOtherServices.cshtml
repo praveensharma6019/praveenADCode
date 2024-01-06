@@ -1,0 +1,98 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var tab = parent.GetChildren().ToList();
+    string pagename = Path.GetFileName(Request.Url.AbsolutePath);
+
+    var ExtraItems = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "ExtraItems").FirstOrDefault().Value;
+    var elements2 = Sitecore.Context.Database.GetItem(ExtraItems);
+    var items2 = elements2.GetChildren().OrderByDescending(x => x[Sitecore.FieldIDs.Updated]).ToList(); ;
+    var i = 0;
+    //var list = tab.Concat(items2);
+    var list =items2;
+	 var Dynamicclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Dynamicclass1").FirstOrDefault().Value;
+	 
+   
+}
+	<style>
+	.nav-tabs--main{margin-bottom: 1.5rem; background: #f1f1f1; padding: 1rem 2rem;}
+	.nav.nav-tabs--main .nav-item{width: auto;}
+	.nav.nav-tabs--main .nav-item a.nav-link{background: transparent !important; color: #545454 !important;position:relative;text-transform: capitalize;}
+	.nav.nav-tabs--main .nav-item a.nav-link:after{content:"";display: block; width: 100%; height: 3px; background: transparent;}
+	.nav.nav-tabs--main .nav-item a.nav-link.active:after{content:"";display: block; width: 100%; height: 3px; background: #fcb15a;}
+	.nav.nav-tabs--main .nav-item a.nav-link:hover, .nav.nav-tabs--main .nav-item a.nav-link.active{color: #179e96 !important;}
+	.nav-tabs--content{padding: 0rem 2rem !important;}
+	
+	
+	.airport-section__carousel .otherservices_carousel .owl-nav button{background: transparent !important; box-shadow: 0px 0px 0px 0px #000 !important;}
+	.airport-section__carousel .otherservices_carousel .owl-nav button.owl-prev{margin-left: -45px;}
+	.airport-section__carousel .otherservices_carousel .owl-nav button i{font-size: 3rem;}
+	.airport-section__carousel .otherservices_carousel .owl-nav button.owl-next{margin-right: -45px;}
+	</style>
+<section class="bg-cream section-bottom section-top content-header filters__section">
+    <div class="container-fluid filters-content mt-0">
+	<h2>Other Services</h2>
+	<div class="airport-section__carousel">
+    <div class="owl-carousel otherservices_carousel">
+	  @foreach (var child in list.ToList())
+            {
+                if (!child.DisplayName.Contains(pagename))
+                {
+					if (@child["Title"]!="")
+					{
+					
+                    string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(child);
+		<div class="item">
+			<div class="filter_inner">
+			<a href="@linkUrl">
+							@Html.Sitecore().ImageField("Image", child, 0, 0, "img-fluid w-100")
+				<div>
+
+					<p> @Html.Sitecore().Field("Title", child)</p>
+					<span>@Html.Sitecore().Field("Summary", child)</span>
+
+				</div>
+			</a>
+			</div>
+		</div>
+			}
+                }
+            }
+	</div>
+	</div>
+    </div>
+</section>
+
+<script>
+$('.otherservices_carousel').owlCarousel({
+	loop: true,
+	margin: 30,
+	responsiveClass: true,
+	nav:true,
+	dots:false,
+	autoplay:false,
+	autoplaytimeout:1500,
+	slideSpeed: 1500,
+	navText: ["<i class='fa fa-angle-left'></i>","<i class='fa fa-angle-right'></i>"],
+	autoplayHoverPause: true,
+	responsive: {
+	  0: {
+		items: 1
+	  },
+	  600: {
+		items: 2
+	  },
+	  1000: {
+		items: 4,
+		margin:40
+	  }
+	}
+  });
+</script>
+

@@ -1,0 +1,94 @@
+﻿@model List<Sitecore.Electricity.Website.Model.ITSRFormListing>
+@using Sitecore.Electricity.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var ITSRBidderFormSubmissionListingItem = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRBidderFormSubmissionListing);
+    var CreateITSRFormItem = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRCreateBidderForm);
+    var UpdateITSRFormItem = Sitecore.Context.Database.GetItem(Templates.ITSR.ITSRUpdateBidderForm);
+    var ManageUsersFormItem = Sitecore.Context.Database.GetItem(Templates.ITSR.ManageUsersFormItem);
+    var biddersubmissionlistingURL = ITSRBidderFormSubmissionListingItem.Url();
+}
+<div class="pageContent">
+    <div class="container">
+
+        <div class="col-12 p-0 pb-3">
+            <div class="float-right">
+                @using (Html.BeginForm("Logout", "ITSRForm", FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/ITSR/Logout", "Logout")</button>
+                }
+            </div>
+            <div class="txt-right">
+                @if (!string.IsNullOrEmpty(ViewBag.UserRole) && ViewBag.UserRole == "SuperAdmin")
+                {
+                    <a href="@ManageUsersFormItem.Url()" class="btn btn-primary mr-2">@Html.Sitecore().Dictionary("Electricity/ITSR/Manage Users", "Manage Users")</a>
+                }
+                <a href="@CreateITSRFormItem.Url()" class="btn btn-primary mr-2">@Html.Sitecore().Dictionary("Electricity/ITSR/Create Form", "Create Form")</a>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+
+        <div class="col-12 p-0 pb-3">
+            <h2 class="txt-orange">@Html.Sitecore().Dictionary("Electricity/ITSR/Form Listing", "List of existing forms")</h2>
+        </div>
+        @*@if (!string.IsNullOrEmpty(ViewBag.UserRole) && ViewBag.UserRole == "SuperAdmin")
+            {
+                <div class="col-12 p-0 pb-3">
+                    <div class="col-sm-6 p-0">
+                        <div class="txt-right">
+                            <a href="@CreateITSRFormItem.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/ITSR/Create ITSR", "Create ITSR")</a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            }*@
+        <!-- ITSRs -->
+
+        <div class="table-responsive tableOuter listing-table">
+            <table class="table table-borderless table-white table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">TenderNo</th>
+                        <th scope="col">StartDate</th>
+                        <th scope="col">EndDate</th>
+                        <th scope="col">CreatedDate</th>
+                        <th scope="col">CreatedBy</th>
+                        <th scope="col" style="width:10%;">View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var form in Model)
+                    {
+                        <tr>
+                            <td>@form.Title</td>
+                            <td>@form.TenderNo</td>
+                            <td>@form.StartDate.ToString("dd/MM/yyyy")</td>
+                            <td>@form.EndDate.ToString("dd/MM/yyyy")</td>
+                            <td>@form.CreatedDate.ToString("dd/MM/yyyy")</td>
+                            <td>@form.CreatedBy</td>
+                            <td>
+                                <a href="@biddersubmissionlistingURL?id=@form.FormId" class="tender-btn txt-underline" title="View User">@Html.Sitecore().Dictionary("Electricity/ITSR/ITSR View Text", "View Bidders")</a><br />
+                                @if (!string.IsNullOrEmpty(ViewBag.UserRole) && ViewBag.UserRole == "SuperAdmin")
+                                {
+                                    <a href="@UpdateITSRFormItem.Url()?id=@form.FormId" class="tender-btn txt-underline" title="Update Form">@Html.Sitecore().Dictionary("Electricity/ITSR/ITSR Update Text", "Update")</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- /Tenders -->
+</div>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.selectedTender.submit();
+    }
+</script>  

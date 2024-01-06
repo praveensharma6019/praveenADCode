@@ -1,0 +1,84 @@
+﻿@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    string activeLink;
+
+}
+
+<section class="tab-section services-content-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3 class="content-title">@Html.Sitecore().Field("Text", models)</h3>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    @if (models.GetChildren() != null)
+                    {
+                        var tab = 1;
+                        foreach (Item item in models.GetChildren())
+                        {
+                            if (item != null)
+                            {
+                                if (item.Name != models.Children.ToArray()[0].Name)
+                                {
+                                    activeLink = "nav-link";
+                                }
+                                else
+                                {
+                                    activeLink = "nav-link active";
+                                }
+                                <a class="@activeLink" id="label-@tab" data-toggle="pill" href="#control-@tab" role="tab" aria-controls="control-@tab" aria-selected="true">@Html.Sitecore().Field("MediaTitle",item)</a>
+                            }
+                            tab++;
+                        }
+                    }
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-8">
+                <div class="tab-content" id="v-pills-tabContent">
+                    @if (models.GetChildren() != null)
+                    {
+                        var tab = 1;
+                        foreach (Item item in models.GetChildren())
+                        {
+                            if (item != null)
+                            {
+                                if (item.Name != models.Children.ToArray()[0].Name)
+                                {
+                                    activeLink = "tab-pane fade";
+                                }
+                                else
+                                {
+                                    activeLink = "tab-pane fade show active";
+                                }
+                                <div class="@activeLink" id="control-@tab" role="tabpanel" aria-labelledby="label-@tab">
+                                    <div class="row">
+                                        <div class="col-sm-12 col-md-6">
+                                            <div class="tab-details slideInLeft" data-wow-duration="2s">
+                                                <h3 class="content-title">@Html.Sitecore().Field("MediaTitle", item)</h3>
+                                                <p>@Html.Sitecore().Field("MediaDescription", item)</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-md-6">
+                                            <div class="tab-img zoomIn animated" data-wow-duration="2s">
+                                                @Html.Sitecore().ImageField("MediaImage",item)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                tab++;
+                            }
+                        }
+                    }
+                                        
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

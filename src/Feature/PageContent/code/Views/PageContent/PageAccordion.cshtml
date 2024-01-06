@@ -1,0 +1,63 @@
+﻿@using Sitecore.Feature.PageContent
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@model RenderingModel
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    //var containerId = Regex.Replace(@Html.Sitecore().Field("Heading").ToString().ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+    //var energycalculator = DictionaryPhraseRepository.Current.Get("/More Services For You/Energy Calculator/Energy Calculator", "Energy Calculator");
+}
+
+<div class="col s12 l8 offset-l1">
+
+    @if (contextItem != null)
+    {
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <div class="message warning warning-info" style="font-size:12px;">
+            <aside>
+                <i class="i-info" style="line-height: 18px; padding:0; margin-bottom: 0px;"></i>
+            </aside>
+            <p>
+                @Html.Raw(contextItem["Warning"])
+            </p>
+        </div>
+        var divID = "";
+
+        <div class="section-container custom_accrdion quick-access">
+            <div class="accordion">
+                <ul class="collapsible collapsible-accordion help-support">
+                    @foreach (var child in parent.Children.InnerChildren)
+                    {
+                        divID = Regex.Replace(@Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                        <li>
+                            <div class="collapsible-header">
+                                <h2>
+                                    @Html.Sitecore().Field("Title", child)
+                                </h2>
+                            </div>
+                            <div class="collapsible-body" id="customerCareControl">
+                                <!-- <div class="content-format"> -->
+                                <div class="text_format" id="@divID">
+                                    @Html.Sitecore().Field("Body", child)
+
+
+
+                                    @*@Html.Sitecore().Placeholder(@Html.Sitecore().Field("Title", child).ToString().Replace(" ", ""))*@
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="steps-content">
+            <p>@Html.Raw(contextItem["Summary"])</p>
+        </div>
+    }
+</div>
+

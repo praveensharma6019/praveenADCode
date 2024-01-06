@@ -1,0 +1,211 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.SessionHelper
+@model Sitecore.Feature.Accounts.Models.PayVDS
+
+
+<div class="col s12 l8 offset-l1">
+    <header class="section-header">
+        <h1>@Sitecore.Context.Item.Fields["Title"]</h1>
+        <p>
+            @Sitecore.Context.Item.Fields["Summary"]
+        </p>
+    </header>
+
+    <div class="section-container">
+        @*<div class="check-app-status section-wrapper">
+                <button class="waves-effect waves-light btn btn-000 outlined full"> @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Check Account Balance", "Check Account Balance") </button>
+            </div>*@
+
+
+        <div class="section-wrapper custom_accrdion rounded card-with-form">
+            <ul class="collapsible expandable z-depth-0">
+                @*<li class="">
+                        <div class="collapsible-header center Balance-header" tabindex="0">
+                            <a href="#">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Check Account Balance", "Check Account Balance")</a>
+                        </div>
+                        <div class="collapsible-body checkBalanceBody" style="">
+
+                            <div class="card brand-gradient outlined section-inner-wrapper card-with-form">
+                                @Html.Sitecore().Placeholder("switch-account-content")
+                                <div class="bill-detail-header">
+                                    <div class="bill-detail-content">
+                                        <h4>₹ @Model.PaymentAmount</h4>
+                                        <span>@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/CurrentVDSBalance", "CurrentVDSBalance")</span>
+
+                                    </div>
+                                    <div class="bill-detail-cta">
+                                        <button onclick="AddMoneyVDS()" class="waves-effect waves-light btn btn-continue">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Add Money", "Add Money")</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>*@
+
+                <li class="active">
+                    @*<div class="collapsible-header center" tabindex="0">
+                            <a href="#">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Add Money", "Add Money")</a>
+                        </div>*@
+                    <div class="collapsible-body AddMoneyBody" style="">
+
+                        <h2 class="AddMoneyHeading"> @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Add Money", "Add Money")</h2>
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmPaymentVDS", @class = "form-signin" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true)
+                            <div class="card brand-gradient outlined border-none-mobile section-inner-wrapper AddMoneyBody">
+
+
+                                @Html.HiddenFor(x => x.PaymentMode, new { id = "", Value = @Model.PaymentMode })
+
+                                @Html.HiddenFor(x => x.AverageVDSAmount, new { id = "", Value = @Model.AverageVDSAmount })
+                                @Html.HiddenFor(x => x.LoginName, new { id = "", Value = @Model.LoginName })
+                                @Html.HiddenFor(model => model.AccountNumber, new { id = "first_name2", Value = @Model.AccountNumber })
+                                @Html.HiddenFor(x => x.MobileNumber, new { id = "", Value = @Model.MobileNumber })
+                                @Html.HiddenFor(x => x.EmailAddress, new { id = "", Value = @Model.EmailAddress })
+
+                                <div class="billing-faqs content-area" style="margin-bottom: -0px;">
+                                    <ul class="text_format ">
+                                        <li>
+                                            @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Minimum Amount", "Minimum Amount") <span>₹</span><b><span id="spanAverageVDSAmount">@Html.DisplayFor(x => x.AverageVDSAmount, new { @class = "form-control-plaintext", @readonly = "" })</span></b>
+                                            @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Maximum Amount", "Maximum Amount") <span>₹</span><b><span id="spanMaxVDSAmount">@Html.DisplayFor(x => x.MaxVDSAmount, new { @class = "form-control-plaintext", @readonly = "" })</span></b>
+                                        </li>
+                                        <li>
+                                            @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Payable Maximum", "Payable Maximum")
+                                        </li>
+                                    </ul>
+                                </div>
+                                @if (UserSession.UserSessionContext != null)
+                                {
+                                    @Html.Sitecore().Placeholder("switch-account-content")
+                                }
+                                @if (ViewBag.VDSMessage != null)
+                                {
+                                    <div class="message warning warning-info hide-on-med-and-down">
+                                        <i class="i-info"></i> Important <br />
+                                        <label>
+                                            @ViewBag.VDSMessage
+                                        </label>
+                                    </div>
+                                }
+                                @if (Model.CurrentOutstanding > 0 && Model.CurrentOutstanding != 0)
+                                {
+                                    @Html.HiddenFor(model => model.AmountPayable, new { id = "currentBillAmount", Value = @Model.AmountPayable })
+                                    <div class="bill-detail-header">
+                                        <div class="bill-detail-content">
+                                            <h4>₹@Model.AmountPayable</h4>
+                                            <span>@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Current Outstanding Bill", "Current Outstanding Bill")</span>
+                                            <br />
+                                            @*<a href="">View Details</a>*@
+                                            @*<p>Next bill generation date: 28 Dec 2021</p>*@
+                                            @*Not Avaliable in Next bill generation Date*@
+                                        </div>
+                                        <div class="bill-detail-cta">
+                                            <button type="submit" class="waves-effect waves-light btn btn-continue PayOutstandingBill">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Pay Bill", "Pay Bill")</button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @Html.HiddenFor(model => model.CurrentOutstanding, new { id = "currentBillAmount", Value = @Model.CurrentOutstanding })
+                                    <div class="message-footer">
+                                        <div class="ownership-transfer">
+                                            <div class="input-field custom">
+                                                @Html.TextBoxFor(x => x.PaymentAmount, new { @class = "validate", required = "required" })
+                                                <label class="active" for="first_name2">₹ @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Add Amount", "Add Amount")</label>
+                                                <p id="errorPaymentAmount" class="help-block field-validation-error"></p>
+                                                @Html.ValidationMessageFor(x => x.AmountPayable, "", new { @class = "help-block field-validation-error" }, "p")
+                                                @*<input value="" id="first_name2" type="text" class="validate valid">*@
+                                                
+                                            </div>
+                                            <div class="input-field custom">
+                                                @Html.TextBoxFor(x => x.PANNo, new { @class = "validate", required = "required", @maxlength = "10", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                                <label class="active" for="PANNo"> @Html.Sitecore().Dictionary("/Accounts/My Account/VDS/PAN No", "PAN No")</label>
+                                                <p id="errorPANNo" class="help-block field-validation-error"></p>
+                                                @Html.ValidationMessageFor(x => x.PANNo, "", new { @class = "help-block field-validation-error" }, "p")
+                                                @Html.HiddenFor(x => x.PANNo, new { id = "PANNo", Value = @Model.PANNo })
+
+                                            </div>
+                                            <div class="input-field custom">
+
+                                                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "validate", required = "required", @type = "number", @maxlength = "10", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                                                <label class="active" for="MobileNumber"> @Html.Sitecore().Dictionary("/Accounts/View Pay Bill/MobileNo", "Mobile No")</label>
+                                                <p id="errorMobileNumber" class="help-block field-validation-error"></p>
+                                                @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block field-validation-error" }, "p")
+
+                                            </div>
+                                            <div class="input-field custom">
+                                                @Html.TextBoxFor(x => x.EmailAddress, new { @class = "validate", required = "required" })
+                                                <label class="active" for="EmailAddress"> @Html.Sitecore().Dictionary("/Accounts/View Pay Bill/Address", "Email Address")</label>
+                                                <p id="errorEmailAddress" class="help-block field-validation-error"></p>
+                                                @Html.ValidationMessageFor(x => x.EmailAddress, "", new { @class = "help-block field-validation-error" }, "p")
+                                            </div>
+                                              
+                                            <div class="form-field">
+                                                <div class="checkbox-field">
+                                                    <label>
+                                                        <input id="checkcheckbox" type="checkbox" class="filled-in" checked="checked">
+                                                        <span>I agree to the </span> <a class="modal-trigger" href="#TermandCondition">terms & conditions</a>
+                                                        @*<span>@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/TermsCondition", "I agree to the terms & conditions").</span>*@
+                                                    </label>
+                                                    <p class="help-text ca-checkcheckbox-help field-validation-error" style="display:none;">
+                                                        Please select terms and condition
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="h-right btn-group">
+                                                <button type="submit" class="btn btn-primary PayVDSBill">@Html.Sitecore().Dictionary("/Accounts/My Account/VDS/Pay Now", "Pay Now")</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+
+                            </div>
+                        }
+                    </div>
+                </li>
+
+
+            </ul>
+        </div>
+
+
+        @Html.Sitecore().Placeholder("divBenefitsContent")
+
+
+    </div>
+
+
+
+</div>
+<div id="TermandCondition" class="modal">
+    <div class="modal-header">
+        <h4>Terms & Conditions</h4>
+        <aside><i class="i-cross modal-close waves-effect"></i></aside>
+    </div>
+    <div class="modal-content">
+        <ul>
+            <li>The deposit will earn you interest &#64; 7% p.a. from the date of deposit on the diminishing balance after adjusting monthly bills. This will be done on the due date of every month's bill.</li>
+            <li>Customers shall earn a Prompt Payment Incentive of 1% on the energy bill(excluding taxes and duties). Under this scheme, deduction of monthly bill amount by VDS will take place 7 days from the date of the bill. This incentive will be reflected in the subsequent month's bill after successful VDS operations.</li>
+            <li>The accumulated interest as on 31st March, after deduction of Income Tax(TDS) if any, will be credited once a year to your energy account in your April month bill. In case the deposit amount is exhausted during the year, accumulated interest after deduction of Income Tax(TDS), if any, will be adjusted in the energy bill.</li>
+            <li>'# VDS' will appear on your electricity bill with VDS balance on monthly electricity bill paid by VDS. If your VDS balance is not enough to pay current month's bill '# No VDS' will appear on your bill, In such cases the bill is to be paid by another payment mode till the time VDS amount is renewed.</li>
+            <li>No refund of the deposit will be made unless the customer moves out from the supply area of Adani.</li>
+            <li>No interest is payable for the financial year, if the deposit is refunded to the customer during the year.</li>
+        </ul>
+        <div class="modal-message">
+            <h5>
+                Note:
+            </h5>
+            <p>As per RBI guidelines, starting 01 Aug 2009, customers paying by credit card would need to authenticate the transaction with an additional PIN which can be generated through the issuing bank's website or during the payment transaction. </p>
+        </div>
+
+    </div>
+</div>
+
+<script src="/scripts/ElectricityNew/CommanSitecoreSettings.js"></script>
+<script src="/Scripts/Accounts/PaymentVDS.js"></script>

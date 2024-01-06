@@ -1,0 +1,77 @@
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Mvc.Presentation
+@using System.Text.RegularExpressions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+
+    var journeytype = Sitecore.Context.Database.GetItem("{3B24F5EC-1E13-410F-A22F-20ACDFE1F7F7}");
+
+    var count = 0;
+    var bgcolor = "";
+}
+
+
+<section class="bg-cream section" id="first-section">
+    <div class="container-fluid">
+
+        <div class="box-filter">
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="form-group">
+                        <label for="">Choose Journey type</label>
+                        <select class="form-control filterByNew" id="terminalDDLNew">
+                            @foreach (var element in journeytype.GetChildren().ToList())
+                            {
+                                <option value='@Html.Sitecore().Field("Title", element)'>@Html.Sitecore().Field("Title", element)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters__section">
+            <div class="sddir-list data-inView">
+                <div id="FilterContainer">
+                    @foreach (var item in parent.GetChildren().ToList())
+                    {
+                        count++;
+                        var TernimalClass = item.Fields["Ternimal"].ToString();
+
+                        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                        var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                        if (count % 2 == 0)
+                        {
+                            bgcolor = "background-color:#fff";
+                        }
+                        else
+                        {
+                            bgcolor = "background-color:#f8f8f8";
+                        }
+
+                        var bothClass = @Html.Sitecore().Field("Class", item);
+
+                        <div class=" sddir-row cat-t2ia cat-t2ia-books @TernimalClass  @bothClass " style="@bgcolor">
+                            <div class="sddir-img"><img alt="Shop" src="@imgurl" style="width: 225px; height: 225px;"></div>
+                            <div class="sddir-txt">
+                                <p>@Html.Sitecore().Field("MediaTitle", item)</p>
+                                <p>@Html.Sitecore().Field("MediaDescription", item)</p>
+                            </div>
+                            <div class="col-md-2 loc">
+                                <p><strong>Location</strong></p>
+                                <p>@Html.Sitecore().Field("Location", item)</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="row" id="comming_Soon">
+                <div><h2>Coming Soon...</h2></div>
+            </div>
+        </div>
+    </div>
+</section>

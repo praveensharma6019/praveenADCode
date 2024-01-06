@@ -1,0 +1,75 @@
+@using Sitecore
+@using Sitecore.Mvc.Presentation
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	var Linkurl="#";
+
+	var logoUrl="";
+	var logoAlt="";
+	
+	var MediaUrl="";
+	var MediaAlt="";
+	
+	
+	Sitecore.Data.Fields.ImageField logoImage = ((Sitecore.Data.Fields.ImageField)model.Fields["ImageSource"]);
+    if (logoImage != null && logoImage.MediaItem != null)
+    {
+        logoUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(logoImage.MediaItem);
+        logoAlt = logoImage.Alt;
+    }
+		
+	Sitecore.Data.Fields.ImageField MediaImage = ((Sitecore.Data.Fields.ImageField)model.Fields["ThumbnailImageSource"]);
+		if (MediaImage != null && MediaImage.MediaItem != null)
+		{
+			MediaUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MediaImage.MediaItem);
+			MediaAlt = MediaImage.Alt;
+		}
+}
+<div class="header-wrapper">
+         <header >
+			<div class="header--top_bar">
+			   <div class="container-fluid">
+				  <div class="d-flex">
+					 <div class="contact_info">
+					 </div>
+				@Html.Sitecore().Placeholder("header-top")
+				  </div>
+			   </div>
+			</div>
+            <div class="container">
+               <div class="row">
+                  <div class="col-md-3 logo-section">
+                     <div class="mobile-trigger">
+                        <span></span><span></span><span></span>
+                     </div>
+                     <div class="logo-area">
+                        <a href="/">
+                        <img src="@logoUrl" alt="@logoAlt" class="logo wind-logo">
+                        <img src="@logoUrl" alt="@logoAlt" class="logo white-logo" style="display:none;">
+						 <!-- <img src="@MediaUrl" alt="@MediaAlt" class="logo white-logo" style="display:none;"> -->
+                        </a>
+                     </div>
+                  </div>
+                  <div class="col-md-9 header-nav">
+                     <div class="menu-section">
+                        <ul>
+				    @foreach(var child in model.GetChildren().ToList())
+				    {  
+						Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]); 
+						if(linkfield != null) 
+						{ 
+							Linkurl = linkfield.GetFriendlyUrl();
+						}
+	                   <li><a href="@Linkurl">@Html.Sitecore().Field("LinkText",child)</a></li>
+	                }
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            @Html.Sitecore().Placeholder("header-sidebar")
+            <div class="overLay"></div>
+         </header>
+      </div>
+	  

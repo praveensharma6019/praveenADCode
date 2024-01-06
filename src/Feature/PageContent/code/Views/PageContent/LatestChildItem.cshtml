@@ -1,0 +1,45 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Buckets.Managers
+@using Sitecore.ContentSearch
+@using Sitecore.ContentSearch.SearchTypes
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+
+@if (datasource != null)
+{
+    // var itemBuckets = Sitecore.Context.Database.GetItem(parent.ID);
+    var itemURL = Sitecore.Links.LinkManager.GetItemUrl(parent);
+    var Items = parent.Children;
+   
+    <div class="itemsListHeader">
+        <h4 class="txt-purple listHeading">@Html.Sitecore().Field("Title", parent)</h4>
+        <span class="listIcon">
+            @Html.Sitecore().Field("Image", parent)
+        </span>
+        <div class="clearfix"></div>
+    </div>
+    <ul class="itemsList">
+
+        @foreach (var child in Items.ToList().Take(4))
+        {
+            var currentItemURL = Sitecore.Links.LinkManager.GetItemUrl(child);
+            var title = @Html.Sitecore().Field("Title", child).ToString();
+            var linkToOpen = currentItemURL;
+            /*if (title.Count() > 55)
+                title = @Html.Sitecore().Field("Title", child).ToString().Substring(0, 55);
+            else
+                title = @Html.Sitecore().Field("Title", child).ToString();
+            if (itemURL.Contains("announcement"))
+                linkToOpen = "#";*/
+            <li class="listItem"><a href="@currentItemURL">@title</a></li>
+        }
+    </ul>
+    
+        <a href="@itemURL" class="txt-blue viewAllLink">+ View All</a>
+    
+}
+

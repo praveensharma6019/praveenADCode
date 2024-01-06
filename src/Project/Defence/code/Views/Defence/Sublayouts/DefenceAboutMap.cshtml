@@ -1,0 +1,82 @@
+﻿@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Mvc.Presentation
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+
+    var Location = Sitecore.Context.Database.GetItem("{BEEF1084-2FFE-47A7-8F74-5BEC0A1436CF}");
+
+    Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)elements.Fields["__Thumbnail"]);
+    var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+    MultilistField m1 = elements.Fields["select"];
+    var slideItems = m1.GetItems();
+    var imageitem = "";
+    var classcount = 0;
+
+}
+
+<section class="locations d-block position-relative">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="loc loc-1">
+                    <div class="section-title">
+                        <h1>@Html.Sitecore().Field("Title", elements)</h1>
+                    </div>
+                    <p class="py-5">
+                        @Html.Sitecore().Field("Description", elements)
+                    </p>
+                    <ul class="map-ul">
+                        @foreach (var m in slideItems)
+                        {
+                            Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)m.Fields["Image"]);
+                            <li>
+                                <span class="list-img">
+                                    @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                    {
+                                        var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                        <img src=@imgurl>
+                                    }
+                                    else
+                                    {
+                                        <img src=@thumbimg>
+                                    }
+                                    @Html.Sitecore().Field("Title", m)
+                                </span>
+                            </li>
+                        }
+                        </ul>
+                </div>
+            </div>
+            <div class="col-lg-6 map-bg">
+                @foreach (var element in Location.GetChildren().ToList())
+                {
+                    classcount++;
+                    var id = element.Fields["type"].Value;
+                    var item = Sitecore.Context.Database.GetItem(new Sitecore.Data.ID(id));
+                    var classname = "popup mark" + classcount;
+                    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                    <div class="@classname tooltip1">
+                        @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                        {
+                            var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                            <img src=@imgurl alt="">
+                        }
+                    <span class="tooltipText1 fb">@Html.Sitecore().Field("description", element)</span>
+
+                    </div>
+                    @*<div class="card popuptext" id="@Html.Sitecore().Field("Location", element)">
+                        <span>@Html.Sitecore().Field("description", element)</span>
+                    </div>*@
+                }
+
+
+
+            </div>
+        </div>
+    </div>
+</section>
+

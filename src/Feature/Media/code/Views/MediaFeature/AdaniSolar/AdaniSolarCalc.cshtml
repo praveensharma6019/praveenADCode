@@ -1,0 +1,541 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@using System.Globalization;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var dataItem = "{2C5263DE-8C73-417F-BD2C-B0C17CAB4DE4}";
+    var ddrItem = Sitecore.Context.Data.Database.GetItem(dataItem);
+
+    var contrycodeId = "{D82BFF95-088F-49E3-8871-5B3957AB4522}";
+    var contrycodeItem = Sitecore.Context.Data.Database.GetItem(contrycodeId);
+}
+
+<section class="py-5 solutions-tab">
+    <div class="container">
+        <h2 class="text-center sectionHeading mb-3">Solar Calculator</h2>
+        <div class="py-5">
+            <div class="solar-calculator">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form action="#" method="post" name="frm" id="frm" autocomplete="off">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <h3 class="section-heading">1. Choose any one of the following</h3>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 form-field">
+                                        <div class="form-group">
+                                            <div class="label_style">
+                                                <input type="hidden" name="checkbox_fill_one" value="0">
+                                                <input type="checkbox" name="checkbox_fill_one" class="chk" id="checkbox_fill_one" value="1" onclick="check_fill&#x28;this&#x29;&#x3B;">
+                                                Total Roof Top Area
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 form-field">
+                                        <div class="form-group">
+                                            <p class="text-center">(OR)</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 form-field">
+                                        <div class="form-group">
+                                            <div class="label_style">
+                                                <input type="hidden" name="checkbox_fill_two" value="0">
+                                                <input type="checkbox" name="checkbox_fill_two" class="chk" id="checkbox_fill_two" value="1" onclick="check_fill&#x28;this&#x29;&#x3B;">
+                                                Solar Panel Capacity you want to install<br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 form-field">
+                                        <div class="form-group">
+                                            <p class="text-center">(OR)</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 form-field">
+                                        <div class="form-group">
+                                            <div class="label_style">
+                                                <input type="hidden" name="checkbox_fill_three" value="0">
+                                                <input type="checkbox" name="checkbox_fill_three" class="chk" id="checkbox_fill_three" value="1" onclick="check_fill&#x28;this&#x29;&#x3B;">
+                                                Your budget<br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" name="roof_area_txt" id="roof_area_txt" class="form-control chk-grp chk-grp1" maxlength="10" value="">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text input-group-addon chk-grp chk-grp1">
+                                                        <input type="radio" name="radio_gp" class="radio_gp_id chk-grp1" value="2" checked="checked">
+                                                        Sq. m. &nbsp;
+                                                        <input type="radio" name="radio_gp" class="radio_gp_id chk-grp1" value="1">
+                                                        Sq. Feet
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row form-group txt_option txt_option1">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label id="percent_area" class="chk-grp chk-grp1">% of Shadow Free Open Space Available</label>
+                                            <div class="input-group">
+                                                <input type="text" name="roof_area_percentage_txt" id="roof_area_percentage_txt" class="form-control chk-grp chk-grp1" maxlength="3" value="">
+                                                <div class="input-group-append"> <span class="input-group-text">%</span> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <input type="text" id="area_range" value="" name="range" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row form-group txt_option txt_option2">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" name="capacity_txt" id="capacity_txt" class="form-control chk-grp chk-grp2" maxlength="11" size="11" onkeypress="return number&#x28;event&#x29;" value="">
+                                                <div class="input-group-append"> <span class="input-group-text">kW</span> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <input type="text" id="capacity_range" value="" name="range" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row form-group txt_option txt_option3">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" name="budget_txt" id="budget_txt" class="form-control chk-grp chk-grp3" maxlength="11" size="11" onkeypress="return number&#x28;event&#x29;" value="">
+                                                <div class="input-group-append"> <span class="input-group-text">Rs.</span> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <input type="text" id="budget_range" value="" name="range" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-md-12">
+                                            <hr>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <h3 class="section-heading">2. Select State and Customer Category</h3>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 col-sm-12 col-xs-12">
+                                        <div class="form-group">
+                                            <select name="state" required="required" id="state" class="form-control">
+                                                <option value="">Select State</option>
+                                                <option value="35">ANDAMAN and NICOBAR ISLANDS</option>
+                                                <option value="28">ANDHRA PRADESH</option>
+                                                <option value="12">ARUNACHAL PRADESH</option>
+                                                <option value="18">ASSAM</option>
+                                                <option value="10">BIHAR</option>
+                                                <!--<option value="4">CHANDIGARH</option>-->
+                                                <option value="22">CHHATTISGARH</option>
+                                                <option value="26">DADRA and NAGAR HAVELI</option>
+                                                <option value="25">DAMAN and DIU</option>
+                                                <option value="30">GOA</option>
+                                                <option value="24">GUJARAT</option>
+                                                <option value="6">HARYANA</option>
+                                                <!--<option value="2">HIMACHAL PRADESH</option>-->
+                                                <option value="1">JAMMU and KASHMIR</option>
+                                                <option value="20">JHARKHAND</option>
+                                                <option value="29">KARNATAKA</option>
+                                                <option value="32">KERALA</option>
+                                                <option value="31">LAKSHADWEEP</option>
+                                                <option value="23">MADHYA PRADESH</option>
+                                                <option value="27">MAHARASHTRA</option>
+                                                <option value="14">MANIPUR</option>
+                                                <option value="17">MEGHALAYA</option>
+                                                <option value="15">MIZORAM</option>
+                                                <option value="13">NAGALAND</option>
+                                                <option value="7">NCT OF DELHI</option>
+                                                <option value="21">ORISSA</option>
+                                                <option value="34">PUDUCHERRY</option>
+                                                <option value="3">PUNJAB</option>
+                                                <option value="8">RAJASTHAN</option>
+                                                <option value="11">SIKKIM</option>
+                                                <option value="33">TAMIL NADU</option>
+                                                <option value="36">TELANGANA</option>
+                                                <option value="16">TRIPURA</option>
+                                                <option value="9">UTTAR PRADESH</option>
+                                                <option value="5">UTTARAKHAND</option>
+                                                <option value="19">WEST BENGAL</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-12 col-xs-12">
+                                        <div class="form-group">
+                                            <select name="customer_type" id="customer_type" class="form-control">
+                                                <option value="">Select Category of Customer</option>
+                                                <option value="2">Residential</option>
+                                                <option value="4">Institutional</option>
+                                                <option value="3">Industrial</option>
+                                                <option value="1">Commerical</option>
+                                                <option value="5">Government</option>
+                                                <option value="7">Social Sector</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-md-12">
+                                            <hr>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <h3 class="section-heading">3. What is your average Electricity Cost? :</h3>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" name="electricity_txt" id="electricity_txt" class="form-control" size="10" maxlength="5" value="">
+                                                <div class="input-group-append"> <span class="input-group-text">Rs. / kWh</span> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <input type="text" id="electricity_range" value="" name="range" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- form-horizontal  -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group text-center">
+                                        <input name="submit" type="button" id="submit" class="btn btn-bordered calculate-link" onclick="return calculate&#x28;&#x29;&#x3B;" value="Calculate">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal fade" id="calculator_modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Solar Rooftop Calculator</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    Average Global Horizontal Irradiation (GHI) in
+                    <label id="output_state" class="output"></label>
+                    state is
+                    <label id="output_irradiation" class="output"></label>
+                    W / sq.m<br />
+                    1kWp solar rooftop plant will generate on an average over the year
+                    <label id="output_generate" class="output"></label>
+                    kWh of electricity per day (considering 5.5 sunshine hours)<br />
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <br />
+                        <div id="result">
+                            <table class="tbl output_tbl" border="0" cellspacing="5" cellpadding="5">
+                                <tr>
+                                    <td class="column_1"><b>1. Size of Power Plant </b></td>
+                                    <td class="right_div_column_2"></td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">
+                                        &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Feasible Plant size as per your
+                                        <label id="output_choosen" class="output"></label>
+                                        <label id="output_budget_additionally" class="output"></label>
+                                        :
+                                    </td>
+                                    <td class="right_div_column_2">
+                                        <label id="output_size" class="output"></label>
+                                        kW
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1"><b>2. Cost of the Plant :</b></td>
+                                    <td class="right_div_column_2"></td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;MNRE current Benchmark Cost :</td>
+                                    <td class="right_div_column_2">
+                                        Rs.
+                                        <label id="bench_cost" class="output"></label>
+                                        Rs. / kW
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Without subsidy <span class="assume">(Based on current MNRE benchmark)</span> : </td>
+                                    <td class="right_div_column_2">
+                                        Rs.
+                                        <label id="output_without_subsidy" class="output"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">
+                                        &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;With subsidy
+                                        <label id="output_subsidy_heading" class="output"></label>
+                                        % <span class="assume">(Based on current MNRE benchmark)</span> :
+                                    </td>
+                                    <td class="right_div_column_2">
+                                        Rs.
+                                        <label id="output_subsidy" class="output"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1"><b>3. Total Electricity Generation from Solar Plant :</b></td>
+                                    <td class="right_div_column_2"></td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Annual :</td>
+                                    <td class="right_div_column_2">
+                                        <label id="output_electricity_annual" class="output"></label>
+                                        kWh
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; Life-Time (25 years):</td>
+                                    <td class="right_div_column_2">
+                                        <label id="output_electricity_lifetime" class="output"></label>
+                                        kWh
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1"><b>4) Financial Savings :</b></td>
+                                    <td class="right_div_column_2"></td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">
+                                        <b>
+                                            a) Tariff @@ Rs.
+                                            <label id="output_electricity_unit" class="output"></label>
+                                            / kWh (for top slab of traffic) - No increase assumed over 25 years :
+                                        </b>
+                                    </td>
+                                    <td class="right_div_column_2"></td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Monthly :</td>
+                                    <td class="right_div_column_2">
+                                        Rs.
+                                        <label id="output_saving_monthly" class="output"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Annually :</td>
+                                    <td class="right_div_column_2">
+                                        Rs.
+                                        <label id="output_saving_annually" class="output"></label>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="column_1">&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Life-Time (25 years) :</td>
+                                    <td class="right_div_column_2">
+                                        Rs.
+                                        <label id="output_saving_lifetime" class="output"></label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                            <div style="margin:auto; border:1px solid #dee2e6; padding:10px; background-color: #f1f1f1;">
+                                <table width="100%" class="tbl" cellpadding="5">
+                                    <tr>
+                                        <td class="column_1"> Carbon dioxide emissions mitigated is </td>
+                                        <td class="column_2">
+                                            <label id="output_co2"></label>
+                                            tonnes.
+                                        </td>
+                                    <tr />
+                                    <tr>
+                                        <td class="column_1"> This installation will be equivalent to planting</td>
+                                        <td class="column_2">
+                                            <label id="output_tree"></label>
+                                            Teak trees over the life time. <span class="assume">(Data from IISc)</span> <br />
+                                        </td>
+                                    </tr>
+                                </table>
+                                <br />
+
+                                <p><strong>Disclaimer:</strong> The calculation is indicative in nature. Generation may vary from location to location.</p>
+
+                            </div>
+                            <br />
+                            <div style="margin:auto; border:1px solid #dee2e6; padding:10px ;background-color: #f1f1f1;">
+                                <div class="text-center">
+                                    <h4 class="form-group">EMI Calculation</h4>
+                                </div>
+                                <div class="form-horizontal">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="custom_label">Cost of the solar plant :</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="form-group">
+                                                <input type="text" name="capital_cost_txt" id="capital_cost_txt" class="form-control output custom_disable" disabled="disabled" value="">
+                                                <!--  Rs. / kW <span class="assume">(Based on current MNRE benchmark)</span> -->
+                                            </div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="custom_label">Subsidy :</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input type="text" name="subsidy_txt" id="subsidy_txt" class="form-control output custom_disable" disabled="disabled" value="">
+                                                    <div class="input-group-append"> <span class="input-group-text">$</span> </div>
+                                                </div>
+                                                <span class="assume">(Based on current MNRE scheme)</span>
+                                            </div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="custom_label">Debt-Equity Ratio :</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="row">
+                                                <div class="col-lg-5">
+                                                    <input type="text" name="debt_ratio_txt" id="debt_ratio_txt" class="output form-control" maxlength="3" size="3" onkeypress="return number&#x28;event&#x29;" value="" onblur="calculate_debt_ratio&#x28;&#x29;&#x3B;">
+                                                </div>
+                                                <div class="col-lg-2 text-center"><b> : </b></div>
+                                                <div class="col-lg-5">
+                                                    <input type="text" name="equity_ratio_txt" id="equity_ratio_txt" class="output form-control" maxlength="3" size="3" onkeypress="return number&#x28;event&#x29;" value="" onblur="calculate_equity_ratio&#x28;&#x29;&#x3B;">
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="form-group"> <span class="assume">(Based on current subsidy)</span> </div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="custom_label">Down-payment :</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input type="text" name="down_payment_txt" id="down_payment_txt" class="form-control output" maxlength="11" size="11" onkeypress="return number&#x28;event&#x29;" value="" onblur="calculate_down_payment&#x28;&#x29;&#x3B;">
+                                                    <div class="input-group-append"> <span class="input-group-text">Rs. / kW</span> </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                        <div class="col-lg-4">
+                                            <div class="form-group">
+                                                <label class="custom_label">Loan amount :</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input type="text" name="loan_payment_txt" id="loan_payment_txt" class="form-control output" maxlength="11" size="11" onkeypress="return number&#x28;event&#x29;" value="" onblur="calculate_loan_payment&#x28;&#x29;&#x3B;">
+                                                    <div class="input-group-append"> <span class="input-group-text">Rs. / kW</span> </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="custom_label">Loan Interest Rate :</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input type="text" name="loan_inst_rate_txt" id="loan_inst_rate_txt" class="form-control output" maxlength="6" size="6" value="">
+                                                    <div class="input-group-append"> <span class="input-group-text" id="basic-addon2">%</span> </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <input type="text" id="range" value="" name="range" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="custom_label">Loan Period :</label>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <input type="text" name="loan_period_txt" id="loan_period_txt" class="form-control output" maxlength="2" size="3" onkeypress="return number&#x28;event&#x29;&#x3B;" value="">
+                                                    <div class="input-group-append"> <span class="input-group-text">Years</span> </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <div class="form-group">
+                                                <input type="text" id="loan_period_range" value="" name="range" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <p id="emi_data">
+                                            <label class="custom_label">EMI</label>
+                                            for Loan amount of Rs.
+                                            <label id="output_emi_amount" class="emi_output"></label>
+                                            for loan period of
+                                            <label id="output_loan_period" class="emi_output"></label>
+                                            years @@
+                                            <label id="output_loan_interest" class="emi_output"></label>
+                                            % is Rs.
+                                            <label id="calculated_emi" class="emi_output"></label>
+                                            / month
+                                        </p>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="text-center">
+                                            <input name="emi_submit" type="button" id="emi_submit" class="btn calculate-link" onclick="return emi_calculate&#x28;&#x29;&#x3B;" value="EMI Calculate">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

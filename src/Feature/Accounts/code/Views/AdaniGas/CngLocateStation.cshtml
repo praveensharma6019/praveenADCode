@@ -1,0 +1,70 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.CollectionCenterModel
+
+<style>
+    #googleMap {
+        width: 100%;
+        height: 800px;
+    }
+
+    .gmaplocation {
+        width: 100%;
+        float: right;
+    }
+</style>
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCNGLocateStation", @class = "form-signin" }))
+{
+    @Html.AddUniqueFormId()
+    <div class="pageContent" id="cnglocate">
+        <div class="container">
+            <div class="panel">
+                @if (!string.IsNullOrEmpty(Model.ReturnViewMessage))
+                {
+                    <p class="col-md-7">
+                        @Model.ReturnViewMessage
+                    </p>
+                }
+                <p class="pb-md-3 float-sm-right">fields marked <span class="required">*</span> are mandatory</p>
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.City, "has-error")">
+                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                @Html.Sitecore().Dictionary("/CNG/Select City", "Select City")
+                                <span class="required">*</span>
+                            </label>
+                            <div class="col-sm-7 col-md-7">
+                                @Html.DropDownListFor(x => Model.City, new SelectList(Model.CityList, "Value", "Text"),  htmlAttributes: new { @class = "form-control reset-control", id = "city", required = "required" })
+                                @*@Html.ValidationMessageFor(x => x.City, "", new { @class = "help-block" }, "p")*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Area, "has-error")">
+                            <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                @Html.Sitecore().Dictionary("/CNG/Select Your Area", "Select Your Area")
+                                <span class="required">*</span>
+                            </label>
+                            <div class="col-sm-7 col-md-7">
+                                @Html.DropDownListFor(x => Model.Area, new SelectList(Model.AreaList, "Value", "Text"), "select", htmlAttributes: new { @class = "form-control reset-control", id = "Area", required = "required" })
+                                @*@Html.ValidationMessageFor(x => x.Area, "", new { @class = "help-block" }, "p")*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="dvDetail">
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="gmaplocation">
+                        <div id="googleMap" class="mapping"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Content -->
+    </div>
+}

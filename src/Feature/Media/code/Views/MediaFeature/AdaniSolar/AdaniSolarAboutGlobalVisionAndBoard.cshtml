@@ -1,0 +1,49 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var i = 1;
+}
+@if (elements != null)
+{
+    var BODList = elements.Axes.GetDescendants().ToList().Where(x=>x.Fields[Templates.AboutUSNavigation.Fields.IsMessage].IsChecked());
+
+    <section class="bg-gray py-5  z-index position-relative">
+        <div class="container BOD">
+            <h2 class="heading pl-4 mb-4">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, elements)</h2>
+            <div class="row">
+                @foreach (var item in BODList)
+                {
+                    if (item.FieldHasValue(Templates.HasPageContent.Fields.Title))
+                    {
+                        <div class="col-lg-3 col-md-6 zoomin my-3 directors-tile">
+                            <a href="@item.Url()">
+                                <div class="card">
+                                    <div class="b-o-director">
+                                        @Html.Sitecore().ImageFieldWithoutSize2(Templates.HasPageContent.Fields.Image, item, 0, 0, cssClass: "card-img-top img-fluid")
+                                    </div>
+                                    <div class="card-body">
+                                        <h4 class="card-title">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Title, item)</h4>
+                                        <p class="card-text">@Html.Sitecore().Field(Templates.HasPageContent.Fields.Summary, item)</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+            <p class="text-center mt-3">
+                <a href="@elements.Url()" class="btn btn-gradient">View All</a>
+            </p>
+        </div>
+    </section>
+}

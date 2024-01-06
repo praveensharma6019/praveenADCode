@@ -1,0 +1,65 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+}
+@if (model != null)
+{
+    <section class="bg-white">
+        <div class="steps position-relative">
+            <div class="container-fluid">
+                <div class="section-row">
+                    <div class="UserSteps_user_steps">
+                        <div class="UserSteps_header">
+                            <h3>@Html.Sitecore().Field("Title", model)</h3>
+                        </div>
+                        <ul>
+                            @for (int i = 0; i < model.Children.Count; i += 2)
+                            {
+                                var item = model.Children[i];
+                                var reverseItem = (i + 1 < model.Children.Count) ? model.Children[i + 1] : null;
+                                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                                string imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                <li class="@((i + 2 >= model.Children.Count) ? "" : (i % 2 == 0 ? "first-step" : "second-step"))">
+                                    <div class="UserStepCard_user_step_card">
+                                        <div class="UserStepCard_inner">
+                                            <figure>
+                                                <img src="@imgurl">
+                                            </figure>
+                                            <aside>
+                                                <label>@Html.Sitecore().Field("Title", item)</label>
+                                                <h3>@Html.Sitecore().Field("Summary", item)</h3>
+                                                <p>@Html.Sitecore().Field("Body", item)</p>
+                                            </aside>
+                                        </div>
+                                    </div>
+                                </li>
+                                if (reverseItem != null)
+                                {
+                                    Sitecore.Data.Fields.ImageField reverseImgField = ((Sitecore.Data.Fields.ImageField)reverseItem.Fields["Image"]);
+                                    string reverseImgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(reverseImgField.MediaItem);
+                                    <li>
+                                        <div class="UserStepCard_user_step_card second-step">
+                                            <div class="UserStepCard_inner">
+                                                <figure>
+                                                    <img src="@reverseImgUrl">
+                                                </figure>
+                                                <aside>
+                                                    <label>@Html.Sitecore().Field("Title", reverseItem)</label>
+                                                    <h3>@Html.Sitecore().Field("Summary", reverseItem)</h3>
+                                                    <p>@Html.Sitecore().Field("Body", reverseItem)</p>
+                                                </aside>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

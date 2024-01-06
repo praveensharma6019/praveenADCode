@@ -1,0 +1,269 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.TrackComplaintModel
+@{
+    var escalateToCGRF = (Sitecore.Context.Database.GetItem(Templates.ComplaintPortal.ComplaintPortalFileCGRFComplaintPageRevamp)).Url();
+}
+
+<div class="collapsible-header center">
+    <a data-gaevent="register_complaint" 
+	data-gaeventCategory="Help & Support"
+	data-gaeventAction="Register Complaint"
+	data-gaeventLabel="Check Complaint Status"
+	href="javascript:void(0)" >Check Complaint Status</a>
+</div>
+<div class="collapsible-body">
+    <h2>Check Complaint Status</h2>
+    <div class="card brand-gradient outlined section-inner-wrapper card-with-form border-none-mobile">
+        @Html.Sitecore().Placeholder("switch-account-content")
+
+        @if (Model.ComplaintList == null || Model.ComplaintList.Count == 0)
+        {
+            <div class="cgrf-complaint">
+                @*<aside>
+                    <a href="/complaint-registration/complaint-registration-file-cgrf-complaint" class="waves-effect waves-light btn-flat">File CGRF Complaint</a>
+                </aside>*@
+            </div>
+            <div class="card outlined section-inner-wrapper">
+                <div class="no-reading">
+                    <i class="vi-no-reading"></i>
+                    <h5>@Html.Sitecore().Dictionary("/Account/Complaintsregister/complaints Message", "Awesome! Looks like there are no unresolved complaints.")</h5>
+                </div>
+            </div>
+        }
+        else if (Model.ComplaintList != null && Model.ComplaintList.Count > 0)
+        {
+            <div class="cgrf-complaint">
+                <h5>Total Complaints: <span class="totalComplaint">@Model.ComplaintList.Count</span></h5>
+                @*<aside>
+                    <a href="/complaint-registration/complaint-registration-file-cgrf-complaint" class="waves-effect waves-light btn-flat">File CGRF Complaint</a>
+                </aside>*@
+            </div>
+
+            <div class="div-table" id="TrackComplaintPaginationDiv">
+                <input type="hidden" id="paginationTableDiv" value="TrackComplaintPaginationDiv" />
+                <input type="hidden" id="paginationDataSelector" value="#TrackComplaintsUL>li" />
+                <input type="hidden" id="paginationNumberElementSelector" value="#trackComplaintPaginationNumber" />
+                <input type="hidden" id="paginationScrollToElementSelector" value=".cgrf-complaint" />
+                <input type="hidden" id="paginationPageSize" value="10" />
+                <ul class="hide-on-med-and-down">
+                    <li class="table-title">
+                        <ul>
+                            <li>
+                                <h6>
+                                    <span>COMPLAINT DETAILS</span>
+                                </h6>
+
+                            </li>
+                            <li>
+                                <h6>
+                                    <span>STATUS</span>
+                                </h6>
+                            </li>
+                        </ul>
+
+                    </li>
+                </ul>
+                <ul id="TrackComplaintsUL">
+                    @{
+                        var count = 0;
+                        int paginationCount = 1;
+                        //int TotalPage = Model.ComplaintList.Count / 10;
+                        foreach (var app in Model.ComplaintList)
+                        {
+                            var createdDate1 = "-";
+                            var modifiedDate1 = "-";
+                            var tatDate1 = "-";
+
+                            if (app.CreatedOnSAP != null)
+                            {
+                                DateTime createdDate = DateTime.Parse(app.CreatedOnSAP.ToString());
+                                createdDate1 = createdDate.ToString("dd.MM.yyyy");
+                            }
+                            if (app.ModifiedOnSAP != null)
+                            {
+                                DateTime modifiedDate = DateTime.Parse(app.ModifiedOnSAP.ToString());
+                                modifiedDate1 = modifiedDate.ToString("dd.MM.yyyy");
+                            }
+                            if (app.TATDate != null)
+                            {
+                                DateTime tatDate = DateTime.Parse(app.TATDate.ToString());
+                                tatDate1 = tatDate.ToString("dd.MM.yyyy");
+                            }
+
+                            string divstyle = "none";
+                            if (paginationCount == 1)
+                            {
+                                divstyle = "block";
+                            }
+                            else
+                            {
+                                divstyle = "none";
+                            }
+
+                            <li data-id="@paginationCount" style="display:@divstyle">
+                                <ul>
+                                    <li>
+                                        <h6>
+                                            <span class="hide-on-med-and-up">Complaint Details:</span>
+                                            <aside>
+                                                @if (app.ComplaintSubCategory == "M52")
+                                                {
+                                                    @Html.Raw("High Consumption Complaint")
+                                                }
+                                                else if (app.ComplaintSubCategory == "M40")
+                                                {
+                                                    @Html.Raw("New connection complaint")
+                                                }
+                                                else
+                                                {
+                                                    @app.ComplaintCategory
+                                                }
+                                            </aside>
+                                        </h6>
+                                        <div class="list">
+                                            <lable>Complaint No.:</lable>
+                                            <aside>@app.ComplaintNumber.TrimStart('0')</aside>
+                                        </div>
+                                        <div class="list">
+                                            <lable>Submitted on.:</lable>
+                                            <aside>@createdDate1</aside>
+                                        </div>
+                                        <div class="list">
+                                            <lable>Expected Resolve Date.:</lable>
+                                            <aside>@tatDate1</aside>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <h6>
+                                            <span class="hide-on-med-and-up">Status:</span>
+                                            @if (app.ComplaintStatusName == "INPROCESS")
+                                            {
+                                                <aside style="color: #ff962d;">In progress</aside>
+                                            }
+                                            else if (app.ComplaintStatusName == "COMPLETED")
+                                            {
+                                                <aside class="success">Completed</aside>
+                                            }
+                                            else if (app.ComplaintStatusName != "Cancelled")
+                                            {
+                                                <aside>@app.ComplaintStatusName</aside>
+                                            }
+                                            else
+                                            {
+                                                <aside style="color: #ff962d;">Further necessary action initiated</aside>
+                                            }
+                                        </h6>
+                                    </li>
+                                </ul>
+                                @if (app.IsIGR != true && app.ComplaintStatusCode == "1" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                {
+                                    <div class="escalate">
+                                        <div class="message warning warning-info">
+                                            <aside><i class="i-info"></i> </aside>
+                                            <label>
+                                                <span>
+                                                    If you are not satisfied with the resolution, you can escalate it to
+                                                    <a href="#escalatetoICRS_modal" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory,@app.CreatedDate" class="escalateToICRS modal-trigger">Level 1.</a>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                                else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintSubCategory == "M20")
+                                {
+                                    <div class="escalate">
+                                        <div class="message warning warning-info">
+                                            <aside><i class="i-info"></i> </aside>
+                                            <label>
+                                                <span>
+                                                    If you are not satisfied with the resolution, you can escalate it to
+                                                    <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="">Level 2: CGRF.</a>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                                else if (app.IsIGR && (app.TATDate != null && Convert.ToDateTime(app.TATDate) < DateTime.Now) && app.ComplaintSubCategory == "M20")
+                                {
+                                    <div class="escalate">
+                                        <div class="message warning warning-info">
+                                            <aside><i class="i-info"></i> </aside>
+                                            <label>
+                                                <span>If you are not satisfied with the resolution, you can escalate it to</span>
+                                                <a href="@escalateToCGRF?complaintNumber=@app.ComplaintNumber&esc=1" title="Click here to Escalate" class="">Level 2: CGRF.</a>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                }
+                                else if (app.IsIGR && app.ComplaintStatusCode == "3" && app.ComplaintStatusName != "Cancelled" && app.ComplaintSubCategory != "M20" && string.IsNullOrEmpty(app.M20ComplaintId))
+                                {
+                                    <div class="escalate">
+                                        <div class="message warning warning-info">
+                                            <aside><i class="i-info"></i> </aside>
+                                            <label>
+                                                <span>
+                                                    If you are not satisfied with the resolution, you can escalate it to
+                                                    <a href="#escalatetoICRS_modal" title="Click here to Escalate" data-id="@app.ComplaintNumber" data-content="@app.ComplaintNumber,@app.ComplaintCategory,@app.ComplaintSubCategory" class="escalateToICRS modal-trigger">Level 1.</a>
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </li>
+                            count++;
+                            if (count / (paginationCount * 10) == 1)
+                            {
+                                paginationCount = paginationCount + 1;
+                            }
+
+                        }
+                    }
+
+                </ul>
+            </div>
+        }
+        <ul class="pagination" id="trackComplaintPaginationNumber"></ul>
+    </div>
+</div>
+
+<div class="modal-wrapper-custom">
+    <div class="modal modal-alert" id="escalatetoICRS_modal">
+        <div class="modal-content">
+            <p>Are you sure that you want to escalate complaint to ICRS</p>
+        </div>
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "filterByStatusForm", name = "filterByStatusForm" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            @Html.HiddenFor(m => m.ExcalationComplaintId)
+            @Html.HiddenFor(m => m.ExcalationRemarks)
+            <button type="submit" class="btn btn-primary modal-close" name="createComplaint" id="createComplaint" value="Yes">Yes</button>
+            <button type="reset" class="btn btn-secondary modal-close">No</button>
+        }
+    </div>
+</div>
+
+<script src="~/Scripts/Accounts/ElectricityRevampCustomPagination.js"></script>
+<script type="text/javascript">
+    $('.escalateToICRS').click(function () {
+        var complaint_id = $(this).attr('data-id');
+        var remarks = $(this).attr('data-content');
+        $("#ExcalationComplaintId").val(complaint_id);
+        $("#ExcalationRemarks").val(remarks);
+    })
+
+    $('#createComplaint').click(function () {
+        $('.loader-wrap').show();
+        return true;
+    })
+
+    $(document).ready(function () {
+        DrawPaginationNumber(1, '#TrackComplaintPaginationDiv');
+    })
+</script>

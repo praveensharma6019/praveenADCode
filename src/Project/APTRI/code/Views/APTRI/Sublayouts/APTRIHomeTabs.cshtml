@@ -1,0 +1,103 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item element = Sitecore.Context.Database.GetItem(datasource);
+
+    var i = 0;
+    var j = 0;
+}
+<section class="py-5">
+    <div class="container">
+        @if (element != null)
+        {
+            if (element.GetChildren() != null)
+            {
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs icm-model">
+                    @foreach (Item item in element.GetChildren())
+                    {
+                        <li class="nav-item">
+                            @if (i == 0)
+                            {
+                                <a class="nav-link active" data-toggle="tab" href="#menu-@i">
+                                    <span class="d-block">
+                                        @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "img-fluid")
+                                    </span>
+                                    <h4>@Html.Sitecore().Field("MediaTitle", item)</h4>
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="nav-link" data-toggle="tab" href="#menu-@i">
+                                    <span class="d-block">
+                                        @Html.Sitecore().ImageField("MediaThumbnail", item, 0, 0, "img-fluid")
+                                    </span><h4>@Html.Sitecore().Field("MediaTitle", item)</h4>
+                                </a>
+                            }
+
+                        </li>
+                        i++;
+                    }
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    @foreach (Item item in element.GetChildren())
+                    {
+                        if (j == 0)
+                        {
+                    <div class="tab-pane container active" id="menu-@j">
+                        <div class="row">
+                            <div class="col-lg-8 mb-3">
+                                <p class="mt-4">@Html.Sitecore().Field("MediaDescription", item)</p>
+                            </div>
+                            <div class="col-lg-4 mb-3">
+                                <p class="mt-4">@Html.Sitecore().Field("MediaImage", item)</p>
+                            </div>
+                        </div>
+
+                        @{
+                            LinkField linkField = item.Fields["MediaLink"];
+                            var url = linkField.GetFriendlyUrl();
+                        }
+
+                        @if (!string.IsNullOrEmpty(url))
+                        {
+                            <a href="@url" class="btn btn-gradient">Know more</a>
+                        }
+                    </div>
+                        }
+                        else
+                        {
+                            <div class="tab-pane container fade" id="menu-@j">
+                                <div class="row">
+                                    <div class="col-lg-8 mb-3">
+                                        <p class="mt-4">@Html.Sitecore().Field("MediaDescription", item)</p>
+                                    </div>
+                                    <div class="col-lg-4 mb-3">
+                                        <p class="mt-4">@Html.Sitecore().Field("MediaImage", item)</p>
+                                    </div>
+                                </div>
+                                @{
+                                    LinkField linkField = item.Fields["MediaLink"];
+                                    var url = linkField.GetFriendlyUrl();
+                                }
+                                @if (!string.IsNullOrEmpty(url))
+                                {
+                                    <a href="@url" class="btn btn-gradient">Know more</a>
+                                }
+                            </div>
+                        }
+                        j++;
+                    }
+                </div>
+
+
+            }
+        }
+    </div>
+</section>

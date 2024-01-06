@@ -1,0 +1,122 @@
+﻿@using Sitecore
+@using Sitecore.Mvc
+@using Sitecore.Data.Fields
+
+@using Sitecore.Mvc.Presentation
+
+@{
+
+    var allCountry = Sitecore.Context.Database.GetItem("{CA296DF1-8D66-4E10-B55E-59DDBAC5D1A2}");
+    var allServices = Sitecore.Context.Database.GetItem("{4EE6F2E5-7250-4321-AF8F-54653EBDA52B}");
+    var allPortsTerminals = Sitecore.Context.Database.GetItem("{82FAC43E-6989-4F86-B18A-E919ABDFE267}");
+}
+<setion class="bg-gray py-5">
+    <div class="container">
+        <h3 class="heading pl-4 mb-4 mt-5">Our Ports & Terminals</h3>
+        <div class="row no-gutters mb-3 ">
+            <div class="col-3">
+                <div class="filter h-100">
+                    <ul class="ul-port-filters" id="port-filters">
+                         <!--   <li><button class="btn-f active" onclick="filterSelection('all')">All</button></li>
+                    @foreach (var country in allCountry.Children.ToArray())
+                                {
+                                    var countryText = Html.Sitecore().Field("Text", country);
+                            <li><button class="btn-f" onclick="filterSelection('@countryText')">@countryText</button></li>
+                        }-->
+
+                       
+                    </ul>
+                </div>
+            </div>
+            <div class="col-9 text-right">
+                <div class="filter h-100">
+				<div class="row">
+					<div class="col-6 col-sm-6">
+						<div class="dropdown btn-filter d-md-none">
+                        <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                            Find by Location
+                            <span class="fa fa-caret-down"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <input class="form-control" id="search-btn" type="text" placeholder="Search..">
+							 <li><a onclick="filterSelection('all')" >All</a></li>
+							 @foreach (var item in allPortsTerminals.Children.ToArray())
+							{
+								var portname = Html.Sitecore().Field("Name", item).ToString();
+								var portcssclass = portname.Replace(" ","-");
+								portcssclass = portcssclass.Replace(",","");
+                                <li><a onclick="filterSelection('@portcssclass')" >@portname</a></li>
+							}
+                        </ul>
+                    </div>
+					</div>
+					<div class="col-6 col-sm-6">
+						<div class="dropdown btn-filter">
+                        <button class="btn dropdown-toggle" type="button" data-toggle="dropdown">
+                            Find by services
+                            <span class="fa fa-caret-down"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <input class="form-control" id="search-btn" type="text" placeholder="Search..">
+							 <li><a onclick="filterSelection('all')" >All</a></li>
+                            @foreach (var services in allServices.Children.ToArray())
+                            {
+                                var servicesText = Html.Sitecore().Field("Text", services);
+                                var servicesTextWithoutSpace = servicesText.ToString().Replace(" ", "-");
+                                <li><a onclick="filterSelection('@servicesTextWithoutSpace')" >@servicesText</a></li>
+                            }
+                            
+                        </ul>
+                    </div>
+					</div>
+				</div>
+                    
+					 
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+
+
+            @foreach (var item in allPortsTerminals.Children.ToArray())
+            {
+			var portcssclass = Html.Sitecore().Field("Name", item).ToString();
+			portcssclass = portcssclass.Replace(" ","-");
+			portcssclass = portcssclass.Replace(",","");
+			
+                var itemCountry = Html.Sitecore().Field("Country", item);
+                // var itemServices = Html.Sitecore().Field("Services", item);
+                var cssServiceClass = "";
+                string[] IDarr = { };
+                var renderitemServicesid = Html.Sitecore().Field("Services", item).ToString();
+                IDarr = renderitemServicesid.ToString().Split('|');
+
+                foreach (string id in IDarr)
+                {
+                    if(!string.IsNullOrEmpty(id))
+                    {
+
+                        var getvalue = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(id));
+                        cssServiceClass = (getvalue.Name).Replace(" ","-") + " " + cssServiceClass;
+                    }
+
+                }
+
+                <div class="col-lg-4 col-md-6 col-sm-6 column mb-3 @itemCountry @cssServiceClass zoomin ports-parent @portcssclass">
+                    <div class="port-img">
+                        @Html.Sitecore().Field("Image", item, new { @class = "img-fluid" })
+                       
+                    </div>
+                    <div class="port-desc p-4 bg-white">
+                        <h2>@Html.Sitecore().Field("Name", item)</h2>
+                        @Html.Sitecore().Field("Summary", item)
+                        <div><a href="@Sitecore.Links.LinkManager.GetItemUrl(item)" class="btn btn-gradient">Know more</a></div>
+                    </div>
+                </div>
+
+            }
+
+
+        </div>
+    </div>
+</setion>

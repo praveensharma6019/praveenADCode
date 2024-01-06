@@ -1,0 +1,78 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource).FieldHasValue(Templates.HasMediaSelector.Fields.IsBanner);
+}
+
+<section class="py-5 d-block position-relative">
+    @foreach (var element in elements)
+    {
+
+    <div class="bg-images">
+        @Html.Sitecore().Field(Templates.HasMediaImage.Fields.Image, element.Item)
+    </div>
+        <div class="container">
+            <div class="row pt-5">
+                <div class="col-md-6">
+                    <h2 class="sectionheading font-weight-bold txt-white">@Html.Sitecore().Field(Templates.HasMedia.Fields.Title, element.Item)</h2>
+
+                    @Html.Sitecore().Field(Templates.HasMedia.Fields.Description, element.Item)
+                </div>
+                <div class="col-md-6 txt-right">
+
+                    <div class="row">
+                        <div class="col-md-7 pr-0">
+                            <div class="row">
+                                <div class="col-sm-7 ml-auto mb-3 col-6"><img alt="" class="img-fluid" src="/-/media/Project/BelvedereClubAhmedabad/Residenza/Residenza-001.jpg?la=en&amp;hash=4A71791316B4712AFB96C7D161461F08"></div>
+                                <div class="col-sm-12 ml-auto mb-3 col-6"><img alt="" class="img-fluid" src="/-/media/Project/BelvedereClubAhmedabad/Residenza/Residenza-003.jpg?la=en&amp;hash=2E718C4F5290A19012C78420D279A9FC"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-sm-12 mb-3 col-6"><img alt="" class="img-fluid" src="/-/media/Project/BelvedereClubAhmedabad/Residenza/Residenza-001/Residenza-002.jpg?la=en&amp;hash=147BA2828ED735F89F48C45FE8FFE5A4"></div>
+                                <div class="col-sm-12 mb-3 col-6"><img alt="" class="img-fluid" src="/-/media/Project/BelvedereClubAhmedabad/Residenza/Residenza-004.jpg?la=en&amp;hash=7530788DFE8FEF35C8725E26D1B205E5"></div>
+                            </div>
+                        </div>
+                    </div>
+                    @*@Html.Sitecore().Field(Templates.HasMedia.Fields.Thumbnail, element.Item, new { @class = "img-fluid" })*@
+                    @Html.Sitecore().Placeholder("ResidenzaBanner")
+                    <!-- Check availability Modal -->
+                    <div class="modal video" id="checka_vailability">
+                        <div class="modal-dialog modal-dialog-centered p-4">
+                            <div class="modal-content p-3">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                    @Html.Sitecore().Placeholder("Availability-Form")
+                                    @*<a href="/residenza/" class="btn btn-secondary">Know more</a>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /Check availability Modal -->
+                </div>
+            </div>
+        </div>
+    }
+    </section>

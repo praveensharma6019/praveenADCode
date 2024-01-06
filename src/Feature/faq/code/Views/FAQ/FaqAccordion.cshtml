@@ -1,0 +1,43 @@
+﻿@using Sitecore.Feature.FAQ
+@using Sitecore.Feature.FAQ.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var x = 0;
+}
+<div class="pageContent">
+    <div class="container">
+        <div class="pb-3">
+            <div class="accordion" id="tariffFaq">
+                @foreach (var items in parent.Children.ToList())
+                {
+                    var replacestr = Regex.Replace(@Html.Sitecore().Field(Templates.Faq.Fields.Title, items).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                    //var elements1 = FaqRepository.Get(items).ToArray();
+                   // foreach (var child in elements1.ToList())
+                    {
+                        var id = Guid.NewGuid().ToString();
+                        <div class="faqItem">
+                            <div class="ques collapsed" id="ques#@id" data-toggle="collapse" data-target="#@id" aria-expanded="false">
+                                @Html.Sitecore().Field(Templates.Faq.Fields.Question, items)
+                            </div>
+                            <div id="@id" class="ans collapse" data-parent="#tariffFaq" style="">
+                                <div class="">
+                                    @Html.Sitecore().Field(Templates.Faq.Fields.Answer, items)
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

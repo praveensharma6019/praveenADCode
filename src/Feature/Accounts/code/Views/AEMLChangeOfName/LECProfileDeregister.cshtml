@@ -1,0 +1,109 @@
+﻿@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.Services
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts.SessionHelper
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ChangeOfNameLECDeregisterModel
+@{
+    var LECPortalChangePasswordPage = (Sitecore.Context.Database.GetItem(Templates.LECPortal.LECChangePasswordPage)).Url();
+    var LECPortalProfileUpdatePage = (Sitecore.Context.Database.GetItem(Templates.LECPortal.LECUserProfilePage)).Url();
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+<link href="/styles/Electricity/bootstrap.min.css" rel="stylesheet" />
+<link href="/styles/ElectricityNew/adani-electricity.css" rel="stylesheet" />
+<link href="/styles/Electricity/adani-electricity-responsive.css" rel="stylesheet" />
+
+<div class="pageContent">
+    <div class="container">
+
+        @using (Html.BeginForm("LogoutLEC", "AEMLChangeOfName", FormMethod.Post))
+        {
+            <div class="row">
+                <div class="col-sm-6 pb-3 text-left">
+                    <p><span><b>Welcome, </b></span><b class="txt-orange">@UserSession.AEMLCONLECUserSessionContext.LECName <span class="fa fa-user ml-2 mr-1"></span></b></p>
+                </div>
+                <div class="col-sm-6 pb-3">
+                    <div class="text-right">
+                        <button class="btn btn-primary" type="submit">
+                            @Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")
+                        </button>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        }
+        <div class="row">
+            <div class="col-12">
+                @{
+                    var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                    if (info != null)
+                    {
+                        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                    }
+                }
+            </div>
+        </div>
+        <div class="">
+            <ul class="nav nav-tabs" id="offlinePaymentTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link " href="@LECPortalProfileUpdatePage">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@LECPortalChangePasswordPage">Change Password</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active show" data-toggle="tab" href="#sectionLECDeregister">De-register</a>
+                </li>
+            </ul>
+            <div class="tab-content bg-gray-light ">
+                <div class="tab-pane fade active show" id="sectionLECDeregister" role="tabpanel">
+                    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin" }))
+                    {
+                        @Html.AddUniqueFormId()
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true)
+                        <div class="">
+                            <p class="mb-3">Please provide profile password below to deregister. Kindly note that you will not be able to login after deregistration.</p>
+                            <div>
+                                <div class="form-group row @Html.ValidationErrorFor(x => x.LECPassword, "has-error")">
+                                    <label for="" class="col-sm-4 col-md-3 col-form-label">
+                                        @Html.Sitecore().Dictionary("/CON/LEC Change Password/Password", "Password")
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="col-sm-8 col-lg-6">
+                                        @Html.PasswordFor(x => x.LECPassword, new { @class = "form-control", @autocomplete = "off", id = "LECPassword", required = "required" })
+                                        @Html.ValidationMessageFor(x => x.LECPassword, "", new { @class = "help-block" }, "p")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row py-2">
+                                <div class="col-sm-12">
+                                    <input type="submit" name="submit" id="save" value="@Html.Sitecore().Dictionary("/CON/LEC Profile/Button/Deregister", "Deregister")" class="btn btn-primary" />
+                                    <input type="button" id="cancel" value="@Html.Sitecore().Dictionary("/CON/LEC Profile/Reset", "Reset")" class="btn btn-secondary" onclick="ResetPage()" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="/scripts/Electricity/jquery-slim.min.js"></script>
+<script src="/scripts/Electricity/jquery.min.js"></script>
+<script src="/scripts/Electricity/popper.min.js"></script>
+<script src="/scripts/Electricity/bootstrap.min.js"></script>
+<script src="/scripts/Electricity/owl.carousel.min.js"></script>
+@*<script src="/scripts/Electricity/adani-ele-custom.js"></script>*@
+<script src="/scripts/accounts/moment.min.js"></script>
+<script src="/scripts/accounts/bootstrap-datetimepicker.min.js"></script>
+<script src="/scripts/Electricity/Datatablemin.js"></script>
+<script src="/scripts/Electricity/hygieneheader.js"></script>
+<script src="/scripts/Accounts/ChangeOfNameOnBill.js"></script>

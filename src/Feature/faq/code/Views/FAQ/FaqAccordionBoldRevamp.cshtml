@@ -1,0 +1,69 @@
+﻿
+@using Sitecore.Feature.FAQ
+@using Sitecore.Feature.FAQ.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+@using Sitecore.Data.Items;
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+    //Cast to a Sitecore item
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)element;
+
+    //Read the Multifield List
+    Sitecore.Data.Fields.MultilistField Multiitemslist = myItem.Fields["FAQList"];
+
+    //var Imageplus = myItem.Fields["ImagePlus"].ImageUrl().ToString();
+    Sitecore.Data.Items.Item[] itemsList = Multiitemslist.GetItems();
+
+    Sitecore.Data.Fields.ImageField ImagefieldPlus = myItem.Fields[Templates.FaqDetails.Fields.ImagePlus];
+    string ImagePlus = ImagefieldPlus.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImagefieldPlus.MediaItem) : string.Empty;
+
+
+    Sitecore.Data.Fields.ImageField ImagefieldMinus = myItem.Fields[Templates.FaqDetails.Fields.ImageMinus];
+    string ImageMinus = ImagefieldMinus.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImagefieldMinus.MediaItem) : string.Empty;
+
+    var x = 0;
+}
+
+
+<div class="col s12 m8 offset-m1">
+    <header class="section-header">
+        <h1>@Html.Sitecore().Field(Templates.FaqDetails.Fields.Title, myItem).ToString()</h1>
+        @if (@Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString() != string.Empty)
+        {
+            <p>@Html.Sitecore().Field(Templates.FaqDetails.Fields.SubTitle, myItem).ToString()</p>
+        }
+    </header>
+    <div class="custom_accrdion accordion section-container">
+        <ul class="collapsible collapsible-accordion">
+
+
+            @foreach (var item in itemsList)
+            {
+
+                <li>
+                    <div class="collapsible-header">
+                        @*<h2> @Html.Sitecore().Field(Templates.Faq.Fields.Question, item)</h2>*@
+                        @Html.Sitecore().Field(Templates.Faq.Fields.Question, item)
+                        @*<span class="accordion-icon">
+                                <img class="plus-icon" src="@ImagePlus" alt="Plus icon">
+                                <img class="minus-icon" src="@ImageMinus" alt="Minus icon">
+                            </span>*@
+                    </div>
+                    <div class="collapsible-body">
+                        @Html.Sitecore().Field(Templates.Faq.Fields.Answer, item)
+                    </div>
+                </li>
+
+            }
+        </ul>
+    </div>
+
+</div>

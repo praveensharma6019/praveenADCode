@@ -1,0 +1,254 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Globalization
+
+@model Sitecore.Feature.Accounts.Models.SwitchAccount
+@{
+    var billinghDetailsPrimary = SapPiService.Services.RequestHandler.FetchBilling(Model.MasterAccountNumber);
+    var accountDetailsPrimary = SapPiService.Services.RequestHandler.FetchDetail(Model.MasterAccountNumber);
+
+    var primaryNameFormat = accountDetailsPrimary.Name.ToLower().Replace("_", " ");
+    TextInfo info1 = CultureInfo.CurrentCulture.TextInfo;
+    primaryNameFormat = info1.ToTitleCase(primaryNameFormat);
+
+    string date1 = string.Empty;
+    if (billinghDetailsPrimary.DateDue == "0000-00-00")
+    {
+        date1 = "0000-00-00";
+    }
+    else
+    {
+        CultureInfo culture = new CultureInfo("es-ES");
+        String myDate = billinghDetailsPrimary.DateDue;
+        DateTime date = DateTime.Parse(myDate, culture);
+        date1 = date.ToString("dd MMM yyyy");
+    }
+
+}
+
+<div class="bill-details current-bills brand-gradient card">
+    <header class="last-form">
+        <aside>
+            <label>CA Number @Model.MasterAccountNumber</label>
+            <h4>₹@billinghDetailsPrimary.AmountPayable</h4>
+            @if (billinghDetailsPrimary.AmountPayable > 0)
+            {
+                if (DateTime.ParseExact(billinghDetailsPrimary.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) > DateTime.Now.AddDays(-4))
+                {
+                    @*<p style="color:black"> Due on @DateTime.ParseExact(billinghDetailsPrimary.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</p>*@
+                    @*<p style="color:red"> Due on @DateTime.ParseExact(billinghDetailsPrimary.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy") </p>*@
+                    <p style="color:red"> Due on @date1 </p>
+                }
+                else
+                {
+                    @*<p style="color:red"> Due on @DateTime.ParseExact(billinghDetailsPrimary.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy") </p>*@
+                    <p style="color:red"> Due on @date1</p>
+                }
+
+
+            }
+            else
+            {
+                <p>
+                    No Bill Due
+                </p>
+            }
+
+        </aside>
+        @if (billinghDetailsPrimary.AmountPayable > 0)
+        {
+            <a href="javascript:void(0)"
+               data-gaevent="quick_bill_due_amount"
+               data-gaeventCategory="Bill Payment"
+               data-gaeventAction="Quick Bill Payment Proceed"
+               data-gaeventLabel="Quick Bill Payment | Proceed"
+               data-gaeventamount="₹@billinghDetailsPrimary.AmountPayable"
+               data-gaeventduedate=" @date1"
+               onclick="FetchQuickPay(@billinghDetailsPrimary.AccountNumber)" class="waves-effect waves-light btn QPayBilllogin">Pay Bill</a>
+            @*<a class="waves-effect waves-light btn">Pay Bill</a>  style="display:none" data-target="modal2"*@
+        }
+        else
+        {
+            <a href="javascript:void(0)"
+               data-gaevent="quick_bill_due_amount"
+               data-gaeventCategory="Bill Payment"
+               data-gaeventAction="Quick Bill Payment Proceed"
+               data-gaeventLabel="Quick Bill Payment | Proceed"
+               data-gaeventamount="₹@billinghDetailsPrimary.AmountPayable"
+               data-gaeventduedate="No Bill Due"
+               onclick="FetchQuickPay(@billinghDetailsPrimary.AccountNumber)" class="waves-effect waves-light btn QPayAdvancelogin">Pay Advance</a>
+            @*<a class="waves-effect waves-light btn">Pay Advance</a>*@
+        }
+
+    </header>
+    <ul class="consumer-details">
+
+        <li>
+            <label for="">CA Number</label>
+            <strong> @billinghDetailsPrimary.AccountNumber</strong>
+        </li>
+        <li class="consumer-name">
+            <label for="">Consumer Name</label>
+            @*<strong>@accountDetailsPrimary.Name</strong>*@
+            <strong>@primaryNameFormat</strong>
+        </li>
+
+        <li>
+            <label for="">Units Consumed</label>
+            <strong>@billinghDetailsPrimary.UnitsConsumed</strong>
+        </li>
+        <li>
+            <label for="">Bill Month</label>
+            <strong>@billinghDetailsPrimary.BillMonth</strong>
+        </li>
+        <li>
+            <label for="">Total Bill Amount</label>
+            <strong>₹@billinghDetailsPrimary.TotalBillAmount</strong>
+        </li>
+        <li>
+            <label for="">Minimum Payable</label>
+            <strong>₹@billinghDetailsPrimary.AmountPayable</strong>
+        </li>
+    </ul>
+</div>
+
+@if (Model.AccountList.Any())
+{
+    foreach (var item in Model.AccountList)
+    {
+        if (!string.IsNullOrEmpty(item.Value))
+        {
+
+            var billinghDetails = SapPiService.Services.RequestHandler.FetchBilling(item.Value);
+            var accountDetails = SapPiService.Services.RequestHandler.FetchDetail(item.Value);
+
+            var nameFormat = accountDetails.Name.ToLower().Replace("_", " ");
+            TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+            nameFormat = info.ToTitleCase(nameFormat);
+
+            string date2 = string.Empty;
+            if (billinghDetails.DateDue == "0000-00-00")
+            {
+                date2 = "0000-00-00";
+            }
+            else
+            {
+                CultureInfo culture = new CultureInfo("es-ES");
+                String myDate = billinghDetails.DateDue;
+                DateTime date = DateTime.Parse(myDate, culture);
+                date2 = date.ToString("dd MMM yyyy");
+            }
+
+            <div class="bill-details current-bills brand-gradient card">
+                <header class="last-form">
+                    <aside>
+                        <label>CA Number @item.Value</label>
+                        <h4>₹@billinghDetails.AmountPayable</h4>
+
+                        @if (billinghDetails.AmountPayable > 0)
+                        {
+                            if (DateTime.ParseExact(billinghDetails.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture) > DateTime.Now.AddDays(-4))
+                            {
+                                @*<p style="color:red"> Due on @DateTime.ParseExact(billinghDetails.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy") </p>*@
+                                @*<p style="color:black"> Due on @DateTime.ParseExact(billinghDetails.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy")</p>*@
+                                <p style="color:red"> Due on @date2</p>
+                            }
+                            else
+                            {
+                                @*<p style="color:red"> Due on @DateTime.ParseExact(billinghDetails.DateDue, "yyyy-mm-dd", System.Globalization.CultureInfo.InvariantCulture).ToString("dd MMM yyyy") </p>*@
+                                <p style="color:red"> Due on @date2</p>
+                            }
+
+                        }
+                        else
+                        {
+                            <p>
+                                No Bill Due
+                            </p>
+
+                        }
+                    </aside>
+                    @if (billinghDetails.AmountPayable > 0)
+                    {
+                        <a href="javascript:void(0)" onclick="FetchQuickPay(@billinghDetails.AccountNumber)"
+                           data-gaevent="quick_bill_due_amount"
+                           data-gaeventCategory="Bill Payment"
+                           data-gaeventAction="Quick Bill Payment Proceed"
+                           data-gaeventLabel="Quick Bill Payment | Proceed"
+                           data-gaeventamount="₹@billinghDetails.AmountPayable"
+                           data-gaeventduedate=" @date2"
+                           class="waves-effect waves-light btn QPayBilllogin">Pay Bill</a>
+                        @*<a class="waves-effect waves-light btn">Pay Bill</a>*@
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)" onclick="FetchQuickPay(@billinghDetails.AccountNumber)"
+                           data-gaevent="quick_bill_due_amount"
+                           data-gaeventCategory="Bill Payment"
+                           data-gaeventAction="Quick Bill Payment Proceed"
+                           data-gaeventLabel="Quick Bill Payment | Proceed"
+                           data-gaeventamount="₹@billinghDetails.AmountPayable"
+                           data-gaeventduedate="No Bill Due"
+                           class="waves-effect waves-light btn QPayAdvancelogin">Pay Advance</a>
+                        @*<a class="waves-effect waves-light btn">Pay Advance</a>*@
+                    }
+                </header>
+                <ul class="consumer-details">
+
+                    <li>
+                        <label for="">CA Number</label>
+                        <strong> @billinghDetails.AccountNumber</strong>
+                    </li>
+                    <li class="consumer-name">
+                        <label for="">Consumer Name</label>
+                        @*<strong>@accountDetails.Name</strong>*@
+                        <strong>@nameFormat</strong>
+                    </li>
+
+                    <li>
+                        <label for="">Units Consumed</label>
+                        <strong>@billinghDetails.UnitsConsumed</strong>
+                    </li>
+                    <li>
+                        <label for="">Bill Month</label>
+                        <strong>@billinghDetails.BillMonth</strong>
+                    </li>
+                    <li>
+                        <label for="">Total Bill Amount</label>
+                        <strong>₹@billinghDetails.TotalBillAmount</strong>
+                    </li>
+                    <li>
+                        <label for="">Minimum Payable</label>
+                        <strong>₹@billinghDetails.AmountPayable</strong>
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+}
+<div class="bill-details current-bills brand-gradient card no-header">
+
+    <div class="form-field">
+        <div class="input-field custom input-has-icon">
+
+            <input id="caNumber" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" onKeyPress="showCrossIcon()" onKeyUp="showCrossIcon()" />
+            <label id="lblCANumber" for="CA_number">@Html.Sitecore().Dictionary("/Accounts/My Account/QuickPay/Enter CA No", "Enter CA Number")</label>
+
+            <div class="input-icon">
+                <span id="iconholderid" class="icon-holder waves-effect"><i id="icrossid" class="i-cross"> </i></span><a onclick="viewSampleBill()" href="javascript:void(0)">Sample Bill</a>
+            </div>
+        </div>
+    </div>
+    <p class="help-text ca-number-help">
+        Please enter your 9 digit consumer account number
+    </p>
+
+    <div class="hero-captcha-box">
+        <div id="recaptcha"></div>
+        <span class="field-validation-error" id="Captchaerror"></span>
+    </div>
+    <a class="waves-effect waves-light btn full" onclick="ShowDetails()" id="fetchBill">Proceed</a>
+</div>
+
+

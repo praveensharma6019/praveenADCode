@@ -1,0 +1,73 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var ImgUrl = "";
+    var ImgAltTxt = "";
+    var linkurl = "#";
+
+    Sitecore.Data.Fields.ImageField BackgroundImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["BackgroundImg"]);
+    var bckgrundimgurl = BackgroundImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(BackgroundImageField.MediaItem);
+
+}
+
+<section class="bg-white pt-5 position-relative z-index">
+    <div class="container-fluid sustainability-businesses-bg-image partner-bg-img" style="background-image: url(@bckgrundimgurl);">
+        <div class="container ancillaries-slider">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1 class="ESG-text">@Html.Sitecore().Field("Title", element)</h1>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="owl-nav text-end carousel-setup">
+                                <button type="button" role="presentation" class="owl-prev sustainability-businesses-slider-prev">
+                                    <span aria-label="Previous">&#60;</span>
+                                </button>
+                                <button type="button" role="presentation" class="owl-next sustainability-businesses-slider-next">
+                                    <span aria-label="Next">&#62;</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="E-bg-image row">
+                <div class="col-md-12">
+                    <div id="sustainability-businesses" class="owl-carousel sustainability-businesses-carousel owl-theme">
+                        @foreach (var child in element.Children.ToList())
+                        {
+                            Sitecore.Data.Fields.ImageField Image = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                            if (Image != null && Image.MediaItem != null)
+                            {
+                                ImgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(Image.MediaItem);
+                                ImgAltTxt = Image.Alt;
+                            }
+                            Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]);
+                            if (linkfield != null)
+                            {
+                                linkurl = linkfield.GetFriendlyUrl();
+                            }
+                            <div class="sustainability-businesses-detail">
+
+                                <div class="sustainability-businesses-content">
+                                    <a href="@linkurl"><img src="@ImgUrl" class="sustainability-businesses-img" alt="@ImgAltTxt"></a>
+                                </div>
+                                <p class="text-align">@Html.Sitecore().Field("Title", child)</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sustainability-businesses-bg"></div>
+    </div>
+</section>

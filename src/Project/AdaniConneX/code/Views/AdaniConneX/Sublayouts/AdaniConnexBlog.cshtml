@@ -1,0 +1,106 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+	var sortedModel = model.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+
+    var i = 1;
+   
+    string linkfieldUrl = "";
+    string imgurl = "";
+    string altText = "";
+    var currentUrl = "";
+    Item singleItem = null;
+
+}
+<!-- 20230105 replace-->
+  <div class="dr_leaderspeak">
+    <div class="section-holder">
+      <p class="full h1 fm-asb tx-000 content-wrapper custom-module-headng">@Html.Sitecore().Field("SubTitle", model)</p>
+      <div class="content-wrapper">
+
+        <div class="leaderspeak_wrapper">
+          <div class="full awards-list owl-carousel dot-bc brand-dots d-txt" id="leaderspeak_slider_Home">
+			@foreach (Item item in sortedModel)
+                {
+					currentUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                    if (imgField != null && imgField.MediaItem != null)
+                    {
+                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                        altText = imgField.Alt;
+                    }
+
+                    Sitecore.Data.Fields.LinkField linkfield = item.Fields["LinkUrl"];
+                    linkfieldUrl = linkfield.GetFriendlyUrl();
+					var request = HttpContext.Current.Request;
+					var baseUrl = request.Url.Scheme + "://" + request.Url.Authority;
+                    var webUrl = baseUrl + linkfieldUrl;
+					<div>
+
+					  <div class="item-group blog-module award-item">
+						  <div class="item">
+							  <div class="item-image card-media">
+								  <img src="@imgurl" alt="@altText">
+							  </div>
+							  <div class="item-content">
+								  <div class="date">@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })</div>
+								  <h4>@Html.Sitecore().Field("Title", item)</h4>
+
+								  <div class="item-footer">
+									@if (linkfield.LinkType == "internal")
+									{
+										<a href="@linkfieldUrl" class="h-underline">Read More</a>
+									}
+									else
+									{
+										<a target="_blank" href="@linkfieldUrl" class="h-underline">Read More</a>
+									}
+									  <div class="share-icon">
+										  <i class="i-share i-20"></i>
+										  <ul class="share-option">
+											  <li>
+												<a href="mailto:?subject=Adani Connex&amp;body=Check out this @webUrl">
+												<i class="i-email i-14"></i>
+												</a>
+											  </li>
+											  <li>
+												<a target="_blank" href="https://www.linkedin.com/shareArticle?mini=true&amp;url=@webUrl">
+												  <i class="i-linkdin i-20"></i>
+												</a>
+											  </li>
+											</ul>
+										</div>
+											   
+								  </div>
+							  </div>
+						  </div>
+					  </div>
+
+					</div>
+				}
+            
+          </div>
+        </div>
+        <!-- leaderspeak_wrapper -->
+
+      </div>
+    </div>
+  </div>
+  <!-- dr_leaderspeak -->
+  <!-- 20230105 end-->

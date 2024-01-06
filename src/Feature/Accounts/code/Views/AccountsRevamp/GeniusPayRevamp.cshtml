@@ -1,0 +1,155 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields;
+@using Sitecore.Links;
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+}
+
+@if (element != null)
+{
+    <div class="input-field custom input-has-icon" id="SearchInput">
+        <input id="myInput"
+               type="text">
+        <label for="departure" class="">Search Centre</label>
+        <div class="input-icon">
+            <i class="vi-search i-24"></i>
+        </div>
+    </div>
+    <div class="customer_detail_wrapper customer_detail_list">
+        <table class="customer_detail_list-details" id="centersdiv">
+            <thead>
+                <tr>
+                    <th style="width:15%">Location</th>
+                    <th style="width:65%">Address</th>
+                    <th style="width:20%">Map</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var child in element.Children.ToList().OrderBy(x => x["Name"]))
+                {
+                    <tr>
+                        <td>
+                            <div class="table-cell border-right">
+                                <label>@Html.Sitecore().Field("Name", child)</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                <label>@Html.Sitecore().Field("Address", child)</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="table-cell">
+                                @{
+                                    Sitecore.Data.Fields.LinkField linkfld = child.Fields["Map Link"];
+                                    var url = linkfld != null && !string.IsNullOrEmpty(linkfld.GetFriendlyUrl()) ? linkfld.GetFriendlyUrl() : "javascript:void(0)";
+                                    var urlTarget = !string.IsNullOrEmpty(linkfld.Target) ? linkfld.Target : "";
+
+                                }
+                                <label>
+                                    <a href="@url" data-gaevent="genius_pay_center_map_click"
+                                       data-gaeventCategory="Help & Support"
+                                       data-gaeventAction="Genius Pay Center Map Click"
+                                       data-gaeventLabel="@Html.Sitecore().Field("Name", child)"
+                                       target="@urlTarget">@Html.Sitecore().Field("Map Location", child)</a>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination"></div>
+}
+
+<script src="/scripts/ElectricityNew/datatable-min-aeml-revamp.js"></script>
+<script>
+    jQuery(document).ready(function () {
+
+        var GeniusTable = $('#centersdiv').DataTable({
+            lengthChange: false,
+            pageLength: 10,
+            autoWidth: false,
+            ordering: false,
+            info: false,
+            language: {
+                paginate: {
+                    next: '<i class="i-arrow-r"></i>',
+                    previous: '<i class="i-arrow-l"></i>'
+                }
+            },
+            bPaginate: true,
+            "fnDrawCallback": function (oSettings) {
+                if (oSettings._iDisplayLength > oSettings.fnRecordsDisplay()) {
+                    $('.pagination').hide();
+                } else {
+                    $('.pagination').show();
+                }
+
+                $("#TotalPayCenter")[0].scrollIntoView(true);
+            }
+        })
+        $('#centersdiv_paginate').appendTo('.pagination');
+        $('#centersdiv_filter').hide();
+        $('#myInput').keyup(function () {
+            GeniusTable.search($(this).val()).draw();
+            if ($('#centersdiv').find('.dataTables_empty').length > 0) {
+                dataLayer.push({
+                    'event': "genius_pay_center_search_not_found",
+                    'eventCategory': "Electricity Connection",
+                    'eventAction': "Genius Pay Center Search Not Found",
+                    'eventLabel': "NA",
+                    'business_user_id': $('#BusinessUserId').val(),
+                    'login_status': $('#login_status').val(),
+                    'ca_number': $('#GACANumber').val(),
+                    'page_type': $('head title').text()
+                });
+            }
+        })
+
+        function sortTable(table, order) {
+            var asc = order === 'asc',
+                tbody = table.find('tbody');
+
+            tbody.find('tr').sort(function (a, b) {
+                if (asc) {
+                    return $('td:first', a).text().localeCompare($('td:first', b).text());
+                } else {
+                    return $('td:first', b).text().localeCompare($('td:first', a).text());
+                }
+            }).appendTo(tbody);
+        }
+
+        sortTable($('#centersdiv '), 'asc');
+
+        var table_length = GeniusTable.rows().count();
+        if (table_length > 0) {
+            $('#TotalPayCenter').html(table_length);
+        } else {
+            $('#TotalPayCenter').html('0');
+        }
+    });
+</script>
+<script type="text/javascript">
+    $('a').click(function () {
+        if ($(this).attr('data-gaevent') != undefined) {
+            dataLayer.push({
+                'event': $(this).attr('data-gaevent'),
+                'eventCategory': $(this).attr('data-gaeventCategory'),
+                'eventAction': $(this).attr('data-gaeventAction'),
+                'eventLabel': $(this).attr('data-gaeventLabel'),
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        }
+    })
+</script>

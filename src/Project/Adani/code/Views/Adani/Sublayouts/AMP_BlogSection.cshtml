@@ -1,0 +1,56 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var sortedItem = models.GetChildren().OrderByDescending(x => x.Fields["Blog Date"].Value);
+    string linkUrl = "#";
+    var i = 1;
+}
+
+<section class="section_blogs">
+    <h2>Read our <span>Latest Blogs</span></h2>
+    <amp-carousel height="490" layout="fixed-height" type="slides" role="region" aria-label="" class="carousel" on="slideChange:AMP.setState({selected: {slide: event.index}})">
+
+        @foreach (var item in sortedItem)
+        {
+        Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["ActiveImage"]);
+
+        string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+        linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+        <div>
+            <div class="blog_main">
+                <div class="blog_main--thumb">
+                    
+                        <amp-img src="@url" alt="Gautam Adani's IRMA talk on transforming Indian agriculture" layout="responsive" width="350" height="220"></amp-img>
+                    
+                </div>
+                <div class="blog_main--content">
+                    <h3>@Html.Sitecore().Field("Blog Title", item)</h3>
+                    <p>@Html.Sitecore().Field("Blog Summary", item)</p>
+                    <a href="@linkUrl">Read More</a>
+                </div>
+            </div>
+
+        </div>
+        if (i == 4)
+        {
+        break;
+        }
+        i++;
+        }
+
+    </amp-carousel>
+    <div class="dots">
+        <span role="slider-pager" tabindex="1" on="tap:carousel.goToSlide(index=0)" [class]="selected.slide == 0 ? 'current' : ''" class="current"></span>
+        <span role="slider-pager" tabindex="2" on="tap:carousel.goToSlide(index=1)" [class]="selected.slide == 1 ? 'current' : ''"></span>
+        <span role="slider-pager" tabindex="3" on="tap:carousel.goToSlide(index=2)" [class]="selected.slide == 2 ? 'current' : ''"></span>
+    </div>
+    <div class="text-center">
+        <a href="https://www.adani.com/Blogs" class="btn btn-gradient">Explore All</a>
+    </div>
+</section>

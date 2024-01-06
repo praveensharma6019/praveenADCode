@@ -1,0 +1,158 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var btn_ApplyNow = paramid["ApplyNow"] != null ? Sitecore.Context.Database.GetItem(paramid["ApplyNow"]) : null;
+    var btn_KnowMore = paramid["KnowMore"] != null ? Sitecore.Context.Database.GetItem(paramid["KnowMore"]) : null;
+    var imgurl = "#";
+    var linkurl_applynow = "";
+    var linkurl_knowmore = "";
+    var altText = "";
+}
+
+@if (model != null)
+{
+    if (model.HasChildren)
+    {
+        Sitecore.Data.Fields.LinkField linkvalue_applynow = btn_ApplyNow.Fields["LinkUrl"];
+        if (linkvalue_applynow != null)
+        {
+            linkurl_applynow = linkvalue_applynow.GetFriendlyUrl();
+        }
+
+        Sitecore.Data.Fields.LinkField linkvalue_knowmore = btn_KnowMore.Fields["LinkUrl"];
+        if (linkvalue_knowmore != null)
+        {
+            linkurl_knowmore = linkvalue_knowmore.GetFriendlyUrl();
+        }
+
+        <section>
+            <div>
+                <div class="row d-flex justify-content-center">
+                    <div class="justify-content-center w-100">
+                        <h1 class="text-center  my-4 headingindexconcern">
+                            <strong>
+                                @Html.Sitecore().Field("MediaTitle", model)
+                            </strong>
+                        </h1>
+                        <div class="w-75 m-auto">
+                            <p class="text-center mx-lg-4 text-secondary">
+                                @Html.Sitecore().Field("MediaDescription", model)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="container row   m-auto">
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        if (item.TemplateName == "Image")
+                        {
+                            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaThumbnail"]);
+                            if (imgField != null && imgField.MediaItem != null)
+                            {
+                                imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                altText = imgField.Alt;
+                            }
+                            else
+                            {
+                                imgurl = "#";
+                                altText = "";
+                            }
+
+                            <div class="col-lg-6  my-3 m-auto">
+                                <div class="row cardsbscorer">
+                                    <div class="col-3 textsizeino"> <span>@Html.Sitecore().Field("MediaTitle", item)</span></div>
+                                    @if (imgField != null)
+                                    {
+                                        <div class="col-3 prize-icon">
+                                            <img class="prize-icon-size" src="@imgurl" alt="@altText">
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-3 prize-icon">
+                                            <img class="prize-icon-size" src="#" alt="">
+                                        </div>
+                                    }
+                                    <div class="col-6 m-auto indexcarocover">
+                                        <small>
+                                            @Html.Sitecore().Field("MediaDescription", item)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+
+                    }
+
+                </div>
+                <div class="d-lg-flex justify-content-lg-between w-50 m-auto d-block my-4 py-3  text-center">
+
+                    @if (linkurl_knowmore != "")
+                    {
+                        if (linkvalue_knowmore.LinkType == "internal")
+                        {
+                            <a href="@linkurl_knowmore">
+
+                                <div><button class="btn-jury">@Html.Sitecore().Field("Title", btn_KnowMore)</button></div>
+                            </a>
+                        }
+                        if (linkvalue_knowmore.LinkType == "external")
+
+                        {
+                            <a href="@linkurl_knowmore" target="_blank" rel="noopener noreferrer">
+                                <div><button class="btn-jury">@Html.Sitecore().Field("Title", btn_KnowMore)</button></div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)">
+                            <div><button class="btn-jury">@Html.Sitecore().Field("Title", btn_KnowMore)</button></div>
+                        </a>
+                    }
+
+
+                    @if (linkurl_applynow != "")
+                    {
+                        if (linkvalue_applynow.LinkType == "internal")
+                        {
+                            <a href="@linkurl_applynow">
+                                <div><button class="btn-jury1 mt-lg-0 mt-3">@Html.Sitecore().Field("Title", btn_ApplyNow)</button></div>
+                            </a>
+                        }
+                        if (linkvalue_applynow.LinkType == "external")
+
+                        {
+                            <a href="@linkurl_applynow" target="_blank" rel="noopener noreferrer">
+                                <div><button class="btn-jury1 mt-lg-0 mt-3">@Html.Sitecore().Field("Title", btn_ApplyNow)</button></div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)">
+                            <div><button class="btn-jury1 mt-lg-0 mt-3">@Html.Sitecore().Field("Title", btn_ApplyNow)</button></div>
+                        </a>
+                    }
+
+
+                </div>
+            </div>
+        </section>
+    }
+
+}

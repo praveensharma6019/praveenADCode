@@ -1,0 +1,115 @@
+
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+                /**/
+
+                var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+                var elements = Sitecore.Context.Database.GetItem(datasource);
+                var NavigateUrl = "";
+                var i = 1;
+                var j = 1;
+				 Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)elements.Fields["Image"]);
+
+    string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+}
+
+
+<section class="section_padding section_commitment">
+    <div class="bg-images"><img src="@url" loading="lazy"></div>
+    <div class="container">
+        <div data-aos="fade-up">
+            @Html.Sitecore().Field("Summary", elements)
+        </div>
+        <!-- Nav tabs -->
+        <div class="mx-90" data-aos="fade-up" data-aos-duration="2000">
+            <ul class="nav nav-tabs nav-justified">
+                @foreach (var item in elements.Children.ToList())
+                {
+
+                    var itename = item.Fields["MediaTitle"];
+                    if (i == 1)
+                    {
+
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#@itename">@itename</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#@itename">@itename</a>
+                        </li>
+                    }
+                    i++;
+                }
+            </ul>
+
+            <!-- Tab panes -->
+
+            <div class="tab-content nav-justified" data-aos="fade-up" data-aos-duration="2000">
+                @foreach (var item in elements.Children.ToList())
+                {
+                    Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaLink"];
+                    NavigateUrl = linkField.Url;
+                    var itename = item.Fields["MediaTitle"];
+                    if (j == 1)
+                    {
+                        <div class="tab-pane container active" id="@itename">
+                            <div class="row mb-3">
+                                @foreach (var items in item.Children.ToList())
+                                {
+								 Sitecore.Data.Fields.ImageField imgFields = ((Sitecore.Data.Fields.ImageField)items.Fields["MediaImage"]);
+
+                          string urls = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgFields.MediaItem);
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="card_main">
+                                            <div class="card-thumb">
+                                               <img src="@urls" loading=lazy> 
+                                            </div>
+                                            <div class="card-details">
+                                                @Html.Sitecore().Field("MediaDescription", items)
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+
+                            </div>
+                            <div class="text-center"><a href="@NavigateUrl" class="btn btn-gradient">Explore Environment</a></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tab-pane container fade" id="@itename">
+                            <div class="row mb-3">
+                                @foreach (var items in item.Children.ToList())
+                                {
+								Sitecore.Data.Fields.ImageField imgFields = ((Sitecore.Data.Fields.ImageField)items.Fields["MediaImage"]);
+
+                          string urls = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgFields.MediaItem);
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="card_main">
+                                            <div class="card-thumb">
+                                               <img src="@urls" loading=lazy>
+                                            </div>
+                                            <div class="card-details">
+                                                @Html.Sitecore().Field("MediaDescription", items)
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                            <div class="text-center"><a href="@NavigateUrl" class="btn btn-gradient">Explore Social</a></div>
+                        </div>
+
+                    }
+                    j++;
+                }
+
+            </div>
+        </div>
+            </div>
+</section>

@@ -1,0 +1,39 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "bg-white z-index position-relative";
+    }
+}
+
+<section class="py-5 @paramid" id="firstsection">
+    <div class="container">
+        <div class="row mb-3 content">
+            @foreach (var child in element.Children.ToList())
+            {
+                Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                <div class="four col-md-2">
+                    <div class="b-icon">
+                        <img alt="" src="@imgurl" class="img-fluid" />
+                    </div>
+                    <div class="b-content">
+                        <p>@Html.Sitecore().Field("Title", child)</p>
+                        <p><span>@Html.Sitecore().Field("Body", child)</span></p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

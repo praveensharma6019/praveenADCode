@@ -1,0 +1,46 @@
+﻿@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    var NavigateUrl = "";
+
+    System.Web.HttpBrowserCapabilities myBrowserCaps = HttpContext.Current.Request.Browser;
+    var IsmobileDevice = myBrowserCaps.IsMobileDevice;
+
+}
+<section class="mainSlider">
+    @if (IsmobileDevice)
+    {
+        @Html.Sitecore().Placeholder("mobile-video-banner")
+    }
+    <div class="owl-carousel homeslider d-md-block d-none desktopslider">
+        @foreach (var item in elements.Children.ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkField = item.Fields["MediaLink"];
+            NavigateUrl = linkField.Url;
+            Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaThumbnail"]);
+
+            string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+            <div class="item" data-videosrc="@NavigateUrl">
+                <img src="@url" class="image-fluid" loading=lazy>
+
+                <div class="bannercontent d-none">
+                    <div class="container-fluid">
+                        <div class="bannercontent_inner">
+                            <h1>@Html.Sitecore().Field("MediaTitle", item)</h1>
+                            @Html.Sitecore().Field("MediaDescription", item)
+                            <div><a href="#" class="btn btn-gradient">Read More</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="scroll-down">
+        <a href="#main-section"><span class="blink blink-infinite blink-1"></span><span class="blink blink-infinite blink-2"></span><span class="blink blink-infinite blink-3"></span><span class="blink blink-infinite blink-4"></span><span class="blink blink-infinite blink-5"></span></a>
+    </div>
+
+
+</section>

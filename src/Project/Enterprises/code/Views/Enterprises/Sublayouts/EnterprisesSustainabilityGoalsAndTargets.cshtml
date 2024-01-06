@@ -1,0 +1,48 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "position-relative bg-image bg-white";
+    }
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+    var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+
+
+    var linkurl = "#";
+
+    Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)element.Fields["LinkUrl"]);
+    if (linkfield != null)
+    {
+        linkurl = linkfield.GetFriendlyUrl();
+    }
+    var LinkText = @Html.Sitecore().Field("Author", element);
+}
+
+<section class="@paramid">
+
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 p-0 px-2">
+                <div class="col bg-image p-2 py-5" style="border-radius: 8px; background: url(@imgurl) no-repeat center center;">
+                    <p class="bg-img-text mb-2">@Html.Sitecore().Field("Title", element)</p>
+                    @Html.Sitecore().Field("Body", element)
+                    <a href="@linkurl" target="_blank" class="read-goals-line">@LinkText</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

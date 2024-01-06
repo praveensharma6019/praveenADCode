@@ -1,0 +1,41 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.AdaniHousing.Website.Helper
+@using Sitecore.Data.Items
+@{
+    var contextItem = Sitecore.Context.Item;
+    MultilistField elements = contextItem.Fields["Products"];
+    var BGImageTag = Helper.ImageTagUrl("ProductSectionBGImage", contextItem);
+}
+<section class="finance-offerings section_padding">
+    <div class="bg-images">@Html.Raw(BGImageTag)</div>
+    <div class="container">
+        <h2 class="text-center">@Html.Sitecore().Field("ProductSectionHeading", contextItem)</h2>
+        <p>@Html.Sitecore().Field("ProductSectionSummary", contextItem)</p>
+        <div class="row">
+            @if (elements != null && elements.Count > 0)
+            {
+                Item[] listItem = elements.GetItems();
+                foreach (var prod in listItem)
+                {
+                    var link = Sitecore.Links.LinkManager.GetItemUrl(prod).ToLower();
+                    var ThumbImageTag = Helper.ImageTagUrl("Thumbnail", prod);
+                    int col = 12 / listItem.Length;
+                    <div class="col-lg-@col mb-lg-0 mb-3">
+                        <div class="finance_main finance_main-green">
+                            <a href="@link">
+                                <div class="finance_main--thumb">
+                                    @Html.Raw(ThumbImageTag)
+                                </div>
+                                <div class="finance_main--desc">
+                                    <h3>@Html.Sitecore().Field("Title", prod)</h3>
+                                    <p>@Html.Sitecore().Field("ShortDescription", prod)</p>
+                                    <div>Read More</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section><!--/section-->

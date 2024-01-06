@@ -1,0 +1,31 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Affordable.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+
+
+<section class="bg-white py-5">
+    <div class="container">
+        <h3 class="text-center sectionHeading txt-black"><span>@Html.Sitecore().Field(Templates.SingleText.Fields.Text, models)</span></h3>
+        <div class="bootleggers owl-carousel" id="state-infra">
+            @foreach (var item in models.Axes.GetDescendants())
+            {
+                Sitecore.Data.Fields.ImageField imageField = item.Fields[Templates.HasMediaImage.Fields.Image];
+                if (imageField?.MediaItem != null)
+                {
+                    var image = new MediaItem(imageField.MediaItem);
+                    var imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+
+                    <a class="item popup" href="@imageUrl"><img src="@imageUrl" alt="Gallery"></a>
+                }
+            }
+                </div>
+    </div>
+</section>

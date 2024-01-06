@@ -1,0 +1,72 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.AdaniGreenTalks.Website;
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    int count = 1;
+    string btnUrl = "";
+
+}
+
+@if (model != null)
+{
+    if (model.HasChildren)
+    {
+
+        <div class="faq-section">
+            <div class="container">
+                <div class="top">
+                    <h3>@Html.Sitecore().Field(Constant.Text, model)</h3>
+                </div>
+
+                <div class="accordion" id="accordionExample">
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        if (item.TemplateName.ToLower() == "faq")
+                        {
+
+                            var collapse = "collapse" + count;
+                            var id = "heading" + count;
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="@id">
+                                    <button class="accordion-button collapsed"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#@collapse"
+                                            aria-expanded="true"
+                                            aria-controls="@collapse">
+                                        @Html.Sitecore().Field(Constant.Question, item)
+                                    </button>
+                                </h2>
+                                <div id="@collapse"
+                                     class="accordion-collapse collapse"
+                                     aria-labelledby="@id"
+                                     data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        <p>
+                                            @Html.Sitecore().Field(Constant.Answer, item)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            count++;
+
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+    }
+
+}

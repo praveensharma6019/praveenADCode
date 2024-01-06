@@ -1,0 +1,105 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Resources.Media
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var sendEmail = "false";
+    Sitecore.Data.ID pageContextID = Sitecore.Data.ID.Parse(@Sitecore.Context.Item.ID);
+    Sitecore.Data.Items.Item pageContext = Sitecore.Context.Database.GetItem(pageContextID);
+    Sitecore.Data.Fields.MultilistField multiselectField = pageContext?.Fields["{1326C5B4-F98B-4D72-8645-8315499FB1D3}"];
+    if (multiselectField != null)
+    {
+        Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+        if (items.Length > 0)
+        {
+            foreach (var item in items)
+            {
+                if (item.DisplayName == "ContactUs")
+                {
+
+                    sendEmail = "true";
+                }
+            }
+        }
+
+    }
+
+}
+
+<div class="contact-us-floating" id="contactUsHolder">
+    <div class="contact-us-btn anim" id="contactUsBtn"><span class="btn fm-asb">Contact Us</span></div>
+    <div class="contact-backdrop" id="contactUsBackdrop"></div>
+    <div class="contact-us-form anim" id="contact-us">
+        <p class="h2 fm-asb tx-000">Contact Us</p>
+        <div class="contact-inputs">
+            <div class="input-wrapper floating">
+                <input class="input anim"
+                       id="name"
+                       name="name"
+                       data-has-validation="enable"
+                       data-input-required="required" />
+                <label for="name" class="label anim">Enter your name*</label>
+            </div>
+        </div>
+        <div class="grid-wrapper grid-layout-2 contact-inputs">
+            <div class="grid">
+                <div class="input-wrapper floating">
+                    <input id="email"
+                           name="email"
+                           class="input anim"
+                           data-has-validation="enable"
+                           data-input-required="required"
+                           data-input-regex='^(([^<>()[\]\\.,;:\s@@"]+(\.[^<>()[\]\\.,;:\s@@"]+)*)|(".+"))@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$' />
+
+                    <label for="email" class="label anim">Enter Your Email*</label>
+                </div>
+            </div>
+            <div class="grid">
+                <div class="input-wrapper floating">
+                    <input id="mobile"
+                           name="mobile"
+                           class="input anim"
+                           inputmode="numeric"
+                           maxlength="10"
+                           data-has-validation="enable"
+                           data-input-required="required"
+                           data-input-regex="^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[789]\d{9}$" />
+                    <label for="mobile" class="label anim">Contact Number*</label>
+                </div>
+            </div>
+        </div>
+        <div class="contact-inputs">
+            <div class="input-wrapper floating">
+                <textarea id="message"
+                          name="message"
+                          class="input anim"
+                          data-has-validation="enable"
+                          data-input-required="required"></textarea>
+                <label for="message" class="label anim">Enter Your Message*</label>
+            </div>
+        </div>
+        <div class="contact-inputs">
+            <div class="chckbx-wrpr">
+                <input type="checkbox" name="remember" id="remember" />
+                <label for="remember">This is sample text, will replaced with original content.</label>
+            </div>
+        </div>
+        <div class="contact-inputs ac">
+            <input type="hidden" id="sendEmailContactWeb" name="sendEmailContactWeb" value="@sendEmail" />
+            <input type="hidden" id="FormType" name="FormType" value="ContactUs" />
+            <input type="button" id="contactusSubmit" class="btn small" value="Submit" onclick="contactUs()" />
+        </div>
+    </div>
+</div>

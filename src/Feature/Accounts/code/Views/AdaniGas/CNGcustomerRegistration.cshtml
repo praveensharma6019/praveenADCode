@@ -1,0 +1,396 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Accounts.Models.AdaniGasCNGRegistration.AdaniGasCNG_CustomerRegistration
+<section class="bg-gray py-5">
+    <div class="container">
+        @*<h3 class="mb-4"><b>Welcome to ATGL</b></h3>
+            <p></p>*@
+        @if (Model != null)
+        {
+            <div class="vehicle_form">
+                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "CNGcustomerRegForm", name = "CNGcustomerRegForm", @class = "", enctype = "multipart/form-data" }))
+                {
+                    @Html.AddUniqueFormId()
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+                    @Html.HiddenFor(m => m.FormName, new { @Value = HttpContext.Current.Request.Url.AbsolutePath })
+
+                    <div class="row">
+                        <div class="col-lg-12 mb-3">
+                            @if (!string.IsNullOrEmpty(Model.ReturnViewMessage))
+                            {
+                                <p class="help-block required">@Model.ReturnViewMessage</p>
+                            }
+                            <div>
+                                <label class="d-block">Is the vehicle a BS VI standard vehicle?</label>
+                                <div class="form-check form-check-inline">
+                                    @Html.RadioButtonFor(model => model.IsBSVI, false, new { id = "IsBSVINo", @class = "form-check-input" })
+                                    <label class="form-check-label" for="IsBSVI">No</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    @Html.RadioButtonFor(model => model.IsBSVI, true, new { id = "IsBSVIYes", @class = "form-check-input" })
+                                    <label class="form-check-label" for="IsBSVIYes">Yes</label>
+                                </div>
+                            </div>
+                        </div>
+                        @if (!Model.IsBSVI)
+                        {
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.VehicleType, "Vehicle Type")<span class="required">*</span>
+                                    @Html.DropDownListFor(x => x.VehicleType, new SelectList(Model.VehicleTypeList, "Value", "Text"), "Select Vehicle Type", htmlAttributes: new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(x => x.VehicleType, "", new { @class = "help-block required" }, "p")
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    @Html.LabelFor(model => model.Year, "Which year was the vehicle purchased?")<span class="required">*</span>
+                                    @Html.DropDownListFor(x => x.Year, new SelectList(Model.YearList, "Value", "Text"), "Select Year", htmlAttributes: new { @class = "form-control", required = "required" })
+                                    @Html.ValidationMessageFor(x => x.Year, "", new { @class = "help-block required" }, "p")
+                                </div>
+                            </div>
+                        }
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                    </div>
+                    if (!Model.IsBSVI)
+                    {
+                        <div class="owner-details">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.FirstName, "First Name")<span class="required">*</span>
+                                        @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control CNGCustReg", required = "required", id = "CNGCustReg-fname" })
+                                        @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "help-block required" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.LastName, "Last Name")<span class="required">*</span>
+                                        @Html.TextBoxFor(model => model.LastName, new { @class = "form-control CNGCustReg", required = "required", id = "CNGCustReg-lname" })
+                                        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "help-block required" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Email, "Email ID")<span class="required">*</span>
+                                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control CNGCustReg", required = "required", @type = "email" })
+                                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "help-block required" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group mb-3">
+                                        @if (Model.IsOTPValid)
+                                        {
+                                            @Html.LabelFor(model => model.Mobile, "Mobile Number", new { @class = "" })<span class="required"></span><i class="fas fa-check-circle"></i>
+                                            @Html.TextBoxFor(model => model.Mobile, new { @class = "form-control CNGCustReg", type = "number", maxlength = "10", @readonly = "readonly", required = "required", id = "CNGCustRegMobile" })
+                                            
+                                            @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "help-block required" }, "p")
+                                            @Html.HiddenFor(m => m.IsOTPValid)
+                                        }
+                                        else
+                                        {
+                                            @Html.LabelFor(model => model.Mobile, "Mobile Number", new { @class = "" })<span class="required">*</span>
+                                            @Html.TextBoxFor(model => model.Mobile, new { @class = "form-control CNGCustReg", type = "number", maxlength = "10", required = "required", id = "CNGCustRegMobile" })
+                                            @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "help-block required" }, "p")
+                                            <div class="input-group-append">
+                                                <div class="input-group-append">
+                                                    <button type="button" value="sendOTP" id="CNGsendOTP">Send OTP</button>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-6">
+                                    <div class="form-group">
+                                        @if (Model.IsOTPValid)
+                                        {
+                                            @Html.LabelFor(model => model.OTP, "Enter OTP", new { @class = "d-none" })
+                                            @Html.TextBoxFor(model => model.OTP, new { @class = "form-control d-none", @readonly = "readonly", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.OTP, "", new { @class = "help-block required" }, "p")
+                                        }
+                                        else
+                                        {
+                                            @Html.LabelFor(model => model.OTP, "Enter OTP")<span class="required">*</span>
+                                            @Html.TextBoxFor(model => model.OTP, new { @class = "form-control", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.OTP, "", new { @class = "help-block required" }, "p")
+                                            <div class="input-group-append">
+                                                <div class="input-group-append">
+                                                    <button type="submit" name="ValidateOTP" value="validateOTP">Validate</button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                @if (Model.IsOTPValid)
+                                {
+                                    <div class="col-12">
+                                        <fieldset>
+                                            <legend>Current Address</legend>
+                                            <div class="row">
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentAddressLine1, "Address Line 1")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentAddressLine1, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentAddressLine1, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentAddressLine2, "Address Line 2")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentAddressLine2, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentAddressLine2, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentState, "State")<span class="required">*</span>
+                                                        @Html.DropDownListFor(x => x.CurrentState, new SelectList(Model.StateList, "Value", "Text"), "Select State", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGCustCurrentState" })
+                                                        @Html.ValidationMessageFor(x => x.CurrentState, "", new { @class = "CurrentStateMsg help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentCity, "City")<span class="required">*</span>
+                                                        @Html.DropDownListFor(x => x.CurrentCity, new SelectList(Model.CityList, "Value", "Text"), "Select City", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGCustCurrentCity" })
+                                                        @Html.ValidationMessageFor(x => x.CurrentCity, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentPincode, "Pin Code")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentPincode, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentPincode, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentArea, "Area")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentArea, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentArea, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-12 mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="CNGIsSameAddress">
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                <b>Registered Address same as Current Address?</b>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <fieldset>
+                                            <legend>Registered Address</legend>
+                                            <div class="row">
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.RegisteredAddressLine1, "Address Line 1")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.RegisteredAddressLine1, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.RegisteredAddressLine1, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.RegisteredAddressLine2, "Address Line 2")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.RegisteredAddressLine2, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.RegisteredAddressLine2, "", new { @class = "help-block required" }, "p")
+
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.RegisteredState, "State")<span class="required">*</span>
+                                                        @Html.DropDownListFor(x => x.RegisteredState, new SelectList(Model.StateList, "Value", "Text"), "Select State", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGCustRegState" })
+                                                        @Html.ValidationMessageFor(x => x.RegisteredState, "", new { @class = "RegStateMsg help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.RegisteredCity, "City")<span class="required">*</span>
+                                                        @Html.DropDownListFor(x => x.RegisteredCity, new SelectList(Model.CityList, "Value", "Text"), "Select City", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGCustRegCity" })
+                                                        @Html.ValidationMessageFor(x => x.RegisteredCity, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.RegisteredPincode, "Pin Code")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.RegisteredPincode, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.RegisteredPincode, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.RegisteredArea, "Area")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.RegisteredArea, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.RegisteredArea, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.VehicleCompany, "Vehicle company")<span class="required">*</span>
+                                            @Html.DropDownListFor(x => x.VehicleCompany, new SelectList(Model.VehicleCompanyList, "Value", "Text"), "Select Vehicle Company", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGVehicleCompany" })
+                                            @Html.ValidationMessageFor(x => x.VehicleCompany, "", new { @class = "help-block required" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.VehicleModel, "Vehicle model")<span class="required">*</span>
+                                            @Html.DropDownListFor(x => x.VehicleModel, new SelectList(Model.VehicleModelList, "Value", "Text"), "Select Vehicle model", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGVehicleModel" })
+                                            @Html.ValidationMessageFor(x => x.VehicleModel, "", new { @class = "help-block required" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="form-group">
+                                            @Html.LabelFor(model => model.VehicleNo, "Vehicle Number")<span class="required">*</span>
+                                            @Html.TextBoxFor(model => model.VehicleNo, new { @class = "form-control", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.VehicleNo, "", new { @class = "help-block required" }, "p")
+                                        </div>
+                                    </div>
+                                    <div class="col-12 text-left mt-4">
+                                        <button type="submit" value="CNGRegSubmitBtn" name="SubmitBtn" class="btn btn-primary">Submit</button>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    }
+                    if (Model.IsBSVI)
+                    {
+                        <div class="owner-details">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.FirstName, "First Name")<span class="required">*</span>
+                                        @Html.TextBoxFor(model => model.FirstName, new { @class = "form-control CNGCustReg", required = "required", id = "CNGCustReg-fname" })
+                                        @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "help-block required" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.LastName, "Last Name")<span class="required">*</span>
+                                        @Html.TextBoxFor(model => model.LastName, new { @class = "form-control CNGCustReg", required = "required", id = "CNGCustReg-lname" })
+                                        @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "help-block required" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Email, "Email ID")<span class="required">*</span>
+                                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control CNGCustReg", required = "required", @type = "email" })
+                                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "help-block required" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="form-group mb-3">
+                                        @if (Model.IsOTPValid)
+                                        {
+                                            @Html.LabelFor(model => model.Mobile, "Mobile Number", new { @class = "" })<span class="required"></span><i class="fas fa-check-circle"></i>
+                                            @Html.TextBoxFor(model => model.Mobile, new { @class = "form-control CNGCustReg", type = "number", maxlength = "10", @readonly = "readonly", required = "required", id = "CNGCustRegMobile" })
+                                            
+                                            @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "help-block required" }, "p")
+                                            @Html.HiddenFor(m => m.IsOTPValid)
+                                        }
+                                        else
+                                        {
+                                            @Html.LabelFor(model => model.Mobile, "Mobile Number", new { @class = "" })<span class="required">*</span>
+                                            @Html.TextBoxFor(model => model.Mobile, new { @class = "form-control CNGCustReg", type = "number", maxlength = "10", required = "required", id = "CNGCustRegMobile" })
+                                            @Html.ValidationMessageFor(model => model.Mobile, "", new { @class = "help-block required" }, "p")
+                                            <div class="input-group-append">
+                                                <div class="input-group-append">
+                                                    <button type="button" value="sendOTP" id="CNGsendOTP">Send OTP</button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-6">
+                                    <div class="form-group">
+                                        @if (Model.IsOTPValid)
+                                        {
+                                            @Html.LabelFor(model => model.OTP, "Enter OTP", new { @class = "d-none" })
+                                            @Html.TextBoxFor(model => model.OTP, new { @class = "form-control d-none", @readonly = "readonly", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.OTP, "", new { @class = "help-block required" }, "p")
+                                        }
+                                        else
+                                        {
+                                            @Html.LabelFor(model => model.OTP, "Enter OTP")<span class="required">*</span>
+                                            @Html.TextBoxFor(model => model.OTP, new { @class = "form-control", required = "required" })
+                                            @Html.ValidationMessageFor(model => model.OTP, "", new { @class = "help-block required" }, "p")
+                                            <div class="input-group-append">
+                                                <div class="input-group-append">
+                                                    <button type="submit" name="ValidateOTP" value="validateOTP">Validate</button>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                @if (Model.IsOTPValid)
+                                {
+                                    <div class="col-12">
+                                        <fieldset>
+                                            <legend>Current Address</legend>
+                                            <div class="row">
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentAddressLine1, "Address Line 1")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentAddressLine1, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentAddressLine1, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentAddressLine2, "Address Line 2")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentAddressLine2, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentAddressLine2, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentState, "State")<span class="required">*</span>
+                                                        @Html.DropDownListFor(x => x.CurrentState, new SelectList(Model.StateList, "Value", "Text"), "Select State", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGCustCurrentState" })
+                                                        @Html.ValidationMessageFor(x => x.CurrentState, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentCity, "City")<span class="required">*</span>
+                                                        @Html.DropDownListFor(x => x.CurrentCity, new SelectList(Model.CityList, "Value", "Text"), "Select City", htmlAttributes: new { @class = "form-control", required = "required", id = "CNGCustCurrentCity" })
+                                                        @Html.ValidationMessageFor(x => x.CurrentCity, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentPincode, "Pin Code")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentPincode, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentPincode, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-3 col-md-6">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.CurrentArea, "Area")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.CurrentArea, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.CurrentArea, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-12 text-left mt-4">
+                                        <button type="submit" value="CNGRegSubmitBtn" name="SubmitBtn" class="btn btn-primary">Submit</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</section>

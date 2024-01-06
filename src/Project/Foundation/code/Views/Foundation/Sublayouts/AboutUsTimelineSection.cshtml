@@ -1,0 +1,35 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var sortedYear = element.GetChildren().OrderByDescending(x => x.Fields["Year"].Value);
+    var i = 0;
+}
+
+<section class="py-5">
+    <div class="container">
+        <h3 class="heading mb-4">@element.Fields["Text"]</h3>
+        <div class="owl-carousel owl-theme timeline-carousel">
+            @if (element.GetChildren() != null)
+            {
+                foreach (Item item in sortedYear)
+                {
+                    <div class="item">
+                        <div>@Html.Sitecore().ImageField("Image", item)</div>
+                        <p class="year">@item.Fields["Year"]</p>
+                        @Html.Sitecore().Field("Body", item)
+                    </div>
+                    i++;
+                    if(i==3)
+                    {
+                        break;
+                    }
+                }
+            }            
+        </div>
+        <p class="text-center mt-3"><a href="/about-us/The-Expedition " class="btn btn-gradient">View All</a></p>
+    </div>
+</section>

@@ -1,0 +1,61 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@model Sitecore.Feature.Accounts.Models.DownloadViewBill
+
+<!-- Toggle button to show/hide side nav -->
+<div class="d-block d-md-none sideNavBtn">
+    <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+        <i class="fas fa-align-left"></i>
+        <span>&nbsp;Menu</span>
+    </button>
+</div>
+<!-- /Toggle button to show/hide side nav -->
+<div class="clearfix"></div>
+<!-- Update Profile Page Content-->
+<div class="panel">
+    <p>Want to have a ready reference of your bill? Select a month and click below to download your bill in PDF format.</p>
+    <div class="py-3"></div>
+    @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { }))
+    {
+        @Html.AddUniqueFormId()
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.AccountNumber)
+        @Html.HiddenFor(x => x.MobileNumber)
+        <form class="pt-3">
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">Select a month</label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.DropDownListFor(a => a.selectedMonth, new SelectList(Model.InvoiceLines, "BillMonth", "BillMonth"), new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group row py-2">
+                <div class="col-sm-12">
+                    @*<button type="button" class="btn btn-primary" id="viewBill">View</button>*@
+                    <button type="submit" class="btn btn-primary" name="viewBill" value="viewBill" id="viewBill">Download</button>
+
+                </div>
+            </div>
+            <div class="form-group row py-2" style="display:none">
+                <div class="col-sm-12">
+                    <p><span><img src="images/warning_icon.jpg" alt=""></span>In case you face any issue in downloading your bill, you may provide your email address to request the bill to be sent to your e-mail:</p>
+                </div>
+            </div>
+            <div class="form-group row" style="display:none">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">@Html.Sitecore().Dictionary("/Accounts/DownloadPayBill/Email", "E-mail")<span class="required">*</span></label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.Email, new { @class = "form-control", required = "required" })
+                    @Html.ValidationMessageFor(x => x.Email, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+            <div class="form-group row py-2" style="display:none">
+                <div class="col-sm-12">
+                    <input type="submit" id="save" value="@Html.Sitecore().Dictionary("/Accounts/DownloadPayBill/Button Submit", "Submit")" class="btn btn-primary" />
+                </div>
+            </div>
+            <div class="col-sm-12" style="display:none">
+                <p>Note: Please use Adobe Acrobat 7.0 to open in PDF format, you can download it from <a href="http://www.adobe.com/support/downloads/main.html" target="_blank" style="color:#007bff;">here.</a></p>
+            </div>
+        </form>
+    }
+</div>

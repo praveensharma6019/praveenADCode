@@ -1,0 +1,88 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@if (!Model?.Item?.IsDerived(Templates.HasMediaSelector.ID) ?? true)
+{
+    @Html.PageEditorError(AlertTexts.InvalidDataSourceTemplate(Templates.HasMediaSelector.ID), AlertTexts.InvalidDataSourceTemplateFriendlyMessage, Model.Item?.ID, Model.Rendering.Item?.ID)
+    return;
+}
+
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+    int? carouselHeight = null;
+    var mobileMedia = Model.Item.Fields["MobileMediaSelector"].Value;
+    var i = 0;
+}
+<div class="section bg-white pt-0 py-5" id="greenmosphere">
+<div class="container">
+    <div class="row">
+		
+    @foreach (var element in elements)
+    {
+       <div class="col-lg-12 col-md-12 col-sm-12">
+            @{
+                //var style = "background-image: ";
+                var field = element.Item.IsDerived(Templates.HasMediaVideo.ID) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                var style = element.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                var mediaUrl = element.Item.MediaUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+                var fixedHeight = Model.Rendering.IsFixedHeight();
+                if (fixedHeight && carouselHeight.HasValue)
+                {
+                    style += "; height:" + carouselHeight + "px;";
+                }
+
+                var ImagePath = "";
+                if (mobileMedia.Count() > i)
+                {
+                    var imageItem = Sitecore.Context.Database.GetItem(new Sitecore.Data.ID(mobileMedia.Split('|')[i].ToString()));
+                    ImagePath = MediaManager.GetMediaUrl(imageItem);
+                }
+                i++;
+                Sitecore.Data.Fields.LinkField linkfield = element.Item.Fields[Templates.HasMedia.Fields.Link];
+                var url = linkfield.GetFriendlyUrl();
+            }
+            @if (!string.IsNullOrEmpty(url))
+            {
+            <a href="@url" target="_blank">
+                <picture>
+                    <source srcset="@style" media="(min-width: 1779px)">
+                    <source srcset="@style" media="(min-width: 1400px)">
+                    <source srcset="@style" media="(min-width: 1084px)">
+                    <source srcset="@style" media="(min-width:768px)">
+                    <source srcset="@style" media="(min-width:540px)">
+                    <source srcset="@ImagePath" media="(min-width:0)">
+                    <img srcset="@style" src="@style" alt="" class="w-100">
+                </picture>
+            </a>
+            }
+            else
+            {
+            <div>
+                <picture>
+                    <source srcset="@style" media="(min-width: 1779px)">
+                    <source srcset="@style" media="(min-width: 1400px)">
+                    <source srcset="@style" media="(min-width: 1084px)">
+                    <source srcset="@style" media="(min-width:768px)">
+                    <source srcset="@style" media="(min-width:540px)">
+                    <source srcset="@ImagePath" media="(min-width:0)">
+                    <img srcset="@style" src="@style" alt="" class="w-100">
+                </picture>
+            </div>
+            }            
+      </div>  
+		
+    }
+	
+    </div>       
+</div>
+</div>
+
+

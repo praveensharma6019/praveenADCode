@@ -1,0 +1,238 @@
+﻿@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Accounts.Models.MeterReadingDateinfoRevamp
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+
+
+<div class="col s12 m8 offset-m1 section-container">
+    <header class="section-header">
+        <h2>@Html.Raw(contextItem["Title"])</h2>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    <div class="card outlined section-inner-wrapper card-with-form meter-reading-date">
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmMeterReadingDateRevamp" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            if (Model != null && !Model.IsCheckData)
+            {
+                <div class="enter-ca">
+                    <div class="input-field custom">
+                        @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", required = "required", @id = "CANumber", @autocomplete = "off", @type = "number", @maxlength = "9", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                        <label class="active" for="AccountNo">@Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/CANumber", "CA Number")</label>
+                        <p id="showCAmsg">@Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/ConsumerAccountnumberHelpText", "Please enter your 9 digit Consumer Account number")</p>
+                    </div>
+                    <div class="input-field custom">
+                        <div class="captcha_box" id="MeterReadingDateBodyRevamp">
+                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                <div class="row captcha_box" style="padding-left:10px;">
+                                    <div class="col-lg-12">
+                                        <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        <p class="field-validation-error" id="lblCaptchaerror" style="display:none"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="h-right btn-group">
+                        @*<a class="waves-effect btn-flat login-btn" href="#">Reset</a>*@
+                        <button type="submit" class="waves-effect btn btn-continue login-btn" id="submitCA" name="SendCA" value="SendCA">Submit</button>
+                    </div>
+                </div>
+
+            }
+            else
+            {
+                if (UserSession.UserSessionContext != null && Model != null)
+                {
+                    @Html.Sitecore().Placeholder("switch-account-content")
+                    <div class="form-field">
+                        <h6>Choose the Month</h6>
+                        <div class="row">
+                            <div class="input-field custom col s12 m12">
+                                @Html.DropDownListFor(m => m.Monthval, Model.MonthList, new { @class = "form-control", id = "Monthval", required = "required" })
+                                <label>Select Month</label>
+                                <p id="showmonthmsg" class="help-block field-validation-error"></p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="input-field custom">
+                        <div class="captcha_box" id="MeterReadingDateBodyRevamp">
+                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                <div class="row captcha_box" style="padding-left:10px;">
+                                    <div class="col-lg-12">
+                                        <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        <p class="field-validation-error" id="lblCaptchaerror" style="display:none"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-field">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary" id="btnView">View</button>
+                        </div>
+                    </div>
+
+                }
+                else if (UserSession.UserSessionContext == null && Model != null)
+                {
+                    <div class="enter-ca">
+                        <div class="input-field custom">
+                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", @readonly = "readonly", id = "CANumber", @autocomplete = "off", @type = "number", @maxlength = "9", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" })
+                            <label class="active" for="AccountNo">@Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/CANumber", "CA Number")</label>
+                            <p>@Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/ConsumerAccountnumberHelpText", "Please enter your 9 digit Consumer Account number")</p>
+                        </div>
+
+                        <div class="h-right btn-group">
+                            <button type="submit" name="Reset" id="btnreset" value="Reset" class="waves-effect btn-flat login-btn">Reset</button>
+                            <button class="waves-effect btn btn-continue login-btn" disabled>Submit</button>
+                        </div>
+                    </div>
+                    <div id="ViewOneDiv">
+                        <div class="form-field">
+                            <h6>Choose the Month</h6>
+                            <div class="row">
+                                <div class="input-field custom col s12 m12">
+                                    @Html.DropDownListFor(m => m.Monthval, Model.MonthList, new { @class = "form-control", id = "Monthval" })
+                                    <label>Select Month</label>
+                                    <p id="showmonthmsg" class="help-block field-validation-error"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-field custom">
+                            <div class="captcha_box" id="MeterReadingDateBodyRevamp">
+                                <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                    <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                    <div class="row captcha_box" style="padding-left:10px;">
+                                        <div class="col-lg-12">
+                                            <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                            <p class="field-validation-error" id="lblCaptchaerror" style="display:none"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="input-field">
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary" id="btnView">View</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                if (Model.ScheduleMeterReadingdate != null)
+                {
+                    <div id="ViewTwoDiv">
+                        <div class="message warning warning-info">
+
+                            <aside><i class="i-info"></i> </aside>
+
+                            <label>
+                                @Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/Tentative Meter Reading", "Tentative Meter Reading Date for Next Month:") <span> @Html.DisplayTextFor(m => m.ScheduleMeterReadingdate) </span>
+                            </label>
+
+                        </div>
+                    </div>
+                }
+            }
+
+        }
+
+
+    </div>
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script type="text/javascript">
+    var MeterReadingDateBodyRevamp;
+    var onloadCallback = function () {
+        MeterReadingDateBodyRevamp = grecaptcha.render('MeterReadingDateBodyRevamp', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+
+    $("#btnreset").click(function () {
+        $('#CANumber').val('');
+    });
+    $("#submitCA").click(function () {
+        //debugger;
+        var caNumber = $('#CANumber').val();
+        var CAcheck = new RegExp("^[0-9]{8,10}$");
+        var isValid = true;
+
+        if (caNumber == '') {
+            $('#showCAmsg').html("Please enter CA Number");
+            $('#showCAmsg').addClass('field-validation-error');
+            $('#CANumber').addClass('validate invalid');
+            isValid = false;
+        } else {
+            if ($('#CANumber').val().length < 9 || !CAcheck.test(caNumber)) {
+                // e.preventDefault();
+                $('#showCAmsg').html("Enter valid CA Number");
+                $('#showCAmsg').addClass('field-validation-error');
+                $('#CANumber').addClass('validate invalid');
+                isValid = false;
+            } else {
+                $('#showCAmsg').html("Please enter your 9 digit account number");
+                $('#showCAmsg').removeClass('field-validation-error');
+                $('#CANumber').removeClass('validate invalid');
+            }
+        }
+
+        var meterReadingDatecaptcharesponse = grecaptcha.getResponse(MeterReadingDateBodyRevamp);
+        if (!meterReadingDatecaptcharesponse) {
+            $('#lblCaptchaerror').show().html('Please validate captcha to continue');
+            isValid = false;
+        }
+        else {
+            $('#lblCaptchaerror').hide().html('');
+        }
+        if (isValid)
+            return true;
+        else
+            return false;
+
+    });
+
+    $("#btnView").click(function () {
+        //debugger;
+        var isValid = true;
+        var Monthval = $('#Monthval').val();
+        var meterReadingDatecaptcharesponse = grecaptcha.getResponse(MeterReadingDateBodyRevamp);
+
+        if (!meterReadingDatecaptcharesponse) {
+            $('#lblCaptchaerror').show().html('Please validate captcha to continue');
+            isValid = false;
+        }
+        else {
+            $('#lblCaptchaerror').hide().html('');
+        }
+
+        if (Monthval == '') {
+            $('#showmonthmsg').html('Please select month');
+            isValid = false;
+        }
+        else {
+            $('#showmonthmsg').html('');
+        }
+        if (isValid)
+            return true;
+        else
+            return false;
+
+    });
+
+</script>

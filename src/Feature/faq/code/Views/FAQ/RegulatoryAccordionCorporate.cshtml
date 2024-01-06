@@ -1,0 +1,181 @@
+﻿@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using System.Text.RegularExpressions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var x = 0;
+    var count = 0;
+    var phName = "";
+    var replacestr = string.Empty;
+}
+@if (parent != null)
+{
+    var i = 0;
+
+    <header class="section-header-main">
+        <h2>@parent["Heading"]</h2>
+    </header>
+    <div class="col s12 m8 offset-m1 section-container" id="@Html.Sitecore().Field("Heading")">
+        <div class="discover">
+            <ul class="tabs">
+                @foreach (var child in parent.Children.ToList())
+                {
+                    replacestr = Regex.Replace(Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                    if (i == 0)
+                    {
+                        <li class="tab">
+                            <a class="active" href="#@replacestr"><h4>@Html.Sitecore().Field("Title", child)</h4></a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="tab">
+                            <a href="#@replacestr"><h4>@Html.Sitecore().Field("Title", child)</h4></a>
+                        </li>
+                    }
+                    i++;
+                }
+            </ul>
+
+            @foreach (var child in parent.Children.ToList())
+            {
+                count = 0;
+                replacestr = Regex.Replace(Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                Sitecore.Data.Fields.MultilistField multiselectField = child.Fields["Group Member"];
+                var elements1 = multiselectField != null ? multiselectField.GetItems().ToArray() : null;
+                if (elements1 != null)
+                {
+                    if (x == 0)
+                    {
+                        var paginationhelpCount = 0;
+                        int paginationCount = 1;
+
+                        <div class="CorporateFAQdiv" id="@replacestr">
+                            <input type="hidden" id="paginationTableDiv" value="@replacestr" />
+                            <input type="hidden" id="paginationDataSelector" value="#@string.Concat(replacestr," .collapsible-accordion>li")" />
+                            <input type="hidden" id="paginationNumberElementSelector" value="#@string.Concat(replacestr,"PaginationNumber")" />
+                            <input type="hidden" id="paginationScrollToElementSelector" value=".corporate-main-banner" />
+                            <input type="hidden" id="paginationPageSize" value="10" />
+                            <div class="section-wrapper custom_accrdion">
+                                <div class="accordion">
+                                    <ul class="collapsible collapsible-accordion">
+                                        @foreach (var faqs in elements1)
+                                        {
+                                            string divstyle = "none";
+                                            if (paginationCount == 1)
+                                            {
+                                                divstyle = "block";
+                                            }
+                                            else
+                                            {
+                                                divstyle = "none";
+                                            }
+                                            count++;
+                                            phName = replacestr + count;
+                                            var id = Guid.NewGuid().ToString();
+
+                                            <li data-id="@paginationCount" style="display:@divstyle">
+                                                <div class="collapsible-header">
+                                                    @Html.Sitecore().Field("Question", faqs)
+                                                </div>
+                                                <div class="collapsible-body">
+                                                    @Html.Sitecore().Field("Answer", faqs)
+                                                    <div id="customerCareControl" class="@phName">
+                                                        @Html.Sitecore().Placeholder(phName)
+                                                    </div>
+                                                </div>
+                                            </li>
+
+                                            paginationhelpCount++;
+                                            if (paginationhelpCount / (paginationCount * 10) == 1)
+                                            {
+                                                paginationCount = paginationCount + 1;
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                            <ul class="pagination" id="@string.Concat(replacestr,"PaginationNumber")"></ul>
+                        </div>
+                    }
+                    else
+                    {
+                        var paginationhelpCount = 0;
+                        int paginationCount = 1;
+
+                        <div class="CorporateFAQdiv"  id="@replacestr">
+                            <input type="hidden" id="paginationTableDiv" value="@replacestr" />
+                            <input type="hidden" id="paginationDataSelector" value="#@string.Concat(replacestr," .collapsible-accordion>li")" />
+                            <input type="hidden" id="paginationNumberElementSelector" value="#@string.Concat(replacestr,"PaginationNumber")" />
+                            <input type="hidden" id="paginationScrollToElementSelector" value=".corporate-main-banner" />
+                            <input type="hidden" id="paginationPageSize" value="10" />
+                            <div class="section-wrapper custom_accrdion">
+                                <div class="accordion">
+                                    <ul class="collapsible collapsible-accordion">
+                                        @foreach (var faqs in elements1)
+                                        {
+                                            string divstyle = "none";
+                                            if (paginationCount == 1)
+                                            {
+                                                divstyle = "block";
+                                            }
+                                            else
+                                            {
+                                                divstyle = "none";
+                                            }
+                                            count++;
+                                            phName = replacestr + count;
+                                            var id = Guid.NewGuid().ToString();
+                                            <li data-id="@paginationCount" style="display:@divstyle">
+                                                <div class="collapsible-header"  data-gaevent="regulatory_section"
+                                 data-gaeventCategory="Corporate Portal | Home Page/Regulatory"
+                                 data-gaeventAction="Regulatory Section"
+                                 data-gaeventLabel="Expand">
+                                                    @Html.Sitecore().Field("Question", faqs)
+                                                </div>
+                                                <div class="collapsible-body">
+                                                    @Html.Sitecore().Field("Answer", faqs)
+                                                    <div id="customerCareControl" class="@phName">
+                                                        @Html.Sitecore().Placeholder(phName)
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            paginationhelpCount++;
+                                            if (paginationhelpCount / (paginationCount * 10) == 1)
+                                            {
+                                                paginationCount = paginationCount + 1;
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                            <ul class="pagination" id="@string.Concat(replacestr,"PaginationNumber")"></ul>
+                        </div>
+                    }
+                }
+
+                x++;
+            }
+
+        </div>
+
+        <script src="~/Scripts/Accounts/ElectricityRevampCustomPagination.js"></script>
+        <script type="text/javascript">
+            const sidenavaccord = {
+                init: function () {
+                    var elems = document.querySelectorAll('.collapsible');
+                    var instances = M.Collapsible.init(elems);
+                }
+            }
+            sidenavaccord.init();
+
+            $(document).ready(function () {
+                $('.CorporateFAQdiv').each(function () {
+                    DrawPaginationNumber(1, '#' + $(this).find('#paginationTableDiv').val());
+                })
+            })
+        </script>
+    </div>
+}

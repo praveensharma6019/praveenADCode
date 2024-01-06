@@ -1,0 +1,340 @@
+﻿
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Configuration;
+
+@model Sitecore.AGELPortal.Website.Models.PortalAddContentModel
+@{
+    Layout = null;
+    var title = Model.content?.title;
+    var size = Model.content?.DocVideoCnt;
+    var content_type = Model.content?.contetn_type;
+    var catId = Model.content?.category_id;
+    var discription = Model.content?.discription;
+    var status = Model.content?.status;
+    var endpoint_url = Model.content?.url;
+    var images = Model.content?.DocVideoImage_Name;
+    //byte[] endpoint_image = Model.content?.UploadImage_data.ToArray() ;
+
+    Uri myUri = new Uri(Request.Url.AbsoluteUri);
+    var contentId = HttpUtility.ParseQueryString(myUri.Query).Get("Id");
+
+}
+
+<div class="container">
+    @if (contentId != null)
+    {
+        <div class="section-header">
+            <h3>Edit Content</h3>
+
+        </div>
+        <div class="breadcrumbs">
+            <a href="/AGELPortal/Home/Dashboard/content-managements" class="breadcrumb">Content Management</a>
+            <a href="javascript:void(0)" class="breadcrumb">Edit Content</a>
+        </div>
+    }
+    else
+    {
+        <div class="section-header">
+            <h3>Add Content</h3>
+
+        </div>
+        <div class="breadcrumbs">
+            <a href="/AGELPortal/Home/Dashboard/content-managements" class="breadcrumb">Content Management</a>
+            <a href="/AGELPortal/Home/Dashboard/add-content" class="breadcrumb">Add Content</a>
+        </div>
+    }
+
+    <!--add-content-->
+    <div class="new-connection-form">
+        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "add_content_form", name = "add_content_form", @class = "add_content_form", enctype = "multipart/form-data", autocomplete="off" }))
+        {
+            <div class="step-1-form">
+                <div class="card brand-gradient outlined card-with-form">
+                    <div class="card-body">
+
+                        <div class="form-field">
+                            <div class="row">
+                                <div class="input-field custom col s12 m4">
+                                    <select id="content_type" name="content_type" class="input-change-dropdown" required onkeyup="isEmpty()">
+                                        <option value="">Select Type</option>
+                                        <option value="video" @(content_type == "video" ? "selected" : "")>Video</option>
+                                        <option value="document" @(content_type == "document" ? "selected" : "")>Document</option>
+                                    </select>
+
+                                    <label>Select Content Type</label>
+                                    @Html.ValidationMessageFor(model => model.content_type, "", new { @class = "help-block text-danger" }, "p")
+                                </div>
+                                <div class="input-field custom col s12 m4">
+                                    @Html.DropDownListFor(m => m.category_id
+, new SelectList(Model.categories, "Value", "Text", catId)
+, "Select Category"
+, new { @class = "input-change-dropdown" })
+                                    <label>Select Category</label>
+                                    @Html.ValidationMessageFor(model => model.category_id, "", new { @class = "help-block text-danger" }, "p")
+                                </div>
+                                <div class="input-field custom col s12 m4">
+
+
+                                    <input id="title" name="title" value="@title" required type="text" class="validate" onkeyup="isEmpty()">
+                                    <label class="active" for="first_name2">Enter Title</label>
+
+                                    @*<i>Lorem ipsum</i>*@
+                                    @Html.ValidationMessageFor(model => model.content_type, "", new { @class = "help-block text-danger" }, "p")
+                                </div>
+                                <div class="input-field custom col s12 m4">
+
+                                    <!-- <input id="size" name="size" value="@size" type="text" required class="validate" onkeyup="isEmpty()"> -->
+									<input id="size" name="size" value="@size" type="text">
+                                    <label class="active" id="sizelable" for="first_name2">Please select content type.</label>
+                                    <!-- @Html.ValidationMessageFor(model => model.content_type, "", new { @class = "help-block text-danger" }, "p") -->
+                                </div>
+                                <div class="col s12 m4">
+                                    <div class="input-field custom">
+                                        <textarea id="discription" maxlength="400" name="discription" class="materialize-textarea" onkeyup="isEmpty()">@discription</textarea>
+                                        <label for="remark">Enter Description</label>
+                                        @Html.ValidationMessageFor(model => model.discription, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                </div>
+                                <div class="col s12 m4">
+                                    <div class="form-field">
+                                        <h6>Status</h6>
+                                        <div class="field-group">
+                                            <div class="radio-field">
+                                                <label>
+                                                    <input class="with-gap" value="1" name="status" required type="radio"
+                                                           @(status == true ? "checked" : "") checked />
+                                                    <span>Active</span>
+                                                </label>
+                                            </div>
+                                            <div class="radio-field">
+                                                <label>
+                                                    <input class="with-gap" value="0" name="status" required
+                                                           type="radio" @(status == false ? "checked" : "") />
+                                                    <span>Inactive</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        @*@Html.ValidationMessageFor(model => model.discription, "", new { @class = "help-block text-danger" }, "p")*@
+                                    </div>
+                                </div>
+                                @*<div class="col s12 m4">
+                                        <h6>Upload Document / video</h6>
+                                        <div class="file-field">
+                                            <label class="file-label Upfile-label" for="agel_file">
+                                                <i class="i-attach i-20 with-label">Upload / Drag & Drop</i>
+                                                <a class="modal-close">
+                                                </a>
+                                            </label>
+                                            <input class="input-file" type="file" name="agel_file" id="agel_file" />
+                                            <a id="removeupload" card-with-form="display:none">X</a>
+                                        </div>
+                                        @Html.ValidationMessageFor(model => model.content_type, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>*@
+                                <div class="col s12 m4">
+                                    <h6>Upload Document / Video</h6>
+                                    <div class="file-upload-wrp">
+                                        <div class="file-field">
+                                            <div class="btn000 file-select">
+                                                <label class="file-label" for="agel_file">
+                                                    <i class="i-attach i-20 with-label">Upload / Drag &amp; Document / Video</i>
+                                                </label>
+                                                <!-- <input id="agel_file" type="file" name="agel_file" class="input-file" required onkeyup="isEmpty()"> -->
+                                                
+												<input id="agel_file" type="file" name="agel_file" class="input-file">
+												@Html.ValidationMessageFor(model => model.agel_file, "", new { @class = "help-block text-danger" }, "p")
+                                            </div>
+                                            <div class="file-path-wrapper select-message">
+                                                <i class="i-attach i-20"></i>
+                                                <input class="file-path validate" type="text">
+                                                <i class="remove-upload agel-remove-upload i-cross-c i-24"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (contentId != null)
+                                {
+                                    <div class="input-field custom col s12 m12" style="display:none">
+                                        <input id="title" name="endpoint_url" value="@endpoint_url" type="text" readonly class="validate">
+                                        <label class="active" for="first_name2">Media Url</label>
+                                        @Html.ValidationMessageFor(model => model.endpoint_url, "", new { @class = "help-block text-danger" }, "p")
+                                    </div>
+                                }
+                                @*<div class="col s12 m4">
+                                        <h6>Upload Document&video  Images </h6>
+                                        <div class="file-field">
+                                            <label class="file-label Imfile-label Upfile-labelIm" for="empList_img">
+                                                <i class="i-attach i-20 with-label">Upload / Drag & Drop Images</i>
+                                            </label>
+                                            <input id="empList_img" class="input-file" type="file" name="imagefile" >
+                                            <a id="removeuploadIm" style="display:none">X</a>
+                                            @Html.ValidationMessageFor(model => model.UserValidation, "", new { @class = "help-block text-danger" }, "p")
+                                        </div>
+                                    </div>*@
+                                <div class="col s12 m4">
+                                    <h6>Upload Thumbnail</h6>
+                                    <div class="file-upload-wrp">
+                                        <div class="file-field">
+                                            <div class="btn000 file-select" id="img">
+                                                <label class="file-label" for="empList_img">
+                                                    <i class="i-attach i-20 with-label">Upload / Drag &amp; Thumbnail</i>
+                                                </label>
+                                                <input id="empList_img" type="file" class="input-file" name="imagefile" onkeyup="isEmpty()">
+
+                                                @Html.ValidationMessageFor(model => model.imagefile, "", new { @class = "help-block text-danger" }, "p")
+
+                                            </div> <div class="file-path-wrapper select-message">
+                                                <i class="i-attach i-20"></i>
+                                                <input class="file-path validate" type="text">
+                                                <i class="remove-upload i-cross-c i-24 agel-remove-thumb"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="file-title">Thumbnail dimension should be 338x290 px.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="h-right btn-group">
+
+
+
+                            <input type="hidden" name="Id" value="@contentId" />
+                            @*<button class="waves-effect waves-light btn">Submit</button>*@
+
+
+                            <a href="/AGELPortal/Home/Dashboard/content-managements" style="color:white" class="btn">Cancel</a>
+                            <button id="btn" disabled class="waves-effect waves-light btn">Submit</button>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!--add-content-->
+</div>
+        
+<script>
+    function isEmpty() 
+	{
+
+        let title = document.getElementById("title").value;
+        <!-- let size = document.getElementById("size").value; -->
+        let content_type = document.getElementById("content_type").value;
+        let category_id = document.getElementById("category_id").value;
+        let discription = document.getElementById("discription").value;
+        let agel_file = document.getElementById("agel_file").value;
+        let empList_img = document.getElementById("empList_img").value;
+		if (empList_img == "") 
+		{ 
+			empList_img = "https://stage.adanigreenenergy.com/images/AGELPortal/upload_images/document.jpg"; 
+		}
+				//let email = document.getElementById("email").Value;
+				if (title != "" && agel_file != ""  && discription != "" && content_type != "" && category_id != "") 
+				{
+
+					document.getElementById("btn").removeAttribute("disabled");
+				}
+				else
+					{
+						$("#btn").attr('disabled',true);
+					}
+	}
+			//window.onload = function () {A
+			//    $("#category_id").val("");
+			//};
+			
+	$(function () 
+	{
+       
+
+
+		$('.input-change-dropdown').change(function () 
+		{
+			isEmpty();
+		});
+		$('#empList_img').change(function () 
+		{
+			isEmpty();
+		});
+
+		$('.new-connection-form').click(function(){isEmpty();});
+	
+		$('#agel_file').change(function () 
+		{            
+            var content = $("#content_type").val().toLowerCase();
+            
+            if (content == "")
+            {
+                alert('Please select content type');
+                
+                setTimeout(function () { $(".agel-remove-upload").click(); isEmpty();}, 500);
+                return false;
+            }
+            else if (content == "video") 
+			{
+                var val = $(this).val().toLowerCase(),
+                    regex = new RegExp("(.*?)\.(webm|mpg|mp2|mpeg|mpe|mpv|ogg|mp4|avi|wmv|mov|qt|flv|swf)$");
+
+                if (!(regex.test(val))) {
+                    $(this).val('');
+                    alert('Please select correct file format, validate file format is webm,mpg,mp2,mpeg,mpe,mpv,ogg,,mp4,avi,wmv,mov,qt,flv,swf');
+                    setTimeout(function () { $(".agel-remove-upload").click(); isEmpty();}, 500);
+                    return false;
+                }
+				
+					var fsize = document.getElementById('agel_file').files[0].size;
+					fsize=Math.max((fsize / 1024));
+					if(fsize > 125000)
+					{
+						document.getElementById('agel_file').value = "";
+						alert("video size should be less than 125 MB");
+						setTimeout(function () { $(".agel-remove-upload").click(); isEmpty();}, 500);
+						return false;
+					}
+            }
+            else if (content = "document") 
+			{
+                var val = $(this).val().toLowerCase(),
+                regex = new RegExp("(.*?)\.(docx|doc|pdf|xml|bmp|ppt|xls|xlsx)$");
+
+                if (!(regex.test(val))) 
+				{
+                    $(this).val('');
+                    setTimeout(function () { $(".agel-remove-upload").click(); isEmpty();}, 500);
+                    alert('Please select correct file format, validate file format is docx,doc,pdf,xml,bmp,ppt,xls,xlsx');
+                    return false;
+                }
+				
+					var fsize = document.getElementById('agel_file').files[0].size;
+					fsize=Math.max((fsize / 1024));					
+					if(fsize > 10000)
+					{
+						document.getElementById('agel_file').value = "";
+						alert("document size should be less 10 MB");
+						setTimeout(function () { $(".agel-remove-upload").click(); isEmpty();}, 500);
+						return false;
+					}
+					
+            }
+			setTimeout(function () { isEmpty();}, 200);
+        });
+		
+		
+    });
+</script>
+
+
+
+
+
+
+

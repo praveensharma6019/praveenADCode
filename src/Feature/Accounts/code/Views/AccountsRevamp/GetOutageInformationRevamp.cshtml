@@ -1,0 +1,238 @@
+﻿@model SapPiService.Domain.OutageDetail
+
+@{
+    Sitecore.Data.Items.Item contactUsItem = Sitecore.Context.Database.GetItem("{D9F22825-0BA5-443D-9BD6-3B7604DBF710}");
+    var contactusUrl = contactUsItem != null ? Sitecore.Links.LinkManager.GetItemUrl(contactUsItem) : "#";
+
+    Sitecore.Data.Items.Item registerComplaintPage = Sitecore.Context.Database.GetItem("{4ED06227-1990-4E10-8920-41892B9BAF97}");
+    var registerComplaintUrl = registerComplaintPage != null ? Sitecore.Links.LinkManager.GetItemUrl(registerComplaintPage) : "#";
+
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+
+}
+
+@if (contextItem != null)
+{
+    <div class="col s12 m8 offset-l1 section-container">
+        <header class="section-header">
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+            <p>@Html.Raw(contextItem["Body"])</p>
+        </header>
+        @if (Model == null)
+        {
+            <div class="section-inner-wrapper card brand-gradient remove-gradient outlined border-none-mobile">
+                @Html.Sitecore().Placeholder("switch-account-content")
+                <div class="section-wrapper">
+                    <p  class="output">Unable to get details, please try again later!</p>
+                </div>
+            </div>
+
+        }
+        else if (Model.AccountNumber == null || !string.IsNullOrEmpty(Model.Message))
+        {
+            <div class="section-inner-wrapper card brand-gradient remove-gradient outlined border-none-mobile">
+                @Html.Sitecore().Placeholder("switch-account-content")
+                <div class="section-wrapper">
+                    <p  class="output">@Model.Message</p>
+                </div>
+            </div>
+        }
+        else if (Model.AccountNumber != null && Model.CurrentOutageDetails != null && Model.FutureOutageDetails != null)
+        {
+
+            <div class="section-wrapper custom_accrdion rounded">
+                <div class="accordion">
+                    <ul class="collapsible collapsible-accordion" id="ManageConnectionsLanding">
+                        <li class="active">
+                            <div class="collapsible-header hide center">
+                                <a href="javascript:void(0)">Current Outage</a>
+                            </div>
+                            <div class="collapsible-body" style="display:block;">
+                                <h2>Current Outage</h2>
+                                <div class="section-inner-wrapper card brand-gradient remove-gradient outlined border-none-mobile">
+                                    @Html.Sitecore().Placeholder("switch-account-content")
+                                    @if (Model.CurrentOutageDetails.Count == 0)
+                                    {
+                                        <div class="alert-box success">
+                                            <div class="alert-box-content">
+                                                <img src="/electricity_assets/images/no-power-cut.png" alt="power-outage" />
+                                                <div class="alert-text">
+                                                    <h6  class="output">Currently there is no power cut in your area</h6>
+                                                    <p  class="output">
+                                                        In case you are still facing any issues with power supply, please register a complaint or you can call our 24x7 toll-free helpline 19122 to report outage and know the status of power restoration.
+                                                    </p>
+                                                    @*<h6>Dear Consumer</h6>
+                                                        <p>Power outage is not reported in your area.</p>
+                                                        <p>In case you are suffering from Power Outage, you can call our 24x7 toll-free helpline - 19122, anytime to report outage &amp; know the status of restoration.</p>*@
+                                                </div>
+                                            </div>
+                                            <div class="need-help-wrp">
+
+                                                <a href="@registerComplaintUrl"
+                                                   data-gaevent="power_outage_need help"
+                                                   data-gaeventCategory="AEML Services"
+                                                   data-gaeventAction="Power_outage_Need help"
+                                                   data-gaeventLabel="NA">Register Complaint</a>
+
+                                                <a href="@contactusUrl"
+                                                   data-gaevent="power_outage_register complaint"
+                                                   data-gaeventCategory="AEML Services"
+                                                   data-gaeventAction="Power_Outage_Register complaint"
+                                                   data-gaeventLabel="NA">Need Help?</a>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="alert-box ">
+                                            <div class="alert-box-content">
+                                                <img src="/electricity_assets/images/power-cut.png" alt="power-outage" />
+                                                <div class="alert-text">
+                                                    <h6>Dear Consumer</h6>
+                                                    <p>We regret that you may be facing a power outage in your area. Reason for outage and restoration time is mentioned below</p>
+                                                    <table class="table table-hover table-striped bg-white table-bordered">
+                                                        <thead class="thead-light">
+                                                            <tr>
+                                                                <th scope="col">Outage Date</th>
+                                                                <th scope="col">Start Time</th>
+                                                                <th scope="col">Expected restoration time</th>
+                                                                <th scope="col">Activity</th>
+                                                                <th scope="col">Outage Type</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var currObj in Model.CurrentOutageDetails)
+                                                            {
+                                                                <tr>
+                                                                    <th scope="row">@currObj.Date</th>
+                                                                    <th scope="row">@currObj.StartTime</th>
+                                                                    <th scope="row">@currObj.EndTime</th>
+                                                                    <th scope="row">@currObj.ActivityDescription</th>
+                                                                    <th scope="row">@currObj.OutageType</th>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="need-help-wrp">
+                                                <a href="@contactusUrl">Need Help?</a>
+                                            </div>
+                                        </div>
+
+                                    }
+                                </div>
+
+                            </div>
+                        </li>
+                        <li>
+                            <div class="collapsible-header center">
+                                <a href="javascript:void(0)"
+                                   data-gaevent="future_outage_information"
+                                   data-gaeventCategory="AEML Services"
+                                   data-gaeventAction="Future Outage Information"
+                                   data-gaeventLabel="NA">Future Outage</a>
+                            </div>
+                            <div class="collapsible-body">
+                                <h2>Future Outage</h2>
+                                <div class="section-inner-wrapper card brand-gradient remove-gradient outlined border-none-mobile">
+                                    @Html.Sitecore().Placeholder("switch-account-content")
+
+                                    @if (Model.FutureOutageDetails.Count == 0)
+                                    {
+                                        <div class="alert-box success">
+                                            <div class="alert-box-content">
+                                                <img src="/electricity_assets/images/no-power-cut.png" alt="power-outage" />
+                                                <div class="alert-text">
+                                                    <h6>There is no planned maintenance activity scheduled in your area.</h6>
+                                                    <p>In case you are still facing any issues with power supply, please register a complaint or you can call our 24x7 toll-free helpline 19122 to report outage and know the status of power restoration.</p>
+                                                </div>
+                                            </div>
+                                            <div class="need-help-wrp">
+                                                <a href="@registerComplaintUrl">Register Complaint</a>
+                                                <a href="@contactusUrl">Need Help?</a>
+                                            </div>
+                                        </div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="alert-box">
+                                            <div class="alert-box-content">
+                                                <img src="/electricity_assets/images/power-cut.png" alt="power-outage" />
+                                                <div class="alert-text">
+                                                    @if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "f")
+                                                    {
+                                                        <h6>Dear Consumer</h6>
+                                                        <p>For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                                    }
+                                                    else if (Model.FutureOutageDetails.Count == 1 && Model.FutureOutageDetails.FirstOrDefault().ZFLAG.ToLower() == "r")
+                                                    {
+                                                        <h6>Dear Consumer</h6>
+                                                        <p>Due to technical reasons, we have rescheduled maintenance activity in your area, Revised schedule is mentioned below for your reference.  </p>
+                                                    }
+                                                    @if (Model.FutureOutageDetails.Count > 1)
+                                                    {
+                                                        <h6>Dear Consumer</h6>
+                                                        <p>For carrying out maintenance /upgradation activity there may be power outage in your area. Any change in the schedule shall be intimated in advance on your registered mobile number. </p>
+                                                    }
+                                                    <table class="table table-hover table-striped bg-white table-bordered">
+                                                        <thead class="thead-light">
+                                                            <tr>
+                                                                <th scope="col">Outage Date</th>
+                                                                <th scope="col">Start Time</th>
+                                                                <th scope="col">Expected restoration time</th>
+                                                                <th scope="col">Activity</th>
+                                                                <th scope="col">Outage Type</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach (var futureObj in Model.FutureOutageDetails)
+                                                            {
+                                                                <tr>
+                                                                    <th scope="row">@futureObj.Date</th>
+                                                                    <th scope="row">@futureObj.StartTime</th>
+                                                                    <th scope="row">@futureObj.EndTime</th>
+                                                                    <th scope="row">@futureObj.ActivityDescription</th>
+                                                                    <th scope="row">@futureObj.OutageType</th>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="need-help-wrp">
+                                                <a href="@contactusUrl">Need Help?</a>
+                                            </div>
+                                        </div>
+
+                                    }
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        }
+
+        @Html.Sitecore().Placeholder("FAQHomePage")
+    </div>
+}
+<script type="text/javascript">
+
+    if (document.querySelector('.output') !== null) {
+        if ($(this).attr('data-gaevent') != undefined) {
+            dataLayer.push({
+                'event':"power_outage_information",
+                'eventCategory': "AEML Services",
+                'eventAction': "Power Outage Information",
+                'eventLabel': "@Model.AccountNumber Submit",
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        }
+    })
+    </script>

@@ -1,0 +1,42 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Mvc.Presentation
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var currentPage = Sitecore.Context.Item;
+    var dataSourceId = RenderingContext.Current.Rendering.DataSource;
+    var dataSource = Sitecore.Context.Database.GetItem(dataSourceId);
+    Sitecore.Data.Items.Item myItem = (Sitecore.Data.Items.Item)currentPage;
+    Sitecore.Data.Fields.MultilistField multiselectField = dataSource.Fields[Templates.Offers.Fields.ListingProducts];
+    Sitecore.Data.Items.Item[] items = multiselectField.GetItems();
+}
+@{
+    var title = @Html.Sitecore().Field(Templates.Services.Fields.Title);
+    <header class="section-header">
+        <h1>@title</h1>
+    </header>
+}
+
+<div class="section-container">
+    @{
+        Sitecore.Data.Fields.ImageField Imagefield = myItem.Fields[Templates.Services.Fields.Image];
+        string displayImage = Imagefield.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(Imagefield.MediaItem) : string.Empty;
+        <figure>
+            <img class="hide-on-small-only" src="@displayImage" alt="">
+            <img class="hide-on-med-and-up" src="-/media/19183A733B1E4D969903E56B49015BC0.ashx" alt="">
+        </figure>
+    }
+</div>
+
+<div class="section-container">
+    @{
+        var description = @Html.Sitecore().Field(Templates.Services.Fields.Description);
+    }
+
+    @description
+</div>

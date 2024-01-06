@@ -1,0 +1,64 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var param_containerClass = !string.IsNullOrEmpty(paramid["containerClass"]) ? paramid["containerClass"] : null;
+    var param_btnClass = !string.IsNullOrEmpty(paramid["btnClass"]) ? paramid["btnClass"] : null;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string btnUrl = "#";
+}
+
+@if (model != null)
+{
+
+    Sitecore.Data.Fields.LinkField linkField = model.Fields[Constant.ButtonLink];
+    if (linkField != null)
+    {
+        btnUrl = linkField.GetFriendlyUrl();
+    }
+
+    <div class="@param_containerClass">
+        <div class="container">
+            <h1>@Html.Sitecore().Field(Constant.MediaTitle, model)</h1>
+
+            @Html.Sitecore().Field(Constant.MediaDescription, model)
+
+            @if (btnUrl != "")
+            {
+                if (linkField.LinkType == "internal")
+                {
+                    <div class="green-button-section">
+                        <a href="@btnUrl" class="@param_btnClass">@Html.Sitecore().Field(Constant.ButtonTitle, model)</a>
+                    </div>
+                }
+                if (linkField.LinkType == "external")
+                {
+                    <div class="green-button-section">
+                        <a href="@btnUrl" target="_blank" class="@param_btnClass">@Html.Sitecore().Field(Constant.ButtonTitle, model)</a>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="green-button-section">
+                    <a href="javascript:void(0)" class="@param_btnClass">@Html.Sitecore().Field(Constant.ButtonTitle, model)</a>
+                </div>
+
+            }
+        </div>
+    </div>
+}
+

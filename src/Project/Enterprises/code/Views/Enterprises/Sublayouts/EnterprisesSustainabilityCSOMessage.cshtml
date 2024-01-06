@@ -1,0 +1,53 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "position-relative section__covid-donation bg-white";
+    }
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+    var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+
+    Sitecore.Data.Fields.ImageField ImageBgField = ((Sitecore.Data.Fields.ImageField)element.Fields["BackgroundImage"]);
+    var Bgimgurl = ImageBgField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageBgField.MediaItem);
+}
+
+<section class="py-5 @paramid" id="covid19" style="background-image:url('@Bgimgurl');">
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="item">
+                    <p class="text-heding-cso">@Html.Sitecore().Field("Title", element)</p>
+                    <span class="quote-icon">
+                        <i class="fa fa-quote-left quote-icon"
+                           aria-hidden="true"></i>
+                    </span>
+
+                </div>
+                <div class="item1">
+                    @Html.Sitecore().Field("Description", element)
+                    <h2 class="text-cso">
+                        @Html.Sitecore().Field("Name", element)
+                    </h2>
+                    <h4 class="text-cso1">@Html.Sitecore().Field("Designation", element)</h4>
+                </div>
+
+            </div>
+            <div class="col-lg-4">
+                <img class="d-block w-100 image-cso" src="@imgurl"
+                     alt="Third slide">
+            </div>
+        </div>
+    </div>
+</section>

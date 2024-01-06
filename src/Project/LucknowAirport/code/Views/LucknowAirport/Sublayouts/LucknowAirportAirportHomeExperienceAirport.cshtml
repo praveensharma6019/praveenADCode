@@ -1,0 +1,51 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+
+    var Title = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "Title").FirstOrDefault().Value;
+var description = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "description").FirstOrDefault().Value;
+
+}
+
+@if (model != null)
+{
+
+    <section class="bg-white pt-5 content-header">
+        <div class="container-fluid">
+            <h2>@Title</h2>
+			<p class="fade-up">@description</p>
+            <!-- <p class="fade-up">Flying in Progress – We Offers our Guests an environment to relax and cool, shop & Dine and easier to Navigate.</p> -->
+            <div class="owl-carousel airport-section__carousel airport-section__carousel-4item">
+
+                @foreach (var element in model.GetChildren().ToList())
+                {
+                    if (element.Fields["Title"] != null)
+                    {
+                        Sitecore.Data.Fields.LinkField linkfld = element.Fields["Link"];
+                        var Link = linkfld.GetFriendlyUrl();
+                        <div class="item">
+                            <a href="@Link">
+                                @Html.Sitecore().ImageField("Image", element, 0, 0, "img-fluid w-100")
+                                <div>
+                                    <p>@Html.Sitecore().Field("Title", element)</p>
+                                    <span>@Html.Sitecore().Field("Body", element)</span>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+}
+
+
+
+

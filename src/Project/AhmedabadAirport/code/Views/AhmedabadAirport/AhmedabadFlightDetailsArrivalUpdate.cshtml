@@ -1,0 +1,55 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@using Sitecore.Data.Fields;
+@using Sitecore.Data.Items
+@model IEnumerable<Sitecore.AhmedabadAirport.Website.Models.AhmedabadFlight>
+
+
+@{
+    var i = 1;
+    var ArrivalCount = 1;
+	    Sitecore.Data.Database web = Sitecore.Configuration.Factory.GetDatabase("web");
+
+	    Sitecore.Data.Items.Item Origin = web.GetItem("{4314A997-836E-4BE2-BFD3-79B40520B865}");
+
+}
+
+@foreach (var item in Model)
+{
+    if (item.Flightkind == "Arrival")
+    {
+        <tr>
+            <td>@ArrivalCount</td>
+            <td>@item.Airline @item.FlightNumber</td>
+			@foreach (Item items in Origin.GetChildren())
+			{
+				string ItemValue= item.ArrivingFrom.ToString();
+				string SubItemValue = Html.Sitecore().Field("CodeValue", items).ToString();
+				bool result=ItemValue.Equals(SubItemValue);
+				if(ItemValue.Equals(SubItemValue))
+					{
+						<td>@Html.Sitecore().Field("RemarkDescription", items)</td>
+						break;
+				}
+			}								
+            <td>@item.ScheduledTime.ToString("dd/MM/yyyy")</td>
+            <td>@item.Scheduled</td>
+            <td>@item.EstimationTime</td>
+            <td>@item.Status</td>
+            <td>@item.terminal</td>
+        </tr>
+        ArrivalCount++;
+
+    }
+}
+
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+<tr><td colspan="12"><p class="text-center" style="
+    color: #737373;
+    text-decoration: underline;
+"><span class="fa fa-exclamation-triangle mr-2"></span>@ViewBag.Message</p></td></tr>
+}

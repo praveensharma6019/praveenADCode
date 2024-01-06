@@ -1,0 +1,320 @@
+﻿@using Sitecore
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var TBLogo = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "TBLogo").FirstOrDefault().Value;
+    var Traveller = Sitecore.Context.Database.GetItem("{2E250869-1AA2-425C-9079-60D9C0E4D549}");
+    var Business = Sitecore.Context.Database.GetItem("{C1EE1167-77D2-4F05-AF30-8CC12D5AF14F}");
+    var Corporate = Sitecore.Context.Database.GetItem("{C1EE1167-77D2-4F05-AF30-8CC12D5AF14F}");
+    var menu = Sitecore.Context.Database.GetItem("{0481E2D1-8FA6-4A25-9AF3-3050063EAC40}");
+    var activeClass = "active";
+	
+	
+	  var modelBusinessMenu = Sitecore.Context.Database.GetItem("{1A733349-6F30-4E3B-ADC2-3C8F0DE02995}");
+	var imgurls = Helper.ImageUrl("Image", modelBusinessMenu);
+	
+	var elementCallInfo = Sitecore.Context.Database.GetItem("{E329FF7B-3BE9-44E8-B926-A5FAE25184C0}");
+}
+
+
+<!-- <div class="header-topbar"> -->
+<!-- <div class="container-fluid"> -->
+<!-- <div class="alert fade show" role="alert"> -->
+<!-- <a href="/notification" class="txt-white"> -->
+<!-- Important information – Coronavirus update -->
+<!-- </a> -->
+<!-- <button type="button" class="close" data-dismiss="alert" aria-label="Close"> -->
+<!-- <span aria-hidden="true">&times;</span> -->
+<!-- </button> -->
+<!-- </div> -->
+<!-- </div> -->
+<!-- </div> -->
+<div class="navPanel">
+
+
+<div class="header--top_bar">
+<div class="container-fluid">
+<div class="d-flex">
+
+
+@if (elementCallInfo != null)
+{
+    var imgURL = Helper.ImageUrl("Image", elementCallInfo);
+<div class="contact_info">
+    <img src="@imgURL" alt="Call" />
+   
+    
+        @for(int i = 0; i < elementCallInfo.GetChildren().Count; i++)
+        {
+            @elementCallInfo.GetChildren()[i]["Title"] @Html.Raw(elementCallInfo.GetChildren()[i]["Text"])
+        }
+    
+
+</div>
+}
+
+	<div class="top_bar_nav">
+		<a href="#businesses">
+            <img src="@imgurls" alt="Business" /> @Html.Sitecore().Field("Text", modelBusinessMenu)
+        </a>
+		<div class="business_dropdown">
+					@foreach (Item item in modelBusinessMenu.GetChildren().ToList())
+						{
+							var subItemModel = Sitecore.Context.Database.GetItem(item.ID);
+							var childCount = subItemModel.GetChildren().Count();
+							
+							
+							
+							if (childCount > 0)
+							{
+								foreach (Item subItem in subItemModel.GetChildren().ToList())
+								{
+									var url = Helper.LinkUrl(subItem.Fields["LinkUrl"]);
+									var imgurl = Helper.ImageUrl("LinkImage", subItem);
+									if (!string.IsNullOrWhiteSpace(imgurl))
+									{
+										<a href="@url" class="@Html.Sitecore().Field("Class", subItem)" target="_blank">
+											<i><img src="@imgurl" alt="@Html.Sitecore().Field("Title", subItem)"> </i>
+											<label>@Html.Sitecore().Field("Title", subItem)</label>
+										</a>
+
+									}
+
+								}
+							}
+						}
+			</div>
+		
+				
+	</div>       
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+    <div class="container-fluid navtopbar">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="/lgbia-guwahati-airport">
+                <div class="row">
+                    <div class="col-sm-4 col-5">
+                        <img src="-/media/C9A554BB1A5947D48D5777A275CE144E.ashx" alt="Adani Airports">
+                        <img src="-/media/38AF517E486A4AB8A4D25001A7A7EE5D.ashx" alt="Adani Airports">
+                    </div>
+                    <div class="col-sm-8 col-7">
+                        <p>Guwahati <span class="d-block">Lokpriya Gopinath Bordoloi<br> International Airport,<br> Borjhar Guwahati, Assam 781015</span></p>
+                    </div>
+                </div>
+            </a>
+			<div class="menu-overlay d-none"></div>
+            <div class="navbar-collapse collapse" id="mainMenu" style="">
+                <span class="nav-close"></span>
+                <ul class="navbar-nav mx-auto primaryMenu">
+                    @foreach (var element in menu.GetChildren().ToList())
+                    {
+                        var childCount = element.GetChildren().Count();
+                        if (childCount != 0)
+                        {
+                            <li class="@childCount nav-item dropdown @activeClass">
+                                @Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+                                @Html.Sitecore().Field("NavigationTitle", element)
+
+                                @Html.Sitecore().EndField()
+
+
+
+
+                                <span class="fa fa-angle-down"></span>
+                                <div class="dropdown-menu megamenu">
+                                    <ul>
+                                        @foreach (var subMenu in element.GetChildren().ToList())
+                                        {
+
+                                            <li class="dropdown-item">
+                                                @Html.Sitecore().BeginField("Link", subMenu, new { haschildren = true, @class = "dropdown-item" })
+
+                                                @Html.Sitecore().Field("NavigationTitle", subMenu)
+
+                                                @Html.Sitecore().EndField()
+                                            </li>
+                                        }
+
+                                    </ul>
+
+                                </div>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="@childCount nav-item">
+                                @Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link" })
+
+                                @Html.Sitecore().Field("NavigationTitle", element)
+
+                                @Html.Sitecore().EndField()
+                            </li>
+
+                        }
+                        activeClass = "";
+                    }
+
+
+                </ul>
+
+                <div class="nav_cta d-lg-none d-block">
+                    <ul>
+                        <li><a href="/lgbia-guwahati-airport/services"><img src="-/media/21836FD4235E4031A4A085975913D4E3.ashx"><span>Check-out Services</span></a></li>
+                        <li><a href="/lgbia-guwahati-airport/contact-us?na=Suspicious"><img src="-/media/0941E1DE111C4693B24329DBDA9CB9D6.ashx"><span>Report Suspicion</span></a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <ul class="primarymenu ml-auto">
+                <li class="user-login d-none"><a href="#" class="nav-link"><svg xmlns="http://www.w3.org/2000/svg" width="17.5" height="19.5" viewBox="0 0 17.5 19.5"><defs></defs><g transform="translate(-3.25 -2.25)"><path class="a" d="M20,21V19a4,4,0,0,0-4-4H8a4,4,0,0,0-4,4v2" /><circle class="a" cx="4" cy="4" r="4" transform="translate(8 3)" /></g></svg></a></li>
+                <li class="weather-plugin"><a href="#" class="nav-link"><span id="tempInfo"></span><img src="-/media/2374C10805614E11941FD17EB9ACC1D1.ashx"></a></li>
+                <li class="search" id="search-toggle">
+                    <a href="#" class="nav-link"><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)" /><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)" /></g></svg></a>
+                    <div class="search-container">
+                        <div class="container-fluid position-relative">
+                            <form class="search-container__form">
+                                <div class="form-group mb-3 wrapper">
+                                    <input type="text" class="form-control" placeholder="Search" id="SearchBox" maxlength="30" aria-label="" required>
+                                    <button type="button" onclick="Search()" value="X" id="SearchBtn1"><svg xmlns="http://www.w3.org/2000/svg" width="19.811" height="19.811" viewBox="0 0 19.811 19.811"><defs></defs><g transform="translate(-2.25 -2.25)"><circle class="a" cx="8" cy="8" r="8" transform="translate(3 3)"></circle><line class="a" x1="4.35" y1="4.35" transform="translate(16.65 16.65)"></line></g></svg></button>
+                                </div>
+				<button type="button" class="btn-close">X</button>
+                            </form>
+                            <div class="search-container__results">
+                                <p>Popular Searches</p>
+                                <ul id="SearchResult">
+                                    <li><a href="/lgbia-guwahati-airport/passenger-guide">Passenger Guide</a></li>
+                                    <li><a href="/lgbia-guwahati-airport/shop-and-dine/relax">Relax</a></li>
+                                    <li><a href="/lgbia-guwahati-airport/transport">Transport</a></li>
+                                    <li><a href="/lgbia-guwahati-airport/shop-and-dine/shop">Shop and Dine</a></li>
+                                    <li><a href="/lgbia-guwahati-airport/services/lost-and-found">Lost and Found</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="toggle_nav">
+                    <button class="navbar-toggler d-block" id="nav-button" type="button" data-toggle="collapse" data-target="#mainMenu" aria-expanded="false" aria-label="Toggle navigation">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </li>
+            </ul>
+
+        </nav>
+    </div>
+</div>
+
+
+<script src="/scripts/GuwahatiAirport/jquery.min.js"></script>
+<script>
+
+    $('#SearchBox').keypress(function (event) {
+        // event.preventDefault();
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            window.location.href = "/lgbia-guwahati-airport/searchresult?key=" + $('#SearchBox').val();
+            event.preventDefault();
+        }
+
+    });
+
+    function SearchRedirect() {
+        window.location.href = "/lgbia-guwahati-airport/searchresult?key=" + $('#SearchBox').val();
+        event.preventDefault();
+
+    }
+
+    function Search() {
+        //  $('#SearchBtn1').submit();
+		if($('#SearchBox').val()=="")
+		return false;
+		
+  window.location.href ="/lgbia-guwahati-airport/searchresult?key=" +  $('#SearchBox').val();
+  return false;
+        var itemId = $('#SearchBox').val();
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId },
+            url: "/api/GuwahatiAirport/GetSearchResult",
+            context: this,
+            success: function (objects) {
+                // alert("s1");
+                console.log(objects);
+                $('#SearchResult').html('');
+                var html = "";
+
+                for (var i = 0; i < objects.length; i++) {
+                    var value = objects[i]["Value"];
+                    if (value.indexOf("New Local Datasource Folder") > 0) {
+
+                    }
+                    else {
+                        if (value.indexOf("lgbia-guwahati-airport/Home") > 0)
+                            value = "/" + value.replace("/lgbia-guwahati-airport/Home/", "");
+
+                        html = html + " <li><a href='" + value + "'>" + objects[i]["Key"] + "</a></li>";
+                    }
+                }
+                $('#SearchResult').html(html);
+                return false;
+
+            }
+        });
+
+    }
+
+
+
+
+
+    //$('#SearchBtn1').on('submit', function (e) {
+    //    alert("1");
+    //    e.preventDefault();
+    //    //  e.stopPropagation(); // only neccessary if something above is listening to the (default-)event too
+
+    //    var itemId = $('#SearchBox').val();
+    //    $.ajax({
+    //        method: "POST",
+    //        data: { itemId: itemId },
+    //        url: "/api/MangaloreAirport/GetSearchResult",
+    //        context: this,
+    //        success: function (objects) {
+    //            // alert("s1");
+    //            console.log(objects);
+    //            $('#SearchResult').html('');
+    //            var html = "";
+
+    //            for (var i = 0; i < objects.length; i++) {
+    //                html = html + " <li><a href='" + objects[i]["Value"] + "'>" + objects[i]["Key"] + "</a></li>";
+
+    //            }
+    //            $('#SearchResult').html(html);
+    //            return false;
+    //            //$("#City").html(""); // clear before appending new list
+    //            //$.each(cities, function (i, city) {
+    //            //    $("#City").append(
+    //            //        $('<option></option>').val(city.CityId).html(city.CityName));
+    //            //});
+    //        }
+    //    });
+    //});
+</script>
+

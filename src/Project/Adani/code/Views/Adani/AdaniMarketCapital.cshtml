@@ -1,0 +1,95 @@
+﻿@using Sitecore.Data.Items
+@model Sitecore.Adani.Website.Models.AdaniMarketCapListModel
+    @{ 
+        var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+        var element = Sitecore.Context.Database.GetItem(datasource);
+        int serial = 0;
+        string Price = "";
+        decimal INRCAPTotal = 0;
+        decimal USDCAPTotal = 0;
+        string USD = "";
+    }
+<section class="breadcrumb-sub-layout bg-gray py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <ul class="breadcrumb-sublayout-ul">
+                    <li><a href="/">Home</a></li>
+                </ul>
+                <h1>Market Capital</h1>
+                <p>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+@if (Model != null)
+{
+    <section class="bg-white py-5">
+        <div class="container">
+            <center>
+                <a class="navbar-brand" href="/" title=""><img alt="Adani Group - Growth with Goodness" src="https://www.adani.com/-/media/8614C9E10D4A4EC3993153E0208322ED.ashx" class="img-fluid"></a>
+                <br><h2>Adani Group : Market Capital</h2>
+            </center>
+            <br>
+			<div class="table-responsive">
+            <table class="table table-striped" style=" min-width: 950px; ">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Company Code</th>
+                        <th class="alignRight">Price</th>
+                        <th class="alignRight">No. of Shares in Cr</th>
+                        <th class="alignRight">Market Cap(Rs Lakh Cr)</th>
+                        <th class="alignRight">Market Cap(USD Billion)</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (Item item in element.GetChildren())
+                    {
+                        serial = serial + 1;
+                        foreach(var list in Model.MarketList)
+                        {
+                            if(list.MarketCapID == item.Fields["Key"].Value)
+                            {
+                                Price = list.MarketCapValue;
+                            }
+                            if (list.MarketCapID == item.Fields["Key"].Value + "-USD")
+                            {
+                                USD = list.MarketCapValue;
+                            }
+                        }
+                        decimal SharePrice = decimal.Parse(Price);
+                        decimal NoShares = decimal.Parse(item.Fields["Value"].Value);
+                        decimal INRCap = (SharePrice * NoShares)/100000;
+                        INRCAPTotal = INRCAPTotal + Math.Round(INRCap, 2);
+                        decimal USDCap = (SharePrice * NoShares) / (decimal.Parse(USD)*100);
+                        USDCAPTotal = USDCAPTotal + Math.Round(USDCap, 2);
+                        <tr class="5400">
+                            <td>@serial</td>
+                            <td>
+                                @item.Fields["Key"]
+                            </td>
+                            <td class="alignRight NSE pos">@Price</td>
+                            <td>@item.Fields["Value"]</td>
+                            <td class="alignRight MCap INR">@Math.Round(INRCap, 2)</td>
+                            <td>@Math.Round(USDCap, 2)</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td><b>Total</b></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><b>@Math.Round(INRCAPTotal, 2)</b></td>
+                        <td><b>@Math.Round(USDCAPTotal, 2)</b></td>
+                    </tr>
+                </tbody>
+            </table>
+			</div>
+            <p>Last Updated :@DateTime.Now </p>
+            <center><p></p></center>
+        </div>
+    </section>
+}

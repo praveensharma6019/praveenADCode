@@ -1,0 +1,41 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+}
+<div class="p-4 bg-orange h-100 ul-financials">
+    <h3 class="section-heading txt-white">Latest Financials</h3>
+    @foreach (var item in parent.Children.ToList())
+    {
+        var count = 0;
+        var t = item.Fields["Title"];
+        <div>
+            @foreach (var items in item.Children.ToList())
+            {
+                if (count == 0)
+                {
+                    count++;
+                    Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                    var linkUrl = linkvalue.GetFriendlyUrl();
+                <ul>
+                    <li>
+                        <em class="fa fa-newspaper"></em><a href="@linkUrl" target="_blank" class="btn-white">@t</a>
+                    </li>
+                </ul>
+                }
+                else
+                {
+                    break;
+                }
+            }
+        </div>
+    }
+</div>
+

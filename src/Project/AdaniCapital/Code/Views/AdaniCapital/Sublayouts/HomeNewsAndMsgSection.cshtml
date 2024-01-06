@@ -1,0 +1,81 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Website.Helper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var sortedYear = element.GetChildren().OrderByDescending(x => x.Fields["Text"].Value);
+    var i = 0;
+}
+<section class="position-relative bg-white section_padding other-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-3 mb-lg-0">
+                @if (element != null)
+                {
+                    <div class="newsupdate">
+                        <h3 class="section-heading">News and Updates</h3>
+                        <ul class="news-updates">
+                            @foreach (Item year in sortedYear)
+                            {
+                                var sortedItem = year.GetChildren().OrderByDescending(x => x.Fields["Date"].Value);
+                                foreach (Item item in sortedItem)
+                                {
+
+                                    if (!string.IsNullOrWhiteSpace(item.Fields["LinkUrl"].Value))
+                                    {
+                                        var link = Helper.LinkUrl(item.Fields["LinkUrl"]);
+                                        <li>
+                                            <a href="@link">@Html.Sitecore().Field("Title", item)</a>
+                                            <span> @Html.Sitecore().Field("Date", item, new { format = "MMM dd yyyy" })</span>
+                                        </li>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(item.Fields["Body"].Value))
+                                    {
+                                        var link = Sitecore.Links.LinkManager.GetItemUrl(item);
+                                        <li>
+                                            <a href="@link">@Html.Sitecore().Field("Title", item)</a>
+                                            <span> @Html.Sitecore().Field("Date", item, new { format = "MMM dd yyyy" })</span>
+                                        </li>
+                                    }
+
+                                    i++;
+                                    if (i == 4)
+                                    {
+                                        break;
+                                    }
+                                }
+                                if (i == 4)
+                                {
+                                    break;
+                                }
+                            }
+                        </ul>
+                        @{
+                            var url = Sitecore.Links.LinkManager.GetItemUrl(element).ToLower();
+                        }
+                        <p class="text-right mt-4"><a href="@url" class="btn btn-primary">View more</a></p>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-8">
+                <div class="row h-100 no-gutters">
+                    <div class="col-md-6 order-md-1 order-2">
+                        <div class="mgmgt-msg">
+                            <h3 class="section-heading text-white">CEO's Message</h3>
+                            <p class="mb-4">At Adani Capital we have only one mantra – “Customer first”; Our Products, People and IT capabilities are built to meet the needs of our Customers. Our philosophy is that every customer will be a “Partner for Life”</p>
+                            <p class="ceo">Gaurav Gupta<span>CEO, Adani Capital</span></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 order-md-2 order-1">
+                        <div class="mgmgt-thumb">
+                            <img src="-/media/B86BFA6F28B543628D4C4D6DF30D2D4A.webp" loading=lazy>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section><!--/section-->

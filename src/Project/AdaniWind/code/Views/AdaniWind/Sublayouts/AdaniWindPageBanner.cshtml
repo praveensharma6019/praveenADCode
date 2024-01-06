@@ -1,0 +1,96 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+   var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+   var model = Sitecore.Context.Database.GetItem(datasource);
+   var MediaSrc = "";
+   var MediaAlt = "";
+   var ThumbnailSrc = "";
+   var ThumbnailAlt = "";
+   var Linkurl = "#"; 	
+   var url = "#"; 	
+   var DeskVideoSrc = ""; 	
+   var MobVideoSrc = ""; 	
+}
+<div class="cm-page">
+    <div class="carousel">
+	@foreach(var child in model.GetChildren().ToList())
+    { 
+	    
+		Sitecore.Data.Fields.CheckboxField IsVideoBanner  = child.Fields["IsVideoBanner"];
+		if(IsVideoBanner.Checked)
+		{
+			Sitecore.Data.Fields.LinkField DeskVideoUrl = ((Sitecore.Data.Fields.LinkField)child.Fields["VideoLink"]);
+				if (DeskVideoUrl != null )
+				{
+					DeskVideoSrc = DeskVideoUrl.GetFriendlyUrl();
+				}
+			Sitecore.Data.Fields.LinkField MobileVideoUrl = ((Sitecore.Data.Fields.LinkField)child.Fields["MobileVideoLink"]);
+				if (MobileVideoUrl != null )
+				{
+					MobVideoSrc = MobileVideoUrl.GetFriendlyUrl();
+				}
+			Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]);
+			<div class="slide-container">
+               <video class="desk-video videoBanner" src="@DeskVideoSrc" loop="" muted="" autoplay="" playsinline=""></video>
+			   <video class="mob-video videoBanner" src="@MobVideoSrc" loop="" muted="" autoplay="" playsinline=""></video>
+			   <div class="slider-content content-header">
+                    <h3 class="PageBannerTitle">
+                       <span>@Html.Sitecore().Field("Title",child) </span>
+                    </h3>
+					<p>@Html.Sitecore().Field("Description",child)</p>
+					@if (linkfield != null)
+					{
+						url = linkfield.GetFriendlyUrl();
+						<span class="carousel-btn"><a href="@url">@Html.Sitecore().Field("LinkText",child)</a></span>
+					}
+                </div>
+            </div>
+		}
+		else
+		{
+			Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]); 
+			if(linkfield != null) 
+			{ 
+				Linkurl = linkfield.GetFriendlyUrl();
+			}
+			Sitecore.Data.Fields.ImageField MediaImage = ((Sitecore.Data.Fields.ImageField)child.Fields["ImageSource"]);
+			if (MediaImage != null && MediaImage.MediaItem != null)
+			{
+				MediaSrc = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MediaImage.MediaItem);
+				MediaAlt = MediaImage.Alt;
+			}
+			
+			Sitecore.Data.Fields.ImageField MobileImage = ((Sitecore.Data.Fields.ImageField)child.Fields["ThumbnailImageSource"]);
+			if (MobileImage != null && MobileImage.MediaItem != null)
+			{
+				ThumbnailSrc = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MobileImage.MediaItem);
+				ThumbnailAlt = MobileImage.Alt;
+			}
+			Sitecore.Data.Fields.LinkField imagelinkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]);
+            <div class="slide-container">
+                <img src="@MediaSrc" alt="@MediaAlt" class="desk-img">
+                <img src="@ThumbnailSrc" alt="@ThumbnailAlt" class="mob-img">
+                <div class="slider-content content-header">
+                    <h3 class="PageBannerTitle">
+                       <span>@Html.Sitecore().Field("Title",child) </span>
+                    </h3>
+					<p>@Html.Sitecore().Field("Description",child)</p>
+					@if (imagelinkfield != null)
+					{
+						url = imagelinkfield.GetFriendlyUrl();
+						<span class="carousel-btn"><a href="@url">@Html.Sitecore().Field("LinkText",child)</a></span>
+					}                
+				</div>
+            </div>
+		}
+            
+    }       
+	</div>
+</div>
+      
+

@@ -1,0 +1,80 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.AdaniCapital.Website.Helper
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.Mvc.Analytics.Extensions
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+Item model = Sitecore.Context.Database.GetItem(datasource);
+string url = string.Empty; 
+string imgUrl = string.Empty;   
+string altText = string.Empty;  
+}
+@if (model != null)
+{
+Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)model.Fields["Image"]);	
+if ((imgField != null && imgField.MediaItem != null))
+{
+imgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+altText = imgField.Alt;								  						 
+}
+Sitecore.Data.Fields.LinkField linkField = model.Fields["Link"];
+url = linkField.GetFriendlyUrl();
+<div class="section-holder">
+   <div class="content-wrapper">
+      <div class="dr_row dr-align-items">
+         <h1 class="full h1 fm-asb tx-000 custom-module-headng">@Html.Sitecore().Field("Heading",model)</h1>
+         <div class="dr_row dr-align-items dr_pr_2">
+            <p>@Html.Sitecore().Field("Title",model)</p>
+            <a href="@url" target="_blank">
+            <img src="@imgUrl" alt="@altText">
+            </a>
+         </div>
+      </div>
+      <div class="dr_overflow sustainability-content">
+         <div class="dr_mx_minus">
+            <div class="full awards-list owl-carousel dot-bc brand-dots d-txt" id="dr_life_slider">
+               @if(model.HasChildren)
+               {
+               foreach(Item item in model.GetChildren())
+               {						
+               <div>
+                  <div class="award-item movie-holder">
+                     @foreach(Item child in item.GetChildren())
+                     {
+                     Sitecore.Data.Fields.ImageField imgField1 = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                     if ((imgField1 != null && imgField.MediaItem != null))
+                     {
+                     imgUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField1.MediaItem);
+                     altText = imgField.Alt;								  						 
+                     }
+                     Sitecore.Data.Fields.LinkField linkField1 = child.Fields["Link"];
+                     url = linkField1.GetFriendlyUrl();
+                     <a href="@url" target="_blank" class="dr_life_box card-box">
+                        <figure class="dr_img_box">
+                           <img src="@imgUrl" alt="@altText">
+                        </figure>
+                        <p class="full card-title fs-20 fm-am tx-000">@Html.Sitecore().Field("Title",child)</p>
+                     </a>
+                     }
+                  </div>
+               </div>
+               }
+               } 
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+}

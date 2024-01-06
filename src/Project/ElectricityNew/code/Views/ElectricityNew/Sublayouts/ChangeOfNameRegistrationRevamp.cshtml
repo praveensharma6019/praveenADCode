@@ -1,0 +1,104 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+@if (contextItem != null)
+{
+    var info = Session.GetAndRemove("UpdateCNBMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+    if (info != null)
+    {
+        //using InfoMessageRegisterComplaintRevamp to stop auto closing of toast message on Change name on the bill
+        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageRegisterComplaintRevamp, info);
+    }
+    <div class="col s12 l8 offset-l1 section-container">
+
+        <div class="ownership-transfer">
+            <header class="section-header">
+                <h1>@Html.Raw(contextItem["Title"])</h1>
+                <p>@Html.Raw(contextItem["Body"])</p>
+            </header>
+            <div class="custom_accrdion rounded section-wrapper">
+                <div class="accordion">
+                    <ul class="collapsible collapsible-accordion" id="CNBLanding">
+                        <li id="CheckApplicationStatusForm"
+                            data-gaevent="name_change_check_application_status_initiate"
+                            data-gaeventCategory="AEML Services"
+                            data-gaeventAction="Name Change Check Application Status Initiate"
+                            data-gaeventLabel="Check Application Status Initiate">
+                            @Html.Sitecore().Placeholder("CheckApplicationStatusForm")
+                        </li>
+                        <li class="active" id="SubmitNewRequestForm">
+                            @Html.Sitecore().Placeholder("SubmitNewRequestForm")
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bordered-items center">
+                <ul>
+                    <li><a href="/lecportallogin" target="_blank" class="bold">Click here if you are an LEC</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <script src="~/scripts/Accounts/ChangeOfNameOnBillRevamp.js"></script>
+}
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (readCookie('ActiveCNBLi') != null) {
+            $('#' + readCookie('ActiveCNBLi')).addClass('active').siblings().removeClass('active');
+            $('#' + readCookie('ActiveCNBLi')).addClass('active').siblings().find('.collapsible-header').removeClass('hide');
+            $('#' + readCookie('ActiveCNBLi')).find('.collapsible-header').addClass('hide');
+            $('#' + readCookie('ActiveCNBLi')).find('.collapsible-body').show();
+        }
+    })
+
+    $('#CNBLanding li').click(function () {
+        createCookie("ActiveCNBLi", $(this).attr('id'), "");
+    })
+
+    function createCookie(name, value, days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+        }
+        else var expires = "";
+
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+
+    function readCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) {
+                return c.substring(nameEQ.length, c.length);
+            }
+        }
+        return null;
+    }
+</script>
+<script type="text/javascript">
+    $('#CheckApplicationStatusForm').click(function () {
+
+        dataLayer.push({
+            'event': "name_change_check_application_status_initiate",
+            'eventCategory': $(this).attr('data-gaeventCategory'),
+            'eventAction': $(this).attr('data-gaeventAction'),
+            'eventLabel': $(this).attr('data-gaeventLabel'),
+            'business_user_id': $('#BusinessUserId').val(),
+            'login_status': $('#login_status').val(),
+            'ca_number': $('#GACANumber').val(),
+            'page_type': $('head title').text()
+        });
+
+    })
+</script>

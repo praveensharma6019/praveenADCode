@@ -1,0 +1,61 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+	var ChildList = elements.GetChildren().OrderByDescending(x => x[Sitecore.FieldIDs.Updated]).ToList();;
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["cssclass"];
+    var divclass = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["divclass"];
+    var Title = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["Title"];
+    var col = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["rowcss"];
+    var cols = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["rowcsss"];
+    var j = 0;
+}
+
+    <div class="@divclass">
+        <h3 class="section-heading">@Title</h3>
+
+        <div class="owl-carousel owl-theme single-carousel invester-tiles">
+            @foreach (var docs in ChildList)
+            {
+                var theURL = Sitecore.Resources.Media.MediaManager.GetMediaUrl(docs);
+                var url = Sitecore.Resources.Media.HashingUtils.ProtectAssetUrl(theURL);
+                var titleName = docs.Fields["Title"].Value;
+                if (j % 35 == 0)
+                {
+                    @:<div class="item">
+                        @:<div class="row shareholding-pattern">
+                        }
+
+
+                        <div class="@col">
+
+                            <p><em class="fa fa-download mr-2"></em><a href="@url" target="_blank">@titleName</a></p>
+                </div>
+
+                j++;
+                if (j % 35== 0 || j == elements.Children.Count)
+                {
+
+                                           @: </div>
+
+
+                    @:</div>
+                    }
+            
+
+
+
+            }
+        </div>
+    </div>
+
+
+
+
+
+

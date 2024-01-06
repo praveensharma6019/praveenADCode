@@ -1,0 +1,41 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var carouselId = "carousel" + Guid.NewGuid().ToString("N");
+    var elements = MediaSelectorElementsRepository.Get(Model.Item).ToArray();
+}
+
+
+<section class="section" id="">
+    <div class="container">
+        <h3 class="sectionHeading leftAlign mt-0">Image Gallery</h3>
+        <div class="large-12 columns">
+            <div class="carousel-wrap">
+                <div class="bootleggers owl-carousel" id="gallery">
+                    @foreach (var img in elements.ToList())
+                    {
+                        var field = img.Item.IsDerived(Templates.HasMediaImage.Fields.Image) ? Templates.HasMedia.Fields.Thumbnail : Templates.HasMediaImage.Fields.Image;
+                        var style = img.Item.ImageUrl(field, new MediaUrlOptions()).ToCssUrlValue();
+
+                        <a class="item popup" href="@style">
+                            <img src="@style" alt="Gallery">
+                        </a>
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*<div class="row py-4">
+            <a href="https://www.instagram.com/adanionline" class="btnBordered blueBtn my-3 my-md-0 box-center" target="_blank">View more</a>
+        </div>*@
+</section>

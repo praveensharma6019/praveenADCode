@@ -1,0 +1,158 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Electricity.Website.Model;
+@model Sitecore.Electricity.Website.Model.ApplyFormModel
+
+<div id="pledgeforevdiv">
+    <p class="full h3 dp-tb">@Html.Sitecore().Dictionary("SwitchToGreeen/Sign in form heading", "Complete the form below to sign the Green Pledge")</p>
+    <div class="tabs-wrapper full" id="signIn">
+         <ul class="tabs-list">
+            <li class="tab-item active" id="IndividualTab" onclick="tab(event, 'individual', 'signIn')">Individual</li>
+            <li class="tab-item" id="OrgTab" onclick="tab(event, 'organizations', 'signIn')">Organizations</li>
+        </ul>
+
+        <div class="tab-content-wrapper" id="organizations">
+            <div class="tab-content">
+                <div class="full sign-in-wrapper">
+                    <p class="full h3 dp-b">“We Pledge to shift up to 25% of our mobility requirements to Electric Vehicles by 2025”</p>
+                    <p class="full lh-22 fs-14">Complete this form to record your pledge and receive your Online Pledge Certificate. </p>
+                    <div class="sign-left">
+                        <img src="/images/SwitchToGreen/orgnisation-pledge.jpg" alt="sign in" class="res-img" />
+                    </div>
+                    <!-- Section -->
+                    <div>
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreate1", @class = "form-signin" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true)
+                            @Html.HiddenFor(m => m.FormType)
+
+                        <ul class="full">
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.TextBoxFor(model => model.OrganizationName, new { @class = "input", placeholder = "Organization", required = "required", autocomplete = "off", @maxlength = "100" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.OrganizationName, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.TextBoxFor(model => model.EmailId_GreenOrg, new { @class = "input", placeholder = "Enter E-mail ID", required = "required", autocomplete = "off", @maxlength = "50" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.EmailId_GreenOrg, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.DropDownListFor(m => m.VehicleType_Org, new SelectList(Model.VehicleList.Where(v => v.IsGroupVehicleType == true).OrderBy(v => v.Id).ToList(), "VehicleTypeName", "VehicleTypeCode", Model.VehicleType_Org), "Select Vehicle Type", new { @class = "input", id = "ddlVehicleType", required = "required" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.VehicleType_Org, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="" id="organizations_sec">
+                                    @Html.CheckBoxFor(x => x.IsSignUp_Org, new { @class = "", id = "toggle", name = "toggle" })
+                                    <label for="toggle">@Html.Sitecore().Dictionary("/SwitchToGreen/SignUpText", "Sign up for updates from Adani Electricity")</label>
+                                </div>
+                            </li>
+                            <li class="full dp-t">
+                                <div class="bg-white @Html.ValidationErrorFor(x => x.Captcha_GreenOrg, "has-error")">
+                                    <div class="row captcha_box pt-3">
+                                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                    </div>
+                                    <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                    @Html.ValidationMessageFor(x => x.Captcha_GreenOrg, "", new { @id = "captchaPError", @class = "help-block" }, "p")
+                                </div>
+                            </li>
+                            <li class="full dp-t">
+                                <input type="submit" value="Submit" id="applyForGreenPledge_group" name="applyForGreenPledge_group" class="btn-000 pill full fm-rb" />
+                            </li>
+                        </ul>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="tab-content-wrapper active" id="individual">
+            <div class="tab-content">
+                <div class="full sign-in-wrapper">
+                    <p class="full h3 dp-b">“I Pledge that the next car I buy will be an Electric Car.”</p>
+                    <p class="full lh-22 fs-14">Complete this form to record your pledge and receive your Online Pledge Certificate. </p>
+                    <div class="sign-left">
+                        <img src="/images/SwitchToGreen/individual-pledge.jpg" alt="sign in" class="res-img" />
+                    </div>
+                    <div>
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmCreate2", @class = "form-signin" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true)
+                            @Html.HiddenFor(m => m.FormType)
+
+                        <ul class="full">
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.TextBoxFor(model => model.FullName, new { @class = "input", placeholder = "Enter Full Name", required = "required", autocomplete = "off", @maxlength = "100" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.FullName, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.TextBoxFor(model => model.EmailId_GreenIn, new { @class = "input", placeholder = "Enter E-mail ID", required = "required", autocomplete = "off", @maxlength = "50" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.EmailId_GreenIn, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.TextBoxFor(model => model.MobileNumber, new { @class = "input", placeholder = "Enter Mobile Number", required = "required", autocomplete = "off", @maxlength = "12" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.MobileNumber, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.TextBoxFor(model => model.ZipCode, new { @class = "input", placeholder = "Enter Zip Code", required = "required", @maxlength = "20" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.ZipCode, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="full input-wrapper">
+                                    @Html.DropDownListFor(m => m.VehicleType_In, new SelectList(Model.VehicleList.Where(v => v.IsIndividualVehicleType == true).OrderBy(v => v.Id).ToList(), "VehicleTypeName", "VehicleTypeCode", Model.VehicleType_In), "Select Vehicle Type", new { @class = "input", id = "ddlVehicleType", required = "required" })
+
+                                </div>
+                                @Html.ValidationMessageFor(model => model.VehicleType_In, "", new { @class = "text-danger" })
+                            </li>
+                            <li class="full dp-t">
+                                <div class="" id="individual_sec">
+                                    @Html.CheckBoxFor(x => x.IsSignUp_In, new { @class = "", id = "toggleTwo", name = "toggleTwo" })
+                                    <label for="toggleTwo">@Html.Sitecore().Dictionary("/SwitchToGreen/SignUpText", "Sign up for updates from Adani Electricity")</label>
+                                </div>
+                            </li>
+                            <li class="full dp-t">
+                                <div class="bg-white @Html.ValidationErrorFor(x => x.Captcha_GreenIn, "has-error")">
+                                    <div class="row captcha_box pt-3">
+                                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                    </div>
+                                    <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                    @Html.ValidationMessageFor(x => x.Captcha_GreenIn, "", new { @id = "captchaPError", @class = "help-block" }, "p")
+                                </div>
+                            </li>
+                            <li class="full dp-t">
+                                <input type="submit" value="Submit" id="applyForGreenPledge_individual" name="applyForGreenPledge_individual" class="btn-000 pill full fm-rb" />
+                            </li>
+                        </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

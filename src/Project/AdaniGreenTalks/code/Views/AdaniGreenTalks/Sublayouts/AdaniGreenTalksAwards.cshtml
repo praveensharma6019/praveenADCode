@@ -1,0 +1,66 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current?.Rendering?.DataSource;
+    Item model = datasource != null ? Sitecore.Context.Database.GetItem(datasource) : null;
+    string imgurl = "#";
+    string altText = string.Empty;
+}
+
+
+@if (model != null)
+{
+    <section id="carousels">
+        <div class="text-center slide-head fw-bolder my-4 pt-4 divAwards">
+            <h1 class="text-center"> <strong>@Html.Sitecore().Field("Title", model)</strong></h1>
+            <h6 class="text-center" style="color:black">@Html.Sitecore().Field("Summary", model)</h6>
+        </div>
+        <div id="multiItemCarousel">
+            <div class="site-section bg-left-half">
+                <div class="container owl-2-style">
+                    <div class="owl-carousel owl-2 row">
+                        @if (model.HasChildren)
+                        {
+                            foreach (Item item in model.GetChildren())
+                            {
+                                Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["MediaImage"]);
+                                if (imgField != null && imgField.MediaItem != null)
+                                {
+                                    imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                                    altText = imgField.Alt;
+                                }
+                                else
+                                {
+                                    imgurl = "#";
+                                    altText = "";
+                                }
+                                <div class="media-29101">
+                                    <div class="card h-25 mb-3 mr-5" style="width: 18rem;border: none!important;">
+                                        <img src="@imgurl" class="card-img-top dharviborder h-50 w-100" alt="...">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@Html.Sitecore().Field("MediaTitle", item)</h5>
+                                            <h6>@Html.Sitecore().Field("MediaDescription", item)</h6>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}

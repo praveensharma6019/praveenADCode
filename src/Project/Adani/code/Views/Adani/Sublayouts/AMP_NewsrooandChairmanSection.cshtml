@@ -1,0 +1,71 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model RenderingModel
+@{
+
+
+    var models = Sitecore.Context.Database.Items.GetItem("{68A43CE2-2006-47B4-AB99-51B87C0C31C4}");
+    var elements = Sitecore.Context.Database.Items.GetItem("{C40DEBBF-C39E-4BEB-8969-61EEE4D91B73}");
+    var i = 0;
+    var sortedItem = models.Children.Where(x => x.Fields["IsVisible"].Value == "1").OrderByDescending(x => x.Fields["Date"].Value);
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)elements.Fields["Image"]);
+    string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+
+}
+
+<section class="section_newsroom-ceo">
+    <div class="newsroom-section">
+        <h3>Newsroom</h3>
+        <ul>
+            @foreach (var item in sortedItem)
+            {
+                string linkUrl = Sitecore.Links.LinkManager.GetItemUrl(item);
+                Sitecore.Data.Fields.LinkField imageLink = item.Fields["LinkUrl"];
+                var imageLinkUrl = imageLink.GetFriendlyUrl();
+
+                if (string.IsNullOrEmpty(imageLinkUrl))
+                {
+                    <li>
+                        <a href="@imageLinkUrl" target="_blank">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span>
+                    </li>
+                }
+                else
+                {
+                    <li>
+
+                        <p><a href="@imageLinkUrl" target="_blank">@Html.Sitecore().Field("Title", item)</a><span>@Html.Sitecore().Field("Date", item, new { format = "MMM dd, yyyy" })  @Html.Sitecore().Field("Author", item)</span></p>
+
+                    </li>
+                }
+                if (i == 2)
+                {
+                    break;
+                }
+                i++;
+            }
+
+        </ul>
+        @{
+
+            string parentUrl = Sitecore.Links.LinkManager.GetItemUrl(models);
+        }
+        <div><a href="@parentUrl" class="btn btn-gradient">View more</a></div>
+    </div>
+    <div class="ceo_message">
+        <h3>@Html.Sitecore().Field("Title", elements)</h3>
+
+        @Html.Sitecore().Field("Body", elements)
+
+
+    </div>
+    <div class="ceo_thumb">
+        <amp-img alt="Gautam Adani"
+                 layout="responsive"
+                 width="300"
+                 height="300"
+                 src="@url"></amp-img>
+    </div>
+</section>

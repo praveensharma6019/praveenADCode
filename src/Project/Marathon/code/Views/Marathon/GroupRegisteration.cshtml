@@ -1,0 +1,612 @@
+﻿@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Marathon.Website
+@using System.Data;
+
+@model Sitecore.Marathon.Website.Models.RegistrationModel
+
+@{
+    string errmsg = string.Empty;
+    string errmsg1 = string.Empty;
+    //var session = Session["state"];
+    if (Session["Regerrmsg"] != null)
+    {
+        errmsg = Session["Regerrmsg"].ToString();
+        Session["Regerrmsg"] = null;
+    }
+    if (Session["Regerrmsg1"] != null)
+    {
+        errmsg1 = Session["Regerrmsg1"].ToString();
+        Session["Regerrmsg1"] = null;
+    }
+    var sn = 1;
+    var DateTimeSlot = Sitecore.Context.Database.GetItem("{58200A14-25CF-4BFA-B6C9-4CDF189D0414}");
+    var GroupCart = Session["GroupCart"] as DataTable;
+    var NormalRace = Sitecore.Context.Database.GetItem("{0FAABDDF-9C8E-4283-B499-9853674E97D4}");
+    var CharityRace = Sitecore.Context.Database.GetItem("{7B220E91-F649-4E9C-8DDA-A72451876EDE}");
+    var Taxexemption = Sitecore.Context.Database.GetItem("{997F0F57-0DBF-497E-831D-57C564E4FC01}");
+}
+<section class="new_user-registration" style="padding-top: 100px !important;">
+    <div class="container border_bottom_userGroup">
+        <h2 class="registration_form_title">Group Registration</h2>
+        @if (Session["BibCount"] != null && Convert.ToInt32(Session["CurrentBibCount"]) <= Convert.ToInt32(Session["BibCount"]))
+        {
+            <h2 class="registration_form_title fillingBibs">Registering  @Session["CurrentBibCount"] of @Session["BibCount"] Participants</h2>
+        }
+        else
+        {
+            <h2 class="registration_form_title fillingBibs">Registering  @Session["CurrentBibCount"] of @Session["CurrentBibCount"] Participants</h2>
+        }
+        <div class="stepwizard">
+            <div class="stepwizard-row setup-panel">
+                <div class="stepwizard-step">
+                    <a id="st1" href="#step-1" type="button" class="btn btn-primary btn-circle">1</a>
+                    <p>Race Information</p>
+                </div>
+                <div class="stepwizard-step">
+                    <a id="st2" href="#step-2" type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+                    <p>Personal Information</p>
+                </div>
+                <div class="stepwizard-step">
+                    <a id="st3" href="#step-3" type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
+                    <p>Address Information</p>
+                </div>
+                <div class="stepwizard-step">
+                    <a id="st4" href="#step-4" type="button" class="btn btn-default btn-circle" disabled="disabled">4</a>
+                    <p>Medical Information</p>
+                </div>
+                <div class="stepwizard-step">
+                    <a id="st5" href="#step-5" type="button" class="btn btn-default btn-circle" disabled="disabled">5</a>
+                    <p>Confirm Details</p>
+                </div>
+            </div>
+        </div>
+        @using (Html.BeginForm("GroupRegisteration", "Marathon", "Marathon", FormMethod.Post, new { id = "registration_form", name = "registration_form", @class = "row registration_form", style = "display:block", enctype = "multipart/form-data", autocomplete = "off" }))
+        {
+            @Html.AntiForgeryToken()
+            @*@Html.HiddenFor(x => x.FirstName)
+                @Html.HiddenFor(x => x.LastName)*@
+
+            @*<input type="hidden" value="@Model.ExistingSecurityDepositeAmount" id="hdnExistingSecurityDepositeAmount" />*@
+            <div class="setup-content" id="step-1">
+                <div class="row">
+                    <div class="col-md-12 d-none">
+                        <div class="form-group form-group-run mb-3">
+                            <label for="" class="d-block">Run Mode</label>
+
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="RunMode" required id="runMode1" value="Physical" @{string sel = Model.RunMode == "Physical" ? "Checked" : "";} @sel checked>
+                                <label class="form-check-label" for="runMode1">Physical Run<span class="fa fa-info-circle ml-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Description"></span></label>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="reference_code">Reference code:</label>
+                            @Html.EditorFor(model => model.ReferenceCode, new { htmlAttributes = new { placeholder = "Optional", @class = "form-control reference_validated", id = "reference_code", name = "ReferenceCode" } })
+                            <label class="reference_code_error field-required"></label>
+                            <label class="reference_code_success field-required"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group form-group-run mb-3">
+                            <label for="">Bib Type<span class="required">*</span></label>
+                        </div>
+                        <div class="form-group form-group-run mb-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input runtype" type="radio" name="RunType" id="RunType1" value="Normal" required checked>
+                                <label class="form-check-label" for="inlineRadio1">Regular Bib</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input runtype" type="radio" name="RunType" id="RunType2" value="Charity" required>
+                                <label class="form-check-label" for="inlineRadio2">Charity Bib</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="">Distance<span class="required">*</span></label>
+                            <select class="form-control NormalList " id="select_distance" name="RaceDistance" required="required">
+                                <option value="">Select your distance</option>
+                                @foreach (var value in NormalRace.GetChildren().ToList())
+                                {
+                                    <option class="all-dist " value='@value.Fields["Distance"]'>@value.Fields["Text"]</option>
+                                }
+                            </select>
+                            <select class="form-control CharityList  d-none" id="select_distance_charity" name="RaceDistance" required="required">
+                                <option value="">Select your distance</option>
+                                @foreach (var value in CharityRace.GetChildren().ToList())
+                                {
+                                    <option class="all-dist " value='@value.Fields["Distance"]'>@value.Fields["Text"]</option>
+                                }
+                            </select>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6 EmployeeID d-none">
+                        <div class="form-group">
+                            <label for="">Employee Id:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.EmployeeID, new { htmlAttributes = new { @class = "form-control validated", name = "EmployeeID", id = "EmployeeID" } })
+                        </div>
+                    </div>
+                    <div class="col-md-6 EmployeeEmailId d-none">
+                        <div class="form-group">
+                            <label for="">Employee Email:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.EmployeeEmailId, new { htmlAttributes = new { @class = "form-control validated", name = "EmployeeEmailId", id = "EmployeeEmailId" } })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group donationAmount d-none">
+                            <label for="">Amount:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.DonationAmount, new { htmlAttributes = new { @class = "form-control validated", name = "DonationAmount", id = "DonationAmount" } })
+                            <p class='size-chart2 d-none AmountDetails'> Registration Fee :<span class="registrationValue"></span></p>
+                            <p class='size-chart2 d-none AmountDetails'> Donation Value :<span class="DonationValue"></span></p>
+                            @Html.CheckBoxFor(model => model.TaxExemptionCertificate)<span class="size-chart2"> Would you like Income Tax exemption certificate</span>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group PAN d-none">
+                            <label for="">PAN Number:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.PANNumber, new { htmlAttributes = new { @class = "form-control validated", name = "PANNumber", id = "PANNumber" } })
+                            <span class='errormsg d-none'>Invalid PAN Number</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group PAN d-none">
+                            <label for="">Select Cause:<span class="required">*</span></label>
+                            <select class="form-control TaxExemptionCause " id="TaxExemptionCause" name="TaxExemptionCause">
+                                <option value="">Select your Cause</option>
+                                @foreach (var value in Taxexemption.GetChildren().ToList())
+                                {
+                                    <option class="all-dist " value='@value.Fields["Text"]'>@value.Fields["Text"]</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 text-right">
+                        <input type="button" name="next" id="first_btn" class="next_btn btn" value="Next Step">
+                    </div>
+                </div>
+            </div>
+            <div class="setup-content" id="step-2">
+                <div class="row">
+                    <div class="col-md-6">
+
+                        <div class="form-group mb-3">
+                            <label for="">Date of Birth</label>
+                            <input name="DateofBirth" id="dob" type="text" class="form-control validated" value="@Html.ValueFor(model => model.DateofBirth, "{0:dd/MM/yyyy}")" placeholder="Date of Birth" data-error-msg="Please fill your Date of Birth" required="required" , onchange="agevalid()">
+                            <span class="errormsg">@errmsg</span>
+                        </div>
+
+
+                    </div>
+                    @*//fname*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">First name:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control validated", name = "FirstName", id = "first_name", required = "required", onchange = "TextCheck(this)" } })
+                        </div>
+                    </div>
+                    @*//lname*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Last name:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control validated", name = "LastName", id = "last_name", required = "required", onchange = "TextCheck(this)" } })
+                        </div>
+                    </div>
+                    @*//email*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Email:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { type = "email", @class = "form-control validated", name = "Email", id = "email_id" } })
+                        </div>
+                    </div>
+                    @*//number*@
+                    <div class="col-md-6">
+                        <div class="form-group ">
+                            <label for="">Contact No.:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.ContactNumber, new { htmlAttributes = new { @class = "form-control validated", @type = "number", name = "ContactNumber", id = "contactno", maxlength = "10", required = "required", onchange = "numberchk(this)" } })
+                        </div>
+                    </div>
+                    @*//gender*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Gender:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.Gender, new SelectList(Model.GenderList, "Value", "Text"), "Select Gender", new { @id = "gender_list", @class = "form-control form-control chzn-select extra_field", required = "required" })
+                        </div>
+                    </div>
+                    @*//t-shirt-size*@
+                    <div class="col-md-6">
+                        <div class="form-group min-120">
+                            <label for="" class="">T-shirt Size:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.TShirtSize, new SelectList(Model.TShirtSizeList, "Value", "Text"), "Select your T-shirt size", new { @id = "tshirt_sizeMale", @class = "form-control validated", required = "required" })
+                            <div id="myModal" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <img src=http://adani.reputationindia.in/wp-content/themes/custom/images/adani-bib-image.png alt="Adani BIBimage" class="img-responsive">
+                                </div>
+                            </div>
+                            <a href="javascript:void();" data-toggle="modal" data-target="#myModal1" class="size-chart2">Select your size correctly. Size info here</a>
+                            <div id="myModal1" class="modal fade" role="dialog">
+                                <div class="modal-dialog">
+                                    <img src=https://www.ahmedabadmarathon.com/-/media/Project/Marathon/Get%20Ready/T-Shirt_Size_marathon alt="Adani Tee" class="img-responsive" style="margin: 0 auto;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*//IDproof*@
+                    <div class="col-md-6">
+                        <div class="form-group min-120">
+                            <label for="" class="">ID Proof:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.IdentityProofType, new SelectList(Model.IdentityProofTypeList, "Value", "Text"), "Select One", new { @id = "idproof", @class = "form-control validated", required = "required" })
+                        </div>
+                    </div>
+                    @*//ID preview*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="" class="mx-upload-500">Upload scanned copy for Identity Proof (Max size 10 MB, Allowed FileType:png, jpeg)<span class="required">*</span></label>
+                            <input name="IDCardAttachment" id="file1" type="file" accept="image/*" class="form-control file_type" placeholder="Upload Valid ID" data-error-msg="Please Upload Valid ID" onchange="loadFile(event)">
+                            <img id="output" style="max-width:500px; max-height:250px;" />
+                        </div>
+                    </div>
+                    <div class="col-md-12 text-right">
+                        <button id="second-prev" class=" btn prevBtn" type="button"><span class="fa fa-angle-left mr-3"></span> Back</button>
+                        <input type="button" name="next" class="next_btn btn" id="second-next" value="Next Step">
+                    </div>
+                </div>
+            </div>
+            <div class="setup-content" id="step-3">
+                <div class="row">
+                    @*country*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Country:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.Country, new SelectList(Model.CountryList, "Value", "Text"), "Select Country", new { @id = "country_info", @class = "form-control validated", required = "required", })
+                        </div>
+                    </div>
+                    @*StateList*@
+                    <div class="col-md-6">
+                        @* style="display: none" *@
+                        <div class="form-group" id="state">
+                            <label for="">State:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.State, new SelectList(Model.StateList, "Value", "Text"), new { @class = "form-control validated", name = "State", id = "state_info" })
+                            @Html.HiddenFor(m => m.State)
+                            @*@Html.DropDownListFor(m => m.State, ViewBag.state as List<SelectListItem>, new { @class = "form-control validated", name = "State", id = "state_info" })*@
+                        </div>
+                    </div>
+                    @*cityList style="display: none"*@
+                    <div class="col-md-6">
+                        <div class="form-group" id="city">
+                            <label for="">City:<span class="required">*</span></label>
+                            @*@Html.DropDownListFor(m => m.City, new SelectList(string.Empty, "text", "text"), "Select City", new { @class = "form-control validated", name = "City", id = "city_info" })*@
+                            @Html.DropDownListFor(m => m.City, new SelectList(string.Empty, "value", "text"), "Select City", new { @class = "form-control validated", name = "City", @id = "city_info" })
+                            @Html.HiddenFor(m => m.City)
+                        </div>
+                    </div>
+                    @*Address*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Address:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control validated", name = "Address", id = "address" } })
+                            @*<textarea name="Address" id="address" class="form-control validated" placeholder="Address" data-error-msg="Please fill your Address"></textarea>*@
+                        </div>
+                    </div>
+                    @*Pincode*@
+                    <div class="col-md-6">
+                        <div class="form-group form-group-last">
+                            <label for="">Pin Code:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.Pincode, new { htmlAttributes = new { @class = "form-control validated", name = "Pincode", id = "pincode" } })
+                            @*<input name="Pincode" id="pincode" type="number" class="form-control validated" value="" placeholder="Pin Code" data-error-msg="Please select your Pincode">*@
+                        </div>
+                    </div>
+                    @*third-button*@
+                    <div class="col-md-12 text-right">
+                        <button id="third-prev" class=" btn prevBtn" type="button"><span class="fa fa-angle-left mr-3"></span> Back</button>
+                        <input type="button" name="next" class="next_btn btn" id="third-next" value="Next Step">
+                    </div>
+                </div>
+            </div>
+            <div class="setup-content" id="step-4">
+                <div class="row">
+                    @*EmergencyContactName*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Emergency Contact Name:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.EmergencyContactName, new { htmlAttributes = new { @class = "form-control validated", name = "EmergencyContactName", id = "emergency_contact_name", onchange = "TextCheck(this)" } })
+                            @*<input name="EmergencyContactName" id="emergency_contact_name" type="text" class="form-control validated" value="" placeholder="Emergency Contact Name" data-error-msg="Please fill your Emergency Contact Name">*@
+                        </div>
+                    </div>
+                    @*EmergencyContactNumber*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Emergency Contact Number:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.EmergencyContactNumber, new { htmlAttributes = new { @class = "form-control validated", @type = "number", name = "EmergencyContactNumber", id = "emergency_contact_number", maxlength = "10", onchange = "numberchk(this)" } })
+                            @*<input name="EmergencyContactNumber" id="emergency_contact_number" type="number" class="form-control validated" value="" placeholder="Emergency Contact Number" data-error-msg="Please fill your Emergency Contact Number">*@
+                        </div>
+                    </div>
+                    @*BloodGroupList*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <p></p>
+                            <label for="">Blood Group:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.BloodGroup, new SelectList(Model.BloodGroupList, "Value", "Text"), "Select Blood Group", new { @id = "blood_group", @class = "form-control validated", required = "required" })
+                        </div>
+                    </div>
+
+
+                    @*AnyKnownAllergies*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Medical Details (declare your medical condition that may affect your run, if any):</label>
+                            @Html.EditorFor(model => model.AnyKnownAllergies, new { htmlAttributes = new { @class = "form-control validated", name = "AnyKnownAllergies", id = "allergies" } })
+                            @*<input name="AnyKnownAllergies" id="allergies" type="text" class="form-control" value="" placeholder="Any known allergies" data-error-msg="">*@
+                        </div>
+                    </div>
+                    @*agree*@
+                    <div class="col-md-12">
+                        <div class="form-group form-group-last">
+                            <label for="disclaimer"></label>
+                            <input name="agree" type="checkbox" id="disclaimer" data-error-msg="You must check this checkbox" required> I agree to the <a target="_blank" href="/terms-and-conditions">Terms and Conditions</a>
+                            @Html.HiddenFor(model => model.Rstat, new { id = "rstat" })
+                            @Html.HiddenFor(model => model.Updated, new { id = "IsUpdated", value = true })
+                            <input type="hidden" name="EmailDomain" id="EmailDomain" value="">
+                            <input type="hidden" name="EmployeeIDSource" id="EmployeeIDSource" value="">
+                            @*<input type="hidden" name="Rstat" id="rstat" value="">*@
+                        </div>
+                    </div>
+                    @*button*@
+                    <div class="col-md-12 text-right">
+                        <button class=" btn prevBtn" id="four-prev" type="button"><span class="fa fa-angle-left mr-3"></span> Back</button>
+                        <input type="button" name="next" class="next_btn btn" id="four-next" value="Next Step">
+                    </div>
+                </div>
+            </div>
+            <div class="setup-content" id="step-5">
+                <div class="col-md-12 text-left">
+                    <h1 style="font-size: 29px;/* border-bottom: 1px solid #c2c2c2; */font-weight: bold;color: #a73a95;">Detail Confirmation Page</h1>
+                    @*<p style="font-size: 20px;border-bottom: 1px solid #c2c2c2;font-weight: bold;color: #a73a95;">Detail Confirmation Page</p>*@
+                </div>
+                <div class="row border-bottom">
+                    <div class="col-md-12 text-left"><p style="font-size: 20px;border-bottom: 1px solid #c2c2c2;font-weight: bold;color: #a73a95;margin-top: -23px;"> Confirm  Personal Information</p></div>
+                    @*<div class="col-12 text-left">Personal Information</div>*@
+                </div>
+                <div class="row">
+                    @*//fname*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>First name:</label>
+                            @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control validated", name = "FirstName", id = "f_name", required = "required", onchange = "TextCheck(this)", @readonly = "readonly" } })
+                            @*<label id="firsst_name"></label>*@
+                        </div>
+                    </div>
+                    @*//lname*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Last name:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control validated", name = "LastName", id = "l_name", required = "required", onchange = "TextCheck(this)", @readonly = "readonly" } })
+                        </div>
+                    </div>
+                    @*DOB*@
+                    <div class="col-md-6">
+
+                        <div class="form-group mb-3">
+                            <label for="">Date of Birth</label>
+                            <input name="DateofBirth" readonly id="dob" type="text" class="form-control conformationDOB validated" value="@Html.ValueFor(model => model.DateofBirth, "{0:dd/MM/yyyy}")" placeholder="Date of Birth" data-error-msg="Please fill your Date of Birth" required="required" , onchange="agevalid()">
+                            <span class="errormsg">@errmsg</span>
+                        </div>
+
+
+                    </div>
+                    @*gender*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Gender:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.Gender, new SelectList(Model.GenderList, "Value", "Text"), "Select Gender", new { @id = "gender_li", @class = "form-control form-control chzn-select extra_field", required = "required", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.Gender)
+                        </div>
+                    </div>
+                    @*//email*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Email:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { type = "email", @class = "form-control validated", name = "Email", id = "email_idd", @readonly = "readonly" } })
+                        </div>
+                    </div>
+
+                    @*country*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Country:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.Country, new SelectList(Model.CountryList, "Value", "Text"), "Select Country", new { @id = "country_id", @class = "form-control validated", required = "required", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.Country)
+
+                        </div>
+                    </div>
+                    @*StateList id="state" style="display:none;"*@
+                    <div class="col-md-6" id="state">
+                        <div class="form-group">
+                            <label for="">State:<span class="required">*</span></label>
+                            @*@Html.DropDownListFor(m => m.State, ViewBag.state as List<SelectListItem>, new { @class = "form-control validated", name = "State", id = "state_id", @disabled = "disabled" })*@
+                            @Html.DropDownListFor(m => m.State, new SelectList(Model.StateList, "Value", "Text"), new { @class = "form-control validated", required = "required", id = "state_id", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.State)
+                        </div>
+                    </div>
+                    @*cityList id="city" style="display: none"*@
+                    <div class="col-md-6" id="city">
+                        <div class="form-group">
+                            <label for="">City:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.City, new SelectList(string.Empty, "Value", "text"), "Select City", new { @class = "form-control validated", required = "required", id = "city_id", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.City)
+                        </div>
+                    </div>
+                    @*Address*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Address:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.Address, new { htmlAttributes = new { @class = "form-control validated", name = "Address", id = "address_id", @readonly = "readonly" } })
+                            @*<textarea name="Address" id="address" class="form-control validated" placeholder="Address" data-error-msg="Please fill your Address"></textarea>*@
+                        </div>
+                    </div>
+                    @*Pincode*@
+                    <div class="col-md-6">
+                        <div class="form-group form-group-last">
+                            <label for="">Pin Code:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.Pincode, new { htmlAttributes = new { @class = "form-control validated", name = "Pincode", id = "pincode_id", @readonly = "readonly" } })
+                            @*<input name="Pincode" id="pincode_id" type="number" class="form-control validated" value="" placeholder="Pin Code" data-error-msg="Please select your Pincode">*@
+                        </div>
+                    </div>
+
+
+                    @*number*@
+                    <div class="col-md-12 text-left"><p style="font-size: 20px;border-bottom: 1px solid #c2c2c2;font-weight: bold;color: #a73a95;"> Confirm Contact Information</p></div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Contact No.:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.ContactNumber, new { htmlAttributes = new { @class = "form-control validated", @type = "number", name = "ContactNumber", id = "contactno_id", maxlength = "10", required = "required", onchange = "numberchk(this)" } })
+                        </div>
+                    </div>
+                    @*bib*@
+                    <div class="col-md-6">
+                        <div class="form-group" style="display: none;">
+                            <label for="" class="">Name on BIB:</label>
+                            <a href="javascript:void();" data-toggle="modal" data-target="#myModal" class="size-chart"><img src=http://adani.reputationindia.in/wp-content/themes/custom/images/info.png alt=""></a>
+                            @Html.EditorFor(model => model.NamePreferredonBIB, new { htmlAttributes = new { @class = "form-control validated", name = "NamePreferredonBIB", id = "bibname_id", @readonly = "readonly" } })
+                        </div>
+                    </div>
+                    @*EmergencyContactName*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Emergency Contact Name:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.EmergencyContactName, new { htmlAttributes = new { @class = "form-control validated", name = "EmergencyContactName", id = "emergency_contact_name_id", onchange = "TextCheck(this)", @readonly = "readonly" } })
+                            @*<input name="EmergencyContactName" id="emergency_contact_name" type="text" class="form-control validated" value="" placeholder="Emergency Contact Name" data-error-msg="Please fill your Emergency Contact Name">*@
+                        </div>
+                    </div>
+                    @* Id Proof Number*@
+                    @*<div class="col-md-6">
+                            <div class="form-group">
+                                <label for="" class="">Id proof number :<span class="required">*</span></label>
+                                @Html.EditorFor(model => model.IdentityProofNumber, new { htmlAttributes = new { @class = "form-control validated", name = "IdentityProofNumber", id = "idnumber" ,  @readonly = "readonly" } })
+                            </div>
+                        </div>*@
+                    @*<div class="col-md-6 text-left">ID Proof</div>*@
+                    @*//IDproof*@
+                    <div class="col-md-6">
+                        <div class="form-group min-120">
+                            <label for="" class="">ID Proof:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.IdentityProofType, new SelectList(Model.IdentityProofTypeList, "Value", "Text"), "Select One", new { @id = "idproof_id", @class = "form-control validated", required = "required", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.IdentityProofType)
+                        </div>
+                    </div>
+                    @*//ID preview*@
+                    @*<div class="col-md-6">
+                            <div class="form-group">
+                                <label for="" class="mx-upload-500">Upload scanned copy for Identity Proof (Max size 10 MB, Allowed FileType: pdf, jpeg)<span class="required">*</span></label>
+                                <input name="IDCardAttachment" id="file1_id" type="file" accept="image/*" class="form-control file_type" placeholder="Upload Valid ID" data-error-msg="Please Upload Valid ID" onchange="loadFile(event)">
+                                <img id="output" style="max-width:500px; max-height:250px;" />
+                            </div>
+                        </div>*@
+                    <div class="row border-bottom">
+                        <div class="col-md-12 text-left"><p style="font-size: 20px;border-bottom: 1px solid #c2c2c2;font-weight: bold;color: #a73a95;"> Confirm  Medical Information</p></div>
+                    </div>
+
+                    @*BloodGroupList*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Blood Group:<span class="required">*</span></label>
+                            @Html.DropDownListFor(m => m.BloodGroup, new SelectList(Model.BloodGroupList, "Value", "Text"), "Select Blood Group", new { @id = "blood_group_id", @class = "form-control validated", required = "required", @disabled = "disabled" })
+                            @Html.HiddenFor(m => m.BloodGroup)
+                        </div>
+                    </div>
+                    @*EmergencyContactNumber*@
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="">Emergency Contact Number:<span class="required">*</span></label>
+                            @Html.EditorFor(model => model.EmergencyContactNumber, new { htmlAttributes = new { @class = "form-control validated", @type = "number", name = "EmergencyContactNumber", id = "emergency_contact_number_id", maxlength = "10", onchange = "numberchk(this)", @readonly = "readonly" } })
+                            @*<input name="EmergencyContactNumber" id="emergency_contact_number" type="number" class="form-control validated" value="" placeholder="Emergency Contact Number" data-error-msg="Please fill your Emergency Contact Number">*@
+                        </div>
+                    </div>
+                    @*<div class="col-md-6">
+                                <div class="form-group">
+                                <label for="">Emergency Contact Number :<span class="required">*</span></label>
+                                @Html.EditorFor(model => model.EmergencyContactNumber, new { htmlAttributes = new { @class = "form-control validated", name = "EmergencyContactNumber", id = "emergency_contact_number", type = "number", onchange = "numberchk(this)", @readonly = "readonly" } })
+
+                                @*<input name="EmergencyContactNumber" id="emergency_contact_number" type="number" class="form-control validated" value="" placeholder="Emergency Contact Number" data-error-msg="Please fill your Emergency Contact Number">
+                            </div>
+                        </div>*@
+
+                    @*agree*@
+                    <div class="col-md-12">
+                        <div class="form-group form-group-last">
+                            <label for="disclaimer"></label>
+                            <input name="agree" type="checkbox" id="disclaimer_id" data-error-msg="You must check this checkbox" required> I agree to the <a target="_blank" href="/terms-and-conditions">Terms and Conditions</a>
+                            @Html.HiddenFor(model => model.Rstat, new { id = "rstat" })
+                            @Html.HiddenFor(model => model.Updated, new { id = "IsUpdated", value = true })
+                            <input type="hidden" name="EmailDomain" id="EmailDomain" value="">
+                            <input type="hidden" name="EmployeeIDSource" id="EmployeeIDSource" value="">
+                            @*<input type="hidden" name="Rstat" id="rstat" value="">*@
+                        </div>
+                    </div>
+                    <div class="col-md-12 text-right">
+                        <button class=" btn prevBtn" id="five-prev" type="button"><span class="fa fa-angle-left mr-3"></span> Back</button>
+                        <input name="submit_form" type="submit" class="submit_btn btn" id="btnRegistrationSubmit" value="Add Participant">
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    @if (Session["GroupCart"] != null)
+    {
+        <div class="container">
+            <div class="row text-left userGroupHeading" id="remove_title">Group Registration Details:</div>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <th>S. No</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Mobile Number</th>
+                        <th>Race Category</th>
+                        <th>RaceAmount</th>
+                        <th>DiscountRate</th>
+                        <th>Final Amount</th>
+                        <th>PaymentStatus</th>
+                        <th>Delete</th>
+                    </tr>
+                    @for (int i = 0; i < GroupCart.Rows.Count; i++)
+                    {
+                        <tr>
+                            <td>@sn</td>
+                            <td>@GroupCart.Rows[i][1].ToString()</td>
+                            <td>@GroupCart.Rows[i][2].ToString()</td>
+                            <td>@GroupCart.Rows[i][4].ToString()</td>
+                            <td>@GroupCart.Rows[i][0].ToString()</td>
+                            <td>@GroupCart.Rows[i][7].ToString()</td>
+                            <td>@GroupCart.Rows[i][8].ToString()</td>
+                            <td>@GroupCart.Rows[i][5].ToString()</td>
+                            <td>@GroupCart.Rows[i][9].ToString()</td>
+
+                            <td><input type="button" class="btn btn-danger DeleteGroupParticipant btn-sm" id="@i" value="Delete"></td>
+                        </tr>
+                        sn++;
+                    }
+                </table>
+            </div>
+
+            <input name="submit_form" type="submit" id="SaveGroup" class="submit_btn btn btn-primary" value="Payment">
+
+        </div>
+    }
+</section>
+<script>
+    var loadFile = function (event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('output');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    };
+
+</script>

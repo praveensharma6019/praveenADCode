@@ -1,0 +1,229 @@
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+
+
+  
+
+
+}
+<section class="mainSlider">
+    <div class="">
+        <div class="breadcrumb-sl-inner breadcrumb-sl-inner_contact">
+            <div class="container-fluid">
+                <ul>
+                    <li><a href="/svpia-ahmedabad-airport">Ahmedabad Airport</a></li>
+                    <li>Search Result</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="pt-5 pb-3 bg-white search-block">
+<div class="container-fluid">
+
+	<form class="form-inline d-flex justify-content-center md-form form-sm" onSubmit="return false;">
+		<input class="form-control form-control-sm mr-3 SearchBox" type="text" placeholder="Search" aria-label="Search" id="SearchBoxs" maxlength="30" required>
+		<button class="btn waves-effect waves-light" type="button" onclick="Search()" value="X" id="SearchBtns" ><i class="fas fa-search active" aria-hidden="true"></i></button>
+	</form>
+</div>
+</section>
+
+<section class="pb-5 bg-white content-header">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="search_history" id="search_history">
+				
+				<h2 class="text-center txt-sm mb-0"></h2>               
+             
+				
+				
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</section>
+<script src="/scripts/AhmedabadAirport/jquery.min.js"></script>
+<script>  
+    $(document).ready(function () {
+        var key = GetParameterValues('Key');
+      function GetParameterValues(param) {
+           var value;
+           var url = window.location.href.slice(window.location.href.indexOf('?') + 1);
+        if(url.indexOf('=')> 0){ value=  url.split('=')[1];  };
+        return value;
+        }
+        if(key !== undefined)
+        {
+		//key=key.replace('%20',' ');	
+		key=key.split('%20').join(' ');	
+		key=key.toLowerCase();
+    $('#SearchBox').val(key)
+	$('.SearchBox').val(key)
+    $('#SearchBtns').click();   
+} 
+  
+    });
+</script> 
+<script>
+	let text = "airport services";
+	$('#SearchBoxs').keyup(function (event) {
+	
+		var maxLength = 30;
+		var inputEmail = document.querySelector('#SearchBoxs');
+		if(inputEmail.value.length > maxLength) {
+      inputEmail.value = inputEmail.value.substring(0, maxLength);
+		}
+       if($('#SearchBoxs').val().trim()!=""){
+		document.getElementById("SearchBtns").style.pointerEvents  = "all";
+		}
+		else{
+		document.getElementById("SearchBtns").style.pointerEvents  = "none";
+		}      
+    });
+	
+    $('.SearchBox').keypress(function (event) {
+       // event.preventDefault();
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            $('#SearchBtns').click();// Search();
+            event.preventDefault();
+        }
+       
+    });
+
+
+    function Search() {
+      //  $('#SearchBtn').submit(); test
+ 
+     var itemId = "";
+	 if( $('.SearchBox').val() != ""){
+			itemId = $('.SearchBox').val();
+			//document.getElementById("alert_searchs").style.display = "none";
+			}
+		 else
+		     {
+			 itemId = $('#SearchBox').val();
+			 //document.getElementById("alert_searchs").style.display = "block";
+			 return false
+			 }
+		 itemId=itemId.toLowerCase();
+		 var path = "";
+		 var ct=0;
+		 
+		 
+		 if (window.location.href.indexOf("svpia-ahmedabad-airport") > -1)
+		 path ="/sitecore/content/Adani/Home/svpia ahmedabad airport";
+		 else
+		 path = "/sitecore/content/AhmedabadAirport/Home";
+		 
+		
+        $.ajax({
+            method: "POST",
+            data: { itemId: itemId, path: path },
+            url: "/api/AhmedabadAirport/GetSearchResult",
+            context: this,
+            success: function (objects) {
+                // alert("s1");
+                console.log(objects);
+                $('#search_history').html('');
+                var html = "";
+
+                for (var i = 0; i < objects.length; i++) {
+                    var value = objects[i]["Value"];
+					
+                    if (value.indexOf("New Local Datasource Folder") > 0) {
+
+                    }
+					else if(value.indexOf("backup") > 0 ||value.indexOf("Banner") > 0||value.indexOf("Content") > 0||value.indexOf("Sub Sections") > 0||value.indexOf("newsroom") > 0 || value.indexOf("PAGS") > 0 ||value.indexOf("page not found") > 0 ||value.indexOf("ceo message") > 0 ||value.indexOf("cao message") > 0 ||value.indexOf("search result") > 0 ) {
+
+                    }
+                    else {
+					ct++;
+					if (window.location.href.indexOf("svpia-ahmedabad-airport") > -1)
+					{
+                         if (value.indexOf("Adani/Home") > 0)
+                            value = value.replace("/Adani/Home", "");
+					}
+					else 
+					{
+						 if (value.indexOf("AhmedabadAirport/Home") > 0)
+							value = value.replace("/AhmedabadAirport/Home/", "");
+							
+					}
+						if(!value.startsWith("/"))
+									value = "/" + value;
+
+                        html = html + '<div class="search_history_item">'+
+						'<a href="' + value + '">'+
+						
+						'<h2>' + objects[i]["Key"] +
+						'</h2>'+
+						'</a>'+
+						'</div>';}
+                }
+				if(text.includes(itemId))
+				{
+				 html = html + '<div class="search_history_item">'+
+						'<a href="/svpia-ahmedabad-airport/services">'+
+						
+						'<h2>Airport Services</h2>'+
+						'</a>'+
+						'</div>';
+
+				}
+				else if(objects.length ==0 || ct==0)
+				{
+										html = html + '<div class="search_history" id="search_history">' + 
+				'<h2 class="text-center txt-sm mb-0">' + 'No search result available' +'</h2>' +               
+				'</div>'
+
+				}
+                $('#search_history').html(html);
+                return false;
+                
+            }
+        });
+      
+    }
+
+
+    //$('#SearchBtn').on('submit', function (e) {
+    //    alert("1");
+    //    e.preventDefault();
+    //    //  e.stopPropagation(); // only neccessary if something above is listening to the (default-)event too
+
+    //    var itemId = $('#SearchBox').val();
+    //    $.ajax({
+    //        method: "POST",
+    //        data: { itemId: itemId },
+    //        url: "/api/AhmedabadAirport/GetSearchResult",
+    //        context: this,
+    //        success: function (objects) {
+    //            // alert("s1");
+    //            console.log(objects);
+    //            $('#SearchResult').html('');
+    //            var html = "";
+
+    //            for (var i = 0; i < objects.length; i++) {
+    //                html = html + " <li><a href='" + objects[i]["Value"] + "'>" + objects[i]["Key"] + "</a></li>";
+
+    //            }
+    //            $('#SearchResult').html(html);
+    //            return false;
+    //            //$("#City").html(""); // clear before appending new list
+    //            //$.each(cities, function (i, city) {
+    //            //    $("#City").append(
+    //            //        $('<option></option>').val(city.CityId).html(city.CityName));
+    //            //});
+    //        }
+    //    });
+    //});
+</script>
+

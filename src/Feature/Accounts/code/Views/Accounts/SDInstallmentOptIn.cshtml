@@ -1,0 +1,315 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.SDEMIProcess
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>*@
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmSDOptRegistration" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+
+    <div class="pageContent">
+        <div class="container">
+            <div class="">
+                <div class="row">
+                    @*<div class="col-12">
+                            @{
+                                var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                                if (info != null)
+                                {
+                                    Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                                }
+                            }
+                        </div>*@
+                    @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                    {
+                        <div class="form-group row">
+                            <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+                        </div>
+                    }
+                </div>
+                <div class="clearfix"></div>
+                <div class="row">
+                    @if (!Model.IsvalidatOTP)
+                    {
+                        <div class="col-lg-7 ml-auto">
+                            <div class="modal-popup__content">
+                                <p class="mb-2"><b>Eligible Consumers</b>:</p>
+                                <ul class="txt-sm ul-bullets pl-4" style="">
+                                    <li class="mb-3" style="list-style-type: disc;">All active consumers except consumers who have received new connection/undergone changeover/change of name within 3 months prior to the Annual Deposit review - <a href="#MERCRegulationsModal" target="_blank" data-toggle="modal" data-target="#MERCRegulationsModal"><b>Refer MERC Regulations 2021 Clause 13.1 & 13.2</b></a></li>
+                                </ul>
+                                <p class="mb-2"><b>Requisite Deposit Amount</b>:</p>
+                                <ul class="txt-sm ul-bullets pl-4 mb-3" style="">
+                                    <li style="list-style-type: disc;">Base Amount: Average of bill amount (Bill month March-20 to Feb-21).</li>
+                                    <li style="list-style-type: disc;">Requisite Security Deposit would be = 2*(Avg bill amount of Mar-20 to Feb-21) less Existing available Security Deposit.</li>
+                                    <li style="list-style-type: disc;">If 12 months data is not available for the sake of base amount calculation, the available no. of months will be taken for average calculation.</li>
+                                    <li style="list-style-type: disc;">Any interest payable towards existing Security Deposit will be included in the existing Security Deposit balance, after deduction of applicable TDS. The balance Deposit amount payable by consumer would be reduced by this interest amount net of TDS deducted. (See Example Below).</li>
+                                </ul>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-bordered txt-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td>Security Deposit Payable (as per 2XMonthly average)</td>
+                                                <td>Rs.5000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Existing Security Deposit before interest adjustment</td>
+                                                <td>Rs.1000</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Deposit interest (included in Existing Security Deposit)]</td>
+                                                <td>Rs.50</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Existing Security Deposit available after adjusting Deposit interest</td>
+                                                <td>Rs.1050</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Balance Security Deposit Payable</td>
+                                                <td>Rs.3950</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Deposit Instalment payable as per 6 instalments</td>
+                                                <td>Rs.658</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Due Date for payment of full amount/first instalment amount</td>
+                                                <td>30 days from Demand date</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="mb-3"><b>Instalments</b>:</p>
+                                <ul class="txt-sm ul-bullets pl-4 mb-3" style="">
+                                    <li style="list-style-type: disc;">Consumers can opt for making the payment of the balance Security Deposit in upto 6 equal monthly instalments.</li>
+                                    <li style="list-style-type: disc;">To opt for the instalments/pay Security deposit online please click here.</li>
+                                    <li style="list-style-type: disc;">Security deposit can be paid in full /instalments at any of the Genius Pay outlets. Click here to know your nearest Genius Pay outlets.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 ml-auto">
+                            <div class="form_namechange mb-0" style="background: #f5f5f5;border: 1px solid #eaeaea;">
+                                <div class="px-4">
+                                    <h3 class="pl-0 pt-0 mb-3" style="min-height: auto;">Opt-In for Security Deposit Instalments: </h3>
+                                    @if (!Model.IsvalidatAccount)
+                                    {
+                                        <div class="input-group mb-3">
+                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Contract Account Number")</label>
+                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @autocomplete = "off", required = "required" })
+                                        </div>
+                                        <div>@Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")</div>
+                                        <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                            <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                            <div class="row captcha_box">
+                                                <div class="col-lg-6">
+                                                    <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+                                                    @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="input-group-append">
+                                            <input type="submit" class="btn btn-primary" name="ValidateCA" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Validate Account Button text", "Submit")" />
+                                        </div>
+                                    }
+                                    else if (Model.IsvalidatAccount && !Model.IsOTPSend)
+                                    {
+                                        <div class="input-group mb-3">
+                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                        </div>
+                                        <div class="input-group mb-3">
+                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                        </div>
+                                        <p class="txt-orange input-group mb-3">OTP will be send to your mobile number</p>
+                                        <div class="input-group">
+                                            <input type="submit" class="btn btn-primary" name="SendOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Proceed", "Proceed")" />
+                                            <a class="btn btn-secondary ml-2" href="/sd-installment-opt">End</a>
+                                        </div>
+                                    }
+                                    else if (Model.IsvalidatAccount && Model.IsOTPSend)
+                                    {
+                                        <div class="input-group mb-3">
+                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                        </div>
+                                        <div class="input-group mb-3">
+                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                        </div>
+                                        <div class="input-group mb-3">
+                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/OTPNumber", "Enter OTP")</label>
+                                            @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber", @autocomplete = "off", required = "required" })
+                                        </div>
+                                        <div>@Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block mb-3" }, "p")</div>
+                                        <div class="input-group">
+                                            <input type="submit" class="btn btn-primary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/SDOpt/Register/ValidateOTP", "Validate")" />
+                                            <a class="btn btn-secondary ml-2" href="/sd-installment-opt">Cancel</a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-lg-12 ml-auto">
+                            <div class="panel" style="background: #f5f5f5;border: 1px solid #eaeaea;">
+                                <div class="px-4">
+                                    <h3 class="pl-0 pt-0 mb-3" style="min-height: auto;">Opt-In for Security Deposit Instalments: </h3>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="input-group mb-3">
+                                                <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/Contract Account number", "Contract Account number")</label>
+                                                @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group mb-3">
+                                                <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                                @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group mb-3">
+                                                <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/ConsumerName", "Consumer Name")</label>
+                                                @Html.TextBoxFor(x => x.ConsumerName, new { @class = "form-control reset-control", id = "ConsumerName", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group mb-3">
+                                                <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/Security Deposit Demand", "Security Deposit Demand Rs.")</label>
+                                                @Html.TextBoxFor(x => x.SecurityDepositAmount, new { @class = "form-control reset-control", id = "SecurityDepositAmount", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="input-group mb-3">
+                                                <label for="" class="w-100">@Html.Sitecore().Dictionary("/SDOpt/Register/Number of instalments", "Number of instalments")</label>
+                                                @Html.DropDownListFor(x => x.SelectedNumberOfInstalments, new SelectList(Model.NumberOfInstalmentsSelectList, "Value", "Text", Model.SelectedNumberOfInstalments), "Select", new { @class = "form-control", id = "ddlSelectedNumberOfInstalments", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.SelectedNumberOfInstalments, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="checkbox" name="termsCb" class="" id="termsCb">
+                                        <label class="" for="termsCb">I agree to the <a href="#TermsAndConditionsModal" data-toggle="modal" data-target="#TermsAndConditionsModal">Terms and Conditions</a></label>
+                                        <p class="txt-orange" id="docErrorMessage"></p>
+                                    </div>
+
+                                    <div class="input-group-append">
+                                        <input type="submit" class="btn btn-primary" name="Submit" value="@Html.Sitecore().Dictionary("/SDOpt/Register/Submit", "Submit")" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Modal-->
+    <div class="modal fade modal-popup" id="TermsAndConditionsModal" tabindex="-1" role="dialog" aria-labelledby="TermsAndConditionsModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5>Terms And Conditions</h5>
+                    <div class="modal-popup__content">
+                        <div class="panel">
+                           
+                                <p>
+                                    Once opted for installment payment for paying Security deposit. your next bill's amount payable will include your EMI amount and the current bill for the month. These are interest free instalments as per MERC  (Electricity Supply Code and Standards of Performance of Distribution Licensees including Power Quality)
+                                    Regulations, 2021 ) if paid within the respective instalment due dates.
+                                </p>
+                                <hr />
+                                <p>
+                                    This is a voluntary payment option, and it cannot be altered once opted.
+                                </p>
+                                <hr />
+                                <p>
+                                    For detailed explanation on billing calculation, please refer your online bill copy via My Account or Elektra on adanielectricity.com
+                                </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade modal-popup" id="MERCRegulationsModal" tabindex="-1" role="dialog" aria-labelledby="MERCRegulationsModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h5>Maharashtra Electricity Regulatory commission ( Electricity supply code and standard of performance of Distribution licensee including power quality) Regulation 2021:</h5>
+                    <div class="modal-popup__content">
+                        <div class="panel">
+                            <p>As per the Maharashtra Electricity Regulatory Commission (Electricity Supply Code and Standards of Performance of Distribution Licensees including Power Quality) Regulations, 2021 clause 13.1 & 13.2 (mentioned below), AEML can collect Security Deposit (SD) from Consumer as a Security against electricity bills raised every month to Customers.</p>
+                            <br />
+                            <p>
+                                Subject to the provision of sub-sections (5) of section 47 of the Act, the distribution Licensee may require any person to whom supply of electricity has been sanctioned to deposit a security in accordance with the provisions of clause of sub-section (1) of Section 47 of the Act.
+                            </p>
+                            <br />
+                            <p>
+                                The amount of the Security Deposit shall be twice the average of billing of billing cycle period for determining the average billing, the average of the billing to the consumer for the last twelve (12) months or in case supply has been provided for a shorter period, the average of the billing of such shorter period, shall be considered.
+                            </p>
+                            <br />
+                            <p>Provided that for Consumers having quarterly billing cycle, amount of the security shall be 1.5 times the average of the billing cycle period.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+        <div class="modal-dialog modal-dialog-centered">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <p>Message</p>
+                    <button type="button" class="close" data-dismiss="modal">X</button>
+                </div>
+                <div class="modal-body">
+                    @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                    {
+                        <div class="form-group row">
+                            <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                            @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                                {
+                                    <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                                }*@
+                        </div>
+                        Session["Message"] = null;
+                        Session["AlertMessage"] = null;
+                    }
+                </div>
+                <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+            </div>
+
+        </div>
+    </div>
+}
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

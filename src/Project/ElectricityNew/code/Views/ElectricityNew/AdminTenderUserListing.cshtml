@@ -1,0 +1,125 @@
+﻿@using Sitecore.ElectricityNew.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model List<Sitecore.ElectricityNew.Website.Model.TenderBidderDetails>
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderDetail);
+    var tenderDetailURL = item.Url();
+    var TenderListURL = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderListing);
+    var tenderId = Request.QueryString["id"];
+}
+
+<div class="pageContent">
+    <div class="container">
+        @using (Html.BeginForm("Logout", "ElectricityNew", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <div class="col-12 p-0 pb-3">
+            <h2 class="txt-orange">@Html.Sitecore().Dictionary("Electricity/Tender/User Listing", "User Listing")</h2>
+        </div>
+        <div class="col-12 p-0 pb-3">
+            @Html.ActionLink("Export", "AdminExportUserData", new { @id = tenderId, @class = "btn btn-primary" })
+        </div>
+        <div class="col-12 p-0 pb-3">
+            @if (Model != null && Model.Count > 0)
+            {
+                <span> <b>Tender Name </b>-@Model[0].TenderName </span>
+            }
+        </div>
+        <!-- Tenders -->
+        <div class="table-responsive tableOuter">
+            <table class="table table-borderless table-white table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">UserName</th>
+                        <th scope="col">Company</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Mobile</th>
+                        <th scope="col">View Envelope</th>
+                        <th scope="col">Upload Status</th>
+                        <th scope="col">Date of Upload</th>
+                        <th scope="col">Tender Fee Paid</th>
+                        <th scope="col">Customer Code</th>
+                        <th scope="col">Vendor Code</th>
+                        <th scope="col">PAN No.</th>
+                        <th scope="col">GST No.</th>
+                        <th scope="col">Tender Fee Bank Ref No.</th>
+                        <th scope="col">Tender Fee Bank Branch</th>
+                        <th scope="col">Tender Fee Amount</th>
+                        <th scope="col">Tender Fee Mode of Payment</th>
+                        <th scope="col">Tender Fee Payment Date</th>
+                        <th scope="col">EMD Bank Ref No.</th>
+                        <th scope="col">EMD Bank Branch</th>
+                        <th scope="col">EMD Amount</th>
+                        <th scope="col">EMD Mode of Payment</th>
+                        <th scope="col">EMD Payment Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        foreach (var itemdata in Model)
+                        {
+                    <tr>
+                        <td>@itemdata.UserName</td>
+                        <td>@itemdata.CompanyName</td>
+                        <td>@itemdata.Email</td>
+                        <td>@itemdata.Mobile</td>
+                        <td><a href="@tenderDetailURL?id=@itemdata.TenderId&uid=@itemdata.UserId" class="txt-orange txt-underline" title="View Tender">View</a></td>
+                        <td>@itemdata.HasDocumentUploaded</td>
+                        @if (itemdata.DateOfUpload == null)
+                        {
+                            <td>
+                                -
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                @itemdata.DateOfUpload.Value.ToString("dd/MM/yy  h:mm tt", System.Globalization.CultureInfo.InvariantCulture)
+                            </td>
+                        }
+                        <td>@itemdata.IsTenderFeePaid</td>
+                        <td>@itemdata.CustomerCode</td>
+                        <td>@itemdata.VendorCode</td>
+                        <td>@itemdata.PANNumber</td>
+                        <td>@itemdata.GSTNumber</td>
+                        <td>@itemdata.TenderFeeBankRef</td>
+                        <td>@itemdata.TenderFeeBankBranch</td>
+                        <td>@itemdata.TenderFeeAmount</td>
+                        <td>@itemdata.TenderFeeModeOfPayment</td>
+                        <td>@itemdata.TenderFeeDateOfPayment</td>
+                        <td>@itemdata.EMDBankRef</td>
+                        <td>@itemdata.EMDBankBranch</td>
+                        <td>@itemdata.EMDAmount</td>
+                        <td>@itemdata.EMDModeOfPayment</td>
+                        <td>@itemdata.EMDDateOfPayment</td>
+                    </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td>
+                                No records found.
+                            </td>
+                        </tr>
+
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+        <div class="mt-2">
+            <a href="@TenderListURL.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("Electricity/Tender/Back To List Text", "Back To Tender List")</a>
+        </div>
+    </div>
+    <!-- /Tenders -->
+
+</div>

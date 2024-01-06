@@ -1,0 +1,115 @@
+﻿@using Sitecore.Mvc.Configuration;
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Accounts.Models.AdaniGasCNGRegistration.AdaniGasCNG_DealerLoginInfo
+<div class="pageContent">
+    <div class="container">
+        <div class="">
+            <div class="row">
+                <div class="col-12">
+                    @{
+                        var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                        if (info != null)
+                        {
+                            Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                        }
+                    }
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="col-lg-12 text-lg-right text-left mt-3 mt-lg-0 d-none">
+                <button type="button" class="btn btn-primary txt-sm" data-toggle="modal" data-target="#eNachGuidelines">e-NACH Guidelines</button>
+                <a href="#eNachGuidelines" class="btn btn-primary d-none" target="_blank" style="color: #fff;" data-toggle="modal" data-target="#eNachGuidelines"><b>e-NACH Guidelines</b></a>
+            </div>
+
+            <div class="row pb-5">
+
+                <div class="col-lg-7 ml-auto">
+                    <div class="modal-popup__content">
+                        <p class="txt-orange mb-3 txt-md">Guidelines</p><p class="mb-2"><b>Pre-requisites</b>:</p>
+                        <ul class="txt-sm ul-bullets pl-4" style="">
+                            <li class="mb-3" style="
+    list-style-type: disc;
+">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec fringilla quam, sit amet ornare magna. Nam ut bibendum leo, a tempor enim. Nam tincidunt magna ac eros interdum varius. Integer quam nulla, sagittis quis tincidunt at, finibus in eros. Morbi sit amet placerat turpis, quis faucibus justo. Nullam sagittis dignissim eros. Maecenas dapibus odio odio.</li>
+                            <li class="mb-3" style="list-style-type: disc;">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque nec fringilla quam, sit amet ornare magna. Nam ut bibendum leo, a tempor enim. Nam tincidunt magna ac eros interdum varius. Integer quam nulla, sagittis quis tincidunt at, finibus in eros. Morbi sit amet placerat turpis, quis faucibus justo. Nullam sagittis dignissim eros. Maecenas dapibus odio odio.
+                            </li>
+                        </ul>
+
+
+                    </div>
+
+                </div>
+                @if (Model != null)
+                {
+                    <div class="col-lg-5 ml-auto">
+                        <div class="form_namechange mb-0" style="background: #f5f5f5;border: 1px solid #eaeaea;">
+                            <div class="px-4">
+                                <h3 class="pl-0 pt-0 mb-3" style="min-height: auto;">CNG Dealer Login</h3>
+                                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "CNGDealerRegForm", name = "CNGGDealerRegForm", @class = "", enctype = "multipart/form-data" }))
+                                {
+                                    @Html.AddUniqueFormId()
+                                    @Html.AntiForgeryToken()
+                                    @Html.HiddenFor(m => m.PageInfo, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+                                    @*Html.HiddenFor(m => m., new { @Value = HttpContext.Current.Request.Url.AbsolutePath })*@
+
+                                    <div class="owner-details">
+                                        <div class="row">
+                                            <div class="col-lg-12 col-md-12">
+                                                <div class="form-group mb-3">
+                                                    @Html.LabelFor(model => model.DealerId, "Dealer Id", new { @class = "" })<span class="required">*</span>
+                                                    @if (!Model.IsOTPSend)
+                                                    {
+                                                        @Html.TextBoxFor(model => model.DealerId, new { @class = "form-control", type = "text", maxlength = "10", required = "required", id = "CNGCustRegMobile" })
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.TextBoxFor(model => model.DealerId, new { @class = "form-control", type = "text", maxlength = "10", @readonly = "readonly", required = "required", id = "CNGCustRegMobile" })
+                                                    }
+                                                    @Html.ValidationMessageFor(model => model.DealerId, "", new { @class = "help-block required" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    if (Model.IsOTPSend)
+                                    {
+                                        <div class="owner-details">
+                                            <div class="row">
+                                                <div class="col-lg-12 col-md-12">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(model => model.OTP, "Enter OTP")<span class="required">*</span>
+                                                        @Html.TextBoxFor(model => model.OTP, new { @class = "form-control", required = "required" })
+                                                        @Html.ValidationMessageFor(model => model.OTP, "", new { @class = "help-block required" }, "p")
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    if (!Model.IsOTPSend)
+                                    {
+                                        <div class="input-group-append">
+                                            <button type="submit" value="sendOTP" name="sendOTP" id="CNGDealerSendOTP" class="btn btn-primary">Sign In</button>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="col-4 text-left mt-4 mr-4">
+                                                <button type="submit" value="signIn" name="signIn" id="CNGDealerSubmit" class="btn btn-primary">Sign In</button>
+                                            </div>
+                                            <div class="col-4 text-left mt-4">
+                                                <button type="submit" value="ResendOTP" name="ResendOTP" id="CNGDealerReSendOTP" class="btn btn-secondary">Re-send OTP</button>
+                                            </div>
+                                        </div>                                        
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+
+        </div>
+    </div>
+</div>

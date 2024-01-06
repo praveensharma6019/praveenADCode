@@ -1,0 +1,57 @@
+﻿@using Sitecore.Data.Items
+@using Sitecore.Mvc
+@using Sitecore.AdaniGreenTalks.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string btnUrl = "";
+}
+
+<!-- last section start -->
+@if (model != null)
+{
+    Sitecore.Data.Fields.LinkField linkField = model.Fields[Constant.ButtonLink];
+    if (linkField != null)
+    {
+        btnUrl = linkField.GetFriendlyUrl();
+    }
+
+    <div class="bottom-pane">
+        <div class="container">
+            <div class="inner">
+                <h3>@Html.Sitecore().Field(Constant.MediaTitle, model)</h3>
+                <h4>@Html.Sitecore().Field(Constant.MediaDescription, model)</h4>
+
+
+                @if (!String.IsNullOrEmpty(btnUrl))
+                {
+
+                    if (linkField.LinkType.ToLower() == "internal")
+                    {
+                        <div class="green-button-section">
+                            <a href="@btnUrl" class="btn"> @Html.Sitecore().Field(Constant.ButtonTitle, model)</a>
+                        </div>
+                        
+                    }
+                    if (linkField.LinkType.ToLower() == "external")
+                    {
+
+                        <div class="green-button-section">
+                            <a href="@btnUrl" target="_blank" class="btn"> @Html.Sitecore().Field(Constant.ButtonTitle, model)</a>
+                        </div>
+                    }
+
+                }
+                else
+                {
+                    <div class="green-button-section">
+                        <a href="javascript:void(0)" class="btn"> @Html.Sitecore().Field(Constant.ButtonTitle, model)</a>
+                    </div>
+
+                }
+            </div>
+        </div>
+      </div>
+}
+ 

@@ -1,0 +1,286 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Mvc
+@model Sitecore.Ports.Website.Models.PortsGmsCorporateRegistration
+@using Sitecore.Ports.Website.Models
+@{
+    /**/
+
+
+    var Answer = Sitecore.Context.Database.GetItem(PortsGMSTemplates.MasterData.GrievanceNature);
+    var Title = Sitecore.Context.Database.GetItem("{76273070-C57B-4589-9C56-E8941677865A}");
+
+}
+<section class="py-5 bg-white">
+    <div class="container">
+        @if (Session["SuccessMsg"] != null)
+        {
+            <div class="alert-success mb-4 p-2">@Session["SuccessMsg"]</div>
+            Session["SuccessMsg"] = null;
+        }
+        @if (Session["ErrorMsg"] != null)
+        {
+            <div class="alert-danger mb-4 p-2">@Session["ErrorMsg"]</div>
+            Session["ErrorMsg"] = null;
+        }
+        <h3 class="heading mb-4 pl-3">Personal Details</h3>
+        <div class="form_panel bg-l-gray p-4 box-shadow">
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "PortsGmsRegistrationForm", enctype = "multipart/form-data" }))
+            {
+                <!--<form action="" enctype="multipart/form-data" id="PortsGmsRegistrationForm" method="post">-->
+                <div class="row">
+                    <div class="col-lg-2 col-6 col-sm-4">
+                        <label for="">Title</label>
+                        <div class="form-group">
+                            <select class="form-control" id="">
+                                @foreach (var element in Title.GetChildren().ToList())
+                                {
+                                    var childCount = element.GetChildren().Count();
+                                    if (childCount != 0)
+                                    {
+                                        <option></option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@Html.Sitecore().Field("Title", element)">@Html.Sitecore().Field("Title", element)</option>
+
+                                    }
+
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">First Name</label>
+                        <div class="form-group">
+                            @{
+
+                                string name = "     ";
+                                string[] names = name.Split(' ');
+                                if (Model.Name != null)
+                                {
+                                    name = Model.Name.ToString();
+                                    names = name.Split(' ');
+                                }
+
+                            }
+                            <input type="text" name="first_name" value="@names.GetValue(0)" class="form-control" required id="first_name" autocomplete="off" placeholder="First name">
+                            @Html.ValidationMessageFor(x => x.first_name, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Middle Name</label>
+                        <div class="form-group">
+                            <input type="text" name="middle_name" value="@names.GetValue(1)" class="form-control" id="middle_name"  autocomplete="off" placeholder="Middle name">
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Last Name</label>
+                        <div class="form-group">
+                            <input type="text" name="last_name" value="@names.GetValue(2)" class="form-control" required id="last_name"  autocomplete="off" placeholder="Last name">
+                            @Html.ValidationMessageFor(x => x.last_name, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">DOB</label>
+                        <div class="form-group">
+                            @{
+
+                                string dob = "     ";
+                                
+                                if (Model.DOB != null)
+                                {
+                                    dob = Model.DOB.ToString();
+                                    
+                                }
+
+                            }
+                            <input type="date" name="DOB" value="@dob" class="form-control" id="ContentPlaceHolder1_date"  autocomplete="off" placeholder="DD/MM/YYYY">
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Mobile<span class="required">*</span></label>
+                        <div class="form-group">
+                            <input type="tel" class="form-control mobile" value="@Model.Mobile" name="Mobile" required  autocomplete="off" id="Mobile" placeholder="">
+                            <span class="field-validation-error" id="#mobileerror"></span>
+                            <input type="hidden" name="Mobile_Verified" id="Mobile_Verified" value="" />
+                            @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Email<span class="required">*</span></label>
+                        <div class="form-group">
+                            <input type="text" name="Email" value="@Model.Email" class="form-control" required id="Email" onfocusout="SendOtpEmailCorporate(event,this);"   autocomplete="off" placeholder="Email">
+                            <span class="field-validation-error" id="emailerror"></span>
+                            <input type="hidden" name="Email_Verified" id="Email_Verified" value="" />
+                            @Html.ValidationMessageFor(x => x.Email, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Phone</label>
+                        <div class="form-group">
+                            <input type="text" name="Phone" value="@Model.Phone" class="form-control" id="Phone" autocomplete="off"  placeholder="">
+                            @Html.ValidationMessageFor(x => x.Phone, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Company Name<span class="required">*</span></label>
+                        <div class="form-group">
+                            <input type="text" name="Company_Name" value="@Model.Company_Name" required class="form-control" id="Company_Name"  autocomplete="off" placeholder="">
+                            @Html.ValidationMessageFor(x => x.Company_Name, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Fax Number</label>
+                        <div class="form-group">
+                            <input type="text" name="Fax_No" value="@Model.Fax_No" class="form-control" id="Fax_No" onfocusout="onchangeValidateFax(event,this);"  autocomplete="off" placeholder="">
+                            @Html.ValidationMessageFor(x => x.Fax_No, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <label for="">Question<span class="required">*</span></label>
+                        <div class="form-group">
+                            <input type="text" name="Qustion" value="How are you associated with APSEZ?" required class="form-control" id="Qustion" readonly placeholder="">
+                            @Html.ValidationMessageFor(x => x.Qustion, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <label for="">Answer<span class="required">*</span></label>
+                        <div class="form-group">
+                            <select name="Answer" required class="form-control" id="Answer">
+                                @foreach (var element in Answer.GetChildren().ToList())
+                                {
+                                    var childCount = element.GetChildren().Count();
+                                    if (childCount != 0)
+                                    {
+                                        <option></option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@Html.Sitecore().Field("Key", element)">@Html.Sitecore().Field("Key", element)</option>
+
+                                    }
+
+                                }
+
+
+                            </select>
+                            @Html.ValidationMessageFor(x => x.Answer, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <div class="form-group">
+                            <label for="">Attachment</label>
+                            @Html.TextBoxFor(model => model.Attachment, "", new { @type = "file", @multiple = "multiple", @onchange = "Validate(this);", @accept = ".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx", @class = "form-control-file p-1" })
+                            <!--<input name="Attachment" type="file" class="form-control-file p-1" accept="image/gif, image/jpeg" id="Attachment">-->
+                            @Html.ValidationMessageFor(model => model.Attachment, "", new { @class = "required" })
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <h3 class="heading mb-4 pl-3">Communication Address</h3>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">State<span class="required">*</span></label>
+                        <div class="form-group">
+                            <input type="text" name="State" required class="form-control" id="State"  autocomplete="off" placeholder="">
+                            @Html.ValidationMessageFor(x => x.State, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Country<span class="required">*</span></label>
+                        <div class="form-group">
+                            <input type="text" name="Country" required class="form-control" id="Country"  autocomplete="off" placeholder="">
+                            @Html.ValidationMessageFor(x => x.Country, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label for="">Pin Code<span class="required">*</span></label>
+                        <div class="form-group">
+                            <input type="text" name="Pin_Code" required class="form-control" id="Pin_Code" autocomplete="off"  placeholder="">
+                            @Html.ValidationMessageFor(x => x.Pin_Code, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="">Address<span class="required">*</span></label>
+                            <textarea class="form-control" required name="Address" id="Address" rows="3"></textarea>
+                            @Html.ValidationMessageFor(x => x.Address, "", new { @class = "required" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-check">
+                            <input type="checkbox" name="terms" required class="form-check-input" id="terms">
+                            <label class="form-check-label" for="">I hereby declare, that all the information provided above are correct.</label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 mt-3 text-right">
+                        <input type="hidden" value="@Model.Id" name="Id"/>
+                        <button type="submit" id="PortsGmsRegistrationBtn" class="btn btn-gradient">Save</button>
+                        <button type="submit" class="btn btn-dark">Close</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="modal fade" id="mobile-otp-ver" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Please enter the 5-digit verification code we sent via SMS:</h5>
+                    <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>-->
+                </div>
+                <div class="modal-body">
+                    <!--<span>(we want to make sure it's you before we contact our movers)</span>-->
+                    <div id="form">
+                        <input type="text" class="mo-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mo-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mo-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mo-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mo-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="hidden" name="mobile-otp" id="mobile-otp" value="" />
+                        <button class="btn btn-gradient" id="submit-mo-otp">Verify</button>
+                    </div>
+                    <span id="msg-mo-otp" class="required"></span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="email-otp-ver" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Please enter the 5-digit verification code we sent via Email:</h5>
+                    <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>-->
+                </div>
+                <div class="modal-body">
+                    <!--<span>(we want to make sure it's you before we contact our movers)</span>-->
+                    <div id="form">
+                        <input type="text" class="mail-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mail-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mail-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mail-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="text" class="mail-otp" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input type="hidden" name="email-otp" id="mobile-otp" value="" />
+                        <button class="btn btn-gradient" id="submit-email-otp">Verify</button>
+                    </div>
+                    <span id="msg-mail-otp" class="required"></span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+

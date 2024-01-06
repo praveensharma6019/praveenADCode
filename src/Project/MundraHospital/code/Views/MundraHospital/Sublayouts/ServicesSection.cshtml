@@ -1,0 +1,106 @@
+﻿@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@using Sitecore.Data.Fields
+@using Sitecore.Resources.Media
+@using Sitecore.MundraHospital.Website
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    ImageField imageField;
+    string activeLink;
+    
+}
+
+
+
+<section class="services-section" style="background-image: url(Images/MundraHospital/services-bg.png);">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="services-contain">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        @if (models.GetChildren() != null)
+                        {
+                            var tab = 1;
+                            foreach (Item item in models.GetChildren())
+                            {
+                                if (item != null)
+                                {
+                                    <li class="nav-item">
+                                        @if(item.Name!=models.Children.ToArray()[0].Name)
+                                        {
+                                            activeLink = "nav-link";
+                                        }
+                                        else
+                                        {
+                                            activeLink = "nav-link active";
+                                        }
+                                        <a class="@activeLink" id="label-@tab" data-toggle="tab" href="#control-@tab" role="tab" aria-controls="control-@tab" aria-selected="true">
+                                            <div class="servies-box text-center">
+                                                <div class="service-icon">
+                                                    @Html.Sitecore().ImageField(Templates.ServicesTab.Fields.SelectedTabImage, item, cssClass: "white-services-icon")
+                                                    @Html.Sitecore().ImageField(Templates.ServicesTab.Fields.UnselectedTabImage, item, cssClass: "green-services-icon")
+                                                    
+                                                </div>
+                                                <div class="service-title">
+                                                    @Html.Sitecore().Field(Templates.ImageBanner.Fields.Title,item)
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    tab++;
+                                }
+                            }
+                        }
+                        
+                    </ul>
+                </div>
+                <div class="tab-content" id="myTabContent">
+                    @if (models.GetChildren() != null)
+                    {
+                        var tab = 1;
+                        foreach (Item item in models.GetChildren())
+                        {
+                            if (item != null)
+                            {
+                                if (item.Name != models.Children.ToArray()[0].Name)
+                                {
+                                    activeLink = "tab-pane fade";
+                                }
+                                else
+                                {
+                                    activeLink = "tab-pane fade show active";
+                                }
+                                LinkField link = (LinkField)item.Fields["Link"];
+                                <div class="@activeLink" id="control-@tab" role="tabpanel" aria-labelledby="label-@tab">
+                                    <div class="single-service-content">
+                                        <div class="row">
+                                            <div class="col-sm-12 col-md-6">
+                                                <div class="services-img zoomIn animated" data-wow-duration="2s">
+                                                    @Html.Sitecore().ImageField(Templates.ImageBanner.Fields.Image, item, cssClass: "w-100")
+
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 col-md-6">
+                                                <div class="services-content animated fadeInRight" data-wow-duration="2s">
+                                                    <h2>@Html.Sitecore().Field(Templates.ImageBanner.Fields.Title, item)</h2>
+                                                    <p>@Html.Sitecore().Field(Templates.ImageBanner.Fields.Description, item)</p>
+                                                    <a href="@link.GetFriendlyUrl()">Know more</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                tab++;
+                            }
+                        }
+                    }
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

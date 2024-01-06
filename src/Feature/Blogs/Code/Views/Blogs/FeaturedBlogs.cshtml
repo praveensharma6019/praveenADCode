@@ -1,0 +1,84 @@
+﻿@using Sitecore.Feature.Blogs
+@using Sitecore.Mvc.Presentation
+@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Dictionary.Repositories
+@using Sitecore.Foundation.Dictionary.Extensions
+@model Sitecore.Feature.Blogs.Models.BlogItems
+
+@{
+    if (Model?.BlogItem == null)
+    {
+        return;
+    }
+}
+
+
+<section class="section bg-gray">
+    <div class="container">
+        <h3 class="text-center sectionHeading">Featured Blogs</h3>
+        <div class="large-12 columns">
+            <div class="owl-carousel owl-theme" id="blog-carousel">
+                @foreach (var item in Model.BlogItem)
+                {
+                   // if (item.Item.Fields["BlogType"].Value.ToString() == "Featured")
+                    {
+                        var IDs = @Html.Sitecore().Field(Templates.BlogsArticle.Fields.Category, item.Item);
+                        string[] IDarr = IDs.ToString().Split('|');
+                        var category = "";
+
+
+                        <div class="item">
+                            <div class="blogtile">
+                                @foreach (string id in IDarr)
+                                {
+                                    if (id != null && id != "")
+                                    {
+                                        var items = Sitecore.Context.Database.GetItem(Sitecore.Data.ID.Parse(id));
+                                        if (category == "")
+                                        {
+                                            category = items.Fields["Title"].Value;
+                                        }
+                                        else
+                                        {
+                                            category = category + ", " + items.Fields["Title"].Value;
+                                        }
+                                    }
+                                }
+                                @Html.Sitecore().ImageField(Templates.BlogsArticle.Fields.Image, item.Item, 0, 0, "image img-fluid")
+                                @*<img src="images/featured-blog-01.jpg" class="image img-fluid">*@
+
+                                <a href="@item.Url">
+                                    <div class="overlay">
+                                        <h3 class="p-3">@Html.Sitecore().Field(Templates.BlogsArticle.Fields.Title, item.Item)</h3>
+                                        <p class="px-3 pb-2"><span>@category</span></p>
+                                        <p class="px-3"><i>@Html.Sitecore().Field(Templates.BlogsArticle.Fields.Date, item.Item, new { format = "MMM dd, yyyy" })&nbsp;&nbsp;|&nbsp;&nbsp;By @Html.Sitecore().Field(Templates.BlogsArticle.Fields.Author, item.Item)</i></p>
+
+
+
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Video Model -->
+    <div class="modal video" id="video-01" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <button type="button" class="close" data-dismiss="modal">x</button>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <iframe width="100%" height="350" src="https://www.youtube.com/embed/4OeOxzLdRP" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen=""></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Video Model -->
+</section>

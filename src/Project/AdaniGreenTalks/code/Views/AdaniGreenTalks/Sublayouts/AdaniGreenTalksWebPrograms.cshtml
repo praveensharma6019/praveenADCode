@@ -1,0 +1,90 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    int count = 1;
+    var linkurl = "#";
+    var imgurl = "#";
+    var altText = "";
+
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters;
+    var containerClass = paramid["containerClass"] != null ? Sitecore.Context.Database.GetItem(paramid["containerClass"]) : null;
+    var containerText = paramid["containerText"] != null ? Sitecore.Context.Database.GetItem(paramid["containerText"]) : null;
+
+}
+
+@if (model != null)
+{
+    if (model.HasChildren)
+    {
+
+        <div class="container mb-5 @containerClass">
+
+            @if (containerText != null)
+            {
+                <div class="text-center">
+                    <h1><strong>Explore More...</strong></h1>
+                </div>
+            }
+            <div class="row programsecondrow1">
+                @foreach (Item item in model.GetChildren())
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = item.Fields["LinkUrl"];
+                    if (linkvalue != null)
+                    {
+                        linkurl = linkvalue.GetFriendlyUrl();
+                    }
+                    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)item.Fields["thumbnail"]);
+                    if (imgField != null && imgField.MediaItem != null)
+                    {
+                        imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+                        altText = imgField.Alt;
+                    }
+                    else
+                    {
+                        imgurl = "#";
+                        altText = "";
+                    }
+                    var sectionClass = item.Fields["class"];
+                    <div class="@sectionClass">
+                        <div class="card programcards">
+                            <div class="card-body">
+                                <h5 class="card-title">@Html.Sitecore().Field("Title", item)</h5>
+                                <p class="card-text card-text-web">@Html.Sitecore().Field("Summary", item)</p>
+                                @if (linkvalue.LinkType == "internal")
+                                {
+                                    <a href="@linkurl">
+                                        <button type="button" class="btn btn-success rounded-pill">Know More</button>
+                                    </a><br>
+
+                                }
+                                @if (linkvalue.LinkType == "external")
+                                {
+                                    <a href="@linkurl" target="_blank">
+                                        <button type="button" class="btn btn-success rounded-pill">Know More</button>
+                                    </a><br>
+                                }
+                                <div class="text-right imageposition">
+                                    <img src="@imgurl" class="card-img-bottom pramgramcomponentimages" alt="@altText">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+            </div>
+        </div>
+    }
+
+}

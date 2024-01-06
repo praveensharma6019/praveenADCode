@@ -1,0 +1,131 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@using Sitecore.Feature.Accounts.Models
+@model Sitecore.Feature.Accounts.Models.GasPrice
+
+<!-- /Account box for mobile users -->
+<section class="bg-gray section py-lg-5" id="checkgaspricediv">
+    <div class="container">
+        <h3 class="pb-3">@Html.Sitecore().Dictionary("/PNG/Gas Prices", "Gas Prices")</h3>
+        <div class="row">
+            <div class="col-md-4 mb-3 mb-lg-0">
+                <div class="tileBox priceTile pngResidential">
+                    <h4>@Html.Sitecore().Dictionary("/PNG/Residential PNG", "Residential PNG")</h4>
+                    <div class="pt-1">
+                        <div class="selectBox">
+                            @Html.DropDownListFor(x => Model.SelectedCity, new SelectList(Model.CityListD, "Value", "Value"), "Select", htmlAttributes: new { @class = "customSelect", id = "ResidentialCity" })
+                        </div>
+                        @foreach (var city in Model.CityWisePrice)
+                        {
+                        <div class="btm-position residential @city.City.ToLower()" style="display:none;">
+
+                            @if (!string.IsNullOrEmpty(city.DomesticCityWisePrice.Price_1))
+                            {
+                                <span>@Html.Sitecore().Dictionary("/PNG/EffectiveFrom", "w.e.f") @city.DomesticCityWisePrice.Effectice_Date_1</span>
+                                <div class="priceDetails">
+                                    <div><span id="ResidentialPrice" class="priceTxt">@Html.Sitecore().Dictionary("/PNG/Rs", "Rs.") @city.DomesticCityWisePrice.Price_1</span><br>@Html.Sitecore().Dictionary("/PNG/Unit", "per MMBTU")</div>
+                                    <div>@Html.Sitecore().Dictionary("/PNG/Taxs", "Exclusive of all Taxes")</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(city.DomesticCityWisePrice.Price_2))
+                            {
+                                <span>@Html.Sitecore().Dictionary("/PNG/EffectiveFrom", "w.e.f") @city.DomesticCityWisePrice.Effectice_Date_2</span>
+                                <div class="priceDetails">
+                                    <span class="titlePrice"><b>@city.DomesticCityWisePrice.Desc_2</b></span><br>
+                                    <div><span id="ResidentialPrice" class="priceTxt">@Html.Sitecore().Dictionary("/PNG/Rs", "Rs.") @city.DomesticCityWisePrice.Price_2</span><br>@Html.Sitecore().Dictionary("/PNG/Unit", "per MMBTU")</div>
+                                    <div>@Html.Sitecore().Dictionary("/PNG/Taxs", "Exclusive of all Taxes")</div>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(city.DomesticCityWisePrice.Price_3))
+                            {
+                                <span>@Html.Sitecore().Dictionary("/PNG/EffectiveFrom", "w.e.f") @city.DomesticCityWisePrice.Effectice_Date_3</span>
+                                <div class="priceDetails">
+                                    <span class="titlePrice"><b>@city.DomesticCityWisePrice.Desc_3</b></span><br>
+                                    <div><span id="ResidentialPrice" class="priceTxt">@Html.Sitecore().Dictionary("/PNG/Rs", "Rs.") @city.DomesticCityWisePrice.Price_3</span><br>@Html.Sitecore().Dictionary("/PNG/Unit", "per MMBTU")</div>
+                                    <div>@Html.Sitecore().Dictionary("/PNG/Taxs", "Exclusive of all Taxes")</div>
+                                </div>
+                                <p style="font-size:12px;">@Html.Sitecore().Dictionary("/PNG/Bi-monthly consumption", "*Bi-monthly consumption in Rs./MMBTU")</p>
+                            }
+                        </div>
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-4 mb-3 mb-lg-0">
+                <div class="tileBox priceTile pngCommercial">
+                    <h4>@Html.Sitecore().Dictionary("/PNG/Commercial PNG", "Commercial PNG")</h4>
+                    <p>As the prices are subject to change, from time to time, please contact marketing and business development representatives at our various offices.</p>
+                    @*<div class="pt-1">
+                            <div class="selectBox">
+                                @Html.DropDownListFor(x => Model.SelectedCity, new SelectList(Model.CityListC, "Value", "Value"), "Select", htmlAttributes: new { @class = "customSelect", id = "CommercialCity" })
+                            </div>
+                            @foreach (var city in Model.CityWisePrice)
+                            {
+
+                                <div class="btm-position commercial @city.City.ToLower()" style="display:none;">
+                                    <span>w.e.f @city.CommercialCityWisePrice.Effectice_Date_1</span>
+                                    <div class="priceDetails">
+                                        <span class="titlePrice"><b>@Html.Sitecore().Dictionary("/PNG/Commercial", "Commercial")</b></span><br>
+                                        <div><span id="CommercialPrice" class="priceTxt">@Html.Sitecore().Dictionary("/PNG/Rs", "Rs.") @city.CommercialCityWisePrice.Price_1</span><br>@Html.Sitecore().Dictionary("/PNG/Unit", "per MMBTU")</div>
+                                        <div>@Html.Sitecore().Dictionary("/PNG/Taxs", "Exclusive of all Taxes")</div>
+                                    </div>
+                                    <div class="priceDetails">
+                                        <span class="titlePrice"><b>@Html.Sitecore().Dictionary("/PNG/Non Commercial", "Non Commercial")</b></span><br>
+                                        <div><span id="CommercialPrice" class="priceTxt">@Html.Sitecore().Dictionary("/PNG/Rs", "Rs.") @city.CommercialCityWisePrice.Price_2</span><br>@Html.Sitecore().Dictionary("/PNG/Unit", "per MMBTU")</div>
+                                        <div>@Html.Sitecore().Dictionary("/PNG/Taxs", "Exclusive of all Taxes")</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>*@
+                </div>
+
+            </div>
+            <div class="col-md-4 mb-3 mb-lg-0">
+                <div class="tileBox priceTile pngIndustrial">
+                    <h4>@Html.Sitecore().Dictionary("/PNG/Industrial PNG", "Industrial PNG")</h4>
+                    <p>As the prices are subject to change, from time to time, please contact marketing and business development representatives at our various offices.</p>
+                    @*<div class="pt-1">
+                            <div class="selectBox">
+                                @Html.DropDownListFor(x => Model.SelectedCity, new SelectList(Model.CityListI, "Value", "Value"), "Select", htmlAttributes: new { @class = "customSelect", id = "IndustrialCity" })
+                            </div>
+                            @foreach (var city in Model.CityWisePrice)
+                            {
+                                <div class="btm-position industrial @city.City.ToLower()" style="display:none;">
+                                    <span>w.e.f @city.IndustrailCityWisePrice.Effectice_Date_1</span>
+                                    <div class="priceDetails">
+                                        <span class="titlePrice"><b>@Html.Sitecore().Dictionary("/PNG/MGO", "MGO")</b></span>
+                                        <br>
+                                        <div><span id="IndustrialPrice" class="priceTxt">@Html.Sitecore().Dictionary("/PNG/Rs", "Rs.") @city.IndustrailCityWisePrice.Price_1</span><br>@Html.Sitecore().Dictionary("/PNG/Unit", "per MMBTU")</div>
+                                        <div>@Html.Sitecore().Dictionary("/PNG/Taxs", "Exclusive of all Taxes")</div>
+                                    </div>
+                                    <div class="priceDetails">
+                                        <span class="titlePrice"><b>@Html.Sitecore().Dictionary("/PNG/No-MGO", "No-MGO")</b></span><br>
+                                        <div><span id="CommercialPrice" class="priceTxt">@Html.Sitecore().Dictionary("/PNG/Rs", "Rs.") @city.IndustrailCityWisePrice.Price_2</span><br>@Html.Sitecore().Dictionary("/PNG/Unit", "per MMBTU")</div>
+                                        <div>@Html.Sitecore().Dictionary("/PNG/Taxs", "Exclusive of all Taxes")</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>*@
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+

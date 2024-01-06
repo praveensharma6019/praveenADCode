@@ -1,0 +1,47 @@
+@using Sitecore.Mvc
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using System.Globalization;
+@model RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	
+	var Linkurl="#";
+	var MediaUrl=""; 
+    var MediaAlt="";
+}
+
+   <section class="service service-img">
+        <div class="container">
+            <div class="row service-row" style="margin-top: 50px;">
+			
+			@foreach(var child in model.GetChildren().ToList())
+			{
+                Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]); 
+				if(linkfield != null) 
+				{ 
+					Linkurl = linkfield.GetFriendlyUrl();
+				} 
+				Sitecore.Data.Fields.ImageField MediaImage = ((Sitecore.Data.Fields.ImageField)child.Fields["ImageSource"]);
+				if (MediaImage != null && MediaImage.MediaItem != null)
+				{
+					MediaUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MediaImage.MediaItem);
+					MediaAlt = MediaImage.Alt;
+				}
+                <div class="col-sm-4 mt-3 mb-5">
+                    <div class="card service-card">
+                        <div class="card-body service-body">
+				
+                            <img src="@MediaUrl" alt="@MediaAlt" class="service-icon">
+                            <p class="card-title service-title mt-4">@Html.Sitecore().Field("Heading",child)</p>
+                            <p class="card-text service-text">@Html.Sitecore().Field("Description",child) </p>
+                            <!-- <a href="#" class="btn btn-primary">@Linkurl</a> -->
+                        </div>
+                    </div>
+                </div>
+            }
+            </div>
+        </div>
+    </section>

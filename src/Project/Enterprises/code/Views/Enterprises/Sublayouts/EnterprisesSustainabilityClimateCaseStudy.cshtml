@@ -1,0 +1,104 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+	var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource); 
+    var ImageUrl="";	
+	var ImageAlt="";
+    var i= 1;
+    var j=1;
+   
+}
+
+
+@if(element != null)
+	{
+<section class="Approach-decarb position-relative bg-white">
+    <div class="container">
+          <div class="up-slider">
+            <h2 class="text-Our car">@Html.Sitecore().Field("Title", element)</h2>
+                @if (element.HasChildren)
+				{
+                    var childCount = element.GetChildren().Count();
+                    if (childCount > 3){
+                         <div class="owl-controls">
+						<div class="owl-nav1">
+							<button type="button" role="presentation" class="owl-prev1"> < </button>
+							<button type="button" role="presentation" class="owl-next1"> > </button>
+						  </div>
+						</div>
+                    }
+					foreach (var model in element.GetChildren().ToList())
+					{
+                        var MyModel= "myModal"+i;
+						Sitecore.Data.Fields.ImageField MediaImage = ((Sitecore.Data.Fields.ImageField)model.Fields["Image"]);
+							if (MediaImage != null && MediaImage.MediaItem != null)
+							{
+								ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MediaImage.MediaItem);
+								ImageAlt = MediaImage.Alt;
+							}
+						                        
+						  <div id=@MyModel class="modal1">
+                           <div class="modal-content">
+						  <span class="close">&times;</span>
+						  <div class="big-image">
+							<img src="@ImageUrl" alt="@ImageAlt" />
+							<div class="big-image-text">
+							<h5>@Html.Sitecore().Field("Title", model)</h5>
+							@Html.Sitecore().Field("Body", model)
+						  </div>
+						  </div>
+						</div>
+					    </div>
+                        i++;
+					}
+				}	  
+          </div>
+        <div class="home-demo">
+            <div class="owl-carousel owl-theme carousel-diff">
+				@if (element.HasChildren)
+				{
+					foreach (var child in element.GetChildren().ToList())
+					{
+                        var MyButton= "myBtn"+j;
+						Sitecore.Data.Fields.ImageField MediaImage = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+							if (MediaImage != null && MediaImage.MediaItem != null)
+							{
+								ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MediaImage.MediaItem);
+								ImageAlt = MediaImage.Alt;
+							}
+							<div class="upper-class">
+                                <div class="hidden-carousel-item">
+									<div class="item-case">
+										<img src="@ImageUrl" alt="@ImageAlt"/>
+										<h5>@Html.Sitecore().Field("Title", child)</h5>
+										@Html.Sitecore().Field("Summary", child)
+									</div>
+								
+									<button id=@MyButton class="expand-button">
+									  <!-- <i class="fas fa-arrow-right"></i> -->
+                                     Read More....
+									</button>
+                                </div>                           
+                           </div>
+                        j++;
+					}
+				}
+            </div>
+        </div>
+	</div>
+</section>
+	}
+else
+{
+<p>No element found</p>
+}
+
+ 
+
+

@@ -1,0 +1,90 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    MultilistField Select = element.Fields["Cards"];
+    var selectitem = Select.GetItems();
+}
+
+<section class="bg-white pt-5 position-relative z-index Top-Tiles">
+    <div class="container">
+        <div class="row">
+            @foreach (var item in selectitem)
+            {
+                Sitecore.Data.Fields.ImageField BackgroundImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["Image"]);
+                var bckgrundimgurl = BackgroundImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(BackgroundImageField.MediaItem);
+                var classitem = @Html.Sitecore().Field("Author", item);
+                var titleitem = @Html.Sitecore().Field("Title", item);
+                var summmaryitem = @Html.Sitecore().Field("Summary", item);
+                var mainclass = @Html.Sitecore().Field("Main Class", item);
+                var DataTabClass = @Html.Sitecore().Field("DataTab", item);
+                <div class="col-lg-4">
+                    <div class="@mainclass ">
+                        <div class="ESG-head-@titleitem-goals tab @classitem" data-tab="@DataTabClass">
+                            <div class="E-text">
+                                <p class="ESG-@titleitem-goals">@titleitem</p>
+                                <p class="text-h-@titleitem-goals">@summmaryitem</p>
+                            </div>
+                            <div class="E-img">
+                                <img class="bg-img-E" src="@bckgrundimgurl" alt="Third slide">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>
+<section class="tab-content pb-5">
+    <div class="container">
+        @foreach (var item in selectitem)
+        {
+            var titleitem = @Html.Sitecore().Field("Title", item);
+            var subClass = @Html.Sitecore().Field("Sub class", item);
+            var DataTabClass = @Html.Sitecore().Field("DataTab", item);
+
+            <div class="@subClass" id="@DataTabClass">
+
+                @foreach (var child in item.Children.ToList())
+                {
+                    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                    var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                    <div class="row mb-5">
+
+                        <div class="col-lg-8 space-management">
+                            <h3 class="Goals-@titleitem-item-management">@Html.Sitecore().Field("Title", child)</h3>
+                            <div class="item">
+
+                            </div>
+                            @Html.Sitecore().Field("Body", child)
+
+                        </div>
+                        <div class="col-lg-4 space-management">
+                            <img class="image-goals-management" src="@imgurl">
+                        </div>
+                    </div>
+                    foreach (var Subchild in child.Children.ToList())
+                    {
+                        var mainclass = @Html.Sitecore().Field("MainClass", Subchild);
+                        <h1 class="action-head">@Html.Sitecore().Field("Title", Subchild)</h1>
+                        <div class="@mainclass d-flex align-items-center">
+                            @Html.Sitecore().Field("Body", Subchild)
+                        </div>
+                    }
+                }
+
+
+            </div>
+        }
+    </div>
+</section>
+
+
+

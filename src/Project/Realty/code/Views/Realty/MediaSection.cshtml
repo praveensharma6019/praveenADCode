@@ -1,0 +1,41 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Realty.Website
+@using Sitecore.Mvc
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+    var css = Html.Sitecore().Field("{523E9539-71B6-4739-BF8C-F275A13B2100}", models);
+}
+
+<section class="@css">
+    <div class="container">
+        <div class="row">
+            @foreach (var child in models.Children.ToList())
+            {
+                var bgcss = Html.Sitecore().Field(Templates.LinkMenuItem.Fields.BGCSS, child);
+                string[] cls = bgcss.ToString().Split(';');
+                if (string.IsNullOrEmpty(cls[0]))
+                {
+
+                    <div class="@cls[1]">
+                        @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, child, 0, 0, "pt-5 pb-3")
+                        <h3 class="pb-4 pt-2">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, child)</h3>
+                    </div>
+                }
+                else
+                {
+                    <div class="@cls[0]">
+                        <div class="@cls[1]">
+                            @Html.Sitecore().ImageField(Templates.LinkMenuItem.Fields.Image, child, 0, 0, "pt-5 pb-3")
+                            <h3 class="pb-4 pt-2">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, child)</h3>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>

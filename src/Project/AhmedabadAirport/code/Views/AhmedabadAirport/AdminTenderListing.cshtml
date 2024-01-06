@@ -1,0 +1,121 @@
+﻿@model List<Sitecore.AhmedabadAirport.Website.Model.TenderDetails>
+@using Sitecore.AhmedabadAirport.Website.Model;
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc.Configuration
+@using System.Web.Mvc
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var item = Sitecore.Context.Database.GetItem(Templates.Tender.AdminUserTenderListing);
+    var createTenderItem = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderCreate);
+    var UpdateTenderItem = Sitecore.Context.Database.GetItem(Templates.Tender.AdminTenderUpdate);
+    var EnvelopUser = Sitecore.Context.Database.GetItem(Templates.Tender.EnvelopeUserListing);
+    var corrigendumListing = Sitecore.Context.Database.GetItem(Templates.Tender.CorrigendumTenderListing);
+    var AdminUser = Sitecore.Context.Database.GetItem(Templates.Tender.AdminUser);
+    var userlistingURL = item.Url();
+
+}
+<section class="bg-white py-5">
+    <div class="container">
+        @if (!string.IsNullOrEmpty(ViewBag.Message))
+        {
+            <div class="form-group row">
+                <input id="message" type="hidden" value="@ViewBag.Message" />
+            </div>
+        }
+        @using (Html.BeginForm("Logout", "AhmedabadAirport", FormMethod.Post))
+        {
+            <div class="col-12 p-0 pb-3">
+                <div class="float-right mb-4"><button type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Logout", "Logout")</button></div>
+                <div class="clearfix"></div>
+            </div>
+        }
+        <div class="panel">
+            <div class="col-12 p-0 pb-3">
+                <h2 class="txt-orange txt-lg mb-3">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Listing", "Tender Listing")</h2>
+            </div>
+            @if (!string.IsNullOrEmpty(ViewBag.UserType) && (ViewBag.UserType == "SuperAdmin" || ViewBag.UserType == "Admin"))
+            {
+                <div class="col-12 p-0 pb-3">
+
+
+                    <div class="row px-3">
+                        <div class="col-lg-4 col-md-6 p-0">
+                            <label class="mr-2">Filter By Status</label>
+                            <div class="filter-status">
+                                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "selectedTender", name = "selectedTender", @class = "form-signin d-initial", @enctype = "multipart/form-data" }))
+                                {
+                                    @Html.DropDownList("Status", new List<SelectListItem>
+                                                                       {
+                                                                          new SelectListItem{ Text="All", Value = "All" ,Selected = true},
+                                                                          new SelectListItem{ Text="Open", Value = "Open" },
+                                                                          new SelectListItem{ Text="Close", Value = "Close" } },
+                                                    new { @onchange = "onChnageFun(this.value)" });
+                                }
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-mmd-6 p-0 text-right">
+                            <div class="txt-right">
+                                <a href="/svpia-ahmedabad-airport/tender-create-bu" class="btn btn-secondary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Create Tender", "Create Tender")</a>
+
+                                <a href="@corrigendumListing.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Corrigendum Tender", "Corrigendum")</a>
+
+                                <a href="@EnvelopUser.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/EnvelopUser Tender", "Envelop User")</a>
+                                @if (ViewBag.UserType == "SuperAdmin")
+                                {
+                                    <a href="@AdminUser.Url()" class="btn btn-primary">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Admin User", "Admin User")</a>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+            }
+            <!-- Tenders -->
+
+            <div class="table-responsive tableOuter">
+                <table class="table table-borderless table-white table-hover mb-0 txt-xs">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Number Text", "NIT No./PR No.")</th>
+                            <th scope="col">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Business Text", "Business")</th>
+                            <th scope="col">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Description Text", "Tender Description")</th>
+                            <th scope="col">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender DOA Text", "Date of Advertisement")</th>
+                            <th scope="col" style="width:20%;">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender DOC Text", "Bid Submision Closing Date")</th>
+                            <th scope="col">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Status Text", "Status")</th>
+                            <th scope="col" style="width:10%;">@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender View Text", "View")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var openTN in Model.Where(x => x.Status != null))
+                        {
+                            <tr>
+                                <td>@openTN.NITPRNo</td>
+                                <td>@openTN.Business</td>
+                                <td>@openTN.Description</td>
+                                <td>@openTN.Adv_Date.Value.ToString("dd/MM/yyyy")</td>
+                                <td>@openTN.ClosingDate.Value.ToString("dd/MM/yyyy  h:mm tt")</td>
+                                <td>@openTN.Status</td>
+                                <td>
+                                    <a href="@userlistingURL?id=@openTN.Id" class="tender-btn txt-underline" title="View User"><i class="far fa-eye mr-2"></i>@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender View Text", "View User")</a><br />
+                                    @if (!string.IsNullOrEmpty(ViewBag.UserType) && ViewBag.UserType == "SuperAdmin")
+                                    {
+                                        <a href="@UpdateTenderItem.Url()?id=@openTN.Id" class="tender-btn txt-underline" title="Update Tender"><i class="far fa-edit mr-2"></i>@Html.Sitecore().Dictionary("AhmedabadAirport/Tender/Tender Update Text", "Update")</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- /Tenders -->
+</section>
+
+<script type="text/javascript">
+    function onChnageFun() {
+        document.selectedTender.submit();
+    }
+</script>  

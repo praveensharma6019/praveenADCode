@@ -1,0 +1,247 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+    var Businessmenu = Sitecore.Context.Database.GetItem("{5396D838-D471-4262-8554-27902C826200}");
+    var Mainmenu = Sitecore.Context.Database.GetItem("{E4FA9C58-E7C4-4901-A139-18B2B70D661D}");
+    Sitecore.Data.Fields.ImageField logo = ((Sitecore.Data.Fields.ImageField)Mainmenu.Fields["BackgroundImage"]);
+
+    Sitecore.Data.Fields.LinkField itemslinkvalues = Mainmenu.Fields["ImageLink"];
+
+    //Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)model.Fields["__Thumbnail"]);
+    //var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+    var thumbimg = "";
+    
+    var rc = Sitecore.Mvc.Presentation.RenderingContext.CurrentOrNull;
+    var parms = rc.Rendering.Parameters;
+    var NewHeader = parms["New Header"];
+    var imgclass = "";
+    var navclass = "";
+
+}
+
+<div class="sidebar-navigation">
+    <div class="offcanvas-body">
+        <div class="hamburger_section logo-sec">
+            <h5 itemprop="headline">
+                @if (logo.MediaItem != null && logo.MediaItem.ToString() != "")
+                {
+                    var imglogo = Sitecore.Resources.Media.MediaManager.GetMediaUrl(logo.MediaItem);
+                    <img class="img-fluid nav-logo" src=@imglogo>
+                }
+                    </h5>
+        </div>
+        <div class="hamburger_section">
+            <ul>
+                @foreach (var element in model.GetChildren().ToList())
+                {
+                    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+                    var childCount = element.GetChildren().Count();
+                    if (childCount == 0)
+                    {
+                        <li>
+                            @Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = "nav-link " })
+                            @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                            {
+                                var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                <span class="mr-4">
+                                    <img src=@imgurl alt="" class="img-fluid" width="18px">
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="mr-4">
+
+                                    <img src=@thumbimg alt="" class="img-fluid" width="18px">
+                                </span>
+                            }
+
+                            @Html.Sitecore().Field("NavigationTitle", element)
+                            @Html.Sitecore().EndField()
+                        </li>
+                    }
+                    else
+                    {
+                            <li>
+                                <a class="sub-menu-btn">
+                                    <label class="susb-label">
+                                        @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                        {
+                                            var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                            <span class="mr-4">
+                                                <img src=@imgurl alt="" class="img-fluid" width="18px">
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="mr-4">
+                                                <img src=@thumbimg alt="" class="img-fluid" width="18px">
+                                            </span>
+                                        }
+                                        @Html.Sitecore().Field("NavigationTitle", element)
+
+                                    </label>
+                                    <!-- <i class="fa fa-angle-down" aria-hidden="true" style='font-size:22px;margin: 0 0 0 auto;'></i> -->
+                                    <img src="-/media/Project/Defence/images/down-arrow.png" alt="" class="susb-img">
+                                </a>
+                                <div class="collapse" style="display: none;margin-left: 24px;">
+                                    <ul class="submenu">
+                                        @foreach (var child in element.GetChildren().ToList())
+                                        {
+                                            Sitecore.Data.Fields.ImageField ImageField1 = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                                            <li class="nav-item">
+                                                @Html.Sitecore().BeginField("Link", child, new { haschildren = true, @class = "dropdown-item" })
+                                                @if (ImageField1.MediaItem != null && ImageField1.MediaItem.ToString() != "")
+                                                {
+                                                    var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField1.MediaItem);
+                                                    <span class="mr-4">
+                                                        <img src=@imgurl alt="" class="img-fluid" width="18px">
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="mr-4">
+                                                        <img src=@thumbimg alt="" class="img-fluid" width="18px">
+                                                    </span>
+                                                }
+                                                @Html.Sitecore().Field("NavigationTitle", child)
+                                                @Html.Sitecore().EndField()
+                                            </li>     
+                                        }
+                                    </ul>
+                                </div>
+                            </li>
+                    }
+                }
+                </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    @if (NewHeader == "1")
+    {
+        <div class="top-nav position-relative">
+            <span class="top-nav-link" onclick="myFunction()">
+                <img src="-/media/Project/Defence/images/dots-menu.png" alt="" width="18">
+                <p>@Html.Sitecore().Field("Title", Businessmenu)</p>
+            </span>
+            <div class="buniness-box" id="myDIV">
+                <ul class="business-ul">
+                    @foreach (var element in Businessmenu.GetChildren().ToList())
+                    {
+                        Sitecore.Data.Fields.ImageField ImageField2 = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+                        <li>
+                            @Html.Sitecore().BeginField("Link", element, new { haschildren = true })
+                            @if (ImageField2.MediaItem != null && ImageField2.MediaItem.ToString() != "")
+                            {
+                                var imgurl2 = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField2.MediaItem);
+                                <span class="mr-4">
+                                    <img  alt="" class="img-fluid" width="18px" src=@imgurl2>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="mr-4">
+                                    <img alt="" class="img-fluid" width="18px" src=@thumbimg>
+                                </span>
+                            }
+                            @Html.Sitecore().Field("NavigationTitle", element)
+                            @Html.Sitecore().EndField()
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+    }
+    <nav class="navbar navbar-expand-lg navbar-light position-relative">
+        <div class="bar-flex">
+            <div class="hamburger mobile-trigger">
+                <img class="menu-hamb" src="-/media/Project/Defence/images/menu-hamb.png" alt="" width="20">
+            </div>
+            @if (NewHeader == "1")
+            {
+                imgclass = "nav-brandig";
+            }
+            else
+            {
+                imgclass = "";
+            }
+            <a href="/" class="@imgclass">
+                @if (logo.MediaItem != null && logo.MediaItem.ToString() != "")
+                {
+                    var imglogo = Sitecore.Resources.Media.MediaManager.GetMediaUrl(logo.MediaItem);
+                    <img class="img-fluid nav-logo" src=@imglogo>
+                }
+                else
+                {
+
+                }
+            </a>
+
+        </div>
+        <div class="logo-menu-diff">
+            <ul class="nav-menu pt-3" id="mobi-clz">
+                @if (NewHeader == "1")
+                {
+                    navclass = "nav-link";
+                }
+                else
+                {
+                    navclass = "nav-link-black";
+                }
+                @foreach (var element in Mainmenu.GetChildren().ToList())
+                {
+
+                    var childCount = element.GetChildren().Count();
+                    if (childCount == 0)
+                    {
+                        @Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = @navclass })
+                        @Html.Sitecore().Field("NavigationTitle", element)
+                        @Html.Sitecore().EndField()
+
+                    }
+                    else
+                    {
+
+                        <li class="nav-item">
+
+                            <div class="dropdown">
+                                @Html.Sitecore().BeginField("Link", element, new { haschildren = true, @class = @navclass })
+                                @Html.Sitecore().Field("NavigationTitle", element)
+                                @Html.Sitecore().EndField()
+                                <div class="dropdown-content">
+                                    @foreach (var child in element.GetChildren().ToList())
+                                    {
+                                        @Html.Sitecore().BeginField("Link", child, new { haschildren = true, @class = "nav-link" })
+                                        @Html.Sitecore().Field("NavigationTitle", child)
+                                        @Html.Sitecore().EndField()
+                                    }
+
+                                </div>
+                            </div>
+                        </li>
+                    }
+                }
+                @*<li class="nav-item">
+                    <div class="search-container">
+                        <form>
+                            <input class="search expandright" id="searchright" type="search" name="q" placeholder="Search">
+                            <label class="button searchbutton" for="searchright"><span class="mglass">&#9906;</span></label>
+                        </form>
+                    </div>
+                </li>*@
+            </ul>
+        </div>
+
+    </nav>
+    
+
+</div>
+
+

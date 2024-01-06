@@ -1,0 +1,118 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.ViewPayBill
+
+<!-- Toggle button to show/hide side nav -->
+<div class="d-block d-md-none sideNavBtn">
+    <button type="button" id="sidebarCollapse" class="btn btn-secondary">
+        <i class="fas fa-align-left"></i>
+        <span>&nbsp;Menu</span>
+    </button>
+</div>
+<!-- /Toggle button to show/hide side nav -->
+<div class="clearfix"></div>
+<!-- Update Profile Page Content-->
+<div class="panel">
+    @if (ViewBag.SecurityDesposit != null)
+    {
+        <p>@ViewBag.SecurityDesposit</p>
+    }
+    else
+    {
+
+        <p>For every electricity connection you are required to pay a specific amount as the security deposit. You can conveniently pay the security deposit here:</p>
+        <div class="py-3"></div>
+        <h5 class="txt-orange">Your Billing Details</h5>
+        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmPaymentsecurityDeposit", @class = "form-signin" }))
+        {
+            @Html.AddUniqueFormId()
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(x => x.LoginName)
+            @Html.HiddenFor(x => x.AccountNumber)
+            @Html.HiddenFor(x => x.Email)
+            @Html.HiddenFor(x => x.Mobile)
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/View Pay Bill/Book Number", "Book Number")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.BookNumber, new { @class = "form-control-plaintext", id = "bookNumber", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/View Pay Bill/Cycle Number", "Cycle Number")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.CycleNumber, new { @class = "form-control-plaintext", id = "cycleNumber", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/View Pay Bill/Zone", "Zone")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    @Html.TextBoxFor(x => x.Zone, new { @class = "form-control-plaintext", id = "zone", @readonly = "" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="" class="col-sm-4 col-md-3 col-form-label">
+                    @Html.Sitecore().Dictionary("/Accounts/View Pay Bill/Address", "Address")
+                </label>
+                <div class="col-sm-8 col-lg-6">
+                    <span class="form-control-plaintext" rows="2" id="" name="Address">@Model.Address</span>
+                </div>
+            </div>
+            <div class="form-group">
+                @*<label for="" class="col-sm-4 col-md-3 col-form-label">
+                        <b>
+                            @Html.Sitecore().Dictionary("/Accounts/View Pay Bill/Security Deposit", "Security Deposit (Rs.)")
+                        </b>
+                    </label>*@
+                <div class="row">
+                    <div class="col-sm-6">
+                        @Html.RadioButtonFor(m => m.SecurityDepositAmountType, "Actual", new { required = "required" })
+                        <label for="" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit", "Security Deposit (Rs.)")</label>
+                    </div>
+                    <div class="col-sm-6">
+                        @Html.TextBoxFor(x => x.SecurityDeposit, new { @class = "form-control-plaintext", id = "securityDeposit", @readonly = "" })
+                        @Html.ValidationMessageFor(x => x.SecurityDeposit, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6">
+                        @Html.RadioButtonFor(m => m.SecurityDepositAmountType, "Partial", new { required = "required" })
+                        <label for="" class="col-form-label">@Html.Sitecore().Dictionary("/Accounts/Pay Bill/Security Deposit Partial", "Security Deposit Partial(Rs.)")</label>
+                    </div>
+                    <div class="col-sm-6">
+                        @Html.TextBoxFor(x => x.SecurityDepositPartial, new { @class = "form-control", id = "securityDepositPartial" })
+                        @Html.ValidationMessageFor(x => x.SecurityDepositPartial, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="" class="col-form-label">Select your payment option</label>
+                    </div>
+                    <div class="col-sm-6 col-lg-6">
+                        @Html.DropDownListFor(m => m.SecurityPayment, Model.SecurityPaymentList, new { @class = "form-control", required = "required" })
+                        @Html.ValidationMessageFor(x => x.SecurityPayment, "", new { @class = "help-block" }, "p")
+                    </div>
+                    @Html.ValidationMessageFor(x => x.AmountPayable, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+            <div class="form-group row py-2">
+                <div class="col-sm-3">
+                    <button type="submit" class="btn btn-primary">Pay Now</button>
+                </div>
+                <div class="col-sm-9">
+                    @*<p><a href="#" class="txt-orange"><span class="downloadDoc"><i class="fas fa-download"></i></span>&nbsp;&nbsp;Download the Security Deposit Payment Acknoledgement.</a></p>*@
+                </div>
+            </div>
+
+        }
+    }
+</div>

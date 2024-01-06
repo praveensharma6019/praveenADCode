@@ -1,0 +1,92 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+    Sitecore.Data.Fields.ImageField BackgroundImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+    var bckgrundimgurl = BackgroundImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(BackgroundImageField.MediaItem);
+
+    var linkfieldurl = "#";
+
+    var ImageUrl = "";
+    var ImageAlt = "";
+}
+
+<section class="bg-white pt-5 position-relative z-index">
+    <div class="container Highlight-bg-image" style="background-image: url('@bckgrundimgurl');">
+        <h1 class="ESG-text heading-bottom">@Html.Sitecore().Field("Title", element)</h1>
+
+        <div class="d-flex mb-4">
+            <div class="col-lg-12">
+                <div class="row">
+
+
+                    @foreach (var child in element.GetChildren().ToList())
+                    {
+                        var classitem = @Html.Sitecore().Field("Author", child);
+                        var titleitem = @Html.Sitecore().Field("Title", child);
+                        var mainclass = @Html.Sitecore().Field("Main Class", child);
+                        var DataTabClass = @Html.Sitecore().Field("DataTab", child);
+                        <div class="col-lg-4 mb-5">
+                            <div class="show-link-highlights @mainclass @classitem" data-target="@DataTabClass">
+                                <h4 class="text-center">@titleitem</h4>
+                                <div class="hr-highlight"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @foreach (var child in element.GetChildren().ToList())
+        {
+            Sitecore.Data.Fields.LinkField linkfield = ((Sitecore.Data.Fields.LinkField)child.Fields["LinkUrl"]);
+            if (linkfield != null)
+            {
+                linkfieldurl = linkfield.GetFriendlyUrl();
+            }
+            var SubClass = @Html.Sitecore().Field("Sub class", child);
+            var ctaText = @Html.Sitecore().Field("CTAText", child).ToString();
+
+
+
+            <div class="cool-box" id="@SubClass">
+                <div class="cool-flex-box">
+
+                    @foreach (var subchild in child.GetChildren().ToList())
+                    {
+                        Sitecore.Data.Fields.ImageField Image = ((Sitecore.Data.Fields.ImageField)subchild.Fields["Image"]);
+                        if (Image != null && Image.MediaItem != null)
+                        {
+                            ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(Image.MediaItem);
+                            ImageAlt = Image.Alt;
+                        }
+                        <div class="col-md-2 col-sm-8 py-3 mr-2 mb-3 try-box">
+                            <div class="try-content">
+                                <div class="img-performance">
+                                    <img src="@ImageUrl">
+                                </div>
+                                <h5>@Html.Sitecore().Field("Title", subchild)</h5>
+                                @Html.Sitecore().Field("Body", subchild)
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="text-center">
+                    <a href="@linkfieldurl" class="btn btn-read1" style="@(string.IsNullOrWhiteSpace(ctaText) ? "display:none;" : "")">@ctaText</a>
+                </div>
+
+            </div>
+
+        }
+
+    </div>
+</section>

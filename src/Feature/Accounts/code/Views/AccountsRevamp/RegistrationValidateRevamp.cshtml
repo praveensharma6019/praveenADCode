@@ -1,0 +1,205 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.RegisteredValidateAccount
+
+@if (Session["AccountAlreadyRegistered"] != null && Session["AccountAlreadyRegistered"].ToString() == "2")
+{
+
+    Session["AccountAlreadyRegistered"] = null;
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //debugger;
+            dataLayer.push({
+                'event': "aeml_registration_failure",
+                'eventCategory': "New Registration",
+                'eventAction': "AEML Registration Failure",
+                'eventLabel': "@Html.Sitecore().Dictionary("/Accounts/Controller Messages/Account already exist", "Account Number already registered.Please enter another Account Number."))",
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        });
+    </script>
+
+}
+
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+
+
+@if (contextItem != null)
+{
+    <div class="col l6 s12 offset-l3 section-container">
+        <div>
+            <h1>@Html.Raw(contextItem["Title"])</h1>
+            @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmregistrationValidate" }))
+            {
+                @Html.AddUniqueFormId()
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+                <div class="card-with-form login-wrap section-container" id="RegisterValidateFormField">
+                    <div class="input-field custom @Html.ValidationErrorFor(x => x.AccountNo, "has-error")">
+                        @if (!Model.isvalidatAccount)
+                        {
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.AccountNo, new { @class = "form-control reset-control", id = "AccountNo", @readonly = "readonly" })
+                        }
+                        <label class="active" for="AccountNo">@Html.Sitecore().Dictionary("/Accounts/Register/AccountNumber", "Enter CA Number")</label>
+                        @Html.ValidationMessageFor(x => x.AccountNo, "", new { @class = "help-block" }, "p")
+
+                    </div>
+                    <div class="input-field custom @Html.ValidationErrorFor(x => x.MeterNo, "has-error")">
+                        @if (!Model.isvalidatAccount)
+                        {
+                            @Html.TextBoxFor(x => x.MeterNo, new { @class = "form-control reset-control", id = "MeterNo" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(x => x.MeterNo, new { @class = "form-control reset-control", id = "MeterNo", @readonly = "readonly" })
+                        }
+                        <label class="active" for="MeterNo">@Html.Sitecore().Dictionary("/Accounts/Register/MeterNo", "Enter Meter Number")</label>
+                        @Html.ValidationMessageFor(x => x.MeterNo, "", new { @class = "help-block" }, "p")
+                    </div>
+                    @if (Model != null && !Model.isvalidatAccount && (Model.isOTPSent || !Model.isOTPSent))
+                    {
+                        <div class="input-field custom">
+                            @Html.ValidationMessageFor(x => x.MobileNo, "", new { @class = "help-block" }, "p")
+                        </div>
+                    }
+                    @if (Model.isvalidatAccount || Model.isOTPSent)
+                    {<div class="input-field custom @Html.ValidationErrorFor(x => x.ExistingMobileNo, "has-error")">
+                            @Html.TextBoxFor(x => x.ExistingMobileNo, new { @class = "form-control reset-control", id = "RegisteredMobileNumber", @readonly = "readonly" })
+                            <label class="active" for="RegisteredMobileNumber"> @Html.Sitecore().Dictionary("/Accounts/Register/Registered Mobile Number", "Registered Mobile Number")</label>
+                        </div>
+                        <div class="input-field custom @Html.ValidationErrorFor(x => x.MobileNo, "has-error")">
+                            @Html.TextBoxFor(x => x.MobileNo, new { @class = "form-control reset-control", id = "EnterMobileNumber" })
+                            <label class="active" for="EnterMobileNumber">@Html.Sitecore().Dictionary("/Accounts/Register/MobileNumber", "Mobile Number")</label>
+                            @if (Model != null && (Model.isOTPSent || !Model.isOTPSent))
+                            {
+                                @Html.ValidationMessageFor(x => x.MobileNo, "", new { @class = "help-block otp-black-text" }, "p")
+                            }
+                            else
+                            {
+                                @Html.ValidationMessageFor(x => x.MobileNo, "", new { @class = "help-block" }, "p")
+                            }
+                        </div>
+
+                        if (Model.isOTPSent)
+                        {
+                            <div class="otp-wrapper col-s12">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP", "Enter OTP")</label>
+                                <p>@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP Help Text", "We have sent you an OTP on your mobile number. Please enter to verify")</p>
+                            </div>
+                            <div class="input-field custom @Html.ValidationErrorFor(x => x.OTPNumber, "has-error")">
+                                @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber" })
+                                <label class="active" for="OTPNumber"> @Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP", "Enter OTP")</label>
+                                @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+
+                            </div>
+                        }
+                    }
+
+                    @if (!Model.isvalidatAccount)
+                    {
+                        <div class="input-field custom">
+                            <div class="captcha_box">
+                                <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                    <label for="" class="">@Html.Sitecore().Dictionary("/Accounts/Captcha", "Captcha") <span class="required">*</span></label>
+                                    <div class="row captcha_box" style="padding-left:10px;">
+                                        <div class="col-lg-12">
+                                            <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="h-right btn-group">
+                        @if (Model.isvalidatAccount && Model.isOTPSent)
+                        {
+                            <button type="submit" name="SendOTP" value="SendOTP" class="waves-effect btn-flat">
+                                @Html.Sitecore().Dictionary("/Accounts/Register/Button/Resend OTP", "Resend OTP")
+                            </button>
+                        }
+                        else if (Model.isvalidatAccount)
+                        {
+                            <button type="submit" name="SendOTP"
+                                    data-gaevent="aeml_registration_mobile_verification"
+                                    data-gaeventCategory="New Registration"
+                                    data-gaeventAction="AEML Mobile Number Verification"
+                                    data-gaeventLabel="Success"
+                                    value="SendOTP" class="waves-effect btn btn-continue login-btn">
+                                @Html.Sitecore().Dictionary("/Accounts/Register/Button/Send OTP", "Send OTP")
+                            </button>
+                        }
+                        @if (!Model.isvalidatAccount)
+                        {
+                            <button type="submit" id="ValidateAccount" name="ValidateAccount" class="waves-effect btn btn-continue login-btn full"
+                                    data-gaevent="aeml_registration_initiation"
+                                    data-gaeventCategory="New Registration"
+                                    data-gaeventAction="AEML Registration Initiation"
+                                    data-gaeventLabel="NA"
+                                    value="ValidateAccount">
+                                @Html.Sitecore().Dictionary("/Accounts/Register/Button/Validate Account", "Validate Account")
+                            </button>
+                        }
+                        @if (Model.isOTPSent)
+                        {
+                            <button type="submit" name="ValidateOTP" class="waves-effect btn btn-continue login-btn" value="ValidateOTP">
+                                @Html.Sitecore().Dictionary("/Accounts/Register/Button/Verify", "Verify")
+                            </button>
+                        }
+                        @*@if (!Model.isvalidatAccount)
+                            {
+                                <button type="button" class="btn btn-secondary" onclick="ResetElement('frmregistrationValidate')">@Html.Sitecore().Dictionary("/Accounts/Forgot Password/Button/Reset", "Reset")</button>
+                            }*@
+                    </div>
+                </div>
+            }
+            <div class="bordered-items section-container">
+                <ul>
+                    <li>
+                        @Html.Sitecore().Dictionary("/Accounts/Register/Already have an Account", "Already have an Account?")
+                        <a href="@Html.Sitecore().Dictionary("/Other Redirect URL/Login/Login URL", "/myaccount")" class="bold">
+                            @Html.Sitecore().Dictionary("/Accounts/Login/Button/Login Now", "Login Now")
+                        </a>
+                    </li>
+                    <li>
+                        @Html.Sitecore().Dictionary("/Common/Need some help", "Need some help?")
+                        <a href="javascript:void(0)"
+                           data-gaevent="chat_now_cta_click"
+                           data-gaeventCategory="CTA Click"
+                           data-gaeventAction="Chat Now CTA Click"
+                           data-gaeventLabel="NA"
+                           onclick="OpenElektra();" id="openChatNow" class="bold">@Html.Sitecore().Dictionary("/Common/Chat Now", "Chat Now")</a> @Html.Sitecore().Dictionary("/Common/or call", "or call")
+                        <span class="ff-rb">@Html.Sitecore().Dictionary("/Common/PhoneNo", "19122")</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        @*<div class="login-wrap">
+                @Html.Raw(contextItem["Summary"])
+            </div>*@
+        @Html.Sitecore().Placeholder("divBenefitsContent")
+    </div>
+
+    <script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+
+    var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+    if (info != null)
+    {
+        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageViewElectricityRevamp, info);
+    }
+
+}

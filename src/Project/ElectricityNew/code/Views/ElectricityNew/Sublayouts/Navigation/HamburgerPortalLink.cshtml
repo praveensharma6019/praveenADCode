@@ -1,0 +1,35 @@
+﻿@using Sitecore.Data.Items
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+
+}
+<ul class="collapsible expandable hamburger_section hamburger-header single-item">
+    <li class="user-section">
+        @if (element.HasChildren)
+        {
+            foreach (Item item in element.GetChildren())
+            {
+                Sitecore.Data.Fields.LinkField itemLinkfld = item.Fields["LinkUrl"];
+                var url = itemLinkfld != null && !string.IsNullOrEmpty(itemLinkfld.GetFriendlyUrl()) ? itemLinkfld.GetFriendlyUrl() : "#";
+                var urlTarget = itemLinkfld != null ? itemLinkfld.Target : "";
+
+                Sitecore.Data.Fields.ImageField imageField = item != null ? item.Fields["Image"] : null;
+                string imageUrl = imageField != null && imageField.MediaItem != null ? Sitecore.Resources.Media.MediaManager.GetMediaUrl(imageField.MediaItem) : string.Empty;
+                <a href="@url" target="@urlTarget" class="collapsible-header collapsible_link waves-effect userNotLogin">
+                    <span class="icon-box user-icon">
+                        @if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            <img class="" src="@imageUrl">
+                        }
+                        else
+                        {
+                            <i class="@item.Fields["Class"]"></i>
+                        }
+                    </span>
+                    <label>@Html.Sitecore().Field("Title", item)</label>
+                </a>
+            }
+        }
+    </li>
+</ul>

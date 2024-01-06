@@ -1,0 +1,46 @@
+@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var ImageUrl = "";
+    var ImageAlt = "";
+}
+
+
+<section class="bg-white pt-5 position-relative z-index pb-5 awards-one">
+    <div class="container">
+        <p class="awards-one-text">@Html.Sitecore().Field("Body", element)</p>
+        <div class="row awards-images">
+            @foreach (var child in element.Children.ToList())
+            {
+                Sitecore.Data.Fields.ImageField Image = ((Sitecore.Data.Fields.ImageField)child.Fields["Image"]);
+                if (Image != null && Image.MediaItem != null)
+                {
+                    ImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(Image.MediaItem);
+                    ImageAlt = Image.Alt;
+                }
+                var main_id = @Html.Sitecore().Field("MainId", child);
+
+                <!-- <a href="#@main_id"> -->
+                <div class="col-md-2 mr-4">
+                    <a href="#@main_id" data-target="@main_id" class="award-link">
+                        <div class="award-row">
+                            <img class="award-div-images" src="@ImageUrl" alt="@ImageAlt">
+                            <h6 class="text-center award-cards">@Html.Sitecore().Field("Title", child)</h6>
+                        </div>
+                    </a>
+                </div>
+
+            }
+        </div>
+    </div>
+</section>
+
+
+

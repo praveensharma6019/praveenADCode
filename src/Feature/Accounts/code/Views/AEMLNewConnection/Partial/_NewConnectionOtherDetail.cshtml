@@ -1,0 +1,433 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts.Models;
+@using Sitecore.Feature.Accounts.SessionHelper;
+
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{ 
+    Sitecore.Feature.Accounts.NEW_CON_APPLICATION_DOCUMENT_DETAIL obj = null;
+    if (Model.DocumentList != null && Model.DocumentList.Count > 0)
+    {
+        obj = Model.GetExistingDocuments.Find(d => d.DocumentTypeCode.Trim() == "PH" && d.DocumentType=="20");
+    }
+    var data = Model.TotalLoad.ToString();
+    bool islecreadonly = false;
+    if (Session["LECUserLogin"] != null)
+    {
+        ChangeOfNameService conService = new ChangeOfNameService();
+        ChangeOfNameLECUserProfileModel model = conService.GetLECDetails(UserSession.AEMLCONLECUserSessionContext.RegistrationNumber);
+        Model.LECEmail = model.LECEmailId;
+        Model.LECNumber = model.LECRegistrationNumber;
+        Model.NameOnLEC = model.LECName;
+        Model.LECMobileNo = model.LECMobileNumber;
+        Model.LECLandlineNo = "";
+        islecreadonly = true;
+    }
+}
+<div class="panel-body">
+    <div class="bg-white p-3">
+        <legend> Other Information *</legend>
+
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label for=""><b>Meter connection in existing meter cabin</b></label>
+                    @*<input type="text" class="form-control" id="" placeholder="RESI1" disabled>*@
+                    @Html.DropDownListFor(m => m.Meterconnectioninexistingmetercabin, new SelectList(Model.MeterconnectioninexistingmetercabinList, "Value", "Text", Model.Meterconnectioninexistingmetercabin), "Select", new { @class = "form-control", id = "ddlGovernmentType" })
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label for=""><b>Existing/Nearest Consumer Account No<span class="required">*</span></b></label>
+                    @Html.TextBoxFor(x => x.NearestConsumerAccountNo, new
+               {
+                   @class = "form-control txt-caps",
+                   required = "required",
+                   placeholder= "Existing/Nearest Consumer Account No",
+                   id="ExistingConsumerAccountNumber",
+                   Value = Model.NearestConsumerAccountNo
+
+               })
+                    @Html.ValidationMessageFor(x => x.NearestConsumerAccountNo, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label for=""><b>Existing/Nearest Consumer Meter No<span class="required">*</span></b></label>
+                    @Html.TextBoxFor(x => x.NearestConsumerMeterNo, new
+                    {
+                    @class = "form-control txt-caps",
+                    required = "required",
+                    placeholder= "Existing/Nearest Consumer Meter No",
+                    Value=Model.NearestConsumerMeterNo,
+                    id="NearestConsumerMeterNumber"
+
+                    })
+                    @Html.ValidationMessageFor(x => x.NearestConsumerMeterNo, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+        </div>
+        <p>Existing Connection</p>
+        <div class="row">
+            <div class="col-lg-12 col-md-6">
+                <div class="form-group">
+                    <label for=""><b>Any Existing Connection <span class="required">*</span></b></label>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.ExistingConnection, "No", new
+                        {
+                        id = "ExistingConnectionNo"@*, required = "required"*@,
+@class = "form-check-input rbExistingConnection"
+})
+                        <label class="form-check-label" for="ExistingConnectionNo">No</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.ExistingConnection, "Yes", new
+                        {
+                        id = "ExistingConnectionYes"@*, required = "required"*@,
+@class = "form-check-input rbExistingConnection"
+})
+                        <label class="form-check-label" for="ExistingConnectionYes">Yes</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (Model.ExistingConnection == "Yes")
+        {
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="form-group">
+                        <label for="">
+                            <b>
+                                Consumer Number	<span class="required">*</span>
+                            </b>
+                        </label>
+                        @Html.TextBoxFor(x => x.ConsumerNo, new
+                   {
+                       @class = "form-control txt-caps",
+                       id= "ConsumerNo"
+                   })
+                        @Html.ValidationMessageFor(x => x.ConsumerNo, "", new { @class = "help-block" }, "p")
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="form-group">
+                        <label for=""><b>Utility</b></label>
+                        @*<input type="text" class="form-control" id="" placeholder="RESI1" disabled>*@
+                        @Html.DropDownListFor(m => m.Utility, new SelectList(Model.UtilityList, "Value", "Text", Model.Utility), new { @class = "form-control", id = "ddlutility" })
+                    </div>
+                </div>
+            </div>
+        }
+        <p> Licensed Electrical contractor Details *</p>
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label for=""><b>Wiring Completed	<span class="required">*</span></b></label>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.WiringCompleted, "No", new
+                        {
+                        id = "WiringCompletedNo"@*, required = "required"*@,
+@class = "form-check-input rbExistingConnection"
+})
+                        <label class="form-check-label" for="WiringCompletedNo">No</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(model => model.WiringCompleted, "Yes", new
+                        {
+                        id = "WiringCompletedYes"@*, required = "required"*@,
+@class = "form-check-input rbbillingdifferentthanAddress"
+})
+                        <label class="form-check-label" for="WiringCompletedYes">Yes</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+            @if (islecreadonly)
+            {
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>Licence No<span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.LECNumber, new
+                       {
+                           @class = "form-control txt-caps",
+                           id = "LECNumber",
+                           @disabled = "disabled"
+                       })
+                            @Html.ValidationMessageFor(x => x.LECNumber, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>Name of LEC  <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.NameOnLEC, new
+                       {
+                           @class = "form-control txt-caps",
+                           Value = Model.NameOnLEC,
+                           @disabled = "disabled"
+                       })
+                            @Html.ValidationMessageFor(x => x.NameOnLEC, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>LEC Mobile Number <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.LECMobileNo, new
+                       {
+                           @class = "form-control",
+                           Value = Model.LECMobileNo,
+                           @disabled = "disabled"
+                       })
+                            @Html.ValidationMessageFor(x => x.LECMobileNo, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>LEC Email <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.LECEmail, new
+                       {
+                           @class = "form-control",
+                           Value = Model.LECEmail,
+                           @disabled = "disabled"
+                       })
+                            @Html.ValidationMessageFor(x => x.LECEmail, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>LEC Landline Number</b></label>
+                            @Html.TextBoxFor(x => x.LECLandlineNo, new
+                       {
+                           @class = "form-control",
+                           @disabled = "disabled"
+                       })
+                            @Html.ValidationMessageFor(x => x.LECLandlineNo, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>Licence No<span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.LECNumber, new
+                       {
+                           @class = "form-control txt-caps",
+                           id = "LECNumber"
+                       })
+                            @Html.ValidationMessageFor(x => x.LECNumber, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>Name of LEC  <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.NameOnLEC, new
+                       {
+                           @class = "form-control txt-caps",
+                           Value = Model.NameOnLEC
+                       })
+                            @Html.ValidationMessageFor(x => x.NameOnLEC, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>LEC Mobile Number <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.LECMobileNo, new { @class = "form-control", Value = Model.LECMobileNo })
+                            @Html.ValidationMessageFor(x => x.LECMobileNo, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>LEC Email <span class="required">*</span></b></label>
+                            @Html.TextBoxFor(x => x.LECEmail, new { @class = "form-control", Value = Model.LECEmail })
+                            @Html.ValidationMessageFor(x => x.LECEmail, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+
+
+                    <div class="col-lg-4 col-md-6">
+                        <div class="form-group">
+                            <label for=""><b>LEC Landline Number</b></label>
+                            @Html.TextBoxFor(x => x.LECLandlineNo, new
+                       {
+                           @class = "form-control"@*, required = "required"*@})
+                            @Html.ValidationMessageFor(x => x.LECLandlineNo, "", new { @class = "help-block" }, "p")
+                        </div>
+                    </div>
+                </div>
+            }
+        @if(Model.ApplicationSubType=="1" || Model.ApplicationSubType=="2")
+        {
+        <div class="row">
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label for=""><b>Test Report No<span class="required">*</span></b></label>
+                    @Html.TextBoxFor(x => x.TRNumber, new
+               {
+                   @class = "form-control txt-caps",id= "TRNumber"
+
+               })
+                    @Html.ValidationMessageFor(x => x.TRNumber, "", new { @class = "help-block" }, "p")
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="form-group">
+                    <label for=""><b>Test Report Document</b></label>
+                    <input type="file" id="" name="TRNumberDoc" class="form-control" />
+                    @if (obj != null)
+                    {
+                        <div class="d-block mt-2">
+                            <a class="txt-orange" href="@Url.Action("DownloadFile", new { id = obj.Id })">
+                                <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+        }
+        <div class="row">
+            <div class="col-lg-8 col-md-6">
+                <div class="form-group">
+                    <label class="w-100"><b>Select the meter supplier</b></label>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" id="Metersuppliers" name="metersupplier" value="AEML" ,class="form-check-input" checked>
+                        <label class="form-check-label" for="Metersuppliers">AEML</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input type="radio" data-toggle="modal" id="Metersupplierss" name="metersupplier" value="SELF" class="form-check-input" data-target="#myModal" />
+
+                        <label class="form-check-label" for="Metersupplierss">SELF</label>
+                    </div>
+
+                    <a href="https://www.adanielectricity.com/General-Information/Meter-and-Distributor-details" class="btn btn-primary" style="display: none" id="Meterspecifications" target="_blank">Meter specifications</a>
+
+                    <p class="ownmeters" style="display: none">Own meter option is deselected</p>
+                    <div class="col-lg-6 col-md-6">
+
+                        <div id="myModal" class="modal fade" style="display: none">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Meter Supplier Message</h4>
+                                    </div>
+                                    <div class="modal-body"><p>You will have to buy the meter, as you have opted for Own meter. If you opt for AEML meter it is free of cost.<br /> You will also have to get the meter tested from AEML lab in case you opt for own meter. The SOP timelines shall commence after meter testing.</p>
+                                                            <p>Would you like to opt out? Yes/ No</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="Yess">Yes</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="Nos">No</button>
+                                    </div>
+                                </div><!-- /.modal-content -->
+                            </div><!-- /.modal-dialog -->
+                        </div><!-- /.modal -->
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        @if ((System.Double.Parse(data)) > 20)
+        {
+            <div class="row">
+                <div class="col-lg-8 col-md-6">
+                    <div class="form-group">
+
+                        <input type="checkbox" id="ddf" name="DedicatedDistributionfacility"
+                               data-toggle="modal" data-target="" @(!string.IsNullOrEmpty(Model.DedicatedDistributionfacility) ? "checked" : "") value="1" class="form-check-input" />
+
+                        <label for="ddf" class="form-check-label">
+                            I/We would like to opt for Dedicated Distribution Facility
+                        </label>
+
+
+
+                        <div class="col-lg-6 col-md-6">
+
+                            <div id="NormativeDDFs" class="modal fade" style="display: none">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+
+                                        <div class="modal-body">
+                                            <p class="mb-3">
+                                                You have selected the DDF option which means that you shall bear the total cost of the equipments (example given below ) as per the site conditions for release of supply.
+                                            </p>
+                                            <p class="mb-3">
+                                                <ul class="ul-bullets">
+                                                    <li>Distribution pillar</li>
+                                                    <li>Cable upto the distribution pillar from main line.</li>
+                                                    <li>Transformer</li>
+                                                    <li>H.T. Cable from switchgear to transformer</li>
+                                                    <li>H.T. Switchgear</li>
+                                                </ul>
+                                            </p>
+                                            <p class="mb-3">If the DDF option is not selected the total cost shall be as per the applied load at Normative rates and will be approx. Rs @Html.DisplayFor(Model => Model.DedicatedDistributionfacilityRs) </p>
+                                            <p class="mb-3">Would you like to opt out? Yes/ No. (The estimate amount shall be calculated and shown here)</p>
+                                        </div>
+
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal" id="Yes">Yes</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="No">No</button>
+
+                                        </div>
+                                    </div><!-- /.modal-content -->
+                                </div><!-- /.modal-dialog -->
+                            </div><!-- /.modal -->
+                            <p class="ownmeter" style="display: none">Own meter option is deselected</p>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+
+        }
+
+
+
+        
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <div class="form-group py-2 text-right mb-0">
+                        <input type="submit" class="btn btn-primary mb-2 mb-md-0" name="SaveOtherDetail" id="SaveOtherDetail" value="Save As Draft" />
+                    </div>
+                </div>
+            </div>
+        
+    </div>
+</div>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#ddf").click(function () {
+            if ($(this).is(":checked")) {
+                $("#NormativeDDFs").show();
+                $(this).attr('data-target', '#NormativeDDFs');
+                $('.ownmeter').hide();
+            } else {
+                $("#NormativeDDFs").hide();
+                $('.ownmeter').show();
+                $(this).removeAttr('data-target', '#');
+
+            }
+        });
+
+        $("#Yes").click(function () {
+            $("#ddf").prop("checked", false);
+            $('.ownmeter').show();
+            $("#NormativeDDFs").hide();
+            $(this).removeAttr('data-target', '#');
+
+        });
+    });
+</script>

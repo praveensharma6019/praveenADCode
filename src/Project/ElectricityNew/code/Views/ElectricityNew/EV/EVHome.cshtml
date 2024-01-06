@@ -1,0 +1,820 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    var toast = Session.GetAndRemove("UpdateRevampMessage") as Sitecore.Foundation.Alerts.Models.InfoMessageRevamp;
+    if (toast != null)
+    {
+        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageViewRevamp, toast);
+    }
+}
+@if (Session["ShareChargeEV"] != null && Session["ShareChargeEV"].ToString() == "1")
+{
+
+    Session["ShareChargeEV"] = null;
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //debugger;
+            dataLayer.push({
+                'event': 'ev_connection_form_success',
+                'eventCategory': 'AEML',
+                'eventAction': 'ev_connection_form',
+                'eventLabel': 'Ev Charging Details Saved',
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        });
+    </script>
+
+}
+@if (Session["ShareChargeFailed"] != null && Session["ShareChargeFailed"].ToString() == "2")
+{
+
+    Session["ShareChargeFailed"] = null;
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //debugger;
+            dataLayer.push({
+                'event': 'ev_connection_form_fail',
+                'eventCategory': 'AEML',
+                'eventAction': 'ev_connection_form_error',
+                'eventLabel': 'Failed to save Ev Charging Details',
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        });
+    </script>
+
+}
+
+
+<section class="banner-section">
+    <div class="container">
+        <div class="banner-wrapper">
+            <div class="pointer">
+                <ul>
+                    <li><h3>No Paperwork</h3></li>
+                    <li><h3>No groundwork</h3></li>
+                    <li><h3>No cablework</h3></li>
+                    <li><h3>No guesswork</h3></li>
+                    <li>
+                        <h3>Free Installation</h3>
+                        <h4>(For Limited Time Only)</h4>
+                    </li>
+                </ul>
+            </div>
+            <div class="banner-picture">
+                <img src="/electricity_assets/images/car-chargingnew.svg" />
+            </div>
+            <div class="share-charge">
+                <img src="/electricity_assets/images/share-chargenew.svg" />
+            </div>
+        </div>
+    </div>
+</section>
+<section class="ev-wrapper">
+    <div class="container">
+        <div class="ev-container" id="EvContainerBox">
+            <div class="content">
+                <h3>
+                    Easy, hassle-free EV charging installation for your society’s
+                    common parking area
+                </h3>
+                <a href="#evchargingrequest"
+                   data-gaevent="ev_connection_start"
+                   data-gaeventCategory="AEML"
+                   data-gaeventAction="ev_connection_start"
+                   data-gaeventLabel="EV Sharecharge"
+                   class="waves-effect waves-light btn sidenav-trigger">I am interested</a>
+            </div>
+            <div class="charging-device">
+                <img src="/electricity_assets/images/charger-plug1.png" alt="charger-plug" />
+            </div>
+        </div>
+    </div>
+</section>
+<div class="dashboard">
+    <div class="modal-wrapper modal-dashboard">
+        <div id="evchargingrequest" class="sidenav sidenav-right sidenav-mid-width ">
+            <div class="modal-content-inner">
+                <a class="modal-close evresetbutton sidenav-close"><i class="i-cross hide-notification"></i></a>
+                <header>
+                    <h2>Interested in EV Charging Connection?</h2>
+                    <p>Enter your details to proceed</p>
+                </header>
+                @{
+                    <input type="hidden" value="@Guid.NewGuid().ToString()" id="evtoken" />
+                }
+                <div class="electricity-charges-details">
+                    <div class="form-field" id="EVValidateCAForm">
+                        <div class="input-field custom">
+                            <input id="CANumber" class="validate" required="required" autocomplete="off" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+                            <label class="active" for="CANumber">CA Number</label>
+                            <p id="CANumberError" style="display:none"></p>
+                        </div>
+                        <p>Please enter 9-digit account number as mentioned on the electricity bill. This will help us in collecting the electricity supply location</p>
+                        <div id="OTPDIV" style="display:none">
+                            <div class="otp-wrapper col-s12">
+                                <label>@Html.Sitecore().Dictionary("/Accounts/ShareCharge/Enter OTP", "Enter OTP")</label>
+                                <p id="otpsendtext">@Html.Sitecore().Dictionary("/Accounts/ShareCharge/Enter OTP Help Text", "We have sent you an OTP on your mobile number #. Please enter to verify")</p>
+                            </div>
+                            <div class="input-field custom">
+                                <input value="" id="EVOTP" class="validate" name="EVOTP" type="number" maxlength="5" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="active" for="EVOTP"> @Html.Sitecore().Dictionary("/Accounts/ShareCharge/Enter OTP", "Enter OTP")</label>
+                                @*<p id="otpsendmsg">@Html.Sitecore().Dictionary("/Accounts/Register/Enter OTP Help Text VCC", "We have sent you an OTP on your mobile number #. Please enter to verify")</p>*@
+                                <p class="" id="lblEVOTPerror" style="display:none"></p>
+                            </div>
+                        </div>
+                        <div class="input-field custom">
+                            <div class="captcha_box">
+                                <div class="form-group pt-md-2">
+                                    <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                    <div class="row captcha_box">
+                                        <div class="col-lg-12">
+                                            <div class="g-recaptcha" data-callback="recaptchaCallback" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                            <p id="EVValidateCAFormCaptchaError" style="display:none"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="waves-effect waves-light btn btn-continue ev-btn EVValidateCAFormProceed" id="submitEVCA" value="submitEVCA">
+                                Proceed
+                            </button>
+                        </div>
+
+                    </div>
+                    <div class="form-field" id="EVCustomerDetailsForm" style="display:none">
+                        <input type="hidden" id="hdnEVCustomerEmail" value="" />
+                        <input type="hidden" id="hdnEVCustomerMobile" value="" />
+                        <input type="hidden" id="hdnEVCustomerCONOBJNO" value="" />
+                        <input type="hidden" id="hdnEVCustomerSAPNAME" value="" />
+                        <input type="hidden" id="hdnEVCustomerSTREET" value="" />
+                        <input type="hidden" id="hdnEVCustomerSTREET2" value="" />
+                        <input type="hidden" id="hdnEVCustomerREGSTRGROUP" value="" />
+                        <input type="hidden" id="hdnEVCustomerRATECAT" value="" />
+                        <input type="hidden" id="hdnEVCustomerFUNC_DESCR" value="" />
+                        <input type="hidden" id="hdnEVCustomerMRU" value="" />
+                        <input type="hidden" id="hdnEVCustomerDESC_CON_OBJECT" value="" />
+                        <div class="card-with-form">
+                            <div class="input-field custom">
+                                <input autocomplete="off" class="validate valid" disabled="disabled" id="EmailId" value="" readonly="readonly">
+                                <label class="active" for="EmailId">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/EmailId", "Registered Email ID")</label>
+                                <p class="help-text EmailId-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input autocomplete="off" class="validate valid" disabled="disabled" id="MobileNo" value="" readonly="readonly">
+                                <label class="active" for="MobileNo">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/MobileNo", "Registered Mobile Number")</label>
+                                <p class="help-text MobileNo-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input id="txtName" type="text" class="validate valid" maxlength="50" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="" for="txtName">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/FullName", "Full Name")</label>
+                                <p class="help-text Name-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input id="MobileNoAlt" typeof="number" class="validate valid" maxlength="10" type="number" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="" for="MobileNoAlt">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/MobileNoAlt", "Mobile No (optional)")</label>
+                                <p class="help-text MobileNoAlt-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input id="txtEmailIdAlt" maxlength="50" type="text" class="validate valid" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="" for="txtEmailIdAlt">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/EmailIdAlt", "Email ID (optional)")</label>
+                                <p class="help-text EmailIdAlt-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input id="txtSocietyName" type="text" class="validate valid" maxlength="100" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="" for="txtSocietyName">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/SocietyName", "Society Name and Address")</label>
+                                <p class="help-text SocietyName-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input id="txtPIN" type="number" class="validate valid" maxlength="6" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="active" for="txtPIN">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/PINCode", "PIN Code")</label>
+                                <p class="help-text PinCode-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input id="SecretaryName" type="text" class="validate valid" maxlength="100" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="active" for="SecretaryName">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/SecretaryName", "Society Official Name")</label>
+                                <p class="help-text SecretaryName-help"></p>
+                            </div>
+                            <div class="input-field custom">
+                                <input id="SecretaryContactNo" class="validate valid" maxlength="10" autocomplete="off" type="number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                <label class="active" for="SecretaryContactNo">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/SecretaryNo", "Society Official Contact Number")</label>
+                                <p class="help-text SecretaryNo-help"></p>
+                            </div>
+                            <div class="form-field">
+                                <h6>Does your society have a common parking area?</h6>
+                                <div class="field-group">
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="ParkingArea" value="Yes" type="radio" />
+                                            <span>Yes</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="ParkingArea" value="No" type="radio" />
+                                            <span>No</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="ParkingArea" value="Can be provided" type="radio" />
+                                            <span>Can be provided</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="ParkingArea" value="Dont know" type="radio" checked="checked" />
+                                            <span>Don't know</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <h6>Do any of your society members own EVs or are considering buying?</h6>
+                                <div class="field-group">
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="SocietyMemberEV" value="Yes" type="radio" />
+                                            <span>Yes</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="SocietyMemberEV" value="No" type="radio" />
+                                            <span>No</span>
+                                        </label>
+                                    </div>
+                                    <div class="radio-field">
+                                        <label>
+                                            <input class="with-gap" name="SocietyMemberEV" value="Dont know" type="radio" checked="checked" />
+                                            <span>Don't know</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="h-right btn-group">
+                                <button class="waves-effect waves-light btn-flat evresetbutton">Back</button>
+                                <a class="waves-effect waves-light btn modal-close sidenav-close SendEVDetails" href="javascript:void(0)">Send</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script type="text/javascript">
+    var EVValidateCAFormCaptcha;
+    var onloadCallback = function () {
+        EVValidateCAFormCaptcha = grecaptcha.render('EVValidateCAFormCaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+
+    $(document).ready(function () {
+        var formID = GetParameterValues('evaction');
+        function GetParameterValues(param) {
+            var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < url.length; i++) {
+                var urlparam = url[i].split('=');
+                if (urlparam[0] == param) {
+                    return urlparam[1];
+                }
+            }
+        }
+
+        if (formID != undefined && formID != '') {
+            window.setTimeout(function () {
+                if ($('a[href^="#' + formID + '"]').length > 0) {
+                    $('a[href^="#' + formID + '"]')[0].click();
+                }
+            }, 1500);
+        }
+
+        var uri = window.location.href.toString();
+        if (uri.indexOf("?") > 0) {
+            var clean_uri = uri.substring(0, uri.indexOf("?"));
+            window.history.replaceState({}, document.title, clean_uri);
+        }
+    })
+
+
+    window.getEncriptedKey = getEncriptedKey
+    function getEncriptedKey(stringToEncrypt) {
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encrypted = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(stringToEncrypt), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            }).toString();
+        return encrypted;
+    }
+
+    window.decrypt = decrypt
+    function decrypt(stringtoDescrypt) {
+        var key = CryptoJS.enc.Utf8.parse("8080808080808080");
+        var iv = CryptoJS.enc.Utf8.parse("8080808080808080");
+        var decryptedMessage = CryptoJS.AES.decrypt(stringtoDescrypt, key, {
+            iv: iv
+        });
+
+        return decryptedMessage.toString(CryptoJS.enc.Utf8);
+    }
+
+
+
+    $('.evresetbutton').click(function () {
+        location.reload();
+        grecaptcha.reset(EVValidateCAFormCaptcha);
+
+        $('#CANumber').val('').removeAttr('readonly').removeClass('ameldisabled').removeClass('invalid').siblings('label').removeClass('active');
+        $('#txtName').val('').removeClass('invalid').siblings('label').removeClass('active');
+        $('#MobileNoAlt').val('').removeClass('invalid').siblings('label').removeClass('active');
+        $('#txtEmailIdAlt').val('').removeClass('invalid').siblings('label').removeClass('active');
+        $('#txtSocietyName').val('').removeClass('invalid').siblings('label').removeClass('active');
+        $('#txtPIN').val('').removeClass('invalid').siblings('label').removeClass('active');
+        $('#SecretaryName').val('').removeClass('invalid').siblings('label').removeClass('active');
+        $('#SecretaryContactNo').val('').removeClass('invalid').siblings('label').removeClass('active');
+
+        $('p.field-validation-error').removeClass('field-validation-error').html('')
+
+        $('#hdnEVCustomerEmail').val('');
+        $('#hdnEVCustomerMobile').val('');
+        $('#hdnEVCustomerCONOBJNO').val('');
+        $('#hdnEVCustomerSAPNAME').val('');
+        $('#hdnEVCustomerSTREET').val('');
+        $('#hdnEVCustomerSTREET2').val('');
+        $('#hdnEVCustomerREGSTRGROUP').val('');
+        $('#hdnEVCustomerRATECAT').val('');
+        $('#hdnEVCustomerFUNC_DESCR').val('');
+        $('#hdnEVCustomerMRU').val('');
+        $('#hdnEVCustomerDESC_CON_OBJECT').val('');
+
+        $('#OTPDIV').hide();
+        $('#EVOTP').val('').removeClass('invalid').siblings('label').removeClass('active');
+
+        $('#EVValidateCAForm').show();
+        $('#EVCustomerDetailsForm').hide();
+    });
+
+
+    $('.EVValidateCAFormProceed').click(function () {
+        var accountNumber = $('#CANumber').val();
+        var CAcheck = new RegExp("^[0-9]{8,10}$");
+        var isValid = true;
+        if (accountNumber.trim() == '') {
+            isValid = false;
+            $('#CANumberError').show().html('Please enter your 9 digit CA number').addClass('field-validation-error');
+            $('#CANumber').addClass('invalid');
+            dataLayer.push({
+                'event': 'ev_connection_form_start_error',
+                'eventCategory': 'AEML',
+                'eventAction': 'ev_connection_form',
+                'eventLabel': 'Sharecharge',
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text(),
+                'error-text': 'Please enter your 9 digit CA number'
+            });
+        } else {
+            if (accountNumber.length < 9 || !CAcheck.test(accountNumber)) {
+                isValid = false;
+                $('#CANumberError').show().html('Please enter valid 9 digit CA Number').addClass('field-validation-error');
+                $('#CANumber').addClass('invalid');
+                dataLayer.push({
+                    'event': 'ev_connection_form_start_error',
+                    'eventCategory': 'AEML',
+                    'eventAction': 'ev_connection_form',
+                    'eventLabel': 'Sharecharge',
+                    'business_user_id': $('#BusinessUserId').val(),
+                    'login_status': $('#login_status').val(),
+                    'ca_number': $('#GACANumber').val(),
+                    'page_type': $('head title').text(),
+                    'error-text': 'Please enter valid 9 digit CA Number'
+                });
+            } else {
+                $('#CANumberError').hide().html('');
+                $('#CANumber').removeClass('invalid');
+            }
+        }
+
+        var evcaptcharesponse = grecaptcha.getResponse(EVValidateCAFormCaptcha);  //changePassWordCaptcha
+        if (!evcaptcharesponse) {
+            $('#EVValidateCAFormCaptchaError').show().html('Please validate captcha to continue').addClass('field-validation-error');
+            isValid = false;
+        }
+        else {
+            $('#EVValidateCAFormCaptchaError').hide().html('');
+
+        }
+        if (!isValid)
+            return isValid;
+        var Model = {};
+
+        if ($('#submitEVCA').val() == "submitEVCA") {
+            Model = {
+                AccountNo: getEncriptedKey(accountNumber),
+                Captcha: evcaptcharesponse
+            }
+            dataLayer.push({
+                'event': 'ev_connection_form_start',
+                'eventCategory': 'AEML',
+                'eventAction': 'ev_connection_form',
+                'eventLabel': 'Sharecharge',
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        } else if ($('#submitEVCA').val() == "validateotp") {
+            Model = {
+                AccountNo: getEncriptedKey(accountNumber),
+                Captcha: evcaptcharesponse,
+                MobileNo: $('#hdnEVCustomerMobile').val(),
+                EVOTP: getEncriptedKey($('#EVOTP').val()),
+
+            }
+            dataLayer.push({
+                'event': 'ev_connection_form_otp_verify',
+                'eventCategory': 'AEML',
+                'eventAction': 'ev_connection_form',
+                'eventLabel': 'Sharecharge',
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+        }
+        if (isValid) {
+            $('#lblEVOTPerror').hide()
+            $('.loader-wrap').show();
+            $.ajax({
+                url: apiSettings + "/ElectricityNew/EVChargingconnection",
+                type: 'POST',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("x-auth-key", $('#evtoken').val())
+                },
+                data: { model: Model, btnName: $('#submitEVCA').val() },
+                success: function (data) {
+                    grecaptcha.reset(EVValidateCAFormCaptcha);
+                    $('.loader-wrap').hide();
+                    if (data.Message == 'success') {
+                        $('#EVValidateCAForm').hide();
+                        $('#EVCustomerDetailsForm').show();
+                        dataLayer.push({
+                            'event': 'ev_connection_form_otp_success',
+                            'eventCategory': 'AEML',
+                            'eventAction': 'ev_connection_form',
+                            'eventLabel': 'Sharecharge',
+                            'business_user_id': $('#BusinessUserId').val(),
+                            'login_status': $('#login_status').val(),
+                            'ca_number': $('#GACANumber').val(),
+                            'page_type': $('head title').text(),
+                            'clicked_text': 'Proceed'
+                        });
+
+                    } else if (data.Message == 'captchainvalid') {
+                        $('#EVValidateCAFormCaptchaError').show().html('Please validate captcha to continue').addClass('field-validation-error');
+                    }
+                    else if (data.Message == 'validateotp') {
+                        $('#submitEVCA').val(data.Message);
+                        $('#CANumber').attr("readonly", "readonly");
+                        $('#CANumber').addClass('ameldisabled');
+                        var hdnEmail = data.EmailId != undefined && data.EmailId != '' ? data.EmailId : '';
+                        var hdnMobile = data.MobileNo != undefined && data.MobileNo != '' ? data.MobileNo : '';
+                        var hdnConObjNo = data.CON_OBJ_NO != undefined && data.CON_OBJ_NO != '' ? data.CON_OBJ_NO : '';
+
+                        $('#hdnEVCustomerEmail').val(hdnEmail);
+                        $('#hdnEVCustomerMobile').val(hdnMobile);
+                        $('#hdnEVCustomerCONOBJNO').val(hdnConObjNo);
+
+                        $('#hdnEVCustomerSAPNAME').val(data.SAPNAME);
+                        $('#hdnEVCustomerSTREET').val(data.STREET);
+                        $('#hdnEVCustomerSTREET2').val(data.STREET2);
+                        $('#hdnEVCustomerREGSTRGROUP').val(data.REGSTRGROUP);
+                        $('#hdnEVCustomerRATECAT').val(data.RATECAT);
+                        $('#hdnEVCustomerFUNC_DESCR').val(data.FUNC_DESCR);
+                        $('#hdnEVCustomerMRU').val(data.MRU);
+                        $('#hdnEVCustomerDESC_CON_OBJECT').val(data.DESC_CON_OBJECT);
+
+
+                        var decryptedEmail = data.EmailId != undefined && data.EmailId != '' ? decrypt(data.EmailId) : '';
+                        var decryptedMobile = data.MobileNo != undefined && data.MobileNo != '' ? decrypt(data.MobileNo) : '';
+
+                        var maskedEmail = decryptedEmail != undefined && decryptedEmail != '' ? decryptedEmail.substring(0, 1) + "xxxxxxxxxxx" + decryptedEmail.substring(decryptedEmail.indexOf('@@')) : '';
+                        var maskedMobile = decryptedMobile != undefined && decryptedMobile != '' ? decryptedMobile.substring(0, 2) + "xxxxxxx" + decryptedMobile.substring(9, 10) : '';
+
+
+                        $('#EmailId').val(maskedEmail);
+                        $('#MobileNo').val(maskedMobile);
+
+                        $('#EVValidateCAForm').show();
+                        //$('#EVCustomerDetailsForm').show();
+                        $("#otpsendtext").text($("#otpsendtext").text().replace("#", maskedMobile));
+                        $('#submitEVCA').val(data.Message);
+                        $('#OTPDIV').show();
+
+                    }
+                    else if (data.Message == 'otpnotmatched') {
+                        $('#lblEVOTPerror').show().html('OTP Does not matched.').addClass('field-validation-error');
+                        dataLayer.push({
+                            'event': 'ev_connection_form_otp_error',
+                            'eventCategory': 'AEML',
+                            'eventAction': 'ev_connection_form',
+                            'eventLabel': 'Sharecharge',
+                            'business_user_id': $('#BusinessUserId').val(),
+                            'login_status': $('#login_status').val(),
+                            'ca_number': $('#GACANumber').val(),
+                            'page_type': $('head title').text(),
+                            'error_type': 'OTP Does not matched'
+                        });
+                    }
+                    else if (data.Message == 'otpfailed') {
+                        $('#lblEVOTPerror').show().html('Failed to Send OTP!').addClass('field-validation-error');
+                        dataLayer.push({
+                            'event': 'ev_connection_form_otp_error',
+                            'eventCategory': 'AEML',
+                            'eventAction': 'ev_connection_form',
+                            'eventLabel': 'Sharecharge',
+                            'business_user_id': $('#BusinessUserId').val(),
+                            'login_status': $('#login_status').val(),
+                            'ca_number': $('#GACANumber').val(),
+                            'page_type': $('head title').text(),
+                            'error_type': 'Failed to Send OTP!'
+                        });
+
+                    }
+                    else if (data.Message == 'captchainvalid') {
+                        $('#EVValidateCAFormCaptchaError').show().html('Please validate captcha to continue').addClass('field-validation-error');
+                    }
+                    else {
+                        $('#CANumberError').show().html(data.Message).addClass('field-validation-error');
+                    }
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log('Error in Operation--' + errorThrown);
+                }
+            });
+        }
+    });
+
+    $(".SendEVDetails").click(function () {
+        //debugger;
+        var mobilenocheck = new RegExp(/^[6-9]\d{9}$/);
+        var Emailregex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        var nameRegex = /^[a-zA-Z ]+$/;
+
+        var setflag = true;
+        if ($('#txtName').val().trim() == "") {
+            setflag = false;
+            $('.help-text.Name-help').html("Full Name is required");
+            $('.help-text.Name-help').attr("class", "help-text Name-help field-validation-error");
+            $('#txtName').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else {
+            if (!nameRegex.test($('#txtName').val())) {
+                setflag = false;
+                $('.help-text.Name-help').html("Please enter a valid Full Name.");
+                $('.help-text.Name-help').attr("class", "help-text Name-help field-validation-error");
+                $('#txtName').removeClass('validate invalid');
+            }
+            else {
+                $('.help-text.Name-help').html("");
+                $('#txtName').removeClass('validate invalid');
+            }
+        }
+
+        if ($('#EmailId').val().trim() == "") {
+            if ($('#txtEmailIdAlt').val().trim() == "") {
+                setflag = false;
+                $('.help-text.EmailIdAlt-help').html("Email is required!");
+                $('.help-text.EmailIdAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+                $('#txtEmailIdAlt').addClass('validate invalid');
+                var errdiv = $('.field-validation-error')[0];
+                $(errdiv).siblings('input').focus();
+            } else {
+                if (!Emailregex.test($('#txtEmailIdAlt').val())) {
+                    setflag = false;
+                    $('.help-text.EmailIdAlt-help').html("Please enter a valid Email .");
+                    $('.help-text.EmailIdAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+                    $('#txtEmailIdAlt').addClass('validate invalid');
+                    var errdiv = $('.field-validation-error')[0];
+                    $(errdiv).siblings('input').focus();
+                }
+                else {
+                    $('.help-text.EmailIdAlt-help').html("");
+                    $('#txtEmailIdAlt').removeClass('validate invalid');
+                }
+            }
+        } else {
+            if ($('#txtEmailIdAlt').val().trim() != "") {
+                if (!Emailregex.test($('#txtEmailIdAlt').val())) {
+                    setflag = false;
+                    $('.help-text.EmailIdAlt-help').html("Please enter a valid Email.");
+                    $('.help-text.EmailIdAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+                    $('#txtEmailIdAlt').addClass('validate invalid');
+                    var errdiv = $('.field-validation-error')[0];
+                    $(errdiv).siblings('input').focus();
+                } else {
+                    $('.help-text.EmailIdAlt-help').html("");
+                    $('#txtEmailIdAlt').removeClass('validate invalid');
+                }
+            } else {
+                $('.help-text.EmailIdAlt-help').html("");
+                $('#txtEmailIdAlt').removeClass('validate invalid');
+            }
+        }
+
+        if ($('#MobileNoAlt').val().trim() == "") {
+            setflag = false;
+            $('.help-text.MobileNoAlt-help').html("Mobile no is required");
+            $('.help-text.MobileNoAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+            $('#MobileNoAlt').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        } else {
+            if ($('#MobileNoAlt').val().trim() != "") {
+                if (!mobilenocheck.test($('#MobileNoAlt').val())) {
+                    setflag = false;
+                    $('.help-text.MobileNoAlt-help').html("Please enter a valid Mobile No.");
+                    $('.help-text.MobileNoAlt-help').attr("class", "help-text MobileNoAlt-help field-validation-error");
+                    $('#MobileNoAlt').addClass('validate invalid');
+                    var errdiv = $('.field-validation-error')[0];
+                    $(errdiv).siblings('input').focus();
+                } else {
+                    $('.help-text.MobileNoAlt-help').html("");
+                    $('#MobileNoAlt').removeClass('validate invalid');
+                }
+            }
+        }
+
+        if ($('#txtSocietyName').val().trim() == "") {
+            setflag = false;
+            $('.help-text.SocietyName-help').html("Society Name and Address is required");
+            $('.help-text.SocietyName-help').attr("class", "help-text SocietyName-help field-validation-error");
+            $('#txtSocietyName').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else {
+            $('.help-text.SocietyName-help').html("");
+            $('#txtSocietyName').removeClass('validate invalid');
+        }
+
+        var zip = $('#txtPIN').val().trim();
+        var reg = /^[4][0-9]{5}$/;
+
+        if (zip == '') {
+            setflag = false;
+            $('.help-text.PinCode-help').html("Pin Code is required");
+            $('.help-text.PinCode-help').attr("class", "help-text PinCode-help field-validation-error");
+            $('#txtPIN').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else if (!reg.test(zip)) {
+            setflag = false;
+            $('.help-text.PinCode-help').html("Please enter valid Pin Code");
+            $('.help-text.PinCode-help').attr("class", "help-text PinCode-help field-validation-error");
+            $('#txtPIN').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else {
+            $('.help-text.PinCode-help').html("");
+            $('#txtPIN').removeClass('validate invalid');
+        }
+
+        if ($('#SecretaryContactNo').val().trim() != "") {
+            if (!mobilenocheck.test($('#SecretaryContactNo').val())) {
+                setflag = false;
+                $('.help-text.SecretaryNo-help').html("Please enter a valid Society Official Contact Number.");
+                $('.help-text.SecretaryNo-help').attr("class", "help-text SecretaryNo-help field-validation-error");
+                $('#SecretaryContactNo').addClass('validate invalid');
+                var errdiv = $('.field-validation-error')[0];
+                $(errdiv).siblings('input').focus();
+            }
+            else {
+                $('.help-text.SecretaryNo-help').html("");
+                $('#SecretaryContactNo').removeClass('validate invalid');
+            }
+        }
+        else {
+            $('.help-text.SecretaryNo-help').html("");
+            $('#SecretaryContactNo').removeClass('validate invalid');
+        }
+
+        if ($('#SecretaryName').val().trim() != "") {
+            if (!nameRegex.test($('#SecretaryName').val())) {
+                setflag = false;
+                $('.help-text.SecretaryName-help').html("Please enter a valid Society Official Name.");
+                $('.help-text.SecretaryName-help').attr("class", "help-text SecretaryName-help field-validation-error");
+                $('#SecretaryName').addClass('validate invalid');
+                var errdiv = $('.field-validation-error')[0];
+                $(errdiv).siblings('input').focus();
+            }
+        }
+        else {
+            $('.help-text.SecretaryName-help').html("");
+            $('#SecretaryName').removeClass('validate invalid');
+        }
+
+        if (!setflag) {
+            $($('#evchargingrequest')).scrollTop($('p.field-validation-error').offset().top - 200);
+            dataLayer.push({
+                'event': 'ev_connection_form_fail',
+                'eventCategory': 'AEML',
+                'eventAction': 'ev_connection_form_error',
+                'eventLabel': $($('#evchargingrequest')).click($('p.field-validation-error')).val(),
+                'business_user_id': $('#BusinessUserId').val(),
+                'login_status': $('#login_status').val(),
+                'ca_number': $('#GACANumber').val(),
+                'page_type': $('head title').text()
+            });
+            return setflag;
+        }
+
+
+        var evModel = {
+            AccountNo: getEncriptedKey($('#CANumber').val()),
+            FullName: getEncriptedKey($('#txtName').val()),
+            MobileNoAlt: getEncriptedKey($('#MobileNoAlt').val()),
+            EmailIdAlt: getEncriptedKey($('#txtEmailIdAlt').val()),
+            SocietyName: getEncriptedKey($('#txtSocietyName').val()),
+            PinCode: getEncriptedKey($('#txtPIN').val()),
+            SecretaryName: getEncriptedKey($('#SecretaryName').val()),
+            SecretaryContactNo: getEncriptedKey($('#SecretaryContactNo').val()),
+            ParkingArea: getEncriptedKey($('input[name="ParkingArea"]:checked').val()),
+            SocietyMemberEV: getEncriptedKey($('input[name="SocietyMemberEV"]:checked').val()),
+            EmailId: $('#hdnEVCustomerEmail').val(),
+            MobileNo: $('#hdnEVCustomerMobile').val(),
+            CON_OBJ_NO: $('#hdnEVCustomerCONOBJNO').val(),
+            SAPNAME: $('#hdnEVCustomerSAPNAME').val(),
+            STREET: $('#hdnEVCustomerSTREET').val(),
+            STREET2: $('#hdnEVCustomerSTREET2').val(),
+            REGSTRGROUP: $('#hdnEVCustomerREGSTRGROUP').val(),
+            RATECAT: $('#hdnEVCustomerRATECAT').val(),
+            FUNC_DESCR: $('#hdnEVCustomerFUNC_DESCR').val(),
+            MRU: $('#hdnEVCustomerMRU').val(),
+            DESC_CON_OBJECT: $('#hdnEVCustomerDESC_CON_OBJECT').val()
+        }
+
+        if (setflag) {
+            $('.loader-wrap').show();
+            $.ajax({
+                url: apiSettings + "/ElectricityNew/EVChargingConnectionRequest",
+                type: 'POST',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("x-auth-key", $('#evtoken').val())
+                },
+                data: { model: evModel },
+                success: function (data) {
+                    if (data.Message == 'success') {
+                        location.reload();
+                        $('.loader-wrap').show();
+                        dataLayer.push({
+                            'event': 'ev_connection_form_send',
+                            'eventCategory': 'AEML',
+                            'eventAction': 'ev_connection_form_send',
+                            'eventLabel': $('#txtSocietyName').val(),
+                            'business_user_id': $('#BusinessUserId').val(),
+                            'login_status': $('#login_status').val(),
+                            'ca_number': $('#GACANumber').val(),
+                            'page_type': $('head title').text()
+                        });
+                    } else if (data.Message == 'alreadyexist') {
+                        location.reload();
+                        $('.loader-wrap').show();
+                    } else if (data.Message == 'infomismatch') {
+                        location.reload();
+                        $('.loader-wrap').show();
+                    } else if (data.Message == 'exception occured') {
+                        location.reload();
+                        $('.loader-wrap').show();
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+
+                    console.log('Error in Operation--' + errorThrown);
+                }
+            });
+        }
+    })
+
+</script>

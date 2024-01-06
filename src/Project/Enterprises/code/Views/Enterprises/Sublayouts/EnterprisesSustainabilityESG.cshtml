@@ -1,0 +1,60 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var paramid = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters.Where(x => x.Key == "cssclass").FirstOrDefault().Value;
+    if (string.IsNullOrEmpty(paramid))
+    {
+        paramid = "bg-white pt-5 position-relative z-index pb-5";
+    }
+    Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["BackgroundImg"]);
+    var imgurl = ImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+    MultilistField Select = element.Fields["Cards"];
+    var selectitem = Select.GetItems();
+}
+
+<section class="@paramid Bg-ESG">
+    <div class="container">
+        <h1 class="ESG-text">@Html.Sitecore().Field("Title", element)</h1>
+        <div class="E-bg-image" style="background-image: url(@imgurl);">
+            <div class="row">
+                @foreach (var item in selectitem)
+                {
+                    Sitecore.Data.Fields.ImageField BackgroundImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BackgroundImage"]);
+                    var bckgrundimgurl = BackgroundImageField.MediaItem == null ? "" : Sitecore.Resources.Media.MediaManager.GetMediaUrl(BackgroundImageField.MediaItem);
+                    MultilistField bulletPoints = item.Fields["BulletPoints"];
+                    var selectedBullets = bulletPoints.GetItems();
+                    var text = @Html.Sitecore().Field("Text", item);
+                    <div class="col-lg-4 mb-5">
+                        <div class="ESG-head-@text">
+                            <div class="E-text">
+                                <p class="ESG-E">@text</p>
+                                <p class="text-h-@text">@Html.Sitecore().Field("Title", item)</p>
+                            </div>
+                            <div class="E-img">
+                                <img class="bg-img-E" src="@bckgrundimgurl"
+                                     alt="Third slide">
+                            </div>
+                            <div class="ESG-middel">
+                                <ul class="list-E">
+                                    @foreach (var bullet in selectedBullets) {
+                                    <li>
+                                        <i class="fa fa-caret-right" aria-hidden="true"></i>
+                                        @Html.Sitecore().Field("Text", bullet)
+                                    </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

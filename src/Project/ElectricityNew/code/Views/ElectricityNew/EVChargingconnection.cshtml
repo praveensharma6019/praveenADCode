@@ -1,0 +1,453 @@
+﻿@using Sitecore.Mvc.Configuration
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Feature.Accounts.SessionHelper
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Feature.Accounts.Models.EVChargingconnectionModel
+
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+}
+<div class="dashboard">
+    <div class="modal-wrapper modal-dashboard">
+        <div id="evchargingrequest" class="sidenav sidenav-right">
+            <div class="modal-content-inner" id="EVFORM">
+                <a class="modal-close sidenav-close"><i class="i-cross hide-notification"></i></a>
+                <header>
+                    <h1>Get a EV Charging Connection </h1>
+                    <p>Enter your details to proceed</p>
+                </header>
+
+                <div class="electricity-charges-details">
+                    <div class="form-field" id="validateevcaform">
+                        <div class="input-field custom">
+                            <input id="CANumber" class="form-control reset-control" required="required" autocomplete="off" type="number" maxlength="9" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                            <label class="active" for="AccountNo">@Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/CANumber", "CA Number")</label>
+                            <p id="showerrormsg" style="display:none"></p>
+                            <footer id="showCAmsg">@Html.Sitecore().Dictionary("/Accounts/My Account/Meter Reading/ConsumerAccountnumberHelpText", "Please enter your 9 digit Consumer Account number")</footer>
+                        </div>
+
+                        <div class="section-spacer-medium">
+                            <div class="hero-captcha-box">
+                                <div id="recaptcha"></div>
+                                <span class="field-validation-error" id="Captchaerror"></span>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="waves-effect waves-light btn btn-continue evproceed" href="javascript:void(0)" onclick="ShowEVDetails()" id="submitCA" name="SendCA" value="SendCA">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnection/BtnName", "Proceed")</button>
+                        </div>
+                    </div>
+                    <div class="card card-with-form" id="EVFORMCHARGE" style="display:none">
+
+                        <input type="hidden" id="EmptyEmail" value="@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/Validation/Email", "Email is required")" />
+                        <input type="hidden" id="InValidEmail" value="@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/Validation/InValidEmail", "Please enter valid Email")" />
+                        <input type="hidden" id="EmptyMobileNumber" value="@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/Validation/MobileNumber", "Mobile Number is required")" />
+                        <input type="hidden" id="InValidMobileNumber" value="@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/Validation/InValidMobileNumber", "Please enter valid Mobile Number")" />
+
+
+                        <div class="form-field">
+                            <div class="row">
+                                <div class="input-field custom col s12 m6">
+                                    <input autocomplete="off" class="form-control reset-control" disabled="disabled" id="EmailId" type="text" value="" readonly="readonly">
+                                    <label for="">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/EmailId", "Registered Email ID")</label>
+                                    <p class="help-text EmailId-help"></p>
+                                </div>
+                                <div class="input-field custom col s12 m6">
+                                    <input autocomplete="off" class="form-control reset-control" disabled="disabled" id="MobileNo" type="text" value="" readonly="readonly">
+                                    <label for="">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/MobileNo", "Registered Mobile Number")</label>
+                                    <p class="help-text MobileNo-help"></p>
+                                </div>
+                                <div class="input-field custom col s12 m6">
+                                    <input id="txtName" class="form-control reset-control" maxlength="50" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                    <label for="">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/FullName", "Full Name")</label>
+                                    <p class="field-validation-error" style="display:none">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnection/FullName", "Full Name")</p>
+                                    <p class="help-text Name-help"></p>
+                                </div>
+                                @*Alternate Mobile*@
+                                <div class="input-field custom col s12 m6">
+                                    <input id="MobileNoAlt" class="form-control reset-control" maxlength="10" type="number" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                    <label for="">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/MobileNoAlt", "Mobile Number")</label>
+                                    <p class="field-validation-error" style="display:none">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnection/MobileNoAlt", "Mobile Number")</p>
+                                    <p class="help-text MobileNoAlt-help"></p>
+                                </div>
+                            </div>
+                            @*Alternate Email*@
+                            <div class="input-field custom">
+                                <input id="txtEmailIdAlt" class="form-control reset-control" autocomplete="off" />
+                                <label for="">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/EmailIdAlt", "Email ID")</label>
+                                <p class="field-validation-error" style="display:none">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnection/EmailIdAlt", "Email")</p>
+                                <p class="help-text EmailIdAlt-help"></p>
+                            </div>
+                            <div class="row">
+                                <div class="input-field custom col s12 m6">
+                                    <input id="txtSocietyName" class="form-control reset-control" maxlength="100" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                    <label for="">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/SocietyName", "Society Name and Address")</label>
+                                    <p class="help-text SocietyName-help"></p>
+                                </div>
+                                <div class="input-field custom col s12 m6">
+                                    <input id="txtPIN" class="form-control reset-control" maxlength="6" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                    <label for="">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/PINCode", "PIN Code")</label>
+                                    <p class="help-text PinCode-help"></p>
+                                </div>
+                                <div class="input-field custom col s12 m6">
+                                    <input id="SecretaryName" class="form-control reset-control" maxlength="100" autocomplete="off" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                    <label for="SecretaryName">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/SecretaryName", "Secretary Name")</label>
+                                    <p class="help-text SecretaryName-help"></p>
+                                </div>
+                                <div class="input-field custom col s12 m6">
+                                    <input id="SecretaryContactNo" class="form-control reset-control" maxlength="10" autocomplete="off" type="number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />
+                                    <label for="SecretaryContactNo">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/SecretaryNo", "Secretary's Contact Number")</label>
+                                    <p class="help-text SecretaryNo-help"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <h6>Does your society have a common parking area?</h6>
+                            <div class="field-group">
+                                <div class="radio-field">
+                                    <label>
+                                        @Html.RadioButtonFor(model => model.ParkingArea, "Yes", new { @class = "with-gap", id = "ParkingAreaYes", required = "required" })
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="radio-field">
+                                    <label>
+                                        @Html.RadioButtonFor(model => model.ParkingArea, "No", new { @class = "with-gap", id = "ParkingAreaNo" })
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                                <div class="radio-field">
+                                    <label>
+                                        @Html.RadioButtonFor(model => model.ParkingArea, "Can be provided", new { @class = "with-gap", id = "ParkingAreaProvide" })
+                                        <span>Can be provided</span>
+                                    </label>
+                                </div>
+                                <div class="radio-field">
+                                    <label>
+                                        @Html.RadioButtonFor(model => model.ParkingArea, "Dont know", new { @class = "with-gap", id = "ParkingAreaDoubt", @checked = "checked" })
+                                        <span>Don’t know</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <h6>Do any of your society members own EVs or are considering to buy it?</h6>
+                            <div class="field-group">
+                                <div class="radio-field">
+                                    <label>
+                                        @Html.RadioButtonFor(model => model.SocietyMemberEV, "Yes", new { @class = "with-gap", id = "SocietyMemberEVYes", required = "required", @checked = "checked" })
+                                        <span>Yes</span>
+                                    </label>
+                                </div>
+                                <div class="radio-field">
+                                    <label>
+                                        @Html.RadioButtonFor(model => model.SocietyMemberEV, "No", new { @class = "with-gap", id = "SocietyMemberEVNo" })
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                                <div class="radio-field">
+                                    <label>
+                                        @Html.RadioButtonFor(model => model.SocietyMemberEV, "Dont know", new { @class = "with-gap", id = "SocietyMemberEVDoubt", @checked = "checked" })
+                                        <span>Don’t know</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="waves-effect waves-light btn-flat" type="button" onclick="history.go(-1);" value="Back">Back</button>
+                            <button type="submit" class="waves-effect waves-light btn SendEVDetails">@Html.Sitecore().Dictionary("/Accounts/My Account/EVChargingConnectionRequest/Send", "Send")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#EVFORM")[0].scrollIntoView(true);
+    });
+
+    $(".SendEVDetails").click(function () {
+        //debugger;
+        var mobilenocheck = new RegExp(/^[6-9]\d{9}$/);
+        var Emailregex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        var nameRegex = /^[a-zA-Z ]+$/;
+
+        var setflag = true;
+        if ($('#txtName').val().trim() == "") {
+            setflag = false;
+            $('.help-text.Name-help').html("Full Name is required");
+            $('.help-text.Name-help').attr("class", "help-text Name-help field-validation-error");
+            $('#txtName').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else {
+            if (!nameRegex.test($('#txtName').val())) {
+                setflag = false;
+                $('.help-text.Name-help').html("Please enter a valid Full Name.");
+                $('.help-text.Name-help').attr("class", "help-text Name-help field-validation-error");
+                $('#txtName').removeClass('validate invalid');
+            }
+            else {
+                $('.help-text.Name-help').html("");
+                $('#txtName').removeClass('validate invalid');
+            }
+        }
+
+        if ($('#EmailId').val().trim() == "") {
+            if ($('#txtEmailIdAlt').val().trim() == "") {
+                setflag = false;
+                $('.help-text.EmailIdAlt-help').html("Email is required!");
+                $('.help-text.EmailIdAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+                $('#txtEmailIdAlt').addClass('validate invalid');
+                var errdiv = $('.field-validation-error')[0];
+                $(errdiv).siblings('input').focus();
+            } else {
+                if (!Emailregex.test($('#txtEmailIdAlt').val())) {
+                    setflag = false;
+                    $('.help-text.EmailIdAlt-help').html("Please enter a valid Email .");
+                    $('.help-text.EmailIdAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+                    $('#txtEmailIdAlt').addClass('validate invalid');
+                    var errdiv = $('.field-validation-error')[0];
+                    $(errdiv).siblings('input').focus();
+                }
+                else {
+                    $('.help-text.EmailIdAlt-help').html("");
+                    $('#txtEmailIdAlt').removeClass('validate invalid');
+                }
+            }
+        } else {
+            if ($('#txtEmailIdAlt').val().trim() != "") {
+                if (!Emailregex.test($('#txtEmailIdAlt').val())) {
+                    setflag = false;
+                    $('.help-text.EmailIdAlt-help').html("Please enter a valid Email.");
+                    $('.help-text.EmailIdAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+                    $('#txtEmailIdAlt').addClass('validate invalid');
+                    var errdiv = $('.field-validation-error')[0];
+                    $(errdiv).siblings('input').focus();
+                } else {
+                    $('.help-text.EmailIdAlt-help').html("");
+                    $('#txtEmailIdAlt').removeClass('validate invalid');
+                }
+            } else {
+                $('.help-text.EmailIdAlt-help').html("");
+                $('#txtEmailIdAlt').removeClass('validate invalid');
+            }
+        }
+
+        if ($('#MobileNo').val().trim() == "") {
+            if ($('#MobileNoAlt').val().trim() == "") {
+                setflag = false;
+                $('.help-text.MobileNoAlt-help').html("Mobile no is required!");
+                $('.help-text.MobileNoAlt-help').attr("class", "help-text EmailIdAlt-help field-validation-error");
+                $('#MobileNoAlt').addClass('validate invalid');
+                var errdiv = $('.field-validation-error')[0];
+                $(errdiv).siblings('input').focus();
+            } else {
+                if ($('#MobileNoAlt').val().trim() != "") {
+                    if (!mobilenocheck.test($('#MobileNoAlt').val())) {
+                        setflag = false;
+                        $('.help-text.MobileNoAlt-help').html("Please enter a valid Mobile No.");
+                        $('.help-text.MobileNoAlt-help').attr("class", "help-text MobileNoAlt-help field-validation-error");
+                        $('#MobileNoAlt').addClass('validate invalid');
+                        var errdiv = $('.field-validation-error')[0];
+                        $(errdiv).siblings('input').focus();
+                    } else {
+                        $('.help-text.MobileNoAlt-help').html("");
+                        $('#MobileNoAlt').removeClass('validate invalid');
+                    }
+                }
+            }
+        } else {
+            if ($('#MobileNoAlt').val().trim() != "") {
+                if (!mobilenocheck.test($('#MobileNoAlt').val())) {
+                    setflag = false;
+                    $('.help-text.MobileNoAlt-help').html("Please enter a valid Mobile No.");
+                    $('.help-text.MobileNoAlt-help').attr("class", "help-text MobileNoAlt-help field-validation-error");
+                    $('#MobileNoAlt').addClass('validate invalid');
+                } else {
+                    $('.help-text.MobileNoAlt-help').html("");
+                    $('#MobileNoAlt').removeClass('validate invalid');
+                }
+            } else {
+                $('.help-text.MobileNoAlt-help').html("");
+                $('#MobileNoAlt').removeClass('validate invalid');
+            }
+        }
+
+
+        if ($('#txtSocietyName').val().trim() == "") {
+            setflag = false;
+            $('.help-text.SocietyName-help').html("Society Name and Address is required");
+            $('.help-text.SocietyName-help').attr("class", "help-text SocietyName-help field-validation-error");
+            $('#txtSocietyName').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else {
+            $('.help-text.SocietyName-help').html("");
+            $('#txtSocietyName').removeClass('validate invalid');
+        }
+
+        var zip = $('#txtPIN').val().trim();
+        var reg = /^[4][0-9]{5}$/;
+
+        if (zip == '') {
+            setflag = false;
+            $('.help-text.PinCode-help').html("Pin Code is required");
+            $('.help-text.PinCode-help').attr("class", "help-text PinCode-help field-validation-error");
+            $('#txtPIN').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else if (!reg.test(zip)) {
+            setflag = false;
+            $('.help-text.PinCode-help').html("Please enter valid Pin Code");
+            $('.help-text.PinCode-help').attr("class", "help-text PinCode-help field-validation-error");
+            $('#txtPIN').addClass('validate invalid');
+            var errdiv = $('.field-validation-error')[0];
+            $(errdiv).siblings('input').focus();
+        }
+        else {
+            $('.help-text.PinCode-help').html("");
+            $('#txtPIN').removeClass('validate invalid');
+        }
+
+        if ($('#SecretaryContactNo').val().trim() != "") {
+            if (!mobilenocheck.test($('#SecretaryContactNo').val())) {
+                setflag = false;
+                $('.help-text.SecretaryNo-help').html("Please enter a valid Mobile No.");
+                $('.help-text.SecretaryNo-help').attr("class", "help-text SecretaryNo-help field-validation-error");
+                $('#SecretaryContactNo').addClass('validate invalid');
+                var errdiv = $('.field-validation-error')[0];
+                $(errdiv).siblings('input').focus();
+            }
+            else {
+                $('.help-text.SecretaryNo-help').html("");
+                $('#SecretaryContactNo').removeClass('validate invalid');
+            }
+        }
+        else {
+            $('.help-text.SecretaryNo-help').html("");
+            $('#SecretaryContactNo').removeClass('validate invalid');
+        }
+
+        if ($('#SecretaryName').val().trim() != "") {
+            if (!nameRegex.test($('#SecretaryName').val())) {
+                setflag = false;
+                $('.help-text.SecretaryName-help').html("Please enter a valid Secretary Name.");
+                $('.help-text.SecretaryName-help').attr("class", "help-text SecretaryName-help field-validation-error");
+                $('#SecretaryName').addClass('validate invalid');
+                var errdiv = $('.field-validation-error')[0];
+                $(errdiv).siblings('input').focus();
+            }
+        }
+        else {
+            $('.help-text.SecretaryName-help').html("");
+            $('#SecretaryName').removeClass('validate invalid');
+        }
+
+        return setflag;
+    })
+
+</script>
+<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit&hl=@Sitecore.Context.Language.CultureInfo.TwoLetterISOLanguageName" async defer></script>
+
+<script type="text/javascript">
+    var recaptcha;
+    var onloadCallback = function () {
+        recaptcha = grecaptcha.render('recaptcha', {
+            'sitekey': '6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf',
+            'theme': 'light'
+        });
+    };
+
+
+    $("#submitCA").click(function () {
+        //debugger;
+        var caNumber = $('#EVFORM #CANumber').val();
+        var CAcheck = new RegExp("^[0-9]{8,10}$");
+        var checkvalidation = true;
+        var response = grecaptcha.getResponse(recaptcha);
+        if (caNumber != '' && $('#EVFORM #CANumber').val().length == 9) {
+            if (!CAcheck.test(caNumber)) {
+                // e.preventDefault();
+                $('#showerrormsg').html("Enter valid contract account number.").show();
+                $('#showerrormsg').addClass('field-validation-error validate invalid');
+                $('#EVFORM #CANumber').addClass('validate invalid');
+                checkvalidation = false;
+                // $('#showCAmsg')[0].scrollIntoView(true);
+            }
+            else {
+                $('#showerrormsg').html("").hide();
+                $('#showerrormsg').removeClass('field-validation-error validate invalid');
+                $('#EVFORM #CANumber').removeClass('validate invalid');
+                $("#Captchaerror").html("");
+            }
+            if (response.length == 0) {
+                event.preventDefault();
+                $("#Captchaerror").html("Please validate captcha to continue");
+                checkvalidation = false;
+            }
+            else {
+                $("#Captchaerror").html("");
+            }
+
+        }
+        else {
+            //  e.preventDefault();
+            $('#showerrormsg').html("Enter valid contract account number.").show();
+            $('#showerrormsg').addClass('field-validation-error validate invalid');
+            $('#EVFORM #CANumber').addClass('validate invalid');
+            checkvalidation = false;
+            // $('#showCAmsg')[0].scrollIntoView(true);
+            if (response.length == 0) {
+                event.preventDefault();
+                $("#Captchaerror").html("Please validate captcha to continue");
+                checkvalidation = false;
+            }
+            else {
+                $("#Captchaerror").html("");
+            }
+
+        }
+        if (checkvalidation)
+            return true;
+        else
+            return false;
+
+    });
+
+    //function ShowEVDetails() {
+    //    var BeforeLoadingText = $('.evproceed').html();
+    //    $('.evproceed').html(`<span class="custom-loader-dots-box button-loader">
+    //                            <span class="custom-loader-dot custom-loader-dot-1"></span>
+    //                            <span class="custom-loader-dot custom-loader-dot-2"></span>
+    //                            <span class="custom-loader-dot custom-loader-dot-3"></span>
+    //                          </span>`);
+    //    var accountNumber = $('#AccountNo').val().trim();
+    //    if (accountNumber != '' && accountNumber.length == 9) {
+    //        $.ajax({
+    //            url: apiSettings + "/AccountsRevamp/EVChargingConnectionRequest",
+    //            type: 'GET',
+    //            data: { AccountNumber: getEncriptedKey(accountNumber) },
+    //            dataType: 'JSON',
+    //            success: function (data) {
+    //                $('.evproceed').html(BeforeLoadingText);
+    //                $('.evproceed').attr("disabled", "disabled");
+    //                $('#EVFORM').show();
+    //            }
+    //        })
+    //    }
+    //}
+
+    function ShowEVDetails() {
+        $('#validateevcaform').hide();
+        $('#EVFORMCHARGE').show();
+    }
+</script>
+

@@ -1,0 +1,46 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var contextItem = Sitecore.Context.Item;
+}
+
+<section class="py-5">
+    <div class="container BOD">
+        @if (!String.IsNullOrEmpty(Html.Sitecore().Field("Heading", contextItem).ToString()))
+        {
+            <h2 class="heading">@Html.Sitecore().Field("Heading", contextItem)</h2>
+        }
+        @Html.Sitecore().Field("Description", contextItem)
+        <div class="row">
+            @foreach (Item item in contextItem.GetChildren())
+            {
+                string linkUr = Sitecore.Links.LinkManager.GetItemUrl(item);
+                <div class="col-lg-3 col-md-4 col-sm-6 px-2 py-4 directors-tile zoomin">
+                    <a href="@linkUr">
+                        <div class="card">
+                            @if (String.IsNullOrEmpty(Html.Sitecore().ImageField("MainImage", item).ToString()))
+                            {
+                                <div class="b-o-director"><img src="/Images/Foundation/blank.png" class="card-img-top img-fluid"/></div>
+                            }
+                            else
+                            {
+                                <div class="b-o-director">@Html.Sitecore().ImageField("MainImage", item, 0, 0, "card-img-top img-fluid")</div>
+                            }
+                            <div class="card-body">
+                                <h4 class="card-title">@Html.Sitecore().Field("Title", item)</h4>
+                                <p class="card-text">@Html.Sitecore().Field("Designation", item)</p>
+                            </div>
+
+                        </div>
+                    </a>
+                </div>
+            }
+
+        </div>
+
+    </div>
+</section>

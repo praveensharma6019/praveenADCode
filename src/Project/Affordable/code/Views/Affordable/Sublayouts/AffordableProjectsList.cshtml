@@ -1,0 +1,110 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Affordable.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    /**/
+
+    var models = Sitecore.Context.Item;
+    var childItems = models.Axes.GetDescendants().Where(x => x.TemplateID == Templates.ProjectProperty.ID);
+}
+@if (models != null)
+{
+    <section class="bg-white py-5">
+        <div class="container">
+            <div class="py-3 txt-center">
+                <h3 class="text-center sectionHeading">@Html.Sitecore().Field(Templates._HasPageContent.Fields.Title, models)</h3>
+                <p class="txt-sm">@Html.Sitecore().Field(Templates._HasPageContent.Fields.Body, models)</p>
+            </div>
+        </div>
+    </section>
+}
+@if (childItems != null)
+{
+
+    int i = 1;
+
+
+
+    <section class="property bg-white">
+
+        @foreach (var item in childItems)
+        {
+            var URLLink = string.Empty;
+            var target = string.Empty;
+
+            URLLink = Sitecore.Links.LinkManager.GetItemUrl(item);
+
+            // target = item.Fields[Templates.Navigable.Fields.ShowInNewTab].IsChecked() ? "_blank" : "";
+            // if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+            //  {
+            //      URLLink = item.LinkFieldUrl(Templates.Navigable.Fields.Link).ToString();
+            //  }
+            //  else
+            //  {
+            //      URLLink = item.Url();
+            //  }
+            if (i % 2 == 0)
+            {
+                <div class="container">
+                    <p class="py-3 overlay-p"></p>
+                    <div class="row bg-gray">
+                        <div class="col-lg-6 pt-4 pb-4 pl-4">
+                            @Html.Sitecore().Field(Templates.ProjectProperty.Fields.Logo, item, new { @class = "img-fluid mb-4" })
+                            <p class="txt-sm txt-left pl-1">
+                                @Html.Sitecore().Field(Templates._HasPageContent.Fields.Summary, item)
+                            </p>
+
+                            <p class="txt-left pt-2">
+                                <a href="@URLLink" target="@target" class="btn btn-primary">View more</a>
+                            </p>
+                        </div>
+                        <div class="col-lg-6 p-0 txt-right commercialtile">
+                            <div>
+                                <i> @Html.Sitecore().Field(Templates.ProjectProperty.Fields.SiteStatus, item)</i>
+                                @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid fluid-img" })
+                            </div>
+                        </div>
+                    </div>
+                    <p class="py-3 overlay-p"></p>
+                </div>
+            }
+            else
+            {
+
+                <div class="container">
+                    <p class="py-3 overlay-p"></p>
+                    <div class="row bg-gray">
+                        <div class="col-lg-6 p-0 txt-right commercialtile-2">
+                            <div>
+                                <i> @Html.Sitecore().Field(Templates.ProjectProperty.Fields.SiteStatus, item)</i>
+                                @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid fluid-img" })
+                            </div>
+                        </div>
+                        <div class="col-lg-6 pt-4 pb-4 pr-4">
+
+                            @Html.Sitecore().Field(Templates.ProjectProperty.Fields.Logo, item, new { @class = "img-fluid mb-4" })
+                            <p class="txt-sm txt-left pl-1 mb-4">
+                                @Html.Sitecore().Field(Templates._HasPageContent.Fields.Summary, item)
+                            </p>
+
+                            <p class="txt-left pt-2">
+                                <a href="@URLLink" target="@target" class="btn btn-primary">View more</a>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+            }
+
+            i++;
+
+        }
+
+    </section>
+
+  
+
+}
+

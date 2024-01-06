@@ -1,0 +1,92 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model RenderingModel
+@{
+
+
+    var models = Sitecore.Context.Database.Items.GetItem("{91D3AA6F-B498-460C-BA3C-8BA61723C765}");
+
+}
+
+
+
+<header class="headerbar">
+    <amp-sidebar id='header-sidebar' side='left' layout='nodisplay'>
+        <nav>
+            <div class="controls" [class]="hidePrimary ? 'controls hide-parent' : 'controls'" aria-label="Menu controls">
+                <span class="truncate"></span>
+                <a tabindex="0" role="button" on='tap:header-sidebar.toggle' aria-label="Close Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z" />
+                    </svg>
+                </a>
+            </div>
+            <div class="navbar-collapse collapse show" id="mainMenu" style="">
+
+                <ul class="navbar-nav mx-auto primaryMenu">
+                    @if (models != null)
+                    {
+                        if (models.GetChildren() != null)
+                        {
+                            foreach (Item item in models.GetChildren())
+                            {
+                                Sitecore.Data.Fields.LinkField itemslinkvalues = item.Fields["Link"];
+                                var itemslinks = itemslinkvalues.GetFriendlyUrl();
+
+                                if (item.HasChildren)
+                                {
+
+                                    <li class="nav-item dropdown">
+
+                                        <a class="nav-link" href="@itemslinks">
+                                        @item.Fields["NavigationTitle"]</a>
+
+                                        <span class="fa fa-angle-down"></span>
+                                        <div class="dropdown-menu megamenu">
+                                            <ul>
+                                                @foreach (Item items in item.GetChildren())
+                                                {
+                                                    Sitecore.Data.Fields.LinkField itemslinkvalue = items.Fields["Link"];
+                                                    var itemslink = itemslinkvalue.GetFriendlyUrl();
+                                                    if (itemslink != null)
+                                                    {
+                                                        <li class="dropdown-item"><a class="dropdown-item" href="@itemslink">@items.Fields["NavigationTitle"]</a></li>
+
+
+                                                    }
+                                                }
+                                            </ul>
+                                        </div>
+
+
+                                    </li>
+                                }
+
+                            
+
+
+
+                                            else
+                                            {
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="@itemslinks">@item.Fields["NavigationTitle"]</a>
+
+                                    </li>
+                                }
+                            }
+                        }
+                    }
+
+                            </ul>
+                        
+                    
+
+                </div>
+
+            </nav>
+        </amp-sidebar>
+        @Html.Sitecore().Rendering("{C87A57DD-F955-42D6-B7A4-1AE729E997CB}")
+    </header>

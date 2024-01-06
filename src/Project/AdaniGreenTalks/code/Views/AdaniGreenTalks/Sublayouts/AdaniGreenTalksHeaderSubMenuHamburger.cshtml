@@ -1,0 +1,104 @@
+﻿@using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+@using Sitecore.Foundation.Assets
+@using Sitecore.Foundation.Assets.Models
+@using Sitecore.Foundation.Assets.Services
+@using Sitecore.ExperienceForms.Mvc.Html
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Mvc
+@using System.Linq;
+@using Sitecore.AdaniGreenTalks.Website;
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    Item model = Sitecore.Context.Database.GetItem(datasource);
+    string linkurl = "#";
+    string ImageItemUrl = "";
+    string altText = "";
+}
+
+<div class="hamburger_section single_item">
+    <ul>
+        <li>
+            <a class="sub-menu-btn">
+                <span class="icon_box"><i class="i-businesses"></i></span>
+                <label>@Html.Sitecore().Field(Constant.Text, model)</label>
+                <i class="i-arrow-d icon"></i>
+            </a>
+            <div class="collapse">
+                <ul class="submenu">
+
+
+                    @foreach (Item item in model.GetChildren())
+                    {
+                        Sitecore.Data.Fields.LinkField linkvalue = item.Fields[Constant.Link];
+
+                        Sitecore.Data.Fields.ImageField ImageItem = ((Sitecore.Data.Fields.ImageField)item.Fields[Constant.Image]);
+                        if (ImageItem != null && ImageItem.MediaItem != null)
+                        {
+                            ImageItemUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageItem.MediaItem);
+                            altText = ImageItem.Alt;
+                        }
+
+
+                        if (linkvalue != null)
+                        {
+                            linkurl = linkvalue.GetFriendlyUrl();
+
+                            if (linkvalue.LinkType == "internal")
+                            {
+
+                                <li class='@Html.Sitecore().Field("hideclass", item)'>
+                                    <a href="@linkurl">
+                                        @if (!string.IsNullOrEmpty(ImageItemUrl))
+                                        {
+                                            <img src="@ImageItemUrl" alt="@altText" class="img-hamburger">
+                                        }
+                                        @Html.Sitecore().Field(Constant.ShortTitle, item)
+                                    </a>
+                                </li>
+
+                            }
+                            else
+                            {
+                                <li class='@Html.Sitecore().Field("hideclass", item)'>
+                                    <a href="@linkurl" target="_blank">
+                                        @if (!string.IsNullOrEmpty(ImageItemUrl))
+                                        {
+                                            <img src="@ImageItemUrl" alt="@altText" class="img-hamburger">
+                                        }
+                                        @Html.Sitecore().Field(Constant.ShortTitle, item)
+                                    </a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <a href="@linkurl">
+                                @if (!string.IsNullOrEmpty(ImageItemUrl))
+                                {
+                                    <img src="@ImageItemUrl" alt="@altText" class="img-hamburger">
+                                }
+                                @Html.Sitecore().Field(Constant.ShortTitle, item)
+                            </a>
+                        }
+
+                    }
+
+
+
+                </ul>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+
+
+
+
+

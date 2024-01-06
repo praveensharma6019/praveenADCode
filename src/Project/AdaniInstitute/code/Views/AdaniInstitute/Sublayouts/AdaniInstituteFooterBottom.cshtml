@@ -1,0 +1,75 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@using Sitecore.Data.Items
+
+@{
+
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var element = Sitecore.Context.Database.GetItem(datasource);
+    var Footers = Sitecore.Context.Database.Items.GetItem("{AFEE32C9-D98B-4045-A3F8-A0E3CA53CDF5}");
+    var i = 1;
+    var j = 1;
+
+
+}
+<div class="col-lg-3 mb-lg-0 mb-3 sitemap_visible">
+    @foreach (Item item in element.GetChildren())
+    {
+        Sitecore.Data.Fields.LinkField link = item.Fields["Link"];
+        var url = link.GetFriendlyUrl();
+        <!-- if (i == 1 || i == 2) -->
+		if (i == 1)
+        {
+    <div><h5><a href="@url">@item.Fields["NavigationTitle"]</a></h5></div>
+   
+        }
+        if (item.HasChildren)
+        {
+    <div class="ft-submenu">
+        <h5><a href="@url">@item.Fields["NavigationTitle"]</a></h5>
+        <ul>
+            @foreach (Item items in item.GetChildren())
+            {
+                Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                var links = linkvalue.GetFriendlyUrl();
+
+                <li><a href="@links">@Html.Sitecore().Field("NavigationTitle", items)</a></li>
+
+            }
+        </ul>
+        <p><a href="#" class="btn btn-secondary d-none">Apply Online</a></p>
+    </div>
+        }
+        i++;
+    }
+</div>
+<div class="col-lg-3 mb-lg-0 mb-3 sitemap_visible">
+    @foreach (Item item in Footers.GetChildren())
+    {
+        Sitecore.Data.Fields.LinkField link = item.Fields["Link"];
+        var url = link.GetFriendlyUrl();
+      
+        if (j == 1 || j == 2)
+        {
+    <div><h5><a href="@url">@item.Fields["NavigationTitle"]</a></h5></div>
+        }
+        if (item.HasChildren)
+        {
+        <div class="ft-submenu">
+            <h5><a href="@url">@item.Fields["NavigationTitle"]</a></h5>
+            <ul>
+                @foreach (Item items in item.GetChildren())
+                {
+                    Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                    var links = linkvalue.GetFriendlyUrl();
+
+                    <li><a href="@links">@Html.Sitecore().Field("NavigationTitle", items)</a></li>
+
+                }
+            </ul>
+        </div>
+        }
+        j++;
+    }
+    </div>

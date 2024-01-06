@@ -1,0 +1,90 @@
+﻿@using Sitecore.Data.Fields
+@using Sitecore.Feature.Media
+@using Sitecore.Feature.Media.Repositories
+@using Sitecore.Foundation.Alerts
+@using Sitecore.Foundation.Alerts.Extensions
+@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Foundation.Theming.Extensions
+@using Sitecore.Resources.Media
+
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var homeItem = Sitecore.Context.Site;
+    var current = Sitecore.Context.Item;
+    List<Sitecore.Data.Items.Item> breadcrumbs1 = new List<Sitecore.Data.Items.Item>();
+
+
+
+    while (current != null)
+    {
+        if (current.Fields["Title"] != null)
+        {
+            breadcrumbs1.Add(current);
+
+            if (current.Fields["Title"].Value == "Guwahati Airport" || current.Fields["Title"].Value == "")
+            {
+                break;
+            }
+        }
+        current = current.Parent;
+    }
+
+    breadcrumbs1.Reverse();
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+    var i = 0;
+	var bCount = breadcrumbs1.Count();
+}
+<section class="inner-herobanner">
+	<div class="owl-carousel inner-herobanner-carousel">
+		<div class="item">
+		 @foreach (var item in model.GetChildren().ToList())
+                    {
+                        Sitecore.Data.Fields.ImageField BannerImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["BannerImage"]);
+                        string BannerImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(BannerImageField.MediaItem);
+
+                        Sitecore.Data.Fields.ImageField MobileImageField = ((Sitecore.Data.Fields.ImageField)item.Fields["MobileImage"]);
+                        string MobileImageUrl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(MobileImageField.MediaItem);
+
+                        Sitecore.Data.Fields.LinkField linkfld = item.Fields["ExploreLink"];
+                        var url = linkfld.GetFriendlyUrl();
+				<div class="cm_video_section d-none d-sm-block w-100"><video src="https://adanidotcom.azureedge.net/1280x490%20Landing%20page_New.mp4" loop muted autoplay playsinline></video></div>
+				<div class="cm_video_section d-sm-none d-block w-100"><video src="https://adanidotcom.azureedge.net/375x424%20M%20Web%20Landing%20Page_Latest.mp4" loop muted autoplay playsinline></video></div>
+					<div class="bannercontent">
+				<div class="container-fluid">
+					<div class="bannercontent_inner">
+					@Html.Sitecore().Field("Title", item)
+					</div>
+				</div>
+				</div>
+				  break;
+				}
+			</div>
+	</div>
+</section>
+
+
+<section class="mainSlider test ">
+    <div class="">
+        <div class="breadcrumb-sl-inner bg-white">
+            <div class="container-fluid">
+                <ul>
+                    <li><a href="/lgbia-guwahati-airport">Guwahati airport</a></li>
+                    @for (i = 1; i < breadcrumbs1.Count(); i++)
+                    {
+					if(i == bCount -1)
+						{
+						 <li><span>@breadcrumbs1[i].Fields["Title"].Value</span></li>
+						}
+						else
+						{
+                        <li><a href="@breadcrumbs1[i].Url()">@breadcrumbs1[i].Fields["Title"].Value</a></li>
+						}
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>

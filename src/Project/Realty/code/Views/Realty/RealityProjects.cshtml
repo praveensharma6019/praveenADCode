@@ -1,0 +1,182 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@model Sitecore.Mvc.Presentation.RenderingModel
+
+@{
+    var properties = Sitecore.Context.Site.GetStartItem();
+    var residentialproperty = properties.Axes.GetDescendants().Where(x => x.TemplateID == Templates.ResidentialProjects.ID).ToList();
+    var commercialproperty = properties.Axes.GetDescendants().Where(x => x.TemplateID == Templates.CommercialProperty.ID).ToList();
+
+    var ResidentialLink = Sitecore.Context.Database.GetItem(Templates.RealityProjectLinks.Residential);
+    var ResidentialLinkURL = ResidentialLink.LinkFieldUrl(Templates.Navigable.Fields.Link);
+    var CommercialLink = Sitecore.Context.Database.GetItem(Templates.RealityProjectLinks.Commercial);
+    var CommercialLinkURL = CommercialLink.LinkFieldUrl(Templates.Navigable.Fields.Link);
+}
+
+<section class="section bg-white">
+    <div class="container">
+        <ul class="nav nav-tabs justify-content-center pt-2" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">
+                    @Html.Sitecore().Dictionary("/Residential/Realty Project Residential", "Residential")
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">
+                    @Html.Sitecore().Dictionary("/Residential/Realty Project Commercial", "Commercial")
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            @if (residentialproperty != null)
+            {
+                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="large-12 columns">
+                        <div class="owl-carousel owl-theme" id="residential">
+                            @foreach (var item in residentialproperty)
+                            {
+                                var URLLink = string.Empty;
+                                var target = string.Empty;
+                                target = item.Fields[Templates.Navigable.Fields.ShowInNewTab].IsChecked() ? "_blank" : "";
+                                if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+                                {
+                                    URLLink = item.LinkFieldUrl(Templates.Navigable.Fields.Link).ToString();
+                                }
+                                else
+                                {
+                                    URLLink = item.Url();
+                                }
+                                <div class="item">
+                                    <div class="border-box">
+                                        <a href="@URLLink" target="@target">
+                                            @{
+                                                var itemproperty = item.GetMultiListValueItems(Templates.ResidentialProjects.Fields.ProjectStatus).FirstOrDefault();
+                                                var itemlocation = item.GetMultiListValueItems(Templates.ResidentialProjects.Fields.Location).FirstOrDefault();
+                                            }
+                                            <p>
+                                                @if (itemproperty != null)
+                                                {
+
+                                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemproperty)
+                                                }
+                                                else
+                                                {
+                                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                                                }
+                                            </p>
+                                            @Html.Sitecore().Field(Templates._HasPageContent.Fields.Image, item, new { @class = "img-fluid property-tile" })
+                                            <span class="act">@Html.Sitecore().Field(Templates.ResidentialProjects.Fields.SiteStatus, item)</span>
+                                            <div class="bg-gray py-3 pl-3 pr-3">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div class="property-hd">
+                                                            @Html.Sitecore().Field(Templates._HasPageContent.Fields.Title, item)
+                                                            @if (itemlocation != null)
+                                                            {
+                                                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)
+                                                            }
+                                                            else
+                                                            {
+                                                                @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 py-4">
+                                                        @Html.Sitecore().Field(Templates.ResidentialProjects.Fields.Logo, item, new { @class = "img-fluid" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="row py-5">
+                        <a href="@ResidentialLinkURL" class="btn-primary blueBtn my-3 my-md-0 ml-auto mr-auto" >@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, ResidentialLink)</a>
+                    </div>
+                </div>
+            }
+            @if (commercialproperty != null)
+            {
+                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    <div class="large-12 columns">
+                        <div class="owl-carousel owl-theme" id="commercial">
+                            @foreach (var item in commercialproperty)
+                            {
+                                var URLLink = string.Empty;
+                                var target = string.Empty;
+                                target = item.Fields[Templates.Navigable.Fields.ShowInNewTab].IsChecked() ? "_blank" : "";
+                                if (item.Fields[Templates.Navigable.Fields.IsExternalLink].IsChecked())
+                                {
+                                    URLLink = item.LinkFieldUrl(Templates.Navigable.Fields.Link).ToString();
+                                }
+                                else
+                                {
+                                    URLLink = item.Url();
+                                }
+                                <div class="item">
+                                    <div class="border-box">
+                                        <a href="@URLLink" target="@target">
+                                            <p>
+                                                @{
+                                                    var itemproperty = item.GetMultiListValueItems(Templates.CommercialProperty.Fields.ProjectStatus).FirstOrDefault();
+                                                    var itemlocation = item.GetMultiListValueItems(Templates.CommercialProperty.Fields.Location).FirstOrDefault();
+                                                }
+                                                @if (itemproperty != null)
+                                                {
+
+                                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemproperty)
+                                                }
+                                                else
+                                                {
+                                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                                                }
+                                            </p>
+                                            @*<img src="images/commercial/com-01.jpg" class="img-fluid property-tile" />*@
+                                            @Html.Sitecore().Field("Image", item, new { @class = "img-fluid property-tile" })
+                                            <div class="bg-gray py-3 pl-3 pr-3">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div class="property-hd">
+                                                            @Html.Sitecore().Field("Title", item)
+                                                            <span>
+                                                                @if (itemlocation != null)
+                                                                {
+                                                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, itemlocation)
+                                                                }
+                                                                else
+                                                                {
+                                                                    @Html.Sitecore().Field(Templates.SingleText.Fields.Text, string.Empty)
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 py-4">
+                                                        @*<img src="images/commercial-property/inspire-bkc.png" class="img-fluid">*@
+                                                        @Html.Sitecore().Field(Templates.CommercialProperty.Fields.Logo, item, new { @class = "img-fluid" })
+                                                    </div>
+                                                </div>
+                                                <ul class="ul-bullet comm-tiles-bullets">
+                                                    @Html.Sitecore().Field(Templates.HasPageContent.Fields.Body, item)
+                                                </ul>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                    <div class="row pt-4">
+                        <a href="@CommercialLinkURL" class="btn-primary blueBtn my-3 my-md-0 ml-auto mr-auto">@Html.Sitecore().Field(Templates.LinkMenuItem.Fields.ShortDesc, CommercialLink)</a>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>
+<!-- /Residential Comm Tab -->

@@ -1,0 +1,72 @@
+@using Sitecore
+@using Sitecore.Resources.Media
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@model Sitecore.Mvc.Presentation.RenderingModel
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@using Sitecore.AdaniCapital.Website.Helper;
+
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+	var imgurls = Helper.ImageUrl("Image", model);
+	
+	
+	
+	
+}
+
+<div class="header--top_bar">
+
+
+	@Html.Sitecore().Placeholder("header-top-bar")	
+	
+	<div class="top_bar_nav">
+		<a href="#businesses">
+            <img src="@imgurls" alt="Business" /> @Html.Sitecore().Field("Text", model)
+        </a>
+		
+		
+				<div class="business_dropdown">
+					@foreach (Item item in model.GetChildren().ToList())
+						{
+							var subItemModel = Sitecore.Context.Database.GetItem(item.ID);
+							var childCount = subItemModel.GetChildren().Count();
+							
+							
+							
+							if (childCount > 0)
+							{
+								foreach (Item subItem in subItemModel.GetChildren().ToList())
+								{
+									var url = Helper.LinkUrl(subItem.Fields["LinkUrl"]);
+									var imgurl = Helper.ImageUrl("LinkImage", subItem);
+									var href= "javascript:void(0)";
+									if(url !="")
+									{
+									  href = url;
+									}
+									if (!string.IsNullOrWhiteSpace(imgurl))
+									{
+										<a href="@href" class="@Html.Sitecore().Field("Class", subItem)" target="_blank">
+											<i><img src="@imgurl" alt="@Html.Sitecore().Field("Title", subItem)"> </i>
+											<label>@Html.Sitecore().Field("Title", subItem)</label>
+										</a>
+
+									}
+
+								}
+							}
+						}
+			</div>
+	</div>
+	
+	
+        
+</div>
+
+
+
+

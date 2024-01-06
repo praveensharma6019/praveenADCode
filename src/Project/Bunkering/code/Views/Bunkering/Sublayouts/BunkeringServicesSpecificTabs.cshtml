@@ -1,0 +1,130 @@
+﻿@using Sitecore
+@using Sitecore.Mvc
+@using System.Text.RegularExpressions
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var parent = Sitecore.Context.Database.GetItem(datasource);
+    var TabTitle = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["TabTitle"];
+    // var TabDescription = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.Parameters["TabDescription"];
+    var formattedTabTitle = "";
+    if (!string.IsNullOrEmpty(TabTitle))
+    {
+        formattedTabTitle = TabTitle.Replace(" ", "-").ToLower();
+    }
+
+
+
+}
+<section class="bg-gray py-5" id="@formattedTabTitle">
+    <div class="container">
+
+
+        @if (datasource != null)
+        {
+            var i = 0;
+            var j = 0;
+            var k = 0;
+            var divID = "";
+            <h2 class="heading pl-4 mb-4">@TabTitle</h2>
+            @*<p class="mb-3">@TabDescription</p>*@
+            <div class="">
+                <ul class="nav nav-tabs tabs-section d-md-flex d-none">
+                    @foreach (var child in parent.Children.ToList())
+                    {
+                        var replacestr = Regex.Replace(@Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                        if (i == 0)
+                        {
+
+                            <li class="nav-item">
+                                <a class="nav-link active" data-toggle="tab" role="tab" aria-selected="true" href="#@replacestr">@Html.Sitecore().Field("Title", child)</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" role="tab" aria-selected="true" href="#@replacestr">@Html.Sitecore().Field("Title", child)</a>
+                            </li>
+                        }
+                        i++;
+                    }
+                </ul>
+            </div>
+            <div class="tab-content p-4 d-md-flex d-none" id="address-tab-container">
+                @foreach (var child in parent.Children.ToList())
+                {
+                    if (j == 0)
+                    {
+                        divID = Regex.Replace(@Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+
+                        <div class="tab-pane fade show active" id="@divID" role="tabpanel" aria-labelledby="home-tab">
+                            @Html.Sitecore().Field("Body", child)
+                            <div id="drpdwnControl" class="@Html.Sitecore().Field("Title", child).ToString().Replace(" ", "")">
+                                @Html.Sitecore().Placeholder(@Html.Sitecore().Field("Title", child).ToString().Replace(" ", ""))
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        divID = Regex.Replace(@Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+
+                        <div class="tab-pane fade show" id="@divID" role="tabpanel" aria-labelledby="home-tab">
+                            @Html.Sitecore().Field("Body", child)
+                            <div id="drpdwnControl" class="@Html.Sitecore().Field("Title", child).ToString().Replace(" ", "")">
+                                @Html.Sitecore().Placeholder(@Html.Sitecore().Field("Title", child).ToString().Replace(" ", ""))
+                            </div>
+                        </div>
+                    }
+                    j++;
+                }
+            </div>
+            //Mobile View
+
+            <div class="d-md-none d-block accordion-tabs">
+                @foreach (var child in parent.Children.ToList())
+                {
+                    var replacestr = Regex.Replace(@Html.Sitecore().Field("Title", child).ToString(), "[^a-zA-Z0-9_]+", "").ToLower();
+                    if (k == 0)
+                    {
+                        <div class="card-header" role="tab" id="sheading-@replacestr">
+                            <h5 class="mb-0">
+                                <a class="collapsed" data-toggle="collapse" href="#s-@replacestr" aria-expanded="true" aria-controls="s-@replacestr">
+                                    @Html.Sitecore().Field("Title", child)
+                                </a>
+                            </h5>
+                        </div>
+
+                        <div id="s-@replacestr" class="collapse show bg-white" role="tabpanel" data-parent="#content" aria-labelledby="sheading-@replacestr">
+                            <div class="card-body">
+                                @Html.Sitecore().Field("Body", child)
+                                <div id="drpdwnControl" class="@Html.Sitecore().Field("Title", child).ToString().Replace(" ", "")">
+                                    @Html.Sitecore().Placeholder(@Html.Sitecore().Field("Title", child).ToString().Replace(" ", ""))
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="card-header" role="tab" id="sheading-@replacestr">
+                            <h5 class="mb-0">
+                                <a class="collapsed" data-toggle="collapse" href="#s-@replacestr" aria-expanded="false" aria-controls="s-@replacestr">
+                                    @Html.Sitecore().Field("Title", child)
+                                </a>
+                            </h5>
+                        </div>
+
+                        <div id="s-@replacestr" class="collapse bg-white" role="tabpanel" data-parent="#content" aria-labelledby="heading-@replacestr">
+                            <div class="card-body">
+                                @Html.Sitecore().Field("Body", child)
+                                <div id="drpdwnControl" class="@Html.Sitecore().Field("Title", child).ToString().Replace(" ", "")">
+                                    @Html.Sitecore().Placeholder(@Html.Sitecore().Field("Title", child).ToString().Replace(" ", ""))
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    k++;
+                }
+            </div>
+            ///////////////
+        }
+    </div>
+</section>

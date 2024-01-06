@@ -1,0 +1,85 @@
+ @using Sitecore
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Data.Fields
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    /**/
+
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var model = Sitecore.Context.Database.GetItem(datasource);
+
+    MultilistField Select = model.Fields["Select"];
+    var selectitem = Select.GetItems();
+
+    var count = selectitem.Count();
+
+    Sitecore.Data.Fields.ImageField thumbnail = ((Sitecore.Data.Fields.ImageField)model.Fields["__Thumbnail"]);
+    var thumbimg = Sitecore.Resources.Media.MediaManager.GetMediaUrl(thumbnail.MediaItem);
+
+}
+
+<section class="strategy d-md-block position-relative">
+    <div class="container">
+        <div class="section-title">
+            <h1>@Html.Sitecore().Field("Title", model)</h1>
+        </div>
+        <div class="row pt-5">
+            <div class="col-lg-3 mb-5">
+                <div class="strat strat-1 h-100">
+                    <p>
+                        @Html.Sitecore().Field("Description", model)
+                    </p>
+                </div>
+            </div>
+
+            @foreach (var element in selectitem)
+            {
+                Sitecore.Data.Fields.ImageField ImageField = ((Sitecore.Data.Fields.ImageField)element.Fields["Image"]);
+                if (count == 0)
+                {
+                    <div class="col-lg-3 position-relative mb-5">
+                        <div class="strat strat-2 h-100 position-relative">
+                            <div class="stat-bg">
+                                <h5>@Html.Sitecore().Field("CountTitle", element)</h5>
+                            </div>
+                            <div class="stat-text">
+                                @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                {
+                                    var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                    <img src=@imgurl alt="" class="img-fluid" width="70">
+                                }
+                                else
+                                {
+                                    <img src=@thumbimg alt="" class="img-fluid" width="70">
+                                }
+                                <p class="pt-3">@Html.Sitecore().Field("Description", element)</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (count > 0)
+                {
+                    <div class="col-lg-3 mb-5">
+                        <div class="strat strat-3 h-100 position-relative">
+                            <div class="stat-bg">
+                                <h5>@Html.Sitecore().Field("CountTitle", element)</h5>
+                            </div>
+                            <div class="stat-text">
+                                @if (ImageField.MediaItem != null && ImageField.MediaItem.ToString() != "")
+                                {
+                                    var imgurl = Sitecore.Resources.Media.MediaManager.GetMediaUrl(ImageField.MediaItem);
+                                    <img src=@imgurl alt="" class="img-fluid" width="70">
+                                }
+                                else
+                                {
+                                    <img src=@thumbimg alt="" class="img-fluid" width="70">
+                                }
+                                <p class="pt-3">@Html.Sitecore().Field("Description", element)</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>

@@ -1,0 +1,129 @@
+﻿@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@{
+    Sitecore.Data.Items.Item contextItem = Sitecore.Context.Item;
+    var info = Session.GetAndRemove("UpdateCGRFMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+    if (info != null)
+    {
+        Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageRegisterComplaintRevamp, info);
+    }
+}
+
+<div class="col s12 l8 offset-l1 section-container">
+    <header class="section-header">
+        <h1>@Html.Raw(contextItem["Title"])</h1>
+        <p>@Html.Raw(contextItem["Body"])</p>
+    </header>
+    <div class="section-wrapper custom_accrdion rounded">
+        <div class="accordion">
+            <ul class="collapsible collapsible-accordion" id="AEMLRevampComplaintLanding">
+                <li class="complaintregisterli" id="RegisterNewComplaintRevamp">
+                    @Html.Sitecore().Placeholder("RegisterNewComplaintRevamp")
+                </li>
+                <li id="TrackComplaintRevamp">
+                    @Html.Sitecore().Placeholder("TrackComplaintRevamp")
+                </li>
+                <li id="TrackCGRFComplaintsRevamp">
+                    @Html.Sitecore().Placeholder("TrackCGRFComplaintsRevamp")
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if (readCookie('ActiveComplaintLi') != null) {
+            $('#' + readCookie('ActiveComplaintLi')).addClass('active').siblings().removeClass('active');
+            $('#' + readCookie('ActiveComplaintLi')).find('.collapsible-header').addClass('hide');
+            $('#' + readCookie('ActiveComplaintLi')).find('.collapsible-body').show();
+        }
+    })
+
+    $('#AEMLRevampComplaintLanding li').click(function () {
+        createCookie("ActiveComplaintLi", $(this).attr('id'), "");
+    })
+
+    function createCookie(name, value, days) {
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            var expires = "; expires=" + date.toGMTString();
+        }
+        else var expires = "";
+
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+
+    function readCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) {
+                return c.substring(nameEQ.length, c.length);
+            }
+        }
+        return null;
+    }
+</script>
+
+
+@{
+    var Elemodel = Session["UserLogin"] as Sitecore.Feature.Accounts.Models.DashboardModel;
+}
+
+@if (Elemodel != null)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('.main-header').removeAttr('id');
+
+            $('#leftPanelNav li').removeClass('active');
+
+            //last part of current url using regrex
+            //var currentUrl = location.pathname.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+            var currentUrl = 'complaint-login';
+            $('#leftPanelSubMenu a').each(function () {
+                var elementUrl = $(this).attr('href').split('/');
+                elementUrl = elementUrl[elementUrl.length - 1].toLowerCase();
+                if (elementUrl != undefined) {
+                    elementUrl = elementUrl.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+                    if (elementUrl == currentUrl) {
+                        $(this).addClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+                        $(this).closest('li').addClass('active').show();
+                        //$(this).attr("href", "javascript:void(0)");
+                        $(this).attr("disabled", "disabled");
+                    }
+                }
+            })
+
+        })
+    </script>
+}
+else
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#leftPanelNav li').removeClass('active');
+
+            //last part of current url using regrex
+            //var currentUrl = location.pathname.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+            var currentUrl = 'complaint-login';
+            $('#leftPanelSubMenu a').each(function () {
+                var elementUrl = $(this).attr('href').split('/');
+                elementUrl = elementUrl[elementUrl.length - 1].toLowerCase();
+                if (elementUrl != undefined) {
+                    elementUrl = elementUrl.replace(/.*\/(\w+)\/?$/, '$1').toLowerCase();
+                    if (elementUrl == currentUrl) {
+                        $(this).addClass('active brand-gradient-parent brand-gradient-left brand-gradient-thin outlined');
+                        $(this).closest('li').addClass('active').show();
+                        //$(this).attr("href", "javascript:void(0)");
+                        $(this).attr("disabled", "disabled");
+                    }
+                }
+            })
+
+        });
+    </script>
+}

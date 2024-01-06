@@ -1,0 +1,567 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.GreenPowerOptInModel
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>*@
+
+<div class="pageContent position-relative myAccountBanner changeofnameregistration opt-greenpower" style="margin-top: -2rem;margin-bottom: -2rem;background: #e1e5e8;">
+    <div class="">
+        <div class="" id="mainContent">
+            <div class="breadcrumb-parent">
+                <div class="container pt-5">
+                    @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                    {
+                        <div class="form-group row">
+                            <input id="message" type="hidden" value="@Session["Message"].ToString()" />
+                        </div>
+                    }
+
+                    <div class="row" style="padding: 0rem 0rem;">
+                        <div class="col-lg-12 my-4" style="margin-top: 2rem !important;">
+                            <div class="accServicesOuter">
+                                <div class="breadcrumbBar breadcrumbBar-esg">
+                                    <ul>
+                                        <li class=""><a href="/">Home</a></li>
+                                        <li class="">
+                                            <a href="/greenpoweropthome">Green Power Tariff</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <h2 class="txt-orange">Green Power Tariff Opt-In</h2>
+                                <p>&nbsp;</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="content_section">
+                <div class="container">
+
+                    @if (Model.IsUpdateMobile)
+                    {
+                        <div class="row">
+                            <div class="col-lg-12 ml-auto">
+                                <div class="form_namechange mb-0">
+                                    <div class="px-4">
+                                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmGreenPowerOptInRegistration1" }))
+                                        {
+                                            @Html.HiddenFor(m => m.CANumber)
+                                            @Html.AddUniqueFormId()
+                                            @Html.AntiForgeryToken()
+                                            @Html.ValidationSummary(true)
+                                            if (!Model.IsOTPSend)
+                                            {
+                                                <input type="hidden" id="updateMobilehdn" value="1" />
+                                                <div class="">
+                                                    <h3 class="pl-0 pt-0 mb-3 text-green" style="min-height: auto;">Dear Customer,</h3>
+                                                    <p>Please enter your details below to update mobile number:</p>
+                                                    <br />
+                                                    <div class="input-group mb-3">
+                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/AccountNo", "Adani Electricity Account Number")</label>
+                                                        @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control mx-250", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                    <div>@Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")</div>
+                                                    <div class="input-group mb-3">
+                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/MeterNo", "Meter Number")</label>
+                                                        @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control reset-control mx-250", @autocomplete = "off", required = "required" })
+                                                    </div>
+                                                    <div>@Html.ValidationMessageFor(x => x.MeterNumber, "", new { @class = "help-block" }, "p")</div>
+                                                    <div class="input-group mb-3">
+                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/MobileNo", "Mobile Number")</label>
+                                                        @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control mx-250", @autocomplete = "off", required = "required" })
+                                                    </div>
+                                                    <div>@Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")</div>
+
+                                                    <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                        <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                        <div class="row captcha_box">
+                                                            <div class="col-lg-6">
+                                                                <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="input-group-append">
+                                                        <input type="submit" class="btn btn-success" name="UpdateMobileSendOtp" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Validate Account Button text", "Submit")" />
+                                                        <a class="btn btn-secondary ml-2" href="/greenpoweropt">Cancel</a>
+                                                    </div>
+
+                                                </div>
+                                            }
+                                            else if (Model.IsOTPSend && !Model.IsvalidatOTP)
+                                            {
+                                                <input type="hidden" id="updateMobilehdn" value="2" />
+                                                <div class="">
+                                                    <h3 class="pl-0 pt-0 mb-3 text-green" style="min-height: auto;">Dear Customer,</h3>
+                                                    <p>Please enter your details below to update mobile number:</p>
+                                                    <br />
+                                                    <div class="input-group mb-3">
+                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/AccountNo", "Adani Electricity Account Number")</label>
+                                                        @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control mx-250", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                    <div>@Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")</div>
+                                                    <div class="input-group mb-3">
+                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/MeterNo", "Meter Number")</label>
+                                                        @Html.TextBoxFor(x => x.MeterNumber, new { @class = "form-control reset-control mx-250", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                    <div>@Html.ValidationMessageFor(x => x.MeterNumber, "", new { @class = "help-block" }, "p")</div>
+                                                    <div class="input-group mb-3">
+                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/MobileNo", "Mobile Number")</label>
+                                                        @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control mx-250", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                    </div>
+                                                    <div>@Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")</div>
+
+
+                                                    <div class="input-group mb-3">
+                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/OTPNumber", "Enter OTP")</label>
+                                                        @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control mx-250", id = "OTPNumber", @autocomplete = "off", required = "required" })
+                                                    </div>
+                                                    <div>@Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block mb-3" }, "p")</div>
+
+                                                    <div class="input-group">
+                                                        <input type="submit" class="btn btn-success" name="UpdateMobileValidateOTP" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/ValidateOTP", "Validate")" />
+                                                        <a class="btn btn-secondary ml-2" href="/greenpoweropt">Cancel</a>
+                                                    </div>
+
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    }
+                    else if (Model.IsProcessingDone)
+                    {
+                        <div class="row">
+                            <div class="col-lg-12 ml-auto">
+                                <div class="form_namechange mb-0">
+                                    <div class="px-4">
+                                        <div class="panel text-center mb-1 p-4 p-lg-5 mx-650 text-left">
+                                            <p class="txt-md text-green text-left mb-4" style="font-weight: 700;max-width: 650px;margin: auto;/* color: #77c776 !important; */">We thank you for opting for Green Energy, a notable contribution towards the fight against climate change and environmental degradation.</p>
+                                            <p class="text-left">Back to home: <a href="/" class="btn btn-green"><span class="fa fa-home text-green" style=""></span></a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmGreenPowerOptInRegistration" }))
+                        {
+                            @Html.AddUniqueFormId()
+                            @Html.AntiForgeryToken()
+                            @Html.ValidationSummary(true)
+                            <div class="row">
+                                @if (!Model.IsvalidatOTP && !Model.IsSubmit && !Model.IsIPledge && !Model.IsAccepted)
+                                {
+                                    <div class="col-lg-12 ml-auto">
+                                        <div class="form_namechange mb-0">
+                                            <div class="row no-gutters p-0">
+                                                <div class="col-lg-8">
+                                                    <h3 class="pl-0 pt-0 mb-3 text-green" style="min-height: auto;">Dear Customer,</h3>
+                                                    <p><b>Welcome to the Green Club!</b></p>
+                                                    <p>Contribute to the environment by converting to Renewable Energy now! </p>
+                                                    <p>Please enter your details below to opt-in:</p>
+                                                    <br />
+                                                    @if (!Model.IsvalidatAccount)
+                                                    {
+                                                        <div class="input-group mb-3">
+                                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/AccountNo", "Adani Electricity Account Number")</label>
+                                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control mx-250", id = "AccountNo", @autocomplete = "off", required = "required" })
+                                                        </div>
+                                                        <div>@Html.ValidationMessageFor(x => x.CANumber, "", new { @class = "help-block" }, "p")</div>
+                                                        <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                                            <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                                            <div class="row captcha_box">
+                                                                <div class="col-lg-6">
+                                                                    <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="input-group-append">
+                                                            <input type="submit" class="btn btn-success" name="ValidateCA" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Validate Account Button text", "Submit")" />
+                                                        </div>
+                                                    }
+                                                    else if (Model.IsvalidatAccount && !Model.IsOTPSend)
+                                                    {
+                                                        <div class="input-group mb-3">
+                                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                                            @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control mx-250", id = "AccountNo", @readonly = "readonly" })
+                                                        </div>
+                                                        <div class="input-group mb-0">
+                                                            <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                                            @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control mx-250", id = "MobileNumber", @readonly = "readonly" })
+                                                        </div>
+                                                        <div class="mx-250 text-right">
+                                                            <input type="submit" class="btn btn-link txt-orange pl-0 text-underline mb-3 txt-sm" name="UpdateMobileNumber" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/UpdateMobileNumber", "Update Mobile Number")" />
+                                                        </div>
+                                                        @Html.ValidationMessageFor(x => x.MobileNumber, "", new { @class = "help-block" }, "p")
+                                                        <p class="txt-orange input-group mb-3">OTP will be sent to your mobile number</p>
+
+                                                        <div class="input-group">
+                                                            <input type="submit" class="btn btn-success" name="SendOTP" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Proceed", "Get OTP")" />
+                                                            <a class="btn btn-secondary ml-2" href="/greenpoweropt">Cancel</a>
+                                                        </div>
+                                                    }
+                                                    else if (Model.IsvalidatAccount && Model.IsOTPSend)
+                                                    {
+
+                                                        <div class="row">
+                                                            <label for="" class="w-100 pl-3">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/AccountNo", "Enter 9 digit Consumer Account Number")</label>
+                                                            <div class="col-lg-6 col-md-6">
+                                                                <div class="input-group mb-3">
+
+                                                                    @Html.TextBoxFor(x => x.CANumber, new { @class = "form-control reset-control mx-250", id = "AccountNo", @readonly = "readonly" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-6 col-md-8">
+                                                                <div class="input-group mb-3">
+                                                                    <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/MobileNumberNo", "Registered Mobile Number")</label>
+                                                                    @Html.TextBoxFor(x => x.MobileNumber, new { @class = "form-control reset-control", id = "MobileNumber", @readonly = "readonly" })
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-4 col-md-4">
+                                                                <div class="input-group mb-3">
+                                                                    <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/OTPNumber", "Enter OTP")</label>
+                                                                    @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber", @autocomplete = "off", required = "required" })
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                        <div>@Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block mb-3" }, "p")</div>
+                                                        <div class="input-group">
+                                                            <input type="submit" class="btn btn-success" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/ValidateOTP", "Validate")" />
+                                                            <a class="btn btn-secondary ml-2" href="/greenpoweropt">Cancel</a>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="col-lg-4 ml-auto d-none">
+                                                    <img src="-/media/9DFA0A602013417B8413E5A138391ED2.ashx" class="img-fluid d-lg-block d-none">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.IsvalidatOTP && !Model.IsAccepted && !Model.IsSubmit)
+                                {
+                                    @Html.HiddenFor(m => m.CANumber)
+                                    <div class="col-lg-12 ml-auto">
+                                        <div class="form_namechange mb-0">
+                                            <div class="px-4">
+                                                <h2 class="pl-0 pt-0 mb-3 txt-md" style="font-weight: bold;">Go Green with Adani Electricity Green Tariff !!!</h2>
+                                                <p class="mb-3 mx-650" style="font-size:20px;font-style:italic;">Contribute for a better environment by just paying additional Rs 0.66/unit over your existing energy charges. </p>
+                                                <p><span>Yes, I wish to opt for @Html.DropDownListFor(x => x.SelectedPercentage, new SelectList(Model.PercentageSelectList, "Value", "Text", Model.SelectedPercentage), "Select", new { @class = "form-control mx-100 d-inline-block mx-2", id = "ddlSelectedPercentage", required = "required" }) % green power tariff, from</p>
+                                                <br />
+                                                <div class="form-group">
+                                                    <div class="form-check form-check-inline radio_btn">
+                                                        @Html.RadioButtonFor(model => model.ActivateBillingPeriod, "1", new { id = "ActivateBillingPeriodCurrent", @class = "form-check-input rbApplicantType", @checked = "checked", required = "required" })
+                                                        <label class="form-check-label label-multiline" for="ActivateBillingPeriodCurrent">Current billing Cycle</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline radio_btn">
+                                                        @Html.RadioButtonFor(model => model.ActivateBillingPeriod, "2", new { id = "ActivateBillingPeriodNext", @class = "form-check-input rbApplicantType ml-2", required = "required" })
+                                                        <label class="form-check-label label-multiline" for="ActivateBillingPeriodNext">Next billing Cycle</label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group pl-4">
+                                                    <input type="checkbox" name="termsCb" class="form-check-input" id="termsCb">
+                                                    <label class="form-check-label" for="termsCb"><b>I hereby declare that I am the owner/authorized representative for the above account no. @Model.CANumber and I am aware that I will be charged Rs.0.66/unit over and above existing energy charges as prescribed by MERC.</b></label>
+                                                    <p class="field-validation-error help-block" id="docErrorMessage"></p>
+                                                </div>
+                                                <div class="input-group-append">
+                                                    <input type="submit" class="btn btn-success" name="Accept" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Accept", "Review")" />
+                                                    <a class="btn btn-secondary ml-2" href="/greenpoweropt">Cancel</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.IsvalidatOTP && Model.IsAccepted)
+                                {
+                                    @Html.HiddenFor(m => m.CANumber)
+                                    @Html.HiddenFor(m => m.SelectedPercentage)
+                                    <div class="col-lg-12 ml-auto">
+                                        <div class="form_namechange mb-0">
+                                            <div class="px-4">
+                                                <h2 class="pl-0 pt-0 mb-3 txt-md" style="font-weight: bold;">Go Green with Adani Electricity Green Tariff !!!</h2>
+                                                <div class="panel mb-1">
+                                                    <p class="mb-3 mx-650" style="font-size:20px;font-style:italic;">Contribute for a better environment by just paying additional Rs 0.66/unit over your existing energy charges. </p>
+                                                    <br />
+                                                    <p>Please review your selection:</p>
+                                                    <p>You have opted for @Model.SelectedPercentage % green power tariff, from</p>
+                                                    <br />
+                                                    <div class="form-group">
+                                                        <div class="form-check form-check-inline radio_btn">
+                                                            @Html.RadioButtonFor(model => model.ActivateBillingPeriod, "1", new { id = "ActivateBillingPeriodCurrent", @class = "form-check-input rbApplicantType", @checked = "checked", required = "required", disabled = "disabled" })
+                                                            <label class="form-check-label label-multiline" for="ActivateBillingPeriodCurrent">Current billing Cycle</label>
+                                                       </div>
+													   <div class="form-check form-check-inline radio_btn">
+                                                            @Html.RadioButtonFor(model => model.ActivateBillingPeriod, "2", new { id = "ActivateBillingPeriodNext", @class = "form-check-input rbApplicantType ml-2", required = "required", disabled = "disabled" })
+                                                            <label class="form-check-label label-multiline" for="ActivateBillingPeriodNext">Next billing Cycle</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group pl-4">
+                                                        <input type="checkbox" disabled="disabled" checked="checked" name="termsCb" class="form-check-input" id="termsCb">
+                                                        <label class="form-check-label" for="termsCb"><b>I hereby declare that I am the owner/authorized representative for the above account no. @Model.CANumber and I am aware that I will be charged Rs.0.66/unit over and above existing energy charges as prescribed by MERC.</b></label>
+                                                        <p class="field-validation-error help-block" id="docErrorMessage"></p>
+                                                    </div>
+                                                    <div class="input-group-append">
+                                                        <input type="submit" class="btn btn-success mr-2" name="Submit" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Submit", "Confirm")" />
+                                                        <input type="submit" class="btn btn-secondary" value="Cancel" name="CancelSubmit" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else if (Model.IsSubmit)
+                                {
+                                    @Html.HiddenFor(m => m.CANumber)
+                                    <div class="col-lg-12 ml-auto">
+                                        <div class="form_namechange mb-0 p-3">
+                                            <div class="panel mb-0">
+                                                <p class="text-green"><b>Dear Customer</b>,</p>
+                                                <br />
+                                                <p class="mb-2">Take this opportunity to share with the world your Green Energy pledge.</p>
+                                                <p class="mb-4 mx-650">Click on the pledge button below to capture your picture and share with us.We will let the world know of your contribution to green energy.</p>
+                                                <input type="submit" class="btn btn-success" name="IPledge" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/IPledge", "I Pledge")" />
+                                                <a href="#ThankYouMessage" class="btn btn-secondary" data-toggle="modal" data-target="#ThankYouMessage" style="color: #fff;">Not Interested</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        if (Model.IsIPledge)
+                        {
+                            <div class="row">
+                                <div class="col-lg-12 ml-auto">
+                                    <div class="form_namechange mb-0">
+                                        <div class="col-lg-12 ml-auto">
+                                            <div id="captureDiv">
+                                                <h2 class="pl-0 pt-0 mb-3 txt-md" style="font-weight: bold;">My Pledge:</h2>
+                                                <p class="mb-2 mx-650">
+                                                    I @Model.ConsumerName care for the environment and believe in creating healthier, cleaner and safer world for all our families.
+                                                    Small actions can bring about big changes, I pledge to recycle, conserve, keep environment clean and use Green power with Adani Electricity’s Green Tariff.
+                                                <p class="mb-5">
+                                                    I have done my bit and urge you all to join me for a greener tomorrow #switchtogreen
+                                                </p>
+												<!-- <div class="row"> -->
+													<!-- <div class="col-lg-6"> -->
+														<!-- <div> -->
+															<!-- <p class="mb-4 liveCapture"><u>Live Camera</u></p> -->
+															<!-- <div class="liveCapture"> -->
+																<!-- <div id="webcam"> -->
+																<!-- </div> -->
+																<!-- <input type="button" class="btn btn-dark" id="btnCapture" value="Capture" /> -->
+															<!-- </div> -->
+														<!-- </div> -->
+													<!-- </div> -->
+													<!-- <div class="col-lg-6"> -->
+														<!-- <div> -->
+															<!-- <p class="mb-4 liveCapture"><u>Captured Picture</u></p> -->
+															<!-- <div class="liveCapture"> -->
+																<!-- <div class="position-relative" style="width: 600px; height: 440px; background: #fff;top: -10px;"> -->
+																	<!-- <div id="frameDiv"><img src="/GreenPower/frame.png" /></div> -->
+																	<!-- <img id="imgCapture" /> -->
+																<!-- </div> -->
+																<!-- <input type="button" class="btn btn-dark" id="btnUpload" value="Save" disabled="disabled" /> -->
+															<!-- </div> -->
+														<!-- </div> -->
+													<!-- </div> -->
+												<!-- </div> -->
+												<div class="table-responsive">
+                                                <table border="0" cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <th class="liveCapture" align="center"><u>Live Camera</u></th>
+                                                        <th class="liveCapture" align="center"><u>Captured Picture</u></th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="liveCapture">
+                                                            <div id="webcam">
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="position-relative" style="width: 600px; height: 440px; background: #fff;top: -10px;">
+                                                                <div id="frameDiv"><img src="/GreenPower/frame.png" /></div>
+                                                                <img id="imgCapture" />
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="liveCapture" align="center">
+                                                            <input type="button" class="btn btn-dark" id="btnCapture" value="Capture" />
+                                                        </td>
+                                                        <td class="liveCapture" align="center">
+                                                            <input type="button" class="btn btn-dark" id="btnUpload" value="Save" disabled="disabled" />
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            </div>
+                                            <div class="mt-3" id="showDiv" style="display:none;">
+                                                @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { @class = "form-signin", id = "frmGreenPowerOptInRegistration1" }))
+                                                {
+                                                    @Html.HiddenFor(m => m.CANumber)
+                                                    @Html.AddUniqueFormId()
+                                                    @Html.AntiForgeryToken()
+                                                    @Html.ValidationSummary(true)
+                                                    <img src="" id="userPic" />
+                                                    <p class="pt-2 pb-4">
+                                                        <a class="btn btn-success" href="@Url.Action("DownloadImage",new { accountNumber = Model.CANumber })">
+                                                            <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                                        </a>
+                                                    </p>
+                                                    <div class="">
+                                                        <input type="checkbox" name="termsCbPledge" class="" id="termsCbPledge" readonly="readonly">
+                                                        <label class="" for="termsCbPledge">I accept and hereby express my interest in switching to green energy sources.</label>
+                                                    </div>
+                                                    <p class="field-validation-error help-block" id="docErrorMessage"></p>
+                                                    <p class="mt-3 mb-3 mx-650">I hereby give my consent to Adani Electricity to share my pledge Image on social platforms to support growth of green energy for a better environment.</p>
+                                                    <br />
+                                                    <div class="row">
+                                                        <div class="col-lg-8">
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="input-group mb-3">
+                                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Enter your Twitter id", "Enter your Twitter id ") <span class="txt-sm">(optional)</span></label>
+                                                                        @Html.TextBoxFor(x => x.TwitterId, new { @class = "form-control reset-control", id = "AccountNo", @autocomplete = "off" })
+                                                                    </div>
+                                                                    <div>@Html.ValidationMessageFor(x => x.TwitterId, "", new { @class = "help-block" }, "p")</div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="input-group mb-3">
+                                                                        <label for="" class="w-100">@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Enter your Facebook id", "Enter your Facebook id ") <span class="txt-sm">(optional)</span></label>
+                                                                        @Html.TextBoxFor(x => x.FacebookId, new { @class = "form-control reset-control", id = "AccountNo", @autocomplete = "off" })
+                                                                    </div>
+                                                                    <div>@Html.ValidationMessageFor(x => x.FacebookId, "", new { @class = "help-block" }, "p")</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+
+
+                                                    <div class="input-group-append ">
+                                                        <input type="submit" class="btn btn-success mr-2" name="SubmitCapture" value="@Html.Sitecore().Dictionary("/GreenPowerOpt/Register/Submit", "Submit")" />
+                                                        <input type="button" class="btn btn-secondary" value="Cancel" name="Cancel" />
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal-->
+<div class="modal fade modal-popup" id="TermsAndConditionsModal" tabindex="-1" role="dialog" aria-labelledby="TermsAndConditionsModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>Terms And Conditions</h5>
+                <div class="modal-popup__content">
+                    <div class="panel">
+
+                        <p>
+                            Once opted for installment payment for paying Security deposit. your next bill's amount payable will include your EMI amount and the current bill for the month. These are interest free instalments as per MERC  (Electricity Supply Code and Standards of Performance of Distribution Licensees including Power Quality)
+                            Regulations, 2021 ) if paid within the respective instalment due dates.
+                        </p>
+                        <hr />
+                        <p>
+                            This is a voluntary payment option, and it cannot be altered once opted.
+                        </p>
+                        <hr />
+                        <p>
+                            For detailed explanation on billing calculation, please refer your online bill copy via My Account or Elektra on adanielectricity.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade modal-popup" id="ThankYouMessage" tabindex="-1" role="dialog" aria-labelledby="ThankYouMessage" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 class="text-green">Thank You</h5>
+                <div class="modal-popup__content">
+                    <div class="panel">
+                        <p>We thank you for opting for Green Energy, a notable contribution towards the fight against climate change and environmental degradation.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-success" href="/greenpoweropthome">Ok</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="message_modal" class="modal fade show" role="dialog" style="display: none; padding-right: 17px;" data-id="">
+    <div class="modal-dialog modal-dialog-centered">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <p>Message</p>
+                <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            <div class="modal-body">
+                @if (Session["Message"] != null && !string.IsNullOrEmpty(Session["Message"].ToString()))
+                {
+                    <div class="form-group row">
+                        <label for="" class="col-sm-12 col-form-label txt-green">@Session["Message"].ToString()</label>
+                        @*@if (Session["AlertMessage"] != null && !string.IsNullOrEmpty(Session["AlertMessage"].ToString()))
+                            {
+                                <p class="col-sm-12 col-form-label txt-orange">@Session["AlertMessage"].ToString()</p>
+                            }*@
+                    </div>
+                    Session["Message"] = null;
+                    Session["AlertMessage"] = null;
+                }
+            </div>
+            <button type="button" style="padding-bottom:10px;" class="close" data-dismiss="modal">Ok</button>
+        </div>
+
+    </div>
+</div>
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>

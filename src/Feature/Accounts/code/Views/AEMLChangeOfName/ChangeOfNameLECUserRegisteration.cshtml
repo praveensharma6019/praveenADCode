@@ -1,0 +1,376 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using Sitecore.Feature.Accounts
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@model Sitecore.Feature.Accounts.Models.ChangeOfNameLECUserRegistrationModel
+@{
+    var LECLoginPage = (Sitecore.Context.Database.GetItem(Templates.LECPortal.LECUserLoginPage)).Url();
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+
+<link href="/styles/Electricity/bootstrap.min.css" rel="stylesheet" />
+<link href="/styles/ElectricityNew/adani-electricity.css" rel="stylesheet" />
+<link href="/styles/Electricity/adani-electricity-responsive.css" rel="stylesheet" />
+
+@using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmRegister", @class = "form-signin" }))
+{
+    @Html.AddUniqueFormId()
+    @Html.AntiForgeryToken()
+    <div class="pageContent position-relative myAccountBanner changeofnameregistration" style="margin-top: -2rem;margin-bottom: -2rem;background: #e1e5e8;">
+        <div class="bannerImg" style="z-index: 0;"></div>
+        <div class="container LEC_reg">
+            <div class="row">
+                <div class="col-lg-8 mr-auto pt-3 mb-4 mt-2">
+                    <div class="card card-outline-secondary p-3">
+                        @*<div class="row">
+            <div class="col-md-8"><h4 class="txt-orange mb-3">User Registration</h4></div>
+            <div class="col-md-4 txt-right"><a class="btn btn-link" href="/lecportallogin/lecportalfirsttimeregistration">First time registration</a></div>
+        </div>
+        <div class="row">
+            <div class="col-md-5"><h4 class="txt-orange mb-3"></h4></div>
+            <div class="col-md-7 txt-right"><a class="btn btn-link" href="/lecportallogin/lecloginreview">First time registration track application</a></div>
+        </div>*@
+                        <h4 class="txt-orange mb-3">User Registration</h4>
+                        <p class="pb-md-3 float-sm-right small text-right">fields marked <span class="required">*</span> are mandatory</p>
+                        <div class="clearfix"></div>
+                        <!-- Sign up Form -->
+                        <form class="pt-3">
+                            @if (Model.ValidateRegistrationNumber == false)
+                            {
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group pt-md-2  pr-lg-2 @Html.ValidationErrorFor(x => x.InputByUser, "has-error")">
+                                            <label for="" class="form-label mb-2">
+                                                @Html.Sitecore().Dictionary("/CON/LEC Registration/Input", "Enter LEC License No. / Registered Mobile No. / Registered E-mail ID")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="row">
+                                                <div class="col-lg-10">
+                                                    @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control reset-control", id = "LECInput", @autocomplete = "off", required = "required" })
+                                                    @Html.ValidationMessageFor(x => x.InputByUser, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12 captcha_box">
+                                        <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                            <label for="" class="">@Html.Sitecore().Dictionary("/Common/Captcha", "Captcha") <span class="required">*</span></label>
+                                            <div class="row captcha_box">
+                                                <div class="col-lg-6">
+                                                    @*@Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                                        @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")*@
+                                                    <div class="g-recaptcha" data-sitekey="6LdYFWgUAAAAALdZf_sC8BRN2uLPzcsxb2p192rf"></div>
+                                                    @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row pt-md-3 mb-0">
+                                    <div class="col-12">
+                                        <div class="ml-auto text-right">
+                                            <input type="submit" class="btn btn-primary" name="ValidateLEC" value="@Html.Sitecore().Dictionary("/CON/LEC Registration/Button/Validate LEC", "Validate")" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.ValidateRegistrationNumber == true && Model.ValidateOTP == false)
+                            {
+                                <div class="row">
+                                    @if (Model.IsValidatedByRegistrationNumber)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/RegistrationNumber", "Registration Number")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control reset-control", id = "LECRegistrationNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model.IsValidatedByMobileNumber)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/Mobile Number", "Mobile Number")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control reset-control", id = "LECRegistrationNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else if (Model.IsValidatedByEmailId)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/Email Id", "Email Id")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control reset-control", id = "LECRegistrationNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-lg-6">
+                                        <div class="form-group pt-md-2">
+                                            <label for="" class="form-label">
+                                                @Html.Sitecore().Dictionary("/CON/LEC Registration/LECName", "Name")
+                                            </label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.LECName, new { @class = "form-control reset-control", id = "LECName", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (!Model.IsValidatedByMobileNumber)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/LECMobileNumber", "Mobile Number")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.LECMobileNumber, new { @class = "form-control reset-control", id = "LECMobileNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!Model.IsValidatedByEmailId)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/LECEmailId", "Email Id")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.LECEmailId, new { @class = "form-control reset-control", id = "LECEmailId", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-lg-6">
+                                        <div class="form-group pt-md-2">
+                                            <label for="" class="form-label">
+                                                @Html.Sitecore().Dictionary("/CON/LEC Registration/LECEmailId", "Validity")
+                                            </label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.LECValidity, new { @class = "form-control reset-control", id = "LECEmailId", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.OTPNumber, "has-error")">
+                                            <label for="" class="form-label">
+                                                @Html.Sitecore().Dictionary("/CON/LEC Registration/Enter OTP", "Enter OTP")
+                                                <span class="required">*</span>
+                                            </label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.OTPNumber, new { @class = "form-control reset-control", id = "OTPNumber", @autocomplete = "off", required = "required" })
+                                                @Html.ValidationMessageFor(x => x.OTPNumber, "", new { @class = "help-block" }, "p")
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row pt-md-3 mb-0">
+                                    <div class="col-12">
+                                        <div class="ml-auto text-right">
+                                            <input type="submit" class="btn btn-primary" name="ValidateOTP" value="@Html.Sitecore().Dictionary("/CON/LEC Registration/Button/Validate OTP", "Validate")" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.ValidateOTP == true)
+                            {
+                                <div class="row">
+                                    @if (Model.IsValidatedByRegistrationNumber)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/RegistrationNumber", "Registration Number")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control reset-control", id = "LECRegistrationNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (Model.IsValidatedByMobileNumber)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/RegistrationNumber", "Mobile Number")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control reset-control", id = "LECRegistrationNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (Model.IsValidatedByEmailId)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/RegistrationNumber", "Email Id")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.InputByUser, new { @class = "form-control reset-control", id = "LECRegistrationNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-lg-6">
+                                        <div class="form-group pt-md-2">
+                                            <label for="" class="form-label">
+                                                @Html.Sitecore().Dictionary("/CON/LEC Registration/LECName", "Name")
+                                            </label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.LECName, new { @class = "form-control reset-control", id = "LECName", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (!Model.IsValidatedByMobileNumber)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/LECMobileNumber", "Mobile Number")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.LECMobileNumber, new { @class = "form-control reset-control", id = "LECMobileNumber", @autocomplete = "off", required = "required", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (!Model.IsValidatedByEmailId)
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/LECEmailId", "Email Id")
+                                                </label>
+                                                <div class="">
+                                                    @Html.TextBoxFor(x => x.LECEmailId, new { @class = "form-control reset-control", id = "LECEmailId", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-lg-6">
+                                        <div class="form-group pt-md-2">
+                                            <label for="" class="form-label">
+                                                @Html.Sitecore().Dictionary("/CON/LEC Registration/LECEmailId", "Validity")
+                                            </label>
+                                            <div class="">
+                                                @Html.TextBoxFor(x => x.LECValidity, new { @class = "form-control reset-control", id = "LECEmailId", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="my-2">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <span class="">Please select the username of your choice, between the following 3 options</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-group pt-md-2">
+                                            <div class="form-check form-check-inline">
+                                                @Html.RadioButtonFor(model => model.UserNameType, "1", new { id = "ApplicantTypeRegistrationNumber", @class = "form-check-input rbSelectUserName" })
+                                                <label class="form-check-label" for="UserNameTypeRegistrationNumber">License No</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                @Html.RadioButtonFor(model => model.UserNameType, "2", new { id = "ApplicantTypeMobileNumber", @class = "form-check-input rbSelectUserName" })
+                                                <label class="form-check-label" for="UserNameTypeMobileNumber">Registered Mobile No</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                @Html.RadioButtonFor(model => model.UserNameType, "3", new { id = "ApplicantTypeEmailId", @class = "form-check-input rbSelectUserName" })
+                                                <label class="form-check-label" for="UserNameTypeEmailId">Registered E-mail ID</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(Model.LECUserName))
+                                    {
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/User Name", "User Name")
+                                                    <span class="required">*</span>
+                                                </label>
+                                                <div class="">
+                                                    <input class="form-control reset-control" readonly="readonly" type="text" name="Number" id="Number" value="@Model.LECUserName" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.LECPassword, "has-error")">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/Common/Password", "Password")
+                                                    <span class="required">*</span>
+                                                </label>
+                                                <div class="">
+                                                    @Html.PasswordFor(x => x.LECPassword, new
+                                               {
+                                                   @class = "form-control reset-control",
+                                                   id = "LECPassword",
+                                                   @autocomplete = "off",
+                                                   required = "required"
+                                               })
+                                                    @Html.ValidationMessageFor(x => x.LECPassword, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="form-group pt-md-2 @Html.ValidationErrorFor(x => x.LECConfirmPassword, "has-error")">
+                                                <label for="" class="form-label">
+                                                    @Html.Sitecore().Dictionary("/CON/LEC Registration/Confirm Password", "Re-type Password")
+                                                    <span class="required">*</span>
+                                                </label>
+                                                <div class="">
+                                                    @Html.PasswordFor(x => x.LECConfirmPassword, new
+                                               {
+                                                   @class = "form-control reset-control",
+                                                   id = "LECConfirmPassword",
+                                                   @autocomplete = "off",
+                                                   required = "required"
+                                               })
+                                                    @Html.ValidationMessageFor(x => x.LECConfirmPassword, "", new { @class = "help-block" }, "p")
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                if (!string.IsNullOrEmpty(Model.LECUserName))
+                                {
+                                    <div class="form-group row pt-md-3 mb-0">
+                                        <div class="col-12">
+                                            <div class="ml-auto text-right">
+                                                <input type="submit" class="btn btn-primary" name="Submit" value="@Html.Sitecore().Dictionary("/CON/LEC Registration/Button/Submit", "Submit")" />
+                                                <a class="btn btn-secondary" href="@LECLoginPage">@Html.Sitecore().Dictionary("/CON/LEC Registration/Button/Submit", "Cancel")</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Content -->
+    </div>
+}
+<script src="@Html.Sitecore().Dictionary("/Common/CaptchaURL", "https://www.google.com/recaptcha/api.js")"></script>
+<script src="/scripts/Accounts/ChangeOfNameOnBill.js"></script>

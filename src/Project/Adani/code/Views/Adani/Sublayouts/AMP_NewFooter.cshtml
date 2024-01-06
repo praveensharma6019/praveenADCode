@@ -1,0 +1,115 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc
+@using Sitecore.Data.Items;
+@using Sitecore.Data.Fields;
+@model RenderingModel
+@{
+
+
+    var models = Sitecore.Context.Database.Items.GetItem("{CA766E58-43FF-4388-8DAE-F30CADEB80D1}");
+
+
+    var newfooter = Sitecore.Context.Database.Items.GetItem("{70396CC7-A9D5-4C14-8C2E-5BB6FC065FEF}");
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)newfooter.Fields["BackgroundImage"]);
+    string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+    var i = 1;
+    var j = 1;
+}
+
+
+
+<ul class="ft-social">
+    @if (newfooter != null)
+    {
+        if (newfooter.GetChildren() != null)
+        {
+            foreach (Item item in newfooter.GetChildren())
+            {
+                Sitecore.Data.Fields.LinkField itemslinkvalues = item.Fields["Link"];
+                var itemslinks = itemslinkvalues.GetFriendlyUrl();
+                var icons = item.Fields["Icon"];
+                <li><a href="@itemslinks" target="_blank"><i class="@icons"> </i></a></li>
+            }
+        }
+    }
+</ul>
+<amp-img width=349 height=107 src="@url"></amp-img>
+<p class="sitemap-btn" on="tap:AMP.setState({visible: !visible})" role="sitemap" tabindex="0"><a href="#sitemap-block" class="btn-gradient">Sitemap <span class="fa fa-angle-right"></span></a></p>
+<div class="toggle_submenu" id="sitemap-block" [class]="visible ? 'show' : 'hide'" class="hide">
+    @foreach (var item in models.GetChildren().ToList())
+    {
+        Sitecore.Data.Fields.LinkField linkvalues = item.Fields["Link"];
+        var linkUrls = linkvalues.GetFriendlyUrl();
+        if (i == 1)
+        {
+            <div class="ft-submenu">
+                <h5><a href="@linkUrls">@item.Fields["NavigationTitle"]</a></h5>
+                <ul class="ft-business">
+                    @foreach (var items in item.GetChildren().ToList())
+                    {
+                        Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                        var linkUrl = linkvalue.GetFriendlyUrl();
+                        <li><a href="@linkUrl">@items.Fields["NavigationTitle"] </a></li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="ft-submenu">
+                <h5><a href="@linkUrls">@item.Fields["NavigationTitle"]</a></h5>
+
+                <ul>
+                    @foreach (var items in item.GetChildren().ToList())
+                    {
+                        if (item.HasChildren)
+                        {
+                            Sitecore.Data.Fields.LinkField linkvalue = items.Fields["Link"];
+                            var linkUrl = linkvalue.GetFriendlyUrl();
+                            <li><a href="@linkUrl">@items.Fields["NavigationTitle"]</a></li>
+                        }
+                    }
+                </ul>
+
+            </div>
+            if (i == 2)
+            {
+                break;
+            }
+
+        }
+        i++;
+    }
+        <div class="ft-submenu">
+            @foreach (var item in models.GetChildren().ToList())
+            {
+                Sitecore.Data.Fields.LinkField linkvalue = item.Fields["Link"];
+                var linkUrl = linkvalue.GetFriendlyUrl();
+                if (!item.HasChildren)
+                {
+                    <h5><a href="@linkUrl">@item.Fields["NavigationTitle"]</a></h5>
+                }
+            }
+        </div>
+    </div>
+	<div class="footer_bar">
+		<p>&copy 2021 Adani Group</p>
+		<ul class="ft-policy-links">
+			<li>
+				<a href="https://www.adani.com/privacy-policy">
+					Privacy Policy
+				</a>
+			</li>
+			<li>
+				<a href="https://www.adani.com/disclaimer">
+					Disclaimer
+				</a>
+			</li>
+			<li>
+				<a href="https://www.adani.com/terms-and-conditions">
+					Terms &amp; Conditions
+				</a>
+			</li>
+		</ul>
+	</div>

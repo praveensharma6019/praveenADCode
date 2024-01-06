@@ -1,0 +1,61 @@
+@using Sitecore.Mvc.Presentation
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var elements = Sitecore.Context.Database.GetItem(datasource);
+    Sitecore.Data.Fields.LinkField linkField = elements.Fields["MediaLink"];
+    var NavigateUrl = linkField.Url;
+    Sitecore.Data.Fields.ImageField imgField = ((Sitecore.Data.Fields.ImageField)elements.Fields["MediaImage"]);
+
+    string url = Sitecore.Resources.Media.MediaManager.GetMediaUrl(imgField.MediaItem);
+
+}
+
+
+<section class="bg-gray notification_section">
+    <div class="container-fluid">
+        <div class="notification_carousel">
+            <div class="item">
+                <div class="row" data-aos="fade-up" data-aos-duration="2000">
+                    <div class="col-lg-7">
+                        <div class="notification_carousel-desc">
+                            <h2>   @Html.Sitecore().Field("MediaTitle", elements)</h2>
+                            <div class="owl-carousel covid_carousel">
+                                @foreach (var item in elements.GetChildren().ToList())
+                                {
+                                    <div class="item">
+                                        @Html.Sitecore().Field("Summary", item)
+                                    </div>
+                                }
+
+                            </div>
+                         
+                        </div>
+                    </div>
+                    <div class="col-lg-5 d-lg-block d-none">
+                        <div class="notification_carousel-thumb" data-toggle="modal" data-target="#video-2">
+                            <img src="@url" class="img-fluid w-auto ml-auto" loading=lazy>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="modal video" id="video-2" data-keyboard="false" data-backdrop="static" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="CloseModal2('video-2')" data-dismiss="modal">x</button>
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="embed-container">
+                    <iframe id="v-2" src="" data-src="@NavigateUrl" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/Video Modal-->
+</div>

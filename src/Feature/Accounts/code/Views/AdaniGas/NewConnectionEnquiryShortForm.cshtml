@@ -1,0 +1,153 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+@using Sitecore.Feature.Accounts
+@model Sitecore.Feature.Accounts.Models.NewConnectionModel
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>*@
+
+<div class="pageContent">
+    <div class="container">
+        <div class="mt-3">
+            <h3 class="pb-2">Welcome to Adani Gas Limited</h3>
+            <p class="my-2">Please share your details below and we will get in touch with you.</p>
+        </div>
+        <div class="">
+            <div class="my-lg-3 py-lg-3">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" id="li_inquire">
+                        <a class="nav-link active" data-toggle="tab" href="#inquiry">New Connection Enquiry</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="inquiry" role="tabpanel">
+                        @using (Html.BeginRouteForm(MvcSettings.SitecoreRouteName, FormMethod.Post, new { id = "frmEnquiry", @class = "form-signin" }))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.AddUniqueFormId()
+                            @Html.HiddenFor(x => x.CampaignID)
+                            @Html.HiddenFor(m => m.FormURL, new { @Value = HttpContext.Current.Request.Url.AbsoluteUri })
+                            @Html.HiddenFor(m => m.ResponseURL, new { @Value = "/NewConnection-ThankYou" })
+                            if (!string.IsNullOrEmpty(Model.ReturnViewMessage))
+                            {
+                                <p class="col-md-7 txt-red" id="errorSection">
+                                    @Model.ReturnViewMessage
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="col-md-7" id="errorSection">
+
+                                </p>
+                            }
+                            <div class="row">
+                                <div class="col-12" id="messageSection">
+                                    @{
+                                        var info = Session.GetAndRemove("UpdateMessage") as Sitecore.Foundation.Alerts.Models.InfoMessage;
+                                        if (info != null)
+                                        {
+                                            Html.RenderPartial(Sitecore.Foundation.Alerts.Constants.InfoMessageView, info);
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <p class="pb-md-3 float-sm-right">fields marked <span class="required">*</span> are mandatory</p>
+                            <div class="clearfix"></div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.FullName, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Name", "Name")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.FullName, new { @class = "form-control reset-control", id = "NewConName", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.FullName, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Mobile, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Mobile No", "Mobile No.")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextBoxFor(x => x.Mobile, new { @class = "form-control reset-control", id = "NewConMobile", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.Mobile, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.City, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/City", "City")
+                                            <span class="required">*</span>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.DropDownListFor(x => Model.City, new SelectList(Model.CityList, "Value", "Text"), htmlAttributes: new { @class = "form-control reset-control", id = "NewConCity", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.City, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group row pt-md-2 @Html.ValidationErrorFor(x => x.Area, "has-error")">
+                                        <label for="" class="col-sm-5 col-md-5 col-form-label">
+                                            @Html.Sitecore().Dictionary("/Accounts/Select Area", "Area")
+                                            <span class="required">*</span>
+                                            <p style="font-size:12px;">(E.g - Bodakdev, Sector-22 etc.)</p>
+                                        </label>
+                                        <div class="col-sm-7 col-md-7">
+                                            @Html.TextAreaFor(x => x.Area, new { @class = "form-control reset-control", id = "Area", required = "required" })
+                                            @Html.ValidationMessageFor(x => x.Area, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="termsCb1" class="form-check-input" id="termsCb1" required>
+
+                                        <label class="form-check-label mb-2" for="termsCb1"><b><span class="required">*</span>Disclaimer –</b> Our company representative may contact you / visit you for further process. Submitting an enquiry does not entitle a PNG connection. Providing connection will be subject to feasibility assessment, technical clearance, statutory and other permissions etc.</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group @Html.ValidationErrorFor(x => x.Captcha, "has-error")">
+                                        <label for="" class="">@Html.Sitecore().Dictionary("/Accounts/Register/Captcha", "Captcha") <span class="required">*</span></label>
+                                        <div class="">
+                                            @Html.Captcha("Try another", "Enter the text you see above:", 4, "Is required field", true)
+                                            @Html.ValidationMessageFor(x => x.Captcha, "", new { @class = "help-block" }, "p")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row pt-md-3 mb-0">
+                                <div class="col-12">
+                                    <button id="btnSubmit" type="submit" class="btn btn-primary">@Html.Sitecore().Dictionary("/Accounts/Submit", "Submit")</button>
+                                    <a href="javascript:void(0);" id="a_reload" class="btn btn-secondary">
+                                        @Html.Sitecore().Dictionary("/Accounts/Reset", "Reset")
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- /Page Content -->
+</div>

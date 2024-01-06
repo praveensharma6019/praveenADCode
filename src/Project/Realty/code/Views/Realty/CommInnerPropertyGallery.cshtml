@@ -1,0 +1,39 @@
+﻿@using Sitecore.Data
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Realty.Website
+@using Sitecore.Resources.Media;
+@using Sitecore.Data.Items;
+@using Sitecore
+@model Sitecore.Mvc.Presentation.RenderingModel
+@{
+    var datasource = Sitecore.Mvc.Presentation.RenderingContext.Current.Rendering.DataSource;
+    var models = Sitecore.Context.Database.GetItem(datasource);
+}
+
+<!-- Gallery -->
+<section class="section" id="glry">
+    <div class="bg-images">
+        @Html.Sitecore().Field(Templates.SingleText.Fields.Image, models)
+    </div>
+    <div class="container box-center">
+        <h2 class="mt-0 txt-center mb-4">@Html.Sitecore().Field(Templates.SingleText.Fields.Text, models)</h2>
+        <div class="large-12 columns">
+            <div class="carousel-wrap">
+                <div class="bootleggers owl-carousel" id="gallery">
+                    @foreach (var item in models.Axes.GetDescendants())
+                    {
+                        Sitecore.Data.Fields.ImageField imageField = item.Fields[Templates.HasMediaImage.Fields.Image];
+                        if (imageField?.MediaItem != null)
+                        {
+                            var image = new MediaItem(imageField.MediaItem);
+                            var imageUrl = StringUtil.EnsurePrefix('/', MediaManager.GetMediaUrl(image));
+                            <a class="item popup" href="@imageUrl"><img src="@imageUrl" class="img-fluid" alt="Gallery"></a>
+                        }
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- /Gallery -->

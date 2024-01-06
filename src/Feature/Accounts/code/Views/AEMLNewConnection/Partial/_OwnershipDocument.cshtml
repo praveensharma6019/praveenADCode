@@ -1,0 +1,110 @@
+﻿@using Sitecore.Foundation.Dictionary.Extensions
+@using Sitecore.Foundation.SitecoreExtensions.Extensions
+@using Sitecore.Mvc.Configuration
+@using CaptchaMvc;
+@using CaptchaMvc.HtmlHelpers;
+
+@model Sitecore.Feature.Accounts.Models.NewConnectionApplication
+@{
+    var documentList = new List<Sitecore.Feature.Accounts.NEWCON_DOCUMENTMASTER>();
+    var objID = new List<Sitecore.Feature.Accounts.NEW_CON_APPLICATION_DOCUMENT_DETAIL>();
+    var sno = 1;
+    var isjoint = Model.ApplicantType;
+    if (Model.DocumentList != null && Model.DocumentList.Count > 0)
+    {
+        documentList = Model.DocumentList.FindAll(d => d.DOCTY.Trim() == "OD");
+        documentList.Sort((cv1, cv2) => cv1.DESCRIPTION.CompareTo(cv2.DESCRIPTION));
+
+        objID = Model.GetExistingDocuments.FindAll(cv => cv.DocumentTypeCode.Contains("OD".ToString()));
+        objID.Sort((cv1, cv2) => cv1.CreatedDate.Value.CompareTo(cv2.CreatedDate.Value));
+    }
+}
+@if (documentList != null && documentList.Count > 0)
+{
+    <div class="bg-white p-3">
+        <label>Ownership Document<span class="required">*</span>&nbsp;&nbsp;<button type="button" class="btn btn-primary txt-sm add_ownership_document" data-target="#docsupload">+ Add</button></label>
+    </div>
+    
+    <input type="hidden" value="Any one Identity Document" id="manddocname_ID" />
+    <div class="table-responsive my-3">
+        <table class="table table-bordered mb-0 txt-sm">
+            <thead class="">
+                <tr>
+                    <th valign="middle" style="min-width: 80px;">Sr. No</th>
+                    <th valign="middle" style="min-width: 250px;">Document Type</th>
+                    <th valign="middle" style="min-width: 300px;">Upload File</th>
+                    <th valign="middle" style="min-width: 150px;">Document No.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Applicant - 1 -->
+                @for (int i = 1; i <= 5; i++)
+                {
+                    Sitecore.Feature.Accounts.NEW_CON_APPLICATION_DOCUMENT_DETAIL obj = null;
+                    if (i==1 && objID.Count > 0)
+                    {
+                        obj = objID[0];
+                    }
+                    else if (i == 2 && objID.Count > 1)
+                    {
+                        obj = objID[1];
+                    }
+                    else if (i == 3 && objID.Count > 2)
+                    {
+                        obj = objID[2];
+                    }
+                    else if (i == 4 && objID.Count > 3)
+                    {
+                        obj = objID[3];
+                    }
+                    else if (i == 5 && objID.Count > 4)
+                    {
+                        obj = objID[4];
+                    }
+                    //var obj = (objID.Count > 0 && i == 1) ? objID[0] : (objID.Count > 1 && i == 2 ? objID[1] : null);
+                    var style = (i == 1 || i == 2 ? "" : (obj!=null?"":"display:none"));
+                    <tr id="TR_OWNERDOC_@i" style="@style">
+                        <td>
+                            @sno
+                            <input type="hidden" name="HDNOWNERDOC_@i" id="HDNOWNERDOC_@i" value="@(obj!=null?obj.Id.ToString():"")" />
+                        </td>
+                        <td>
+                            <div class="row no-gutters">
+                                <div class="col-10">
+                                    <select name="OWNERDOC_@i" id="OWNERDOC_@i" class="form-control" @(i == 1 ? "required" : "")>
+                                        <option value="">Select Ownership Documment</option>
+                                        @foreach (var doc in documentList)
+                                        {
+                                            <option value="@doc.DOCID" @(obj != null && obj.DocumentType == doc.DOCID.ToString() ? "selected" : "")>@doc.DESCRIPTION</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="docerror" style="display:none;" id="DIV_OWNERDOC_@i">Please choose different ownership document</div>
+                                @if (i == 1)
+                                {
+                                    <div class="col-2">
+                                        <span class="required ml-2">*</span>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-group mb-0">
+                                <input type="file" id="OWNERFILE_@i" name="OWNERFILE_@i" onchange="ValidateFile(this);" class="form-control cou" />
+                                @if (obj != null)
+                                {
+                                    <div class="d-block mt-2">
+                                        <a class="txt-orange ownerfile_@i" href="@Url.Action("DownloadFile", new { id = obj.Id })">
+                                            <i class="fa fa-download mr-2"></i> Download Uploaded Document
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                    sno = sno + 1;
+                }
+            </tbody>
+        </table>
+    </div>
+}
